@@ -22,6 +22,7 @@ namespace GeotimeConnectWebApi.Models
         public string? Usuario { get; set; }
         public DateTime Fecha_Just { get; set; }
         public string? Dias_Apl { get; set; }
+        public long? SolicitudId { get; set; }
 
     }
 }
