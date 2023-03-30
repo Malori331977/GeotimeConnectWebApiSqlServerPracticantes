@@ -12,9 +12,9 @@ namespace GeoTimeConnectWebApi.Models
         public String? Tarjeta { get; set; }
         public String? Identificacion { get; set; }
         public String? IdDepartamento { get; set; }
-        public char Estado { get; set; }
+        public char? Estado { get; set; }
         public String? IdCCosto { get; set; }
-        public DateTime Fecha_Ingreso { get; set; }
+        public DateTime? Fecha_Ingreso { get; set; }
         public String? Email { get; set; }
         public int? IdGrupo { get; set; }
         public int? IdHorario { get; set; }

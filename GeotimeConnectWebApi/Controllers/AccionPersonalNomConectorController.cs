@@ -16,25 +16,18 @@ namespace GeoTimeConnectWebApi.Controllers
     [ApiController]
     [Route("[controller]")]
     [Authorize]
-    public class AccionPersonalController : Controller
+    public class AccionPersonalNomConectorController : Controller
     {
         private readonly IGeoTimeConnectService _repoGT;
-        public AccionPersonalController(IGeoTimeConnectService repoGT)
+        public AccionPersonalNomConectorController(IGeoTimeConnectService repoGT)
         {
             _repoGT = repoGT;
         }
 
-        [HttpGet("{idplanilla}/{fechainicio}/{fechafin}")]
-        public async Task<IEnumerable<cAccionPersonal>> Get(string idplanilla, DateTime fechainicio, DateTime fechafin) => await _repoGT.GetAccionPersonal(idplanilla, fechainicio, fechafin);
-
-        [HttpGet("{idplanilla}/{fechainicio}/{fechafin}/{usuario}")]
-        public async Task<IEnumerable<cAccionPersonal>> Get(string idplanilla, DateTime fechainicio, DateTime fechafin,string usuario) => await _repoGT.GetAccionPersonal(idplanilla, fechainicio, fechafin,usuario);
-
-
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] IEnumerable<cAccionPersonal> accionPersonal)
         {
-            EventResponse respuesta = await _repoGT.Sincronizar_AccionPersonal(accionPersonal);
+            EventResponse respuesta = await _repoGT.Sincronizar_AccionPersonalNomConector(accionPersonal);
 
             if (respuesta.Id != "0")
                 return BadRequest(respuesta);

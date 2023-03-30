@@ -9,7 +9,8 @@ using GeoTimeConnectWebApi.Models.Utils;
 using System.Data.Entity.Infrastructure;
 using System.Text;
 using LibEncripta;
-
+using GeoTimeConnectWebApi.Models;
+using Seguridad_Geotime;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,8 +27,8 @@ string SQLConnectionString = config.GetConnectionString("SqlServerDataBaseContex
 //var sr = Encripta.getEncryptTripleDES("Mloria");
 //var psr = Encripta.getEncryptTripleDES("Listo123@");
 
-var sPassword = Encripta.getEncryptTripleDES("f0d81b01ad108987352b1cd7c1b9fc9b683635fe6b19598040f250430cbf863a");
-var sClientId = Encripta.getEncryptTripleDES("6dc71b09e7f4885aeb3551eae81351f9c81d6dfc82d2042a064bc5165337fd98");
+//var sPassword = Encripta.getEncryptTripleDES("f0d81b01ad108987352b1cd7c1b9fc9b683635fe6b19598040f250430cbf863a");
+//var sClientId = Encripta.getEncryptTripleDES("6dc71b09e7f4885aeb3551eae81351f9c81d6dfc82d2042a064bc5165337fd98");
 
 string userSQL = Encripta.getDecryptTripleDES(config.GetConnectionString("UserSQL"));
 string passSQL = Encripta.getDecryptTripleDES(config.GetConnectionString("PassSQL"));
@@ -36,7 +37,10 @@ string basedatos = config.GetConnectionString("DBName");
 
 SQLConnectionString = SQLConnectionString.Replace("BaseDatos", basedatos)
                                          .Replace("UsuarioBDSQL", userSQL)
-                                         .Replace("PassBDSQL", passSQL);
+.Replace("PassBDSQL", passSQL);
+
+//funciones.funciones_geo funcionesGeo = new();
+//var pass = funcionesGeo.Global_encrypt("Inicio123@");
 
 // Add services to the container.
 builder.Services.AddControllers();
@@ -90,8 +94,10 @@ var app = builder.Build();
 
 
 app.UseSwagger();
-//app.UseSwaggerUI();
-app.UseSwaggerUI(c => { c.SwaggerEndpoint("/swagger/v1/swagger.json", "GeoTimeConnectWebApi"); });
+
+string urlApi = appSettingsSection.GetValue<string>("UrlApi");
+
+app.UseSwaggerUI(c => { c.SwaggerEndpoint($"{urlApi}swagger/v1/swagger.json", "GeoTimeConnectWebApi"); });
 app.UseHttpsRedirection();
 
 app.UseAuthentication();

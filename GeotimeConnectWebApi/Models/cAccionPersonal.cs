@@ -15,14 +15,17 @@ namespace GeotimeConnectWebApi.Models
         public DateTime Inicio { get; set; }
         public DateTime Fin { get; set; }
         public int IdIncidencia { get; set; }
-        public char Estado { get; set; }
-        //public int? IdAccion { get; set; }
+        public char Estado { get; set; }        
+        public int? IdAccion { get; set; }
         public String? Comentario { get; set; }
         public int Dias { get; set; }
         public string? Usuario { get; set; }
         public DateTime Fecha_Just { get; set; }
         public string? Dias_Apl { get; set; }
         public long? SolicitudId { get; set; }
+
+        [NotMapped]
+        public string? Nom_Conector { get; set; }
 
     }
 }

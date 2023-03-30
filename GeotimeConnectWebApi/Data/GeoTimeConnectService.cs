@@ -13,6 +13,7 @@ using GeotimeConnectWebApi.Models;
 using GeoTimeConnectWebApi.Models.Request;
 using GeoTimeConnectWebApi.Models.Response;
 using Seguridad_Geotime;
+using System.Runtime.CompilerServices;
 
 namespace GeoTimeConnectWebApi.Data
 {
@@ -20,6 +21,7 @@ namespace GeoTimeConnectWebApi.Data
     {
         private readonly SqlServerDataBaseContext _context;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private string _schema = "";
 
         public GeoTimeConnectService(IHttpContextAccessor httpContextAccessor)
         {
@@ -44,6 +46,7 @@ namespace GeoTimeConnectWebApi.Data
                     break;
 
             }
+            _schema = schema;
             _context = SchemaChangeDbContext.GetSchemaChangeDbContext(schema, bdname);
         }
 
@@ -55,13 +58,71 @@ namespace GeoTimeConnectWebApi.Data
             List<cAccionPersonal> accionPersonal = new();
             try
             {
-                accionPersonal = await _context.Acciones_Personal
-                                       .Where(e=>e.IdPlanilla== IdPlanilla && e.Inicio==FechaInicio && e.Fin==FechaFin)
-                                       .ToListAsync();
+                accionPersonal = await (from ap in _context.Acciones_Personal.Where(e=>e.IdPlanilla== IdPlanilla && e.Inicio>=FechaInicio && e.Fin<=FechaFin)
+                                       join inc in _context.Incidencias on ap.IdIncidencia equals inc.Id
+                                       select new cAccionPersonal
+                                       {
+                                           IdRegistro = ap.IdRegistro,
+                                           IdPlanilla = ap.IdPlanilla,
+                                           IdNumero = ap.IdNumero,
+                                           Inicio = ap.Inicio,
+                                           Fin = ap.Fin,
+                                           IdIncidencia = ap.IdIncidencia,
+                                           Estado = ap.Estado,
+                                           IdAccion = ap.IdAccion,
+                                           Comentario = ap.Comentario,
+                                           Dias = ap.Dias,
+                                           Usuario = ap.Usuario,
+                                           Fecha_Just = ap.Fecha_Just,
+                                           Dias_Apl = ap.Dias_Apl,
+                                           SolicitudId = ap.SolicitudId,
+                                           Nom_Conector = inc.nom_conector
+                                       }).ToListAsync();
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.Message);
+                Console.WriteLine(e.Message); throw;
+            }
+            return accionPersonal;
+        }
+
+        //Creado por: Marlon Loria Solano
+        //Fecha: 2022-10-30
+        //Obtener lista de Acciones de Personal
+        public async Task<List<cAccionPersonal>> GetAccionPersonal(string IdPlanilla, DateTime FechaInicio, DateTime FechaFin, string usuario)
+        {
+            List<cAccionPersonal> accionPersonal = new();
+            try
+            {
+             
+
+                accionPersonal = await (from ap in _context.Acciones_Personal.Where(e => e.IdPlanilla == IdPlanilla 
+                                                                              && e.Inicio >= FechaInicio 
+                                                                              && e.Fin <= FechaFin
+                                                                              && (e.Usuario == usuario || e.Usuario == (usuario + "\\")))
+                                        join inc in _context.Incidencias on ap.IdIncidencia equals inc.Id
+                                        select new cAccionPersonal
+                                        {
+                                            IdRegistro = ap.IdRegistro,
+                                            IdPlanilla = ap.IdPlanilla,
+                                            IdNumero = ap.IdNumero,
+                                            Inicio = ap.Inicio,
+                                            Fin = ap.Fin,
+                                            IdIncidencia = ap.IdIncidencia,
+                                            Estado = ap.Estado,
+                                            IdAccion = ap.IdAccion,
+                                            Comentario = ap.Comentario,
+                                            Dias = ap.Dias,
+                                            Usuario = ap.Usuario,
+                                            Fecha_Just = ap.Fecha_Just,
+                                            Dias_Apl = ap.Dias_Apl,
+                                            SolicitudId = ap.SolicitudId,
+                                            Nom_Conector = inc.nom_conector
+                                        }).ToListAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message); throw;
             }
             return accionPersonal;
         }
@@ -79,33 +140,16 @@ namespace GeoTimeConnectWebApi.Data
             {
                 foreach (var accion in accionPersonal)
                 {
-    
-                    //var accionBuscar = await _context.Acciones_Personal.Where(e=>e.IdAccion==accion.IdAccion && e.IdAccion!=null).FirstOrDefaultAsync();
+                    accion.IdAccion = 0;
+                    _context.Add(accion);
+                    await _context.SaveChangesAsync();
+
+                    var ultimaAccion = await _context.Acciones_Personal.FirstOrDefaultAsync(e=>e.SolicitudId==accion.SolicitudId);
                     
-                    //if (accionBuscar != null)
-                    //{
-                    //    accionBuscar.IdIncidencia = accion.IdIncidencia;
-                    //    accionBuscar.IdPlanilla = accion.IdPlanilla;
-                    //    accionBuscar.IdNumero = accion.IdNumero;
-                    //    accionBuscar.Inicio = accion.Inicio;
-                    //    accionBuscar.Fin = accion.Fin;
-                    //    accionBuscar.Dias = accion.Dias;
-                    //    accionBuscar.Dias_Apl = accion.Dias_Apl;
-                    //    accionBuscar.Estado = accion.Estado;
-                    //    accionBuscar.Comentario = accion.Comentario;
+                    if (ultimaAccion is not null)
+                        await EjecutaAplicaAccionPersonal(ultimaAccion.IdRegistro);
 
-                    //    _context.Acciones_Personal.Update(accion);
-
-                    //}
-                    //else
-                    //{
-                        //accion.IdAccion = null;
-                        _context.Add(accion);
-                    //}
-                                       
                 }
-
-                await _context.SaveChangesAsync();
             }
             catch (Exception e)
             {
@@ -125,6 +169,108 @@ namespace GeoTimeConnectWebApi.Data
 
         //Creado por: Marlon Loria Solano
         //Fecha: 2022-10-30
+        //Sincronizar Centros de Costo
+        //Parametro: Recibe una instancia de centro de costo, se verifica si existe en cuyo caso
+        //actualiza el registro, de lo contrario lo crea.
+        public async Task<EventResponse> Sincronizar_AccionPersonalNomConector(IEnumerable<cAccionPersonal> accionPersonal)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+                foreach (var accion in accionPersonal)
+                {
+
+                    var incidencia = await _context.Incidencias.FirstOrDefaultAsync(e => e.nom_conector == accion.Nom_Conector);
+                    
+                    if (incidencia is not null)
+                    {
+                        var accionbuscar = await _context.Acciones_Personal.FirstOrDefaultAsync(e=>e.IdRegistro== accion.IdRegistro);
+
+                        if (accionbuscar is not null)
+                        {
+                            accionbuscar.Inicio = accion.Inicio;
+                            accionbuscar.Fin = accion.Fin;         
+                            accionbuscar.Dias = accion.Dias;
+                            accionbuscar.Dias_Apl = accion.Dias_Apl;
+                            accionbuscar.IdAccion = accion.IdAccion;
+                            accionbuscar.Comentario = accion.Comentario;
+                            if (accion.Estado != 'A')
+                            {
+                                accionbuscar.Estado = accion.Estado;
+                            }
+
+                            _context.Acciones_Personal.Update(accionbuscar);
+                            await _context.SaveChangesAsync();
+                            
+                            if (accion.Estado == 'A')
+                            {
+                                await EjecutaAplicaAccionPersonal(accionbuscar.IdRegistro);
+                            }                               
+                        }
+                        else
+                        {
+                            accion.IdIncidencia = incidencia.Id;
+                            _context.Add(accion);
+                            await _context.SaveChangesAsync();
+
+                            var ultimaAccion = await _context.Acciones_Personal.MaxAsync(e => e.IdRegistro);
+
+                            await EjecutaAplicaAccionPersonal(ultimaAccion);
+                        }
+                        
+                    }
+                    else
+                    {
+                        respuesta.Id = "1";
+                        respuesta.Respuesta = "Error";                      
+                        respuesta.Descripcion = "No logró encontrar la incidencia asociada a nom_conector";
+                    } 
+                    
+                }
+                
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo realizar la sincronización de Accion de Personal. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo realizar la sincronización de Accion de Persona. Detalle de Error: " + e.InnerException.Message;
+
+            }
+
+            return respuesta;
+
+        }
+
+        public async Task EjecutaAplicaAccionPersonal(long idregistro)
+        {
+            try
+            {
+                using (var connection = _context.Database.GetDbConnection())
+                {
+                    await connection.OpenAsync();
+                    using (var command = connection.CreateCommand())
+                    {
+                        command.CommandText = _schema + ".aplico_accpersonal @IDREGISTRO=" + idregistro;
+                        System.Data.Common.DbDataReader result = command.ExecuteReader();
+
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+           
+
+        }
+
+        //Creado por: Marlon Loria Solano
+        //Fecha: 2022-10-30
         //Obtener lista de Centros de Costo
         public async Task<List<cCentroCosto>> GetCentroCosto()
         {
@@ -135,7 +281,7 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.Message);
+                Console.WriteLine(e.Message); throw;
             }
             return centrosCosto;
         }
@@ -153,7 +299,7 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.Message);
+                Console.WriteLine(e.Message); throw;
             }
             return centrosCosto;
         }
@@ -217,7 +363,7 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.Message);
+                Console.WriteLine(e.Message); throw;
             }
             return concepto;
         }
@@ -235,7 +381,7 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.Message);
+                Console.WriteLine(e.Message); throw;
             }
             return conceptos;
         }
@@ -308,7 +454,7 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.Message);
+                Console.WriteLine(e.Message); throw;
             }
             return departamento;
         }
@@ -326,7 +472,7 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.Message);
+                Console.WriteLine(e.Message); throw;
             }
             return departamento;
         }
@@ -389,7 +535,7 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.Message);
+                Console.WriteLine(e.Message); throw;
             }
             return empleado;
         }
@@ -404,7 +550,7 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.Message);
+                Console.WriteLine(e.Message); throw;
             }
             return empleado;
         }
@@ -423,7 +569,7 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.Message);
+                Console.WriteLine(e.Message); throw;
             }
             return empleado;
         }
@@ -540,7 +686,7 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.Message);
+                Console.WriteLine(e.Message); throw;
             }
             return empleado;
         }
@@ -557,8 +703,11 @@ namespace GeoTimeConnectWebApi.Data
 
             try
             {
+                DateTime fechaIngreso;
                 foreach(var empleado in empleados)
                 {
+                    fechaIngreso =(DateTime) DateTime.Parse(empleado.Fecha_Ingreso.ToString());
+
                     cEmpleado? emp = await _context.Empleados
                                     .Where(e => e.IdNumero == empleado.IdNumero)
                                     .FirstOrDefaultAsync();
@@ -571,11 +720,13 @@ namespace GeoTimeConnectWebApi.Data
                         emp.IdDepartamento = empleado.IdDepartamento;
                         emp.IdCCosto = empleado.IdCCosto;
                         emp.IdPlanilla = empleado.IdPlanilla;
+                        emp.Fecha_Ingreso = fechaIngreso;
 
                         _context.Empleados.Update(emp);
                     }
                     else
                     {
+                        empleado.Fecha_Ingreso = fechaIngreso;
                         empleado.IdGrupo = 1;
                         empleado.IdHorario = 1;
                         empleado.Tipo_Marca = "H";
@@ -615,7 +766,7 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.Message);
+                Console.WriteLine(e.Message); throw;
             }
             return incidencia;
         }
@@ -633,7 +784,7 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.Message);
+                Console.WriteLine(e.Message); throw;
             }
             return incidencia;
         }
@@ -649,7 +800,7 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.Message);
+                Console.WriteLine(e.Message); throw;
             }
             return incidencia;
         }
@@ -709,12 +860,12 @@ namespace GeoTimeConnectWebApi.Data
             try
             {
                 marcasResumen = await _context.Marcas_Resumen
-                                    .Where(e=>e.IdPlanilla==idPlanilla && e.IdPeriodo==idPeriodo)
+                                    //.Where(e=>e.IdPlanilla==idPlanilla && e.IdPeriodo==idPeriodo)
                                     .ToListAsync();
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.Message);
+                Console.WriteLine(e.Message); throw;
             }
             return marcasResumen;
         }
@@ -731,7 +882,7 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.Message);
+                Console.WriteLine(e.Message); throw;
             }
             return turno;
         }
@@ -749,7 +900,7 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.Message);
+                Console.WriteLine(e.Message); throw;
             }
             return turno;
         }
@@ -766,7 +917,7 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.Message);
+                Console.WriteLine(e.Message); throw;
             }
             return marcas;
         }
@@ -784,7 +935,7 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.Message);
+                Console.WriteLine(e.Message); throw;
             }
             return marca;
         }
@@ -941,11 +1092,11 @@ namespace GeoTimeConnectWebApi.Data
 
             try
             {
-                phlogin = await _context.PH_LOGIN.FirstOrDefaultAsync(e => e.EMAIL == id);
+                phlogin = await _context.PH_LOGIN.FirstOrDefaultAsync(e => e.EMAIL.ToUpper() == id.ToUpper());
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.Message);
+                Console.WriteLine(e.Message); throw;
             }
             return phlogin;
         }
@@ -962,7 +1113,7 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.Message);
+                Console.WriteLine(e.Message); throw;
             }
             return companias;
         }
@@ -980,7 +1131,7 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.Message);
+                Console.WriteLine(e.Message); throw;
             }
             return compania;
         }

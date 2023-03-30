@@ -19,7 +19,7 @@ namespace GeoTimeConnectWebApi.Controllers
             _repoGT = repoGT;
         }
 
-        [HttpGet]
+        [HttpGet("{idplanilla}/{idperiodo}")]
         public async Task<IEnumerable<cMarcaResumen>> Get(string idplanilla, string idperiodo) => await _repoGT.GetMarcasResumen(idplanilla, idperiodo);
 
     }

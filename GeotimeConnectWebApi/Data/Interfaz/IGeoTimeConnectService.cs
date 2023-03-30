@@ -7,6 +7,7 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
     public interface IGeoTimeConnectService
     {
         public Task<List<cAccionPersonal>> GetAccionPersonal(string IdPlanilla, DateTime FechaInicio, DateTime FechaFin);
+        public Task<List<cAccionPersonal>> GetAccionPersonal(string IdPlanilla, DateTime FechaInicio, DateTime FechaFin, string usuario);
         public Task<EventResponse> Sincronizar_AccionPersonal(IEnumerable<cAccionPersonal> accionPersonal);
         public Task<List<cCentroCosto>> GetCentroCosto();
         public Task<cCentroCosto> GetCentroCosto(string idCCosto);
@@ -37,6 +38,7 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         public Task<cPh_Login> GetPhLogin(string id);
         public Task<List<cPh_Compania>> GetPhCompania();
         public Task<cPh_Compania> GetPhCompania(string idcomp);
+        public Task<EventResponse> Sincronizar_AccionPersonalNomConector(IEnumerable<cAccionPersonal> accionPersonal);
 
     }
 }
