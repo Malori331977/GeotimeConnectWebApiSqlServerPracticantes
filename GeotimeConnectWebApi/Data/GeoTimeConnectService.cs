@@ -789,6 +789,24 @@ namespace GeoTimeConnectWebApi.Data
             return incidencia;
         }
 
+        //Creado por: Marlon Loria Solano
+        //Fecha: 2022-10-30
+        //Obtener una Incidencia especifica
+        //Parametros: codigo=Codigo de incidencia a buscar
+        public async Task<cIncidencia> GetIncidenciaByNomConector(string nom_conector)
+        {
+            cIncidencia? incidencia = new();
+            try
+            {
+                incidencia = await _context.Incidencias.FirstOrDefaultAsync(e => e.nom_conector == nom_conector);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message); throw;
+            }
+            return incidencia;
+        }
+
         public async Task<List<cIncidencia>> GetIncidenciaReqAccPer()
         {
             List<cIncidencia> incidencia = new();

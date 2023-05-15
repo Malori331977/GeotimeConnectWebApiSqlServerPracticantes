@@ -25,6 +25,7 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         public Task<EventResponse> Sincronizar_Empleado(IEnumerable<cEmpleado> empleados);
         public Task<List<cIncidencia>> GetIncidencia();
         public Task<cIncidencia> GetIncidencia(int id);
+        public Task<cIncidencia> GetIncidenciaByNomConector(string nom_conector);
         public Task<List<cIncidencia>> GetIncidenciaReqAccPer();
         public Task<EventResponse> Sincronizar_Incidencia(IEnumerable<cIncidencia> incidencias);
         public Task<List<cMarcaResumen>> GetMarcasResumen(string idPlanilla, string idPeriodo);
