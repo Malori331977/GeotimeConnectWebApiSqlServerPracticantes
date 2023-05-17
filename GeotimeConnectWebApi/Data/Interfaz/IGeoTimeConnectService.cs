@@ -6,6 +6,7 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
 {
     public interface IGeoTimeConnectService
     {
+        public Task<List<cAccionPersonal>> GetAccionPersonal();
         public Task<List<cAccionPersonal>> GetAccionPersonal(string IdPlanilla, DateTime FechaInicio, DateTime FechaFin);
         public Task<List<cAccionPersonal>> GetAccionPersonal(string IdPlanilla, DateTime FechaInicio, DateTime FechaFin, string usuario);
         public Task<EventResponse> Sincronizar_AccionPersonal(IEnumerable<cAccionPersonal> accionPersonal);

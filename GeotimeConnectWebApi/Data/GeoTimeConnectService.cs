@@ -50,6 +50,40 @@ namespace GeoTimeConnectWebApi.Data
             _context = SchemaChangeDbContext.GetSchemaChangeDbContext(schema, bdname);
         }
 
+        /**/
+        public async Task<List<cAccionPersonal>> GetAccionPersonal()
+        {
+            List<cAccionPersonal> accionPersonal = new();
+            try
+            {
+                accionPersonal = await (from ap in _context.Acciones_Personal
+                                        join inc in _context.Incidencias on ap.IdIncidencia equals inc.Id
+                                        select new cAccionPersonal
+                                        {
+                                            IdRegistro = ap.IdRegistro,
+                                            IdPlanilla = ap.IdPlanilla,
+                                            IdNumero = ap.IdNumero,
+                                            Inicio = ap.Inicio,
+                                            Fin = ap.Fin,
+                                            IdIncidencia = ap.IdIncidencia,
+                                            Estado = ap.Estado,
+                                            IdAccion = ap.IdAccion,
+                                            Comentario = ap.Comentario,
+                                            Dias = ap.Dias,
+                                            Usuario = ap.Usuario,
+                                            Fecha_Just = ap.Fecha_Just,
+                                            Dias_Apl = ap.Dias_Apl,
+                                            SolicitudId = ap.SolicitudId,
+                                            Nom_Conector = inc.nom_conector
+                                        }).ToListAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message); throw;
+            }
+            return accionPersonal;
+        }
+
         //Creado por: Marlon Loria Solano
         //Fecha: 2022-10-30
         //Obtener lista de Acciones de Personal
