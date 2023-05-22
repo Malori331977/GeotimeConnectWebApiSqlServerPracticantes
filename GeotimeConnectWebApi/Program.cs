@@ -11,6 +11,7 @@ using System.Text;
 using LibEncripta;
 using GeoTimeConnectWebApi.Models;
 using Seguridad_Geotime;
+using System.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,19 +25,19 @@ IConfiguration config = new ConfigurationBuilder()
 //correctos.
 var appSettingsSection = config.GetSection("AppSettings");
 string SQLConnectionString = config.GetConnectionString("SqlServerDataBaseContext");
-var sr = Encripta.getEncryptTripleDES("Mloria");
-var psr = Encripta.getEncryptTripleDES("Listo123@");
+//var sr = Encripta.getEncryptTripleDES("Mloria");
+//var psr = Encripta.getEncryptTripleDES("Listo123@");
 
-//var sre = Encripta.getEncryptTripleDES("UserMaestro");
-//var pser = Encripta.getEncryptTripleDES("Listo123@");
+var us = Encripta.getEncryptTripleDES("UserMaestro");
+var ps = Encripta.getEncryptTripleDES("Listo123@");
 
-//var sPassword = Encripta.getEncryptTripleDES("f0d81b01ad108987352b1cd7c1b9fc9b683635fe6b19598040f250430cbf863a");
-//var sClientId = Encripta.getEncryptTripleDES("6dc71b09e7f4885aeb3551eae81351f9c81d6dfc82d2042a064bc5165337fd98");
+
 
 string userSQL = Encripta.getDecryptTripleDES(config.GetConnectionString("UserSQL"));
 string passSQL = Encripta.getDecryptTripleDES(config.GetConnectionString("PassSQL"));
 string schema = config.GetConnectionString("Schema");
 string basedatos = config.GetConnectionString("DBName");
+string withCors = config.GetConnectionString("WithCors");
 
 SQLConnectionString = SQLConnectionString.Replace("BaseDatos", basedatos)
                                          .Replace("UsuarioBDSQL", userSQL)
@@ -85,6 +86,15 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+if (withCors is not null)
+    if (withCors == "S")
+        builder.Services.AddCors(options =>
+        {
+            options.AddPolicy("CorsPolicy",
+                builder => builder.AllowAnyOrigin()
+                .AllowAnyMethod()
+                .AllowAnyHeader());
+        });
 
 var app = builder.Build();
 
@@ -102,6 +112,11 @@ string urlApi = appSettingsSection.GetValue<string>("UrlApi");
 
 app.UseSwaggerUI(c => { c.SwaggerEndpoint($"{urlApi}swagger/v1/swagger.json", "GeoTimeConnectWebApi"); });
 app.UseHttpsRedirection();
+
+
+if (withCors is not null)
+    if (withCors == "S")
+        app.UseCors("CorsPolicy");
 
 app.UseAuthentication();
 
