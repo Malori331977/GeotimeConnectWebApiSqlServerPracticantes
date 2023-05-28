@@ -1188,5 +1188,109 @@ namespace GeoTimeConnectWebApi.Data
             return compania;
         }
 
+        //Creado por: Marlon Loria Solano
+        //Fecha: 2023-05-24
+        //Obtener lista de Marcas_Mov_Turnos
+        public async Task<List<cMarcaMovTurno>> GetMarcaMovTurno()
+        {
+            List<cMarcaMovTurno> marcaMovTurno = new();
+            try
+            {
+                marcaMovTurno = await _context.Marcas_Mov_Turnos.ToListAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message); throw;
+            }
+            return marcaMovTurno;
+        }
+
+        //Creado por: Marlon Loria Solano
+        //Fecha: 2023-05-24
+        //Obtener un registro de Marcas_Mov_Turnos especifico
+        //Parametros: idregistro=consecutivo de registro
+        public async Task<cMarcaMovTurno> GetMarcaMovTurno(int idregistro)
+        {
+            cMarcaMovTurno? marcaMovTurno = new();
+            try
+            {
+                marcaMovTurno = await _context.Marcas_Mov_Turnos.FirstOrDefaultAsync(e => e.idregistro == idregistro);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message); throw;
+            }
+            return marcaMovTurno;
+        }
+
+        //Creado por: Marlon Loria Solano
+        //Fecha: 2023-05-24
+        //Obtener un registro de Marcas_Mov_Turnos especifico
+        //Parametros: idregistro=consecutivo de registro
+        public async Task<cMarcaMovTurno> GetMarcaMovTurno(string idnumero, string fecha, int idturno)
+        {
+            cMarcaMovTurno? marcaMovTurno = new();
+            try
+            {
+                DateTime fechaMov = DateTime.Parse($"{fecha.Substring(0, 4)}-{fecha.Substring(4, 2)}-{fecha.Substring(6, 2)}");
+                marcaMovTurno = await _context.Marcas_Mov_Turnos.FirstOrDefaultAsync(e => e.idnumero == idnumero && e.fecha== fechaMov && e.turno== idturno);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message); throw;
+            }
+            return marcaMovTurno;
+        }
+
+        //Creado por: Marlon Loria Solano
+        //Fecha: 2023-05-24
+        //Sincronizar Marcas_MOv_Turnos
+        //Parametro: Recibe una instancia de MarcaMovTurno, se verifica si existe en cuyo caso
+        //actualiza el registro, de lo contrario lo crea.
+        public async Task<EventResponse> Sincronizar_MarcasMovTurnos(IEnumerable<cMarcaMovTurno> marcasMovTurnos)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+                foreach (var item in marcasMovTurnos)
+                {
+                    cMarcaMovTurno? marcaMovTurno = await _context.Marcas_Mov_Turnos
+                                    .Where(e => e.idnumero == item.idnumero && e.fecha == item.fecha)
+                                    .FirstOrDefaultAsync();
+                    //si el centro de costo existe se actualiza descripción
+                    //de lo contrario se agrega el registro
+                    if (marcaMovTurno is not null)
+                    {
+                        marcaMovTurno.turno = item.turno;
+                        marcaMovTurno.idplanilla = item.idplanilla;
+                        marcaMovTurno.hora = item.hora;
+                        _context.Marcas_Mov_Turnos.Update(marcaMovTurno);
+                    }
+                    else
+                    {
+                        item.idregistro = 0;
+                        _context.Add(item);
+                    }
+                }
+
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo realizar la sincronización de Marcas_Mov_Turno. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo realizar la sincronización de Marcas_Mov_Turno. Detalle de Error: " + e.InnerException.Message;
+
+            }
+
+            return respuesta;
+
+        }
+
     }
 }

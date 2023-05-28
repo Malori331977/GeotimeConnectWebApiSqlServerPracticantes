@@ -41,6 +41,10 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         public Task<List<cPh_Compania>> GetPhCompania();
         public Task<cPh_Compania> GetPhCompania(string idcomp);
         public Task<EventResponse> Sincronizar_AccionPersonalNomConector(IEnumerable<cAccionPersonal> accionPersonal);
+        public Task<List<cMarcaMovTurno>> GetMarcaMovTurno();
+        public Task<cMarcaMovTurno> GetMarcaMovTurno(int idregistro);
+        public Task<cMarcaMovTurno> GetMarcaMovTurno(string idnumero, string fecha, int idturno);
+        public Task<EventResponse> Sincronizar_MarcasMovTurnos(IEnumerable<cMarcaMovTurno> marcasMovTurnos);
 
     }
 }

@@ -19,9 +19,11 @@
 	<ItemGroup>
 	  <Reference Include="LibEncripta">
 	    <HintPath>..\..\LibEncripta\LibEncripta\bin\Release\net6.0\LibEncripta.dll</HintPath>
+	    <Private>True</Private>
 	  </Reference>
 	  <Reference Include="Seguridad_Geotime">
 	    <HintPath>..\..\Seguridad GeoTime\Seguridad_Geotime.dll</HintPath>
+	    <Private>True</Private>
 	  </Reference>
 	</ItemGroup>
 
