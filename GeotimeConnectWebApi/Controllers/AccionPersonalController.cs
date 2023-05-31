@@ -24,9 +24,6 @@ namespace GeoTimeConnectWebApi.Controllers
             _repoGT = repoGT;
         }
 
-        [HttpGet]
-        public async Task<IEnumerable<cAccionPersonal>> Get() => await _repoGT.GetAccionPersonal();
-
         [HttpGet("{idplanilla}/{fechainicio}/{fechafin}")]
         public async Task<IEnumerable<cAccionPersonal>> Get(string idplanilla, DateTime fechainicio, DateTime fechafin) => await _repoGT.GetAccionPersonal(idplanilla, fechainicio, fechafin);
 
