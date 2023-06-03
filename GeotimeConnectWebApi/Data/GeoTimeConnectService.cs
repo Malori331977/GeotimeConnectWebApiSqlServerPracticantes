@@ -610,7 +610,7 @@ namespace GeoTimeConnectWebApi.Data
             List<cEmpleado> empleado = new();
             try
             {
-               empleado = await _context.Empleados.ToListAsync();
+               empleado = await _context.Empleados.Where(e=>e.Estado=='T').ToListAsync();
             }
             catch (Exception e)
             {
@@ -625,7 +625,7 @@ namespace GeoTimeConnectWebApi.Data
             cEmpleado? empleado = new();
             try
             {
-                empleado = await _context.Empleados.FirstOrDefaultAsync(e=>e.IdNumero == idNumero);
+                empleado = await _context.Empleados.FirstOrDefaultAsync(e=>e.IdNumero == idNumero && e.Estado == 'T');
             }
             catch (Exception e)
             {
@@ -644,7 +644,7 @@ namespace GeoTimeConnectWebApi.Data
            
             try
             {
-                empleado = await _context.Empleados.FirstOrDefaultAsync(e => e.Email == email);
+                empleado = await _context.Empleados.FirstOrDefaultAsync(e => e.Email == email && e.Estado == 'T');
             }
             catch (Exception e)
             {
@@ -673,6 +673,7 @@ namespace GeoTimeConnectWebApi.Data
                 {
                     empleado = await _context.Empleados
                     .Where(e => e.IdNumero!.Contains(idnumero)
+                           && e.Estado == 'T'
                            && e.Nombre!.ToLower().Contains(nombre.ToLower())
                            && e.IdDepartamento!.ToLower().Contains(iddepartamento.ToLower()))
                     .ToListAsync();
@@ -680,7 +681,7 @@ namespace GeoTimeConnectWebApi.Data
                 else {
                     if (idnumero == "" && nombre == "" && iddepartamento == "")
                     {
-                        empleado = await _context.Empleados  
+                        empleado = await _context.Empleados.Where(e=>e.Estado == 'T')  
                                             .ToListAsync();
                     }
                     else
@@ -688,7 +689,7 @@ namespace GeoTimeConnectWebApi.Data
                         if (idnumero != "")
                         {
                             empleado = await _context.Empleados
-                             .Where(e => e.IdNumero!.Contains(idnumero))
+                             .Where(e => e.Estado == 'T' && e.IdNumero!.Contains(idnumero))
                              .ToListAsync();
 
                         }
@@ -697,7 +698,7 @@ namespace GeoTimeConnectWebApi.Data
                             if (nombre != "")
                             {
                                 empleado = await _context.Empleados
-                                 .Where(e => e.Nombre!.ToLower().Contains(nombre.ToLower()))
+                                 .Where(e => e.Estado == 'T' && e.Nombre!.ToLower().Contains(nombre.ToLower()))
                                  .ToListAsync();
 
                             }
@@ -706,7 +707,7 @@ namespace GeoTimeConnectWebApi.Data
                                 if (iddepartamento != "")
                                 {
                                     empleado = await _context.Empleados
-                                     .Where(e => e.IdDepartamento!.ToLower().Contains(iddepartamento))
+                                     .Where(e => e.Estado == 'T' && e.IdDepartamento!.ToLower().Contains(iddepartamento))
                                      .ToListAsync();
 
                                 }
@@ -752,7 +753,7 @@ namespace GeoTimeConnectWebApi.Data
                                 }
                                 else
                                 {
-                                    empleado = await _context.Empleados
+                                    empleado = await _context.Empleados.Where(e => e.Estado == 'T')
                                     .ToListAsync();
                                 }
                                 
