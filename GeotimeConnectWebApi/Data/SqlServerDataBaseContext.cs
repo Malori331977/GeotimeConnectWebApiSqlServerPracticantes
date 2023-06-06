@@ -56,7 +56,7 @@ namespace GeoTimeConnectWebApi.Data
         public DbSet<cPh_Login> PH_LOGIN { get; set; }
         public DbSet<cPh_Compania> PH_COMPANIAS { get; set; }
         public DbSet<cMarcaMovTurno> Marcas_Mov_Turnos { get; set; }
-
+        public DbSet<cPh_Grupo> Ph_Grupos { get; set; }
 
 
 
@@ -87,6 +87,9 @@ namespace GeoTimeConnectWebApi.Data
                 .HasKey(e => new { e.registro });
             builder.Entity<cMarcaMovTurno>().ToTable("Marcas_Mov_Turnos", Schema)
                .HasKey(e => new { e.idregistro });
+
+            builder.Entity<cPh_Grupo>().ToTable("Ph_Grupos", Schema)
+                 .HasKey(e => new { e.idgrupo });
 
         }
 

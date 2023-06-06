@@ -14,6 +14,7 @@ using GeoTimeConnectWebApi.Models.Request;
 using GeoTimeConnectWebApi.Models.Response;
 using Seguridad_Geotime;
 using System.Runtime.CompilerServices;
+using System.Text.RegularExpressions;
 
 namespace GeoTimeConnectWebApi.Data
 {
@@ -1336,6 +1337,40 @@ namespace GeoTimeConnectWebApi.Data
 
             return respuesta;
 
+        }
+
+        //Fecha: 2022-10-30
+        //Obtener lista de Conceptos
+        public async Task<List<cPh_Grupo>> GetGrupo()
+        {
+            List<cPh_Grupo> grupo = new();
+            try
+            {
+                grupo = await _context.Ph_Grupos.ToListAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message); throw;
+            }
+            return grupo;
+        }
+
+        //Creado por: Marlon Loria Solano
+        //Fecha: 2022-10-30
+        //Obtener un Concepto especifico
+        //Parametros: concepto=concepto a buscar
+        public async Task<cPh_Grupo> GetGrupo(int idgrupo)
+        {
+            cPh_Grupo? grupos = new();
+            try
+            {
+                grupos = await _context.Ph_Grupos.FirstOrDefaultAsync(e => e.idgrupo == idgrupo);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message); throw;
+            }
+            return grupos;
         }
 
     }

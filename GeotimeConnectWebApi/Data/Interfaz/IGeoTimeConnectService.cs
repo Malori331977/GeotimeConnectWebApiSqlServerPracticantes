@@ -46,6 +46,7 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         public Task<cMarcaMovTurno> GetMarcaMovTurno(int idregistro);
         public Task<cMarcaMovTurno> GetMarcaMovTurno(string idnumero, string fecha, int idturno);
         public Task<EventResponse> Sincronizar_MarcasMovTurnos(IEnumerable<cMarcaMovTurno> marcasMovTurnos);
-
+        public Task<List<cPh_Grupo>> GetGrupo();
+        public Task<cPh_Grupo> GetGrupo(int idgrupo);
     }
 }
