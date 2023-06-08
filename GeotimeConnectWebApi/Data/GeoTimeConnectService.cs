@@ -1355,11 +1355,12 @@ namespace GeoTimeConnectWebApi.Data
 				foreach (var item in marcasResumen)
 				{
                     var concepto = await _context.Ph_Conceptos.FirstOrDefaultAsync(e => e.id == item.IdConcepto);
+					var empleado = await _context.Empleados.FirstOrDefaultAsync(e => e.IdNumero == item.IdNumero);
 
-                    
+
 					cMarcaResumen? marcaRes = await _context.Marcas_Resumen
-									.Where(e => e.IdPlanilla == item.IdPlanilla && e.IdNumero == item.IdNumero 
-                                            && e.IdConcepto==item.IdConcepto && e.IdCCosto==item.IdCCosto)
+									.Where(e => e.IdPlanilla == empleado!.IdPlanilla && e.IdNumero == item.IdNumero 
+                                            && e.IdConcepto==item.IdConcepto && e.IdCCosto== empleado.IdCCosto)
 									.FirstOrDefaultAsync();
 					if (marcaRes is not null)
 					{
@@ -1376,7 +1377,9 @@ namespace GeoTimeConnectWebApi.Data
 					}
 					else
 					{
-                        item.NominaEq = concepto!.nominaeq;
+                        item.IdPlanilla = empleado.IdPlanilla;
+						item.IdCCosto = empleado.IdCCosto;
+						item.NominaEq = concepto!.nominaeq;
 						_context.Add(item);
 					}
 				}
