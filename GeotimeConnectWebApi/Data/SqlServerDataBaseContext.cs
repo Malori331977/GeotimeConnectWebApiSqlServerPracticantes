@@ -57,10 +57,9 @@ namespace GeoTimeConnectWebApi.Data
         public DbSet<cPh_Compania> PH_COMPANIAS { get; set; }
         public DbSet<cMarcaMovTurno> Marcas_Mov_Turnos { get; set; }
         public DbSet<cPh_Grupo> Ph_Grupos { get; set; }
+		public DbSet<cPh_Periodos> Ph_Periodos { get; set; }
 
-
-
-        protected override void OnModelCreating(ModelBuilder builder)
+		protected override void OnModelCreating(ModelBuilder builder)
         {
             builder.Entity<cPh_Login>().ToTable("PH_LOGIN", schemaAdmin)
                 .HasKey(e => new { e.idusuario });
@@ -90,8 +89,10 @@ namespace GeoTimeConnectWebApi.Data
 
             builder.Entity<cPh_Grupo>().ToTable("Ph_Grupos", Schema)
                  .HasKey(e => new { e.idgrupo });
+			builder.Entity<cPh_Periodos>().ToTable("Ph_Periodos", Schema)
+				.HasKey(e => new { e.idperiodo });
 
-        }
+		}
 
       
     }

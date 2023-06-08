@@ -31,6 +31,7 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         public Task<List<cIncidencia>> GetIncidenciaReqAccPer();
         public Task<EventResponse> Sincronizar_Incidencia(IEnumerable<cIncidencia> incidencias);
         public Task<List<cMarcaResumen>> GetMarcasResumen(string idPlanilla, string idPeriodo);
+		public Task<EventResponse> Sincronizar_MarcasResumen(IEnumerable<cMarcaResumen> marcasResumen);
         public Task<List<cTurno>> GetTurno();
         public Task<cTurno> GetTurno(int idTurno);
         public Task<List<cMarca>> GetMarcas();
@@ -48,5 +49,10 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         public Task<EventResponse> Sincronizar_MarcasMovTurnos(IEnumerable<cMarcaMovTurno> marcasMovTurnos);
         public Task<List<cPh_Grupo>> GetGrupo();
         public Task<cPh_Grupo> GetGrupo(int idgrupo);
-    }
+        public Task<IEnumerable<cPh_Periodos>> GetPeriodo();
+        public Task<cPh_Periodos> GetPeriodo(string idperiodo);
+        public Task<IEnumerable<cPh_Periodos>> GetPeriodo(string fecha, string vigente);
+
+
+	}
 }

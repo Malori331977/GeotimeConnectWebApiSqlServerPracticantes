@@ -482,7 +482,7 @@ namespace GeoTimeConnectWebApi.Data
                     cConcepto? concept = await _context.Ph_Conceptos
                                                         .Where(e => e.Concepto == concepto.Concepto)
                                                         .FirstOrDefaultAsync();
-                    //si el departamento existe se actualiza descripción
+                    //si el consepto existe se actualiza descripción
                     //de lo contrario se agrega el registro
                     if (concept is not null)
                     {
@@ -499,8 +499,10 @@ namespace GeoTimeConnectWebApi.Data
                         concepto.ordinario = 'T';
                         concepto.autorizado = 'T';
                         concepto.adicional = 'F';
+                        concepto.tipo_ext_alm = null;
+                        concepto.muestra_resumen = null;
 
-                        _context.Add(concepto);
+						_context.Add(concepto);
                     }
                 }
                 
@@ -1339,9 +1341,67 @@ namespace GeoTimeConnectWebApi.Data
 
         }
 
-        //Fecha: 2022-10-30
-        //Obtener lista de Conceptos
-        public async Task<List<cPh_Grupo>> GetGrupo()
+		//Creado por: Marlon Loria Solano
+		//Fecha: 2023-05-24
+		//Sincronizar Marcas_Resumen
+		//Parametro: Recibe una instancia de Marcas_Resumen, se verifica si existe en cuyo caso
+		//actualiza el registro, de lo contrario lo crea.
+		public async Task<EventResponse> Sincronizar_MarcasResumen(IEnumerable<cMarcaResumen> marcasResumen)
+		{
+			EventResponse respuesta = new EventResponse();
+
+			try
+			{
+				foreach (var item in marcasResumen)
+				{
+                    var concepto = await _context.Ph_Conceptos.FirstOrDefaultAsync(e => e.id == item.IdConcepto);
+
+                    
+					cMarcaResumen? marcaRes = await _context.Marcas_Resumen
+									.Where(e => e.IdPlanilla == item.IdPlanilla && e.IdNumero == item.IdNumero 
+                                            && e.IdConcepto==item.IdConcepto && e.IdCCosto==item.IdCCosto)
+									.FirstOrDefaultAsync();
+					if (marcaRes is not null)
+					{
+                       
+						marcaRes.NominaEq = item.NominaEq;
+						marcaRes.Cantidad = item.Cantidad;
+						marcaRes.Monto = item.Monto;
+						marcaRes.Proyecto = item.Proyecto;
+						marcaRes.Fase = item.Fase;
+						marcaRes.IdPeriodo = item.IdPeriodo;
+                        marcaRes.NominaEq = concepto!.nominaeq;
+
+						_context.Marcas_Resumen.Update(marcaRes);
+					}
+					else
+					{
+                        item.NominaEq = concepto!.nominaeq;
+						_context.Add(item);
+					}
+				}
+
+				await _context.SaveChangesAsync();
+			}
+			catch (Exception e)
+			{
+				Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
+				respuesta.Id = "1";
+				respuesta.Respuesta = "Error";
+				if (e.InnerException == null)
+					respuesta.Descripcion = "No se pudo realizar la sincronización de Marcas_Mov_Turno. Detalle de Error: " + e.Message;
+				else
+					respuesta.Descripcion = "No se pudo realizar la sincronización de Marcas_Mov_Turno. Detalle de Error: " + e.InnerException.Message;
+
+			}
+
+			return respuesta;
+
+		}
+
+		//Fecha: 2022-10-30
+		//Obtener lista de Conceptos
+		public async Task<List<cPh_Grupo>> GetGrupo()
         {
             List<cPh_Grupo> grupo = new();
             try
@@ -1373,5 +1433,59 @@ namespace GeoTimeConnectWebApi.Data
             return grupos;
         }
 
-    }
+		//Creado por: Marlon Loria Solano
+		//Fecha: 2023-06-07
+		//Obtener un Periodo especifico
+		public async Task<IEnumerable<cPh_Periodos>> GetPeriodo()
+		{
+			List<cPh_Periodos>? periodos = new();
+			try
+			{
+				periodos = await _context.Ph_Periodos.ToListAsync();
+			}
+			catch (Exception e)
+			{
+				Console.WriteLine(e.Message); throw;
+			}
+			return periodos;
+		}
+
+		//Creado por: Marlon Loria Solano
+		//Fecha: 2023-06-07
+		//Obtener un Periodo especifico
+		public async Task<cPh_Periodos> GetPeriodo(string idperiodo)
+		{
+			cPh_Periodos? periodo = new();
+			try
+			{
+				periodo = await _context.Ph_Periodos.FirstOrDefaultAsync(e => e.idperiodo == idperiodo);
+			}
+			catch (Exception e)
+			{
+				Console.WriteLine(e.Message); throw;
+			}
+			return periodo;
+		}
+
+		//Creado por: Marlon Loria Solano
+		//Fecha: 2023-06-07
+		//Obtener un Periodo especifico
+		public async Task<IEnumerable<cPh_Periodos>> GetPeriodo(string fecha, string vigente)
+		{
+
+			List<cPh_Periodos>? periodos = new();
+			try
+			{
+				DateTime fechaMov = DateTime.Parse($"{fecha.Substring(0, 4)}-{fecha.Substring(4, 2)}-{fecha.Substring(6, 2)}");
+				periodos = await _context.Ph_Periodos.Where(e=> fechaMov>=e.inicio  && fechaMov <=e.fin)
+                                                     .ToListAsync();
+			}
+			catch (Exception e)
+			{
+				Console.WriteLine(e.Message); throw;
+			}
+			return periodos;
+		}
+
+	}
 }
