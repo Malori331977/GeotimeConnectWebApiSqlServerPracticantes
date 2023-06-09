@@ -79,7 +79,7 @@ namespace GeoTimeConnectWebApi.Data
             builder.Entity<cIncidencia>().ToTable("Incidencias", Schema)
                 .HasKey(e => new { e.Codigo });
             builder.Entity<cMarcaResumen>().ToTable("Marcas_Resumen", Schema)
-                .HasNoKey();
+                .HasKey(e => new { e.IdPlanilla,e.IdNumero,e.IdConcepto,e.IdCCosto });
             builder.Entity<cTurno>().ToTable("Ph_Turnos", Schema)
                 .HasKey(e => new { e.IdTurno });
             builder.Entity<cMarca>().ToTable("Marcas", Schema)

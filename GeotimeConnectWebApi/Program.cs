@@ -31,6 +31,8 @@ string SQLConnectionString = config.GetConnectionString("SqlServerDataBaseContex
 var us = Encripta.getEncryptTripleDES("UserMaestro");
 var ps = Encripta.getEncryptTripleDES("Listo123@");
 
+string us2 = Encripta.getEncryptTripleDES("userlabores");
+string pa = Encripta.getEncryptTripleDES("Labores2023@");
 
 
 string userSQL = Encripta.getDecryptTripleDES(config.GetConnectionString("UserSQL"));
