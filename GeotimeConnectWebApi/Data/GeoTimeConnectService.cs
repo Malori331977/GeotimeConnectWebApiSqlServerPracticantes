@@ -961,7 +961,7 @@ namespace GeoTimeConnectWebApi.Data
             try
             {
                 marcasResumen = await _context.Marcas_Resumen
-                                    //.Where(e=>e.IdPlanilla==idPlanilla && e.IdPeriodo==idPeriodo)
+                                    .Where(e=>e.IdPlanilla==idPlanilla && e.IdPeriodo==idPeriodo)
                                     .ToListAsync();
             }
             catch (Exception e)
@@ -970,6 +970,26 @@ namespace GeoTimeConnectWebApi.Data
             }
             return marcasResumen;
         }
+
+        //Creado por: Marlon Loria Solano
+        //Fecha: 2022-10-30
+        //Obtener lista de Marcas Resumen
+        public async Task<List<cMarcaResumen>> GetMarcasResumen(string idPlanilla)
+        {
+            List<cMarcaResumen> marcasResumen = new();
+            try
+            {
+                marcasResumen = await _context.Marcas_Resumen
+                                    .Where(e => e.IdPlanilla == idPlanilla)
+                                    .ToListAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message); throw;
+            }
+            return marcasResumen;
+        }
+
 
         //Creado por: Marlon Loria Solano
         //Fecha: 2022-10-30
@@ -1366,7 +1386,7 @@ namespace GeoTimeConnectWebApi.Data
 					{
                        
 						marcaRes.NominaEq = item.NominaEq;
-						marcaRes.Cantidad = item.Cantidad;
+						//marcaRes.Cantidad = item.Cantidad;
 						marcaRes.Monto = item.Monto;
 						marcaRes.Proyecto = item.Proyecto;
 						marcaRes.Fase = item.Fase;
