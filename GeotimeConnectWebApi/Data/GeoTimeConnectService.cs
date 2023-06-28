@@ -137,10 +137,9 @@ namespace GeoTimeConnectWebApi.Data
             try
             {
 
-
                 accionPersonal = await (from ap in _context.Acciones_Personal.Where(e => e.IdPlanilla == IdPlanilla
                                                                               && e.Estado == estado
-                                                                              && (e.Usuario == usuario || e.Usuario == (usuario + "\\")))
+                                                                              && (e.Usuario.Contains(usuario)))
                                         join inc in _context.Incidencias on ap.IdIncidencia equals inc.Id
                                         select new cAccionPersonal
                                         {
@@ -1510,5 +1509,62 @@ namespace GeoTimeConnectWebApi.Data
 			return periodos;
 		}
 
-	}
+
+        //Creado por: Marlon Loria Solano
+        //Fecha: 2023-06-27
+        //Obtener lista de tipos de planilla 
+        public async Task<IEnumerable<cPh_Planilla>> GetPhPlanilla()
+        {
+            List<cPh_Planilla>? planilla = new();
+            try
+            {
+                planilla = await _context.Ph_Planilla.ToListAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message); throw;
+            }
+            return planilla;
+        }
+
+        //Creado por: Marlon Loria Solano
+        //Fecha: 2023-06-27
+        //Obtener un tipo de planilla especifico
+        public async Task<cPh_Planilla> GetPhPlanilla(string idplanilla)
+        {
+            cPh_Planilla? planilla = new();
+            try
+            {
+                planilla = await _context.Ph_Planilla.FirstOrDefaultAsync(e => e.idplanilla == idplanilla);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message); throw;
+            }
+            return planilla;
+        }
+
+        //Creado por: Marlon Loria Solano
+        //Fecha: 2023-06-27
+        //Obtener un tipo de planilla especifico por nom conector
+        public async Task<cPh_Planilla> GetPhPlanilla(string nomConector, string descPlanilla)
+        {
+            cPh_Planilla? planilla = new();
+            try
+            {
+                planilla = await _context.Ph_Planilla.FirstOrDefaultAsync(e => e.nom_conector.ToLower() == nomConector.ToLower());
+
+                if (planilla == null)
+                {
+                    planilla = await _context.Ph_Planilla.FirstOrDefaultAsync(e => e.planilla.ToLower() == descPlanilla.ToLower());
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message); throw;
+            }
+            return planilla;
+        }
+
+    }
 }

@@ -52,7 +52,11 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         public Task<IEnumerable<cPh_Periodos>> GetPeriodo();
         public Task<cPh_Periodos> GetPeriodo(string idperiodo);
         public Task<IEnumerable<cPh_Periodos>> GetPeriodo(string fecha, string vigente);
+        public Task<IEnumerable<cPh_Planilla>> GetPhPlanilla();
+        public Task<cPh_Planilla> GetPhPlanilla(string idplanilla);
+        public Task<cPh_Planilla> GetPhPlanilla(string nomConector, string descPlanilla);
 
 
-	}
+
+    }
 }

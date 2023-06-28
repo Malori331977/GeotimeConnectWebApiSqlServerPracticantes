@@ -25,14 +25,9 @@ IConfiguration config = new ConfigurationBuilder()
 //correctos.
 var appSettingsSection = config.GetSection("AppSettings");
 string SQLConnectionString = config.GetConnectionString("SqlServerDataBaseContext");
-//var sr = Encripta.getEncryptTripleDES("Mloria");
-//var psr = Encripta.getEncryptTripleDES("Listo123@");
 
-var us = Encripta.getEncryptTripleDES("UserMaestro");
-var ps = Encripta.getEncryptTripleDES("Listo123@");
-
-string us2 = Encripta.getEncryptTripleDES("userlabores");
-string pa = Encripta.getEncryptTripleDES("Labores2023@");
+//var us = Encripta.getEncryptTripleDES("sdfs");
+//var ps = Encripta.getEncryptTripleDES("sdfsdf@");
 
 
 string userSQL = Encripta.getDecryptTripleDES(config.GetConnectionString("UserSQL"));
