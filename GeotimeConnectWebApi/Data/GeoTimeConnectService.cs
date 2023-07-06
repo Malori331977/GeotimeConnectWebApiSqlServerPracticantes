@@ -25,36 +25,31 @@ namespace GeoTimeConnectWebApi.Data
         private readonly IHttpContextAccessor _httpContextAccessor;
         private string _schema = "";
 
-        //public GeoTimeConnectService(IHttpContextAccessor httpContextAccessor)
-        //{
-        //    _httpContextAccessor = httpContextAccessor;
-        //    IEnumerable <Claim> claims = _httpContextAccessor.HttpContext.User.Claims;
-        //    string schema = "";
-        //    string bdname = "";
-
-        //    foreach (Claim clm in claims)
-        //    {
-        //        if (clm.Type.Contains("claims/givenname"))
-        //        {
-        //            schema = clm.Value;
-        //        }
-
-        //        if (clm.Type.Contains("claims/spn"))
-        //        {
-        //            bdname = clm.Value;
-        //        }
-
-        //        if (schema != "" && schema is not null && bdname != "" && bdname is not null)
-        //            break;
-
-        //    }
-        //    _schema = schema;
-        //    _context = SchemaChangeDbContext.GetSchemaChangeDbContext(schema, bdname);
-        //}
-
-        public GeoTimeConnectService(SqlServerDataBaseContext context)
+        public GeoTimeConnectService(IHttpContextAccessor httpContextAccessor)
         {
-            _context = context;
+            _httpContextAccessor = httpContextAccessor;
+            IEnumerable<Claim> claims = _httpContextAccessor.HttpContext.User.Claims;
+            string schema = "";
+            string bdname = "";
+
+            foreach (Claim clm in claims)
+            {
+                if (clm.Type.Contains("claims/givenname"))
+                {
+                    schema = clm.Value;
+                }
+
+                if (clm.Type.Contains("claims/spn"))
+                {
+                    bdname = clm.Value;
+                }
+
+                if (schema != "" && schema is not null && bdname != "" && bdname is not null)
+                    break;
+
+            }
+            _schema = schema;
+            _context = SchemaChangeDbContext.GetSchemaChangeDbContext(schema, bdname);
         }
 
         //Creado por: Marlon Loria Solano
