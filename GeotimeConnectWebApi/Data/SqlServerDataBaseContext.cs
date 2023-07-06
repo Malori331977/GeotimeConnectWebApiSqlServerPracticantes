@@ -21,7 +21,8 @@ namespace GeoTimeConnectWebApi.Data
 
         private string schemaAdmin;
 
-        public SqlServerDataBaseContext(DbContextOptions<SqlServerDataBaseContext> options) : base(options)
+        public SqlServerDataBaseContext(DbContextOptions<SqlServerDataBaseContext> options,
+                                        IDbContextSchema? schema = null) : base(options)
         {
             // Build a config object, using env vars and JSON providers.
             IConfiguration config = new ConfigurationBuilder()
@@ -30,32 +31,19 @@ namespace GeoTimeConnectWebApi.Data
                 .Build();
 
             schemaAdmin = config.GetConnectionString("SchemaAdmin");
-            Schema = config.GetConnectionString("Schema");
-            
+
+            if (schema is null)
+            {
+                Schema = config.GetConnectionString("Schema");
+            }
+            else
+            {
+                Schema = schema.Schema;
+                _dbContextSchema1 = schema;
+
+            }
+
         }
-        //public SqlServerDataBaseContext(DbContextOptions<SqlServerDataBaseContext> options,
-        //                                IDbContextSchema? schema = null) : base(options)
-        //{
-        //    // Build a config object, using env vars and JSON providers.
-        //    IConfiguration config = new ConfigurationBuilder()
-        //        .AddJsonFile("appsettings.json")
-        //        .AddEnvironmentVariables()
-        //        .Build();
-
-        //    schemaAdmin= config.GetConnectionString("SchemaAdmin");
-
-        //    if (schema is null)
-        //    {
-        //        Schema = config.GetConnectionString("Schema");
-        //    }
-        //    else
-        //    {
-        //        Schema = schema.Schema;
-        //        _dbContextSchema1 = schema;
-                
-        //    }
-            
-        //}
 
         public DbSet<cAccionPersonal> Acciones_Personal { get; set; }
         public DbSet<cCentroCosto> Ph_CCostos { get; set; }

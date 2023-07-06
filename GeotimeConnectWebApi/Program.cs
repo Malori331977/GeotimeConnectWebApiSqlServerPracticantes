@@ -38,22 +38,9 @@ SQLConnectionString = SQLConnectionString.Replace("UsuarioBDSQL", userSQL)
 
 // Add services to the container.
 builder.Services.AddControllers();
-//builder.Services.AddDbContext<SqlServerDataBaseContext>(options => options.UseSqlServer(SQLConnectionString)
-//                                                                          .ReplaceService<IModelCacheKeyFactory, DbSchemaAwareModelCacheKeyFactory>())
-//                .AddSingleton<IDbContextSchema>(new DbContextSchema(schema,DateTime.Now,""));
-
-//builder.Services.AddDbContext<SqlServerDataBaseContext>(options =>
-//{
-//    options.UseOracle(SQLConnectionString, options =>
-//    options.UseOracleSQLCompatibility("11"));
-//});
-
-builder.Services.AddDbContext<SqlServerDataBaseContext>(options =>
-{
-    options.UseOracle(SQLConnectionString);
-});
-
-
+builder.Services.AddDbContext<SqlServerDataBaseContext>(options => options.UseSqlServer(SQLConnectionString)
+                                                                          .ReplaceService<IModelCacheKeyFactory, DbSchemaAwareModelCacheKeyFactory>())
+                .AddSingleton<IDbContextSchema>(new DbContextSchema(schema, DateTime.Now, ""));
 
 //add configurations
 builder.Services.Configure<AppSettings>(appSettingsSection);
