@@ -21,7 +21,6 @@ namespace GeoTimeConnectWebApi.Controllers
         private readonly IGeoTimeConnectService _repoGT;
         public PhPlanillaController(IGeoTimeConnectService repoGT)
         {
-
             _repoGT = repoGT;
         }
 
@@ -33,7 +32,6 @@ namespace GeoTimeConnectWebApi.Controllers
 
         [HttpGet("{nomconector}/{descplanilla}")]
         public async Task<cPh_Planilla> Get(string nomconector, string descplanilla) => await _repoGT.GetPhPlanilla(nomconector, descplanilla);
-
 
     }
 }
