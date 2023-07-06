@@ -2,8 +2,8 @@
 {
     public class cDepartamento
     {
-        public String? IdDepart { get; set; }
-        public String? Descripcion { get; set; }
+        public String? IDDEPART { get; set; }
+        public String? DESCRIPCION { get; set; }
 
     }
 }

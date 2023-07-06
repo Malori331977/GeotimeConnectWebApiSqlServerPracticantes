@@ -26,28 +26,35 @@ IConfiguration config = new ConfigurationBuilder()
 var appSettingsSection = config.GetSection("AppSettings");
 string SQLConnectionString = config.GetConnectionString("SqlServerDataBaseContext");
 
-//var us = Encripta.getEncryptTripleDES("sdfs");
-//var ps = Encripta.getEncryptTripleDES("sdfsdf@");
-
-
 string userSQL = Encripta.getDecryptTripleDES(config.GetConnectionString("UserSQL"));
 string passSQL = Encripta.getDecryptTripleDES(config.GetConnectionString("PassSQL"));
 string schema = config.GetConnectionString("Schema");
 string basedatos = config.GetConnectionString("DBName");
 string withCors = config.GetConnectionString("WithCors");
 
-SQLConnectionString = SQLConnectionString.Replace("BaseDatos", basedatos)
-                                         .Replace("UsuarioBDSQL", userSQL)
-.Replace("PassBDSQL", passSQL);
-
-//funciones.funciones_geo funcionesGeo = new();
-//var pass = funcionesGeo.Global_encrypt("Inicio123@");
+SQLConnectionString = SQLConnectionString.Replace("UsuarioBDSQL", userSQL)
+                                         .Replace("PassBDSQL", passSQL)
+                                         .Replace("BaseDatos", basedatos);
 
 // Add services to the container.
 builder.Services.AddControllers();
-builder.Services.AddDbContext<SqlServerDataBaseContext>(options => options.UseSqlServer(SQLConnectionString)
-                                                                          .ReplaceService<IModelCacheKeyFactory, DbSchemaAwareModelCacheKeyFactory>())
-                .AddSingleton<IDbContextSchema>(new DbContextSchema(schema,DateTime.Now,""));
+//builder.Services.AddDbContext<SqlServerDataBaseContext>(options => options.UseSqlServer(SQLConnectionString)
+//                                                                          .ReplaceService<IModelCacheKeyFactory, DbSchemaAwareModelCacheKeyFactory>())
+//                .AddSingleton<IDbContextSchema>(new DbContextSchema(schema,DateTime.Now,""));
+
+//builder.Services.AddDbContext<SqlServerDataBaseContext>(options =>
+//{
+//    options.UseOracle(SQLConnectionString, options =>
+//    options.UseOracleSQLCompatibility("11"));
+//});
+
+builder.Services.AddDbContext<SqlServerDataBaseContext>(options =>
+{
+    options.UseOracle(SQLConnectionString);
+});
+
+
+
 //add configurations
 builder.Services.Configure<AppSettings>(appSettingsSection);
 

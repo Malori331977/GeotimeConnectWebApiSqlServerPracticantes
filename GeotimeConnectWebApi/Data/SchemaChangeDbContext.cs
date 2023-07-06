@@ -26,9 +26,9 @@ namespace GeoTimeConnectWebApi.Data
             string passSQL = Encripta.getDecryptTripleDES(config.GetConnectionString("PassSQL"));
             string basedatos = (DBName is null || DBName == "") ? config.GetConnectionString("DBName") : DBName;
 
-            SQLConnectionString = SQLConnectionString.Replace("BaseDatos", basedatos)
-                                                     .Replace("UsuarioBDSQL", userSQL)
-                                                     .Replace("PassBDSQL", passSQL);
+            SQLConnectionString = SQLConnectionString.Replace("UsuarioBDSQL", userSQL)
+                                                     .Replace("PassBDSQL", passSQL)
+                                                     .Replace("BaseDatos", basedatos);
 
             var services = new ServiceCollection()
                .AddDbContext<SqlServerDataBaseContext>(

@@ -15,6 +15,7 @@ using GeoTimeConnectWebApi.Models.Response;
 using Seguridad_Geotime;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
+using Oracle.ManagedDataAccess.Client;
 
 namespace GeoTimeConnectWebApi.Data
 {
@@ -24,31 +25,36 @@ namespace GeoTimeConnectWebApi.Data
         private readonly IHttpContextAccessor _httpContextAccessor;
         private string _schema = "";
 
-        public GeoTimeConnectService(IHttpContextAccessor httpContextAccessor)
+        //public GeoTimeConnectService(IHttpContextAccessor httpContextAccessor)
+        //{
+        //    _httpContextAccessor = httpContextAccessor;
+        //    IEnumerable <Claim> claims = _httpContextAccessor.HttpContext.User.Claims;
+        //    string schema = "";
+        //    string bdname = "";
+
+        //    foreach (Claim clm in claims)
+        //    {
+        //        if (clm.Type.Contains("claims/givenname"))
+        //        {
+        //            schema = clm.Value;
+        //        }
+
+        //        if (clm.Type.Contains("claims/spn"))
+        //        {
+        //            bdname = clm.Value;
+        //        }
+
+        //        if (schema != "" && schema is not null && bdname != "" && bdname is not null)
+        //            break;
+
+        //    }
+        //    _schema = schema;
+        //    _context = SchemaChangeDbContext.GetSchemaChangeDbContext(schema, bdname);
+        //}
+
+        public GeoTimeConnectService(SqlServerDataBaseContext context)
         {
-            _httpContextAccessor = httpContextAccessor;
-            IEnumerable <Claim> claims = _httpContextAccessor.HttpContext.User.Claims;
-            string schema = "";
-            string bdname = "";
-
-            foreach (Claim clm in claims)
-            {
-                if (clm.Type.Contains("claims/givenname"))
-                {
-                    schema = clm.Value;
-                }
-
-                if (clm.Type.Contains("claims/spn"))
-                {
-                    bdname = clm.Value;
-                }
-
-                if (schema != "" && schema is not null && bdname != "" && bdname is not null)
-                    break;
-
-            }
-            _schema = schema;
-            _context = SchemaChangeDbContext.GetSchemaChangeDbContext(schema, bdname);
+            _context = context;
         }
 
         //Creado por: Marlon Loria Solano
@@ -549,7 +555,7 @@ namespace GeoTimeConnectWebApi.Data
             cDepartamento? departamento = new();
             try
             {
-                departamento = await _context.Ph_Departamento.FirstOrDefaultAsync(e => e.IdDepart == idDepart);
+                departamento = await _context.Ph_Departamento.FirstOrDefaultAsync(e => e.IDDEPART == idDepart);
             }
             catch (Exception e)
             {
@@ -572,13 +578,13 @@ namespace GeoTimeConnectWebApi.Data
                 foreach(var departamento in departamentos)
                 {
                     cDepartamento? depto = await _context.Ph_Departamento
-                                                        .Where(e => e.IdDepart == departamento.IdDepart)
+                                                        .Where(e => e.IDDEPART == departamento.IDDEPART)
                                                         .FirstOrDefaultAsync();
                     //si el departamento existe se actualiza descripción
                     //de lo contrario se agrega el registro
                     if (depto is not null)
                     {
-                        depto.Descripcion = departamento.Descripcion;
+                        depto.DESCRIPCION = departamento.DESCRIPCION;
                         _context.Ph_Departamento.Update(depto);
                     }
                     else
@@ -840,6 +846,8 @@ namespace GeoTimeConnectWebApi.Data
 
         public async Task<List<cIncidencia>> GetIncidencia()
         {
+            
+
             List<cIncidencia> incidencia = new();
             try
             {
