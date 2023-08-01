@@ -787,10 +787,15 @@ namespace GeoTimeConnectWebApi.Data
             try
             {
                 DateTime fechaIngreso;
-                foreach(var empleado in empleados)
+                string idPlanillaAnt;
+                foreach (var empleado in empleados)
                 {
-                    fechaIngreso =(DateTime) DateTime.Parse(empleado.Fecha_Ingreso.ToString());
+                    if (empleado.Fecha_Ingreso is null)
+                        fechaIngreso = DateTime.Now;
+                    else
+                        fechaIngreso =(DateTime) DateTime.Parse(empleado.Fecha_Ingreso.ToString());
 
+                    
                     cEmpleado? emp = await _context.Empleados
                                     .Where(e => e.IdNumero == empleado.IdNumero)
                                     .FirstOrDefaultAsync();
@@ -798,6 +803,15 @@ namespace GeoTimeConnectWebApi.Data
                     //de lo contrario se agrega el registro
                     if (emp is not null)
                     {
+                        //si estado nuevo es inactivo
+                        if (empleado.Estado == 'F')
+                            //si no viene la fecha de salida se asigna fecha del dia que se inactiva
+                            if (empleado.Fecha_Salida is null)
+                                emp.Fecha_Salida = DateTime.Now;
+                            else
+                                emp.Fecha_Salida = empleado.Fecha_Salida;
+
+                        idPlanillaAnt = emp.IdPlanilla;
                         emp.Estado = empleado.Estado;
                         emp.Nombre = empleado.Nombre;
                         emp.IdDepartamento = empleado.IdDepartamento;
@@ -806,19 +820,27 @@ namespace GeoTimeConnectWebApi.Data
                         emp.Fecha_Ingreso = fechaIngreso;
 
                         _context.Empleados.Update(emp);
+                        await _context.SaveChangesAsync();
+
+                        if (idPlanillaAnt!= empleado.IdPlanilla)
+                        {
+                            await EjecutaPostCambioPlanilla(empleado.IdNumero, idPlanillaAnt, empleado.IdPlanilla);
+                        }
                     }
                     else
                     {
                         empleado.Fecha_Ingreso = fechaIngreso;
+                        empleado.Fecha_Salida = null;
                         empleado.IdGrupo = 1;
                         empleado.IdHorario = 1;
                         empleado.Tipo_Marca = "H";
                         empleado.IdAgrupamiento = 0;
                         _context.Add(empleado);
+                        await _context.SaveChangesAsync();
                     }
                 }
                 
-                await _context.SaveChangesAsync();
+                
             }
             catch (Exception e)
             {
@@ -1567,6 +1589,28 @@ namespace GeoTimeConnectWebApi.Data
                 Console.WriteLine(e.Message); throw;
             }
             return planilla;
+        }
+
+        public async Task EjecutaPostCambioPlanilla(string idnumero, string oldPlanilla, string newPlanilla)
+        {
+            try
+            {
+                using (var connection = _context.Database.GetDbConnection())
+                {
+                    await connection.OpenAsync();
+                    using (var command = connection.CreateCommand())
+                    {
+                        command.CommandText = _schema + $".DM_POST_CAMBIOPLANILLA @idnumero='{idnumero}', @OLDPLANILLA='{oldPlanilla}',@NEWPLANILLA='{newPlanilla}'";
+                        await command.ExecuteNonQueryAsync();
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+
+
         }
 
     }

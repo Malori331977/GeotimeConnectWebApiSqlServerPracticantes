@@ -21,6 +21,7 @@ namespace GeoTimeConnectWebApi.Models
         public int? IdAgrupamiento { get; set; }
         public string? Tipo_Marca { get; set; }
         public string? global_clave { get; set; }
+        public DateTime? Fecha_Salida { get; set; }
 
 
     }
