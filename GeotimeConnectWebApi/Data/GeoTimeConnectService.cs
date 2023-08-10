@@ -326,6 +326,40 @@ namespace GeoTimeConnectWebApi.Data
 
         }
 
+        //Creado por: Marlon Loria Solano
+        //Fecha: 2023-08-10
+        //Sincronizar AccionPersonal PreJustificacion
+        //Parametro: Recibe una lista de Acciones de Personal y las crea en GeoTime
+        public async Task<EventResponse> Sincronizar_AccionPersonal_PreJustificacion(IEnumerable<cAccionPersonal> accionPersonal)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+                foreach (var accion in accionPersonal)
+                {
+                    accion.IdAccion = 0;
+                    _context.Add(accion);
+                    await _context.SaveChangesAsync();
+
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo realizar la sincronización de Accion de Personal. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo realizar la sincronización de Accion de Persona. Detalle de Error: " + e.InnerException.Message;
+
+            }
+
+            return respuesta;
+
+        }
+
         public async Task EjecutaAplicaAccionPersonal(long idregistro)
         {
             try
@@ -607,7 +641,10 @@ namespace GeoTimeConnectWebApi.Data
 
         //Creado por: Marlon Loria Solano
         //Fecha: 2022-10-30
-        //Obtener lista de Empleados
+        /// <summary>
+        /// GetEmpleado: Método para obtener una lista de empleados 
+        /// </summary>
+        /// <returns>Lista de cEmpleados</returns>
         public async Task<List<cEmpleado>> GetEmpleado()
         {
             List<cEmpleado> empleado = new();
@@ -622,7 +659,13 @@ namespace GeoTimeConnectWebApi.Data
             return empleado;
         }
 
-        //Obtener Empleado por IdNumero
+        //Creado por: Marlon Loria Solano
+        //Fecha: 2022-10-30
+        /// <summary>
+        /// GetEmpleado: Método para un empleado específico
+        /// </summary>
+        /// <returns>Una instancia de la clase cEmpleado</returns>
+        /// ///<param name="idNumero">idNumero del empleado requerido</param>
         public async Task<cEmpleado> GetEmpleado(string idNumero)
         {
             cEmpleado? empleado = new();
@@ -636,9 +679,6 @@ namespace GeoTimeConnectWebApi.Data
             }
             return empleado;
         }
-
-        
-
 
         //Obtener Empleado por IdNumero
         public async Task<cEmpleado> GetEmpleadoByEmail(string email)
@@ -1480,10 +1520,13 @@ namespace GeoTimeConnectWebApi.Data
             return grupos;
         }
 
-		//Creado por: Marlon Loria Solano
-		//Fecha: 2023-06-07
-		//Obtener un Periodo especifico
-		public async Task<IEnumerable<cPh_Periodos>> GetPeriodo()
+        //Creado por: Marlon Loria Solano
+        //Fecha: 2023-06-07
+        /// <summary>
+        /// getPeriodo: Método para obtener una lista de Periodos 
+        /// </summary>
+        /// <returns>Lista de cPh_Periodos</returns>
+        public async Task<IEnumerable<cPh_Periodos>> GetPeriodo()
 		{
 			List<cPh_Periodos>? periodos = new();
 			try
@@ -1497,10 +1540,14 @@ namespace GeoTimeConnectWebApi.Data
 			return periodos;
 		}
 
-		//Creado por: Marlon Loria Solano
-		//Fecha: 2023-06-07
-		//Obtener un Periodo especifico
-		public async Task<cPh_Periodos> GetPeriodo(string idperiodo)
+        //Creado por: Marlon Loria Solano
+        //Fecha: 2023-06-07
+        /// <summary>
+        /// getPeriodo: Método para un periodo específico
+        /// </summary>
+        /// <returns>Una instancia de la clase cPh_Periodos</returns>
+        /// ///<param name="idperiodo">idperiodo del periodo requerido</param>
+        public async Task<cPh_Periodos> GetPeriodo(string idperiodo)
 		{
 			cPh_Periodos? periodo = new();
 			try
@@ -1514,10 +1561,15 @@ namespace GeoTimeConnectWebApi.Data
 			return periodo;
 		}
 
-		//Creado por: Marlon Loria Solano
-		//Fecha: 2023-06-07
-		//Obtener un Periodo especifico
-		public async Task<IEnumerable<cPh_Periodos>> GetPeriodo(string fecha, string vigente)
+        //Creado por: Marlon Loria Solano
+        //Fecha: 2023-06-07
+        /// <summary>
+        /// getPeriodo: Método para obtener una lista de Periodos 
+        /// </summary>
+        /// <returns>Lista de cPh_Periodos</returns>
+        /// <param name="fecha">Fecha del periodo</param>
+        /// <param name="vigente">Periodo está vigente </param>
+        public async Task<IEnumerable<cPh_Periodos>> GetPeriodo(string fecha, string vigente)
 		{
 
 			List<cPh_Periodos>? periodos = new();
@@ -1610,6 +1662,221 @@ namespace GeoTimeConnectWebApi.Data
                 throw;
             }
 
+        }
+
+        //Creado por: Marlon Loria Solano
+        //Fecha: 2023-08-10
+        /// <summary>
+        /// GetMarcaIn: Método para obtener todos los datos de la tabla Marcas_In 
+        /// </summary>
+        /// <returns>Lista de registros de la clase cMarcaIn</returns>
+        public async Task<List<cMarcaIn>> GetMarcaIn()
+        {
+            List<cMarcaIn> marcaIn = new();
+            try
+            {
+                marcaIn = await _context.Marcas_In.ToListAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message); throw;
+            }
+            return marcaIn;
+        }
+
+        //Creado por: Marlon Loria Solano
+        //Fecha: 2023-08-10
+        /// <summary>
+        /// GetMarcaIn: Método para obtener todos los datos de la tabla Marcas_In de un colaborador
+        /// </summary>
+        /// <returns>Lista de registros de la clase cMarcaIn para un colaborador en específico</returns>
+        /// <param name="idtarjeta">Id de Tarjeta del colaborador</param>
+        public async Task<List<cMarcaIn>> GetMarcaIn(string idtarjeta)
+        {
+            List<cMarcaIn> marcaIn = new();
+            try
+            {
+                marcaIn = await _context.Marcas_In.Where(e => e.idtarjeta == idtarjeta).ToListAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message); throw;
+            }
+            return marcaIn;
+        }
+
+        //Creado por: Marlon Loria Solano
+        //Fecha: 2023-08-10
+        /// <summary>
+        /// Sincronizar_MarcaIn: Método para registrar las marcas de ingreso, salida y descanso de los colaboradores en la tabla Marcas_In 
+        /// </summary>
+        /// <returns>Una instancia de la Clase EventResponse, con el resultado del proceso</returns>
+        /// <param name="marcasIn">Lista de registroS de la clase cMarcasIn</param>
+        public async Task<EventResponse> Sincronizar_MarcaIn(IEnumerable<cMarcaIn> marcasIn)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+                foreach (var marcaIn in marcasIn)
+                {                   
+                    _context.Add(marcaIn);
+                    await _context.SaveChangesAsync();
+
+                    await EjecutaInMarcasWeb(marcaIn.idnumero);
+                }
+
+                
+
+                
+
+
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo realizar el registro de la Marca. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo realizar el registro de la Marca. Detalle de Error: " + e.InnerException.Message;
+
+            }
+
+            return respuesta;
+
+        }
+
+        //Creado por: Marlon Loria Solano
+        //Fecha: 2023-08-10
+        /// <summary>
+        /// GetMarcaExtraApb: Método para obtener todos los datos de la tabla Marcas_Extras_Apb 
+        /// </summary>
+        /// <returns>Lista de registros de la clase cMarcaExtraApb</returns>
+        public async Task<List<cMarcaExtraApb>> GetMarcaExtraApb()
+        {
+            List<cMarcaExtraApb> marcaExtraApb = new();
+            try
+            {
+                marcaExtraApb = await _context.Marcas_Extras_Apb.ToListAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message); throw;
+            }
+            return marcaExtraApb;
+        }
+
+        //Creado por: Marlon Loria Solano
+        //Fecha: 2023-08-10
+        /// <summary>
+        /// GetMarcaExtraApb: Método para obtener un registro de la tabla Marcas_Extras_Apb con un identificador específico
+        /// </summary>
+        /// <returns>Registro de la clase Marcas_Extras_Apb</returns>
+        /// <param name="idregistro">Número identificador del registro</param>
+        public async Task<cMarcaExtraApb> GetMarcaExtraApb(long idregistro)
+        {
+            cMarcaExtraApb marcaExtraApb = new();
+            try
+            {
+                marcaExtraApb = await _context.Marcas_Extras_Apb.FirstOrDefaultAsync(e => e.idregistro == idregistro);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message); throw;
+            }
+            return marcaExtraApb;
+        }
+
+        //Creado por: Marlon Loria Solano
+        //Fecha: 2023-08-10
+        /// <summary>
+        /// Sincronizar_MarcaExtraApb: Método para registrar las marcas de horas extras de los colaboradores en las tablas Marcas_Extras_Apb y Marcas_Proceso
+        /// </summary>
+        /// <returns>Una instancia de la Clase EventResponse, con el resultado del proceso</returns>
+        /// <param name="marcasExtraApb">Lista de registros de la clase cMarcaExtraApb</param>
+        public async Task<EventResponse> Sincronizar_MarcaExtraApb(IEnumerable<cMarcaExtraApb> marcasExtraApb)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+                foreach (var marcaExtraApb in marcasExtraApb)
+                {
+                    cMarcaExtraApb? marcaExtra = await _context.Marcas_Extras_Apb
+                                    .Where(e => e.idregistro == marcaExtraApb.idregistro)
+                                    .FirstOrDefaultAsync();
+                    //si la marca de hora extra existe se actualiza 
+                    //de lo contrario se agrega el registro
+                    if (marcaExtra is not null)
+                    {
+                        _context.Marcas_Extras_Apb.Update(marcaExtra);
+
+                        var marcaProceso = await _context.Marcas_Proceso.FirstOrDefaultAsync(e => e.fecha_entra >= marcaExtra.fecha && e.fecha_sale <= marcaExtra.fecha && e.idnumero == marcaExtra.idnumero && e.idplanilla==marcaExtra.idplanilla);
+
+                        if (marcaProceso is not null)
+                        {
+                            marcaProceso.EXTT = marcaExtra.cantidad;
+                        }
+                    }
+                    else
+                    {
+                        marcaExtraApb.idregistro = 0;
+                        _context.Add(marcaExtraApb);
+
+                        var marcaProceso = await _context.Marcas_Proceso.FirstOrDefaultAsync(e => e.fecha_entra >= marcaExtraApb.fecha && e.fecha_sale <= marcaExtraApb.fecha && e.idnumero == marcaExtraApb.idnumero && e.idplanilla == marcaExtraApb.idplanilla);
+
+                        if (marcaProceso is not null)
+                        {
+                            marcaProceso.EXTT = marcaExtraApb.cantidad;
+                        }
+                    }
+                    await _context.SaveChangesAsync();
+
+                }
+               
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo realizar el registro de la Hora Extra. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo realizar el registro de la Hora Extra. Detalle de Error: " + e.InnerException.Message;
+
+            }
+
+            return respuesta;
+
+        }
+
+        //Creado por: Marlon Loria Solano
+        //Fecha: 2023-08-10
+        /// <summary>
+        /// EjecutaInMarcasWeb: Método que ejecuta procedimiento almacenado IN_MARCAS_WEB, necesario para completar el registro de marca en Geotime
+        /// </summary>
+        /// <param name="idnumero">idnumero del empleado que realiza la marca</param>
+        public async Task EjecutaInMarcasWeb(string idnumero )
+        {
+            try
+            {
+                using (var connection = _context.Database.GetDbConnection())
+                {
+                    await connection.OpenAsync();
+                    using (var command = connection.CreateCommand())
+                    {
+                        command.CommandText = _schema + $".IN_MARCAS_WEB @idnumero='{idnumero}'";
+                        await command.ExecuteNonQueryAsync();
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                throw;
+            }
 
         }
 
