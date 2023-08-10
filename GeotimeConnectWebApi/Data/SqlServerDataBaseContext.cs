@@ -60,6 +60,10 @@ namespace GeoTimeConnectWebApi.Data
         public DbSet<cPh_Grupo> Ph_Grupos { get; set; }
 		public DbSet<cPh_Periodos> Ph_Periodos { get; set; }
         public DbSet<cPh_Planilla> Ph_Planilla { get; set; }
+        public DbSet<cMarcaIn> Marcas_In { get; set; }
+        public DbSet<cMarcaExtraApb> Marcas_Extras_Apb { get; set; }
+        public DbSet<cMarcaProceso> Marcas_Proceso { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -90,13 +94,18 @@ namespace GeoTimeConnectWebApi.Data
                 .HasKey(e => new { e.registro });
             builder.Entity<cMarcaMovTurno>().ToTable("MARCAS_MOV_TURNOS", Schema)
                .HasKey(e => new { e.idregistro });
-
             builder.Entity<cPh_Grupo>().ToTable("PH_GRUPOS", Schema)
                  .HasKey(e => new { e.idgrupo });
 			builder.Entity<cPh_Periodos>().ToTable("PH_PERIODOS", Schema)
 				.HasKey(e => new { e.idperiodo });
             builder.Entity<cPh_Planilla>().ToTable("PH_PLANILLA", Schema)
                 .HasKey(e => new { e.idplanilla });
+            builder.Entity<cMarcaIn>().ToTable("MARCAS_IN", Schema)
+                .HasNoKey();
+            builder.Entity<cMarcaExtraApb>().ToTable("MARCAS_EXTRAS_APB", Schema)
+                .HasKey(e => new {e.idregistro});
+            builder.Entity<cMarcaProceso>().ToTable("MARCAS_PROCESO", Schema)
+                .HasKey(e => new { e.idregistro });
 
         }
 
