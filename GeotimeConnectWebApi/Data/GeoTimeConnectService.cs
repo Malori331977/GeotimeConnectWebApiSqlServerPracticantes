@@ -247,6 +247,61 @@ namespace GeoTimeConnectWebApi.Data
 
         }
 
+
+        //Creado por: Marlon Loria Solano
+        //Fecha: 2022-10-30
+        //Sincronizar Centros de Costo
+        //Parametro: Recibe una instancia de centro de costo, se verifica si existe en cuyo caso
+        //actualiza el registro, de lo contrario lo crea.
+        public async Task<EventResponse> Sincronizar_AccionPersonal_AutoGestion(IEnumerable<cAccionPersonal> accionPersonal)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+                foreach (var accion in accionPersonal)
+                {
+                    var planilla = await _context.Ph_Planilla.FirstOrDefaultAsync(e => e.nom_conector == accion.IdPlanilla);
+
+                    if (planilla is not null)
+                    {
+                        accion.IdAccion = 0;
+                        accion.IdPlanilla = planilla.idplanilla;
+
+                        _context.Add(accion);
+                        await _context.SaveChangesAsync();
+
+                        var ultimaAccion = await _context.Acciones_Personal.FirstOrDefaultAsync(e => e.SolicitudId == accion.SolicitudId);
+
+                        if (ultimaAccion is not null)
+                            await EjecutaAplicaAccionPersonal(ultimaAccion.IdRegistro);
+                    }
+                    else
+                    {
+                        respuesta.Id = "1";
+                        respuesta.Respuesta = "Error";
+                        respuesta.Descripcion = "No logró encontrar el id de planilla asociado a nom_conector";
+                    }
+
+
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo realizar la sincronización de Accion de Personal. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo realizar la sincronización de Accion de Persona. Detalle de Error: " + e.InnerException.Message;
+
+            }
+
+            return respuesta;
+
+        }
+
         //Creado por: Marlon Loria Solano
         //Fecha: 2022-10-30
         //Sincronizar Centros de Costo
@@ -1375,6 +1430,42 @@ namespace GeoTimeConnectWebApi.Data
             return marcaMovTurno;
         }
 
+        /// <summary>
+        /// GetMarcaMovTurno: Método para obtener una lista de Marcas Mov Turnos por empleado 
+        /// </summary>
+        /// <returns>Lista de cMarcaMovTurno</returns>
+        /// <param name="idnumero">Número de Empleado</param>
+        /// <param name="fechaPeriodo">Fecha del Periodo para el cual se requieren los turnos</param>
+        public async Task<List<cMarcaMovTurno>> GetMarcaMovTurno(string idnumero,string fechaPeriodo)
+        {
+            
+            List < cMarcaMovTurno > marcaMovTurno = new();
+            try
+            {
+                DateTime fechaMov = DateTime.Parse($"{fechaPeriodo.Substring(0, 4)}-{fechaPeriodo.Substring(4, 2)}-{fechaPeriodo.Substring(6, 2)}");
+                var periodos = await (from a in _context.Ph_Periodos
+                                      join b in _context.Ph_Planilla on a.tipo_planilla equals b.tipo_planilla
+                                      join c in _context.Empleados on b.idplanilla equals c.IdPlanilla
+                                      where c.IdNumero == idnumero
+                                        && fechaMov>=a.inicio && fechaMov<= a.fin
+                                      select a).FirstOrDefaultAsync();
+                if (periodos != null)
+                {
+                    marcaMovTurno = await _context.Marcas_Mov_Turnos
+                                            .Where(e => e.idnumero==idnumero 
+                                                    && e.fecha>=periodos.inicio 
+                                                    && e.fecha<= periodos.fin).ToListAsync();
+                }
+                
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message); throw;
+            }
+            return marcaMovTurno;
+        }
+
+
         //Creado por: Marlon Loria Solano
         //Fecha: 2023-05-24
         //Sincronizar Marcas_MOv_Turnos
@@ -1560,6 +1651,34 @@ namespace GeoTimeConnectWebApi.Data
 			}
 			return periodo;
 		}
+
+        /// <summary>
+        /// GetPeriodoVigenteEmpleado: Método para obtener el periodo vigenta para un empleado  
+        /// </summary>
+        /// <returns>Un item de cPh_Periodos</returns>
+        /// <param name="fecha">Fecha del periodo</param>
+        /// <param name="idnumero">Número de empleado</param>
+        public async Task<cPh_Periodos> GetPeriodoVigenteEmpleado(string idnumero, string fechaPeriodo)
+        {
+            cPh_Periodos? periodo = new();
+            try
+            {
+                DateTime fechaMov = DateTime.Parse($"{fechaPeriodo.Substring(0, 4)}-{fechaPeriodo.Substring(4, 2)}-{fechaPeriodo.Substring(6, 2)}");
+                periodo = await (from a in _context.Ph_Periodos
+                                      join b in _context.Ph_Planilla on a.tipo_planilla equals b.tipo_planilla
+                                      join c in _context.Empleados on b.idplanilla equals c.IdPlanilla
+                                      where c.IdNumero == idnumero
+                                        && fechaMov >= a.inicio && fechaMov <= a.fin
+                                      select a).FirstOrDefaultAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message); throw;
+            }
+            return periodo;
+
+
+        }
 
         //Creado por: Marlon Loria Solano
         //Fecha: 2023-06-07
