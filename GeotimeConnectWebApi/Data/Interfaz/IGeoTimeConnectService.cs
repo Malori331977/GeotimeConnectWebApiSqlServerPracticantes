@@ -13,6 +13,7 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
 
         public Task<EventResponse> Sincronizar_AccionPersonal(IEnumerable<cAccionPersonal> accionPersonal);
         public Task<EventResponse> Sincronizar_AccionPersonalNomConector(IEnumerable<cAccionPersonal> accionPersonal);
+        public Task<EventResponse> Sincronizar_AccionPersonal_AutoGestion(IEnumerable<cAccionPersonal> accionPersonal);
         public Task<EventResponse> Sincronizar_AccionPersonal_PreJustificacion(IEnumerable<cAccionPersonal> accionPersonal);        
 
         public Task<List<cCentroCosto>> GetCentroCosto();
@@ -61,6 +62,14 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         public Task<List<cMarcaMovTurno>> GetMarcaMovTurno();
         public Task<cMarcaMovTurno> GetMarcaMovTurno(int idregistro);
         public Task<cMarcaMovTurno> GetMarcaMovTurno(string idnumero, string fecha, int idturno);
+
+        /// <summary>
+        /// GetMarcaMovTurno: Método para obtener una lista de Marcas Mov Turnos por empleado 
+        /// </summary>
+        /// <returns>Lista de cMarcaMovTurno</returns>
+        /// <param name="idnumero">Número de Empleado</param>
+        /// <param name="fechaPeriodo">Fecha del Periodo para el cual se requieren los turnos</param>
+        public Task<List<cMarcaMovTurno>> GetMarcaMovTurno(string idnumero, string fechaPeriodo);
         public Task<EventResponse> Sincronizar_MarcasMovTurnos(IEnumerable<cMarcaMovTurno> marcasMovTurnos);
         public Task<List<cPh_Grupo>> GetGrupo();
         public Task<cPh_Grupo> GetGrupo(int idgrupo);
@@ -85,6 +94,15 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         /// <param name="fecha">Fecha del periodo</param>
         /// <param name="vigente">Periodo está vigente </param>
         public Task<IEnumerable<cPh_Periodos>> GetPeriodo(string fecha, string vigente);
+
+        /// <summary>
+        /// GetPeriodoVigenteEmpleado: Método para obtener el periodo vigenta para un empleado  
+        /// </summary>
+        /// <returns>Un item de cPh_Periodos</returns>
+        /// <param name="fecha">Fecha del periodo</param>
+        /// <param name="idnumero">Número de empleado</param>
+        public Task<cPh_Periodos> GetPeriodoVigenteEmpleado(string idnumero, string fechaPeriodo);
+
         public Task<IEnumerable<cPh_Planilla>> GetPhPlanilla();
         public Task<cPh_Planilla> GetPhPlanilla(string idplanilla);
         public Task<cPh_Planilla> GetPhPlanilla(string nomConector, string descPlanilla);
