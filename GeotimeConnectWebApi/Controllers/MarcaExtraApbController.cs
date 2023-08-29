@@ -16,33 +16,29 @@ namespace GeoTimeConnectWebApi.Controllers
     [ApiController]
     [Route("[controller]")]
     [Authorize]
-    public class MarcaController : Controller
+    public class MarcaExtraApbController : Controller
     {
         private readonly IGeoTimeConnectService _repoGT;
-        public MarcaController(IGeoTimeConnectService repoGT)
+        public MarcaExtraApbController(IGeoTimeConnectService repoGT)
         {
             _repoGT = repoGT;
         }
 
-        [HttpGet]
-        public async Task<IEnumerable<cMarca>> Get() => await _repoGT.GetMarcas();      
+        [HttpGet("{idregistro}")]
+        public async Task<cMarcaExtraApb> Get(long idregistro) => await _repoGT.GetMarcaExtraApb(idregistro);
 
-        [HttpGet("{idnumero}")]
-        public async Task<IEnumerable<cMarca>> Get(string idnumero) => await _repoGT.GetMarcas(idnumero);
-
-        [HttpGet("{idnumero}/{fecha}")]
-        public async Task<IEnumerable<cMarca>> Get(string idnumero, string fecha) => await _repoGT.GetMarcas(idnumero,fecha);
+        [HttpGet("{idnumero}/{fecha}/{idplanilla}")]
+        public async Task<IEnumerable<cMarcaExtraApb>> Get(string idnumero, string fecha, string idplanilla) => await _repoGT.GetMarcaExtraApb(idnumero,fecha,idplanilla);
 
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody] IEnumerable<cMarca> marcas)
+        public async Task<IActionResult> Post([FromBody] IEnumerable<cMarcaExtraApb> marcaExtraApb)
         {
-            EventResponse respuesta = await _repoGT.Sincronizar_Marca(marcas);
+            EventResponse respuesta = await _repoGT.Sincronizar_MarcaExtraApb(marcaExtraApb);
 
             if (respuesta.Id != "0")
                 return BadRequest(respuesta);
 
             return Ok(respuesta);
         }
-
     }
 }

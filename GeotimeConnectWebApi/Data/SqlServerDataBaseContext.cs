@@ -2,8 +2,6 @@
 using Microsoft.EntityFrameworkCore;
 using GeoTimeConnectWebApi.Data.Interfaz;
 using GeoTimeConnectWebApi.Models;
-using System.Data.Entity.Infrastructure;
-using System.Reflection;
 using GeotimeConnectWebApi.Models;
 
 
@@ -63,6 +61,11 @@ namespace GeoTimeConnectWebApi.Data
         public DbSet<cMarcaIn> Marcas_In { get; set; }
         public DbSet<cMarcaExtraApb> Marcas_Extras_Apb { get; set; }
         public DbSet<cMarcaProceso> Marcas_Proceso { get; set; }
+        public DbSet<cPh_Proyecto> Ph_Proyecto { get; set; }
+        public DbSet<cPh_FaseProyecto> Ph_FaseProyecto { get; set; }
+        public DbSet<cMarcaAudit> Marcas_Audit { get; set; }
+        public DbSet<cMarcaDescanso> Marcas_Descansos { get; set; }
+
 
 
         protected override void OnModelCreating(ModelBuilder builder)
@@ -101,14 +104,21 @@ namespace GeoTimeConnectWebApi.Data
             builder.Entity<cPh_Planilla>().ToTable("PH_PLANILLA", Schema)
                 .HasKey(e => new { e.idplanilla });
             builder.Entity<cMarcaIn>().ToTable("MARCAS_IN", Schema)
-                .HasNoKey();
+                .HasKey(e => new { e.idtarjeta, e.fecha,e.hora,e.idnumero,e.tipo });
             builder.Entity<cMarcaExtraApb>().ToTable("MARCAS_EXTRAS_APB", Schema)
                 .HasKey(e => new {e.idregistro});
             builder.Entity<cMarcaProceso>().ToTable("MARCAS_PROCESO", Schema)
                 .HasKey(e => new { e.idregistro });
-
+            builder.Entity<cPh_Proyecto>().ToTable("PH_PROYECTO", Schema)
+               .HasKey(e => new { e.PROYECTO });
+            builder.Entity<cPh_FaseProyecto>().ToTable("PH_FASEPROYECTO", Schema)
+               .HasKey(e => new { e.PROYECTO, e.FASE });
+            builder.Entity<cMarcaAudit>().ToTable("MARCAS_AUDIT", Schema)
+              .HasKey(e => new { e.IDREGISTRO });
+            builder.Entity<cMarcaDescanso>().ToTable("MARCAS_DESCANSOS", Schema)
+             .HasKey(e => new { e.IDREGISTRO });
         }
 
-      
+
     }
 }

@@ -6,12 +6,9 @@ using Microsoft.IdentityModel.Tokens;
 using GeoTimeConnectWebApi.Data;
 using GeoTimeConnectWebApi.Data.Interfaz;
 using GeoTimeConnectWebApi.Models.Utils;
-using System.Data.Entity.Infrastructure;
 using System.Text;
 using LibEncripta;
-using GeoTimeConnectWebApi.Models;
-using Seguridad_Geotime;
-using System.Configuration;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
