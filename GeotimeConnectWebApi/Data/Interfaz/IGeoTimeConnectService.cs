@@ -52,6 +52,14 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         public Task<cTurno> GetTurno(int idTurno);
         public Task<List<cMarca>> GetMarcas();
         public Task<List<cMarca>> GetMarcas(string idnumero);
+
+        /// <summary>
+        /// GetMarcas: Obtener las marcas de un empleado para el periodo activo
+        /// </summary>
+        /// <param name="idnumero">numero de empleado a buscar</param>
+        /// <param name="fecha">fecha para determinar periodo</param>
+        /// <returns>Lista de Marcas del periodo</returns>
+        public Task<List<cMarca>> GetMarcas(string idnumero, string fecha);
         public Task<EventResponse> Sincronizar_Marca(IEnumerable<cMarca> marcas);
         public Task<EventResponse> ValidarClaveEmpleado(cLogin login);
         public Task<EventResponse> CambiarClaveEmpleado(cEmpleado empleado);
@@ -135,6 +143,15 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         public Task<List<cMarcaExtraApb>> GetMarcaExtraApb();
 
         /// <summary>
+        /// GetMarcaExtraApb: Método para obtener todos los datos de la tabla Marcas_Extras_Apb para un empleado y un periodo especifico
+        /// </summary>
+        /// <param name="idnumero">id del empleado</param>
+        /// <param name="fecha">fecha para determinar el periodo vigente</param>
+        /// <param name="idplanilla">id planilla</param>
+        /// <returns>Lista de registros de la clase cMarcaExtraApb</returns>
+        public Task<List<cMarcaExtraApb>> GetMarcaExtraApb(string idnumero, string fecha, string idplanilla);
+
+        /// <summary>
         /// GetMarcaExtraApb: Método para obtener un registro de la tabla Marcas_Extras_Apb con un identificador específico
         /// </summary>
         /// <returns>Registro de la clase Marcas_Extras_Apb</returns>
@@ -147,5 +164,85 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         /// <returns>Una instancia de la Clase EventResponse, con el resultado del proceso</returns>
         /// <param name="marcasExtraApb">Lista de registros de la clase cMarcaExtraApb</param>
         public Task<EventResponse> Sincronizar_MarcaExtraApb(IEnumerable<cMarcaExtraApb> marcasExtraApb);
+
+        /// <summary>
+        /// GetProyecto: Obtener lista de Proyectos
+        /// </summary>
+        /// <returns>Lista de objetos del tipo cPh_Proyecto</returns>
+
+        public Task<List<cPh_Proyecto>> GetProyecto();
+
+        /// <summary>
+        /// GetFaseProyecto: Obtener un Proyecto especifica
+        /// </summary>
+        /// <param name="idproyecto"> identificador del proyecto</param>
+        /// <returns>Una Instancia del objeto del tipo cPh_Proyecto</returns>
+        public Task<cPh_Proyecto> GetProyecto(string idproyecto);
+
+        /// <summary>
+        /// Sincronizar_Proyectos: Sincronizar proyectos, se verifica si existe el elemento, en cuyo caso actualiza el registro, de lo contrario se crea.
+        /// </summary>
+        /// <param name="phProyectos">Recibe una instancia del tipo cProyecto</param>
+        /// <returns>Una instancia del tipo EventResponse con las respuesta del proceso</returns>.
+        public Task<EventResponse> Sincronizar_Proyectos(IEnumerable<cPh_Proyecto> phProyectos);
+
+        /// <summary>
+        /// GetFaseProyecto: Obtener lista de Fases de Proyectos
+        /// </summary>
+        /// <returns>Una lista de objetos del tipo cPh_FaseProyecto</returns>
+        public Task<List<cPh_FaseProyecto>> GetFaseProyecto();
+
+        /// <summary>
+        /// GetFaseProyecto: Obtener una Fase de Proyecto especifica
+        /// </summary>
+        /// <param name="idproyecto"> identificador del proyecto</param>
+        /// <param name="fase">fase del proyecto</param>
+        /// <returns>Una Instancia del objeto del tipo cPh_FaseProyecto</returns>
+        public Task<cPh_FaseProyecto> GetFaseProyecto(string idproyecto, string fase);
+
+        /// <summary>
+        /// Sincronizar_FaseProyectos: Sincronizar fases de proyectos, se verifica si existe el elemento, en cuyo caso actualiza el registro, de lo contrario se crea.
+        /// </summary>
+        /// <param name="phFaseProyectos">Recibe una instancia del tipo cFaseProyecto</param>
+        /// <returns>Una instancia del tipo EventResponse con las respuesta del proceso</returns>
+        public Task<EventResponse> Sincronizar_FaseProyectos(IEnumerable<cPh_FaseProyecto> phFaseProyectos);
+
+        /// <summary>
+        /// GetMarcas: Obtener las marcas proceso de un empleado para el periodo 
+        /// </summary>
+        /// <param name="idnumero">numero de empleado a buscar</param>
+        /// <param name="fecha">fecha para determinar periodo</param>
+        /// <returns>Lista de Marcas del periodo</returns>
+        public Task<List<cMarcaProceso>> GetMarcasProceso(string idnumero, string fecha);
+
+        /// <summary>
+        /// GetMarcasAudit: Obtener las marcas_audit para un empleado, planilla y un periodo especifico
+        /// </summary>
+        /// <param name="idnumero">numero de empleado a buscar</param>
+        /// <param name="fecha">fecha para determinar periodo</param>
+        /// <param name="idplanilla">id de planilla</param>
+        /// <returns>Lista de Marcas Audit</returns>
+
+        public Task<List<cMarcaAudit>> GetMarcasAudit(string idnumero, string fecha, string idplanilla);
+
+        // <summary>
+        /// GetMarcasAudit: Obtener las Marcas Descansos para un empleado, planilla y un periodo especifico
+        /// </summary>
+        /// <param name="idnumero">numero de empleado a buscar</param>
+        /// <param name="fecha">fecha para determinar periodo</param>
+        /// <param name="idplanilla">id de planilla</param>
+        /// <returns>Lista de Marcas Descansos</returns>
+
+        public Task<List<cMarcaDescanso>> GetMarcasDescansos(string idnumero, string fecha, string idplanilla);
+
+        /// <summary>
+        /// GetAccionPersonalPorPeriodo: Acciones de Personal 
+        /// </summary>
+        /// <param name="IdPlanilla"></param>
+        /// <param name="usuario"></param>
+        /// <param name="estado"></param>
+        /// <returns></returns>
+        //Obtener lista de Acciones de Personal
+        public Task<List<cAccionPersonal>> GetAccionPersonalPorPeriodo(string idnumero, string fecha, string IdPlanilla);
     }
 }

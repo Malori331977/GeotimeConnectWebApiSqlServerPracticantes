@@ -10,13 +10,13 @@
         public int tipo { get; set; }
         public string? idterminal { get; set; }
         public string? estado { get; set; }
-        public DateTime fecha_reg { get; set; }
+        public DateTime? fecha_reg { get; set; }
         public string? long_reg { get; set; }
         public string? lat_reg { get; set; }
         public string? imagen_reg { get; set; }
-        public char gps_cell { get; set; }
+        public char? gps_cell { get; set; }
         public string? img_verif { get; set; }
-        public DateTime fecha_hora { get; set; }
+        public DateTime? fecha_hora { get; set; }
         public string? dir_ip { get; set; }
     }
 }

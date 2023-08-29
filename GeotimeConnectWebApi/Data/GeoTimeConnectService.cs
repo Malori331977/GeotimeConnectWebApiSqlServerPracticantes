@@ -1,21 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Memory;
+﻿using GeotimeConnectWebApi.Models;
 using GeoTimeConnectWebApi.Data.Interfaz;
 using GeoTimeConnectWebApi.Models;
-using System;
-using System.Collections.Generic;
-using System.Data.Entity.Infrastructure;
-using System.Security.Claims;
-using System.Security.Principal;
-using System.Text.Json;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
-using GeotimeConnectWebApi.Models;
-using GeoTimeConnectWebApi.Models.Request;
 using GeoTimeConnectWebApi.Models.Response;
+using Microsoft.EntityFrameworkCore;
 using Seguridad_Geotime;
-using System.Runtime.CompilerServices;
-using System.Text.RegularExpressions;
-using Oracle.ManagedDataAccess.Client;
+using System.Security.Claims;
 
 namespace GeoTimeConnectWebApi.Data
 {
@@ -208,8 +197,58 @@ namespace GeoTimeConnectWebApi.Data
         }
 
         //Creado por: Marlon Loria Solano
+        //Fecha: 2023-05-30
+        /// <summary>
+        /// GetAccionPersonalPorPeriodo: Acciones de Personal 
+        /// </summary>
+        /// <param name="IdPlanilla"></param>
+        /// <param name="usuario"></param>
+        /// <param name="estado"></param>
+        /// <returns></returns>
+        //Obtener lista de Acciones de Personal
+        public async Task<List<cAccionPersonal>> GetAccionPersonalPorPeriodo(string idnumero, string fecha, string IdPlanilla)
+        {
+            List<cAccionPersonal> accionPersonal = new();
+            try
+            {
+                var periodoVigente = await GetPeriodoVigenteEmpleado(idnumero, fecha);
+
+                accionPersonal = await (from ap in _context.Acciones_Personal.Where(e => e.IdNumero==idnumero 
+                                                                              && e.IdPlanilla == IdPlanilla
+                                                                              && (e.Inicio >= periodoVigente.inicio && e.Inicio<= periodoVigente.fin && e.Fin<= periodoVigente.fin)
+                                                                              || (e.Inicio < periodoVigente.inicio && e.Fin >= periodoVigente.inicio && e.Fin <= periodoVigente.fin)
+                                                                              || (e.Inicio >= periodoVigente.inicio && e.Inicio <= periodoVigente.fin && e.Fin > periodoVigente.fin)
+                                                                              || (e.Inicio < periodoVigente.inicio && e.Fin > periodoVigente.fin))
+                                        join inc in _context.Incidencias on ap.IdIncidencia equals inc.Id
+                                        select new cAccionPersonal
+                                        {
+                                            IdRegistro = ap.IdRegistro,
+                                            IdPlanilla = ap.IdPlanilla,
+                                            IdNumero = ap.IdNumero,
+                                            Inicio = ap.Inicio,
+                                            Fin = ap.Fin,
+                                            IdIncidencia = ap.IdIncidencia,
+                                            Estado = ap.Estado,
+                                            IdAccion = ap.IdAccion,
+                                            Comentario = ap.Comentario,
+                                            Dias = ap.Dias,
+                                            Usuario = ap.Usuario,
+                                            Fecha_Just = ap.Fecha_Just,
+                                            Dias_Apl = ap.Dias_Apl,
+                                            SolicitudId = ap.SolicitudId,
+                                            Nom_Conector = inc.nom_conector
+                                        }).ToListAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message); throw;
+            }
+            return accionPersonal;
+        }
+
+        //Creado por: Marlon Loria Solano
         //Fecha: 2022-10-30
-        //Sincronizar Centros de Costo
+        //Sincronizar acciones de personal
         //Parametro: Recibe una instancia de centro de costo, se verifica si existe en cuyo caso
         //actualiza el registro, de lo contrario lo crea.
         public async Task<EventResponse> Sincronizar_AccionPersonal(IEnumerable<cAccionPersonal> accionPersonal)
@@ -905,6 +944,8 @@ namespace GeoTimeConnectWebApi.Data
                                 emp.Fecha_Salida = DateTime.Now;
                             else
                                 emp.Fecha_Salida = empleado.Fecha_Salida;
+                        else
+                            emp.Fecha_Salida = empleado.Fecha_Salida;
 
                         idPlanillaAnt = emp.IdPlanilla;
                         emp.Estado = empleado.Estado;
@@ -1172,6 +1213,31 @@ namespace GeoTimeConnectWebApi.Data
             try
             {
                 marca = await _context.Marcas.Where(e => e.idnumero == idnumero).ToListAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message); throw;
+            }
+            return marca;
+        }
+
+        //Creado por: Marlon Loria Solano
+        //Fecha: 2022-10-30
+        /// <summary>
+        /// GetMarcas: Obtener las marcas de un empleado para el periodo activo
+        /// </summary>
+        /// <param name="idnumero">numero de empleado a buscar</param>
+        /// <param name="fecha">fecha para determinar periodo</param>
+        /// <returns>Lista de Marcas del periodo</returns>
+
+        public async Task<List<cMarca>> GetMarcas(string idnumero, string fecha)
+        {
+            List<cMarca>? marca = new();
+            try
+            {
+                var periodoVigente = await GetPeriodoVigenteEmpleado(idnumero, fecha);
+
+                marca = await _context.Marcas.Where(e => e.idnumero == idnumero && (DateTime)e.fecha_hora>=periodoVigente.inicio && (DateTime)e.fecha_hora <= periodoVigente.fin).ToListAsync();
             }
             catch (Exception e)
             {
@@ -1838,17 +1904,12 @@ namespace GeoTimeConnectWebApi.Data
             try
             {
                 foreach (var marcaIn in marcasIn)
-                {                   
+                {
                     _context.Add(marcaIn);
                     await _context.SaveChangesAsync();
 
                     await EjecutaInMarcasWeb(marcaIn.idnumero);
                 }
-
-                
-
-                
-
 
             }
             catch (Exception e)
@@ -1879,6 +1940,34 @@ namespace GeoTimeConnectWebApi.Data
             try
             {
                 marcaExtraApb = await _context.Marcas_Extras_Apb.ToListAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message); throw;
+            }
+            return marcaExtraApb;
+        }
+
+        //Creado por: Marlon Loria Solano
+        //Fecha: 2023-08-10
+        /// <summary>
+        /// GetMarcaExtraApb: Método para obtener todos los datos de la tabla Marcas_Extras_Apb para un empleado y un periodo especifico
+        /// </summary>
+        /// <param name="idnumero">id del empleado</param>
+        /// <param name="fecha">fecha para determinar el periodo vigente</param>
+        /// <param name="idplanilla">id planilla</param>
+        /// <returns>Lista de registros de la clase cMarcaExtraApb</returns>
+        public async Task<List<cMarcaExtraApb>> GetMarcaExtraApb(string idnumero, string fecha, string idplanilla)
+        {
+            List<cMarcaExtraApb> marcaExtraApb = new();
+            try
+            {
+                var periodoVigente = await GetPeriodoVigenteEmpleado(idnumero, fecha);
+
+                marcaExtraApb = await _context.Marcas_Extras_Apb
+                                      .Where(e=>e.idnumero==idnumero && e.idplanilla==idplanilla 
+                                             && e.fecha>= periodoVigente.inicio)
+                                      .ToListAsync();
             }
             catch (Exception e)
             {
@@ -1999,5 +2088,275 @@ namespace GeoTimeConnectWebApi.Data
 
         }
 
+        //Creado por: Marlon Loria Solano
+        //Fecha: 2023-08-23
+        /// <summary>
+        /// GetProyecto: Obtener lista de Proyectos
+        /// </summary>
+        /// <returns>Lista de objetos del tipo cPh_Proyecto</returns>
+
+        public async Task<List<cPh_Proyecto>> GetProyecto()
+        {
+            List<cPh_Proyecto> ph_Proyecto = new();
+            try
+            {
+                ph_Proyecto = await _context.Ph_Proyecto.ToListAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message); throw;
+            }
+            return ph_Proyecto;
+        }
+
+        //Creado por: Marlon Loria Solano
+        //Fecha: 2023-08-23
+        /// <summary>
+        /// GetFaseProyecto: Obtener un Proyecto especifica
+        /// </summary>
+        /// <param name="idproyecto"> identificador del proyecto</param>
+        /// <returns>Una Instancia del objeto del tipo cPh_Proyecto</returns>
+        public async Task<cPh_Proyecto> GetProyecto(string idproyecto)
+        {
+            cPh_Proyecto? ph_Proyecto = new();
+            try
+            {
+                ph_Proyecto = await _context.Ph_Proyecto.FirstOrDefaultAsync(e => e.PROYECTO == idproyecto);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message); throw;
+            }
+            return ph_Proyecto;
+        }
+
+        //Creado por: Marlon Loria Solano
+        //Fecha: 2023-08-23
+        /// <summary>
+        /// Sincronizar_Proyectos: Sincronizar proyectos, se verifica si existe el elemento, en cuyo caso actualiza el registro, de lo contrario se crea.
+        /// </summary>
+        /// <param name="phProyectos">Recibe una instancia del tipo cProyecto</param>
+        /// <returns>Una instancia del tipo EventResponse con las respuesta del proceso</returns>.
+        public async Task<EventResponse> Sincronizar_Proyectos(IEnumerable<cPh_Proyecto> phProyectos)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+                foreach (var proyecto in phProyectos)
+                {
+                    cPh_Proyecto? proyectoBuscar = await _context.Ph_Proyecto
+                                                        .Where(e => e.PROYECTO == proyecto.PROYECTO)
+                                                        .FirstOrDefaultAsync();
+                    //si el proyecto existe se actualiza descripción
+                    //de lo contrario se agrega el registro
+                    if (proyectoBuscar is not null)
+                    {
+                        proyectoBuscar.DESCRIPCION = proyecto.DESCRIPCION;
+                        proyectoBuscar.CENTRO_COSTO = proyecto.CENTRO_COSTO;
+
+                        _context.Ph_Proyecto.Update(proyectoBuscar);
+                    }
+                    else
+                    {
+                        _context.Add(proyecto);
+                    }
+                }
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo realizar la sincronización de Proyectos. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo realizar la sincronización de Proyectos. Detalle de Error: " + e.InnerException.Message;
+
+            }
+
+            return respuesta;
+
+        }
+
+        //Creado por: Marlon Loria Solano
+        //Fecha: 2023-08-23
+        /// <summary>
+        /// GetFaseProyecto: Obtener lista de Fases de Proyectos
+        /// </summary>
+        /// <returns>Una lista de objetos del tipo cPh_FaseProyecto</returns>
+        public async Task<List<cPh_FaseProyecto>> GetFaseProyecto()
+        {
+            List<cPh_FaseProyecto> phFaseProyecto = new();
+            try
+            {
+                phFaseProyecto = await _context.Ph_FaseProyecto.ToListAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message); throw;
+            }
+            return phFaseProyecto;
+        }
+
+        //Creado por: Marlon Loria Solano
+        //Fecha: 2023-08-23
+        /// <summary>
+        /// GetFaseProyecto: Obtener una Fase de Proyecto especifica
+        /// </summary>
+        /// <param name="idproyecto"> identificador del proyecto</param>
+        /// <param name="fase">fase del proyecto</param>
+        /// <returns>Una Instancia del objeto del tipo cPh_FaseProyecto</returns>
+        public async Task<cPh_FaseProyecto> GetFaseProyecto(string idproyecto, string fase)
+        {
+            cPh_FaseProyecto? phFaseProyecto = new();
+            try
+            {
+                phFaseProyecto = await _context.Ph_FaseProyecto.FirstOrDefaultAsync(e => e.PROYECTO == idproyecto && e.FASE == fase);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message); throw;
+            }
+            return phFaseProyecto;
+        }
+
+        //Creado por: Marlon Loria Solano
+        //Fecha: 2023-08-23
+        /// <summary>
+        /// Sincronizar_FaseProyectos: Sincronizar fases de proyectos, se verifica si existe el elemento, en cuyo caso actualiza el registro, de lo contrario se crea.
+        /// </summary>
+        /// <param name="phFaseProyectos">Recibe una instancia del tipo cFaseProyecto</param>
+        /// <returns>Una instancia del tipo EventResponse con las respuesta del proceso</returns>
+        public async Task<EventResponse> Sincronizar_FaseProyectos(IEnumerable<cPh_FaseProyecto> phFaseProyectos)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+                foreach (var proyectoFase in phFaseProyectos)
+                {
+                    cPh_FaseProyecto? proyectoFaseBuscar = await _context.Ph_FaseProyecto
+                                                        .Where(e => e.PROYECTO == proyectoFase.PROYECTO && e.FASE == proyectoFase.FASE)
+                                                        .FirstOrDefaultAsync();
+                    //si el proyectoFase existe se actualiza 
+                    //de lo contrario se agrega el registro
+                    if (proyectoFaseBuscar is not null)
+                    {
+                        proyectoFaseBuscar.NOMBRE = proyectoFase.NOMBRE;
+                        proyectoFaseBuscar.DESCRIPCION = proyectoFase.DESCRIPCION;
+                        proyectoFaseBuscar.ACEPTA_DATOS = proyectoFase.ACEPTA_DATOS;
+
+                        _context.Ph_FaseProyecto.Update(proyectoFaseBuscar);
+                    }
+                    else
+                    {
+                        _context.Add(proyectoFase);
+                    }
+                }
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo realizar la sincronización de las Fases de Proyectos. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo realizar la sincronización de las Fases de Proyectos. Detalle de Error: " + e.InnerException.Message;
+
+            }
+
+            return respuesta;
+
+        }
+
+        //Creado por: Marlon Loria Solano
+        //Fecha: 2022-10-30
+        /// <summary>
+        /// GetMarcas: Obtener las marcas proceso de un empleado para el periodo 
+        /// </summary>
+        /// <param name="idnumero">numero de empleado a buscar</param>
+        /// <param name="fecha">fecha para determinar periodo</param>
+        /// <returns>Lista de Marcas del periodo</returns>
+
+        public async Task<List<cMarcaProceso>> GetMarcasProceso(string idnumero, string fecha)
+        {
+            List<cMarcaProceso>? marca = new();
+            try
+            {
+                var periodoVigente = await GetPeriodoVigenteEmpleado(idnumero, fecha);
+
+                marca = await _context.Marcas_Proceso.Where(e => e.idnumero == idnumero && e.fecha_entra >= periodoVigente.inicio && e.fecha_entra <= periodoVigente.fin).ToListAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message); throw;
+            }
+            return marca;
+        }
+
+        //Creado por: Marlon Loria Solano
+        //Fecha: 2023-08-25
+        /// <summary>
+        /// GetMarcasAudit: Obtener las marcas_audit para un empleado, planilla y un periodo especifico
+        /// </summary>
+        /// <param name="idnumero">numero de empleado a buscar</param>
+        /// <param name="fecha">fecha para determinar periodo</param>
+        /// <param name="idplanilla">id de planilla</param>
+        /// <returns>Lista de Marcas Audit</returns>
+
+        public async Task<List<cMarcaAudit>> GetMarcasAudit(string idnumero, string fecha, string idplanilla)
+        {
+            List<cMarcaAudit>? marca = new();
+            try
+            {
+                var periodoVigente = await GetPeriodoVigenteEmpleado(idnumero, fecha);
+
+                marca = await _context.Marcas_Audit.Where(e => e.IDNUMERO == idnumero 
+                                                        && e.FECHA >= periodoVigente.inicio 
+                                                        && e.FECHA <= periodoVigente.fin
+                                                        && e.IDPLANILLA==idplanilla).ToListAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message); throw;
+            }
+            return marca;
+        }
+
+        //Creado por: Marlon Loria Solano
+        //Fecha: 2023-08-25
+        /// <summary>
+        /// GetMarcasAudit: Obtener las Marcas Descansos para un empleado, planilla y un periodo especifico
+        /// </summary>
+        /// <param name="idnumero">numero de empleado a buscar</param>
+        /// <param name="fecha">fecha para determinar periodo</param>
+        /// <param name="idplanilla">id de planilla</param>
+        /// <returns>Lista de Marcas Descansos</returns>
+
+        public async Task<List<cMarcaDescanso>> GetMarcasDescansos(string idnumero, string fecha, string idplanilla)
+        {
+            List<cMarcaDescanso>? marcaDescanso = new();
+            try
+            {
+                var periodoVigente = await GetPeriodoVigenteEmpleado(idnumero, fecha);
+
+                marcaDescanso = await _context.Marcas_Descansos.Where(e => e.IDNUMERO == idnumero
+                                                        && e.FECHA >= periodoVigente.inicio
+                                                        && e.FECHA <= periodoVigente.fin
+                                                        && e.IDPLANILLA == idplanilla).ToListAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message); throw;
+            }
+            return marcaDescanso;
+        }
+
     }
+
+    
 }
