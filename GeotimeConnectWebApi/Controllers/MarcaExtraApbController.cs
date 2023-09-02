@@ -27,8 +27,8 @@ namespace GeoTimeConnectWebApi.Controllers
         [HttpGet("{idregistro}")]
         public async Task<cMarcaExtraApb> Get(long idregistro) => await _repoGT.GetMarcaExtraApb(idregistro);
 
-        [HttpGet("{idnumero}/{fecha}/{idplanilla}")]
-        public async Task<IEnumerable<cMarcaExtraApb>> Get(string idnumero, string fecha, string idplanilla) => await _repoGT.GetMarcaExtraApb(idnumero,fecha,idplanilla);
+        [HttpGet("{idnumero}/{fecha}/{idplanilla}/{byPeriodo}")]
+        public async Task<IEnumerable<cMarcaExtraApb>> Get(string idnumero, string fecha, string idplanilla, bool byPeriodo) => await _repoGT.GetMarcaExtraApb(idnumero,fecha,idplanilla, byPeriodo);
 
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] IEnumerable<cMarcaExtraApb> marcaExtraApb)

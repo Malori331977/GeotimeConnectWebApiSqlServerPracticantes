@@ -65,6 +65,7 @@ namespace GeoTimeConnectWebApi.Data
         public DbSet<cPh_FaseProyecto> Ph_FaseProyecto { get; set; }
         public DbSet<cMarcaAudit> Marcas_Audit { get; set; }
         public DbSet<cMarcaDescanso> Marcas_Descansos { get; set; }
+        public DbSet<cMarcaIncidencia> Marcas_Incidencias { get; set; }
 
 
 
@@ -117,6 +118,8 @@ namespace GeoTimeConnectWebApi.Data
               .HasKey(e => new { e.IDREGISTRO });
             builder.Entity<cMarcaDescanso>().ToTable("MARCAS_DESCANSOS", Schema)
              .HasKey(e => new { e.IDREGISTRO });
+            builder.Entity<cMarcaIncidencia>().ToTable("MARCAS_INCIDENCIAS", Schema)
+             .HasKey(e => new { e.INDICE });
         }
 
 

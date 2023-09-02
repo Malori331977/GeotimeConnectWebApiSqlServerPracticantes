@@ -148,8 +148,9 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         /// <param name="idnumero">id del empleado</param>
         /// <param name="fecha">fecha para determinar el periodo vigente</param>
         /// <param name="idplanilla">id planilla</param>
+        /// <param name="PeriodoVigente">Si es verdadero trae marcas extras del periodo, sino, trae marcas del dia</param>
         /// <returns>Lista de registros de la clase cMarcaExtraApb</returns>
-        public Task<List<cMarcaExtraApb>> GetMarcaExtraApb(string idnumero, string fecha, string idplanilla);
+        public Task<List<cMarcaExtraApb>> GetMarcaExtraApb(string idnumero, string fecha, string idplanilla, bool byPeriodo);
 
         /// <summary>
         /// GetMarcaExtraApb: Método para obtener un registro de la tabla Marcas_Extras_Apb con un identificador específico
@@ -244,5 +245,39 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         /// <returns></returns>
         //Obtener lista de Acciones de Personal
         public Task<List<cAccionPersonal>> GetAccionPersonalPorPeriodo(string idnumero, string fecha, string IdPlanilla);
+
+        /// <summary>
+        /// /Obtener lista de Compañias asociadas al usuario
+        /// </summary>
+        /// <returns>Lista de Companias de Usuario </returns>
+
+        public Task<List<cPh_CompaniaUsuario>> GetPhCompaniaUsuario(string idnumero);
+
+        /// <summary>
+        /// GetMarcasIncidencias: Obtener las Marcas Incidencias para un empleado, planilla y un periodo especifico
+        /// </summary>
+        /// <param name="idnumero">numero de empleado a buscar</param>
+        /// <param name="fecha">fecha para determinar periodo</param>
+        /// <param name="idplanilla">id de planilla</param>
+        /// <returns>Lista de Marcas Incidencias</returns>
+        public Task<List<cMarcaIncidencia>> GetMarcaIncidencia(string idnumero, string fecha, string idplanilla);
+
+        /// <summary>
+        /// GetMarcaIncidencia: Obtener una Marca Incidencia especifica segun el id indicado en el parámetro
+        /// </summary>
+        /// <param name="id">numero de marca incidencia</param>
+        /// <returns>Una instancia de Marcas Incidencias</returns>
+        public Task<cMarcaIncidencia> GetMarcaIncidencia(long id);
+
+        /// <summary>
+        /// GetMarcaIncidencia: Obtener las Marcas Incidencias para un empleado, planilla y para un rango de fechas especifico
+        /// </summary>
+        /// <param name="idnumero">numero de empleado a buscar</param>
+        /// <param name="idplanilla">id de planilla</param>
+        /// <param name="fechaInicio">Fecha de Inicio</param>
+        /// <param name="fechaFinal">Fecha final</param>
+        /// <returns>Lista de Marcas Incidencias</returns>
+
+        public Task<List<cMarcaIncidencia>> GetMarcaIncidencia(string idnumero, string idplanilla, DateTime fechaInicio, DateTime fechaFinal);
     }
 }
