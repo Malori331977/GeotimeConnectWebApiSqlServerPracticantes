@@ -4,6 +4,8 @@ using GeoTimeConnectWebApi.Models;
 using GeoTimeConnectWebApi.Models.Response;
 using Microsoft.EntityFrameworkCore;
 using Seguridad_Geotime;
+using System.Data;
+using System.Reflection.PortableExecutable;
 using System.Security.Claims;
 
 namespace GeoTimeConnectWebApi.Data
@@ -436,6 +438,18 @@ namespace GeoTimeConnectWebApi.Data
                     _context.Add(accion);
                     await _context.SaveChangesAsync();
 
+                    var ultimaAccion = await _context.Acciones_Personal.MaxAsync(e => e.IdRegistro);
+                    var marcasIncidencias = await GetMarcaIncidencia(accion.IdNumero, accion.IdPlanilla, accion.Inicio, accion.Fin);
+
+                    foreach (cMarcaIncidencia item in marcasIncidencias)
+                    {
+                        item.FECHA_JUST = DateTime.Now;
+                        item.IDACC = ultimaAccion;
+
+                        _context.Marcas_Incidencias.Update(item);
+                        await _context.SaveChangesAsync();
+                    }                   
+
                 }
             }
             catch (Exception e)
@@ -533,6 +547,8 @@ namespace GeoTimeConnectWebApi.Data
                     if (ceco is not null)
                     {
                         ceco.Descripcion = centroCosto.Descripcion;
+                        ceco.Distribuye = centroCosto.Distribuye;
+
                         _context.Ph_CCostos.Update(ceco);
                     }
                     else
@@ -1956,18 +1972,32 @@ namespace GeoTimeConnectWebApi.Data
         /// <param name="idnumero">id del empleado</param>
         /// <param name="fecha">fecha para determinar el periodo vigente</param>
         /// <param name="idplanilla">id planilla</param>
+        /// <param name="PeriodoVigente">Si es verdadero trae marcas extras del periodo, sino, trae marcas del dia</param>
         /// <returns>Lista de registros de la clase cMarcaExtraApb</returns>
-        public async Task<List<cMarcaExtraApb>> GetMarcaExtraApb(string idnumero, string fecha, string idplanilla)
+        public async Task<List<cMarcaExtraApb>> GetMarcaExtraApb(string idnumero, string fecha, string idplanilla, bool byPeriodo)
         {
             List<cMarcaExtraApb> marcaExtraApb = new();
             try
             {
-                var periodoVigente = await GetPeriodoVigenteEmpleado(idnumero, fecha);
 
-                marcaExtraApb = await _context.Marcas_Extras_Apb
-                                      .Where(e=>e.idnumero==idnumero && e.idplanilla==idplanilla 
-                                             && e.fecha>= periodoVigente.inicio)
-                                      .ToListAsync();
+                if (byPeriodo)
+                {
+                    var periodoVigente = await GetPeriodoVigenteEmpleado(idnumero, fecha);
+
+                    marcaExtraApb = await _context.Marcas_Extras_Apb
+                                          .Where(e => e.idnumero == idnumero && e.idplanilla == idplanilla
+                                                 && e.fecha >= periodoVigente.inicio)
+                                          .ToListAsync();
+                }
+                else
+                {
+                    DateTime fechaDia = DateTime.Parse($"{fecha.Substring(0, 4)}-{fecha.Substring(4, 2)}-{fecha.Substring(6, 2)}");
+                    marcaExtraApb = await _context.Marcas_Extras_Apb
+                                          .Where(e => e.idnumero == idnumero && e.idplanilla == idplanilla
+                                                 && e.fecha == fechaDia)
+                                          .ToListAsync();
+                }
+                
             }
             catch (Exception e)
             {
@@ -2019,6 +2049,11 @@ namespace GeoTimeConnectWebApi.Data
                     //de lo contrario se agrega el registro
                     if (marcaExtra is not null)
                     {
+                        marcaExtra.cantidad = marcaExtraApb.cantidad;
+                        marcaExtra.hora = marcaExtraApb.hora;
+                        marcaExtra.comentario = marcaExtraApb.comentario;
+                        marcaExtra.ccosto = marcaExtraApb.ccosto;
+
                         _context.Marcas_Extras_Apb.Update(marcaExtra);
 
                         var marcaProceso = await _context.Marcas_Proceso.FirstOrDefaultAsync(e => e.fecha_entra >= marcaExtra.fecha && e.fecha_sale <= marcaExtra.fecha && e.idnumero == marcaExtra.idnumero && e.idplanilla==marcaExtra.idplanilla);
@@ -2354,6 +2389,146 @@ namespace GeoTimeConnectWebApi.Data
                 Console.WriteLine(e.Message); throw;
             }
             return marcaDescanso;
+        }
+
+
+        //Creado por: Marlon Loria Solano
+        //Fecha: 2022-01-02
+        /// <summary>
+        /// /Obtener lista de Compañias asociadas al usuario
+        /// </summary>
+        /// <returns>Lista de Compania de Usuario </returns>
+
+        public async Task<List<cPh_CompaniaUsuario>> GetPhCompaniaUsuario(string idnumero )
+        {
+            List<cPh_CompaniaUsuario> companiasUsuario = new();
+            DataTable table;
+
+            try
+            {
+                // Build a config object, using env vars and JSON providers.
+                IConfiguration config = new ConfigurationBuilder()
+                    .AddJsonFile("appsettings.json")
+                    .AddEnvironmentVariables()
+                    .Build();
+
+                string schemaAdmin = config.GetConnectionString("SchemaAdmin");
+
+                using (var connection = _context.Database.GetDbConnection())
+                {
+                    await connection.OpenAsync();
+                    using (var command = connection.CreateCommand())
+                    {
+                        command.CommandText = $"{schemaAdmin}.VerificaCompaniaUsuarioWeb @IdNumero='{idnumero}'" ;
+                        System.Data.Common.DbDataReader result = command.ExecuteReader();
+
+                        table = new DataTable();
+                        table.Load(result);
+
+                        foreach(DataRow dr in table.Rows)
+                        {
+                            cPh_CompaniaUsuario usrComp = new cPh_CompaniaUsuario
+                            {
+                                idcomp = dr.ItemArray[0].ToString(),
+                                compania = dr.ItemArray[1].ToString(),
+                                nom_conector = dr.ItemArray[2].ToString(),
+                                idnumero = dr.ItemArray[3].ToString(),
+                            };
+                            companiasUsuario.Add(usrComp);
+                        }
+
+                        // Close the reader
+                        result.Close();
+
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            return companiasUsuario;
+        }
+
+        //Creado por: Marlon Loria Solano
+        //Fecha: 2023-09-01
+        /// <summary>
+        /// GetMarcaIncidencia: Obtener las Marcas Incidencias para un empleado, planilla y un periodo especifico
+        /// </summary>
+        /// <param name="idnumero">numero de empleado a buscar</param>
+        /// <param name="fecha">fecha para determinar periodo</param>
+        /// <param name="idplanilla">id de planilla</param>
+        /// <returns>Lista de Marcas Incidencias</returns>
+
+        public async Task<List<cMarcaIncidencia>> GetMarcaIncidencia(string idnumero, string fecha, string idplanilla)
+        {
+            List<cMarcaIncidencia>? marcaIncidencia = new();
+            try
+            {
+                var periodoVigente = await GetPeriodoVigenteEmpleado(idnumero, fecha);
+
+                marcaIncidencia = await _context.Marcas_Incidencias.Where(e => e.IDNUMERO == idnumero
+                                                        && e.FECHA >= periodoVigente.inicio
+                                                        && e.FECHA <= periodoVigente.fin
+                                                        && e.IDPLANILLA == idplanilla).ToListAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message); throw;
+            }
+            return marcaIncidencia;
+        }
+
+        //Creado por: Marlon Loria Solano
+        //Fecha: 2023-09-01
+        /// <summary>
+        /// GetMarcaIncidencia: Obtener una Marca Incidencia especifica segun el id indicado en el parámetro
+        /// </summary>
+        /// <param name="id">numero de marca incidencia</param>
+        /// <returns>Una instancia de Marcas Incidencias</returns>
+
+        public async Task<cMarcaIncidencia> GetMarcaIncidencia(long id)
+        {
+            cMarcaIncidencia? marcaIncidencia = new();
+            try
+            {
+                marcaIncidencia = await _context.Marcas_Incidencias.FirstOrDefaultAsync(e => e.INDICE == id);
+                                                       
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message); throw;
+            }
+            return marcaIncidencia;
+        }
+
+        //Creado por: Marlon Loria Solano
+        //Fecha: 2023-09-01
+        /// <summary>
+        /// GetMarcaIncidencia: Obtener las Marcas Incidencias para un empleado, planilla y para un rango de fechas especifico
+        /// </summary>
+        /// <param name="idnumero">numero de empleado a buscar</param>
+        /// <param name="idplanilla">id de planilla</param>
+        /// <param name="fechaInicio">Fecha de Inicio</param>
+        /// <param name="fechaFinal">Fecha final</param>
+        /// <returns>Lista de Marcas Incidencias</returns>
+
+        public async Task<List<cMarcaIncidencia>> GetMarcaIncidencia(string idnumero, string idplanilla, DateTime fechaInicio, DateTime fechaFinal)
+        {
+            List<cMarcaIncidencia>? marcaIncidencia = new();
+            try
+            {
+                marcaIncidencia = await _context.Marcas_Incidencias.Where(e => e.IDNUMERO == idnumero
+                                                        && e.FECHA >= fechaInicio
+                                                        && e.FECHA <= fechaFinal
+                                                        && e.FECHA_JUST == null
+                                                        && e.IDPLANILLA == idplanilla).ToListAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message); throw;
+            }
+            return marcaIncidencia;
         }
 
     }
