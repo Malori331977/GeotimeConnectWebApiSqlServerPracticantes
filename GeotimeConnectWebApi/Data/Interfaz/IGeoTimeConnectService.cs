@@ -78,6 +78,14 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         /// <param name="idnumero">Número de Empleado</param>
         /// <param name="fechaPeriodo">Fecha del Periodo para el cual se requieren los turnos</param>
         public Task<List<cMarcaMovTurno>> GetMarcaMovTurno(string idnumero, string fechaPeriodo);
+
+        /// <summary>
+        /// GetMarcaMovTurnoByGrupo: Método para obtener una lista de Marcas Mov Turnos de los empleados asignados a un supervisor 
+        /// </summary>
+        /// <returns>Lista de cMarcaMovTurno</returns>
+        /// <param name="fechaPeriodo">Fecha del Periodo para el cual se requieren los turnos</param>
+        /// <param name="idgrupo">grupo de empleado</param>
+        public Task<List<cMarcaMovTurno>> GetMarcaMovTurnoByGrupo(string fechaPeriodo, string idgrupo);
         public Task<EventResponse> Sincronizar_MarcasMovTurnos(IEnumerable<cMarcaMovTurno> marcasMovTurnos);
         public Task<List<cPh_Grupo>> GetGrupo();
         public Task<cPh_Grupo> GetGrupo(int idgrupo);
@@ -279,5 +287,12 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         /// <returns>Lista de Marcas Incidencias</returns>
 
         public Task<List<cMarcaIncidencia>> GetMarcaIncidencia(string idnumero, string idplanilla, DateTime fechaInicio, DateTime fechaFinal);
+
+        /// <summary>
+        /// GetPhUsuario: Obtener datos de usuario 
+        /// </summary>
+        /// <param name="idnumero">id numero del empleado</param>
+        /// <returns>Instancia de phusuario con los datos del usuario </returns>
+        public Task<cPh_Usuario> GetPhUsuario(string idnumero);
     }
 }

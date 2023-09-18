@@ -5,6 +5,7 @@ using GeoTimeConnectWebApi.Models.Response;
 using Microsoft.EntityFrameworkCore;
 using Seguridad_Geotime;
 using System.Data;
+using System.Linq;
 using System.Reflection.PortableExecutable;
 using System.Security.Claims;
 
@@ -1547,6 +1548,48 @@ namespace GeoTimeConnectWebApi.Data
             return marcaMovTurno;
         }
 
+        /// <summary>
+        /// GetMarcaMovTurno: Método para obtener una lista de Marcas Mov Turnos de los empleados asignados a un supervisor 
+        /// </summary>
+        /// <returns>Lista de cMarcaMovTurno</returns>
+        /// <param name="fechaPeriodo">Fecha del Periodo para el cual se requieren los turnos</param>
+        /// <param name="idgrupo">grupo de empleado</param>
+        public async Task<List<cMarcaMovTurno>> GetMarcaMovTurnoByGrupo(string fechaPeriodo, string idgrupo)
+        {
+
+            List<cMarcaMovTurno> marcaMovTurno = new();
+            try
+            {
+                var grupos = idgrupo.Split(",");
+
+                DateTime fechaMov = DateTime.Parse($"{fechaPeriodo.Substring(0, 4)}-{fechaPeriodo.Substring(4, 2)}-{fechaPeriodo.Substring(6, 2)}");
+                var periodos = await (from a in _context.Ph_Periodos
+                                      join b in _context.Ph_Planilla on a.tipo_planilla equals b.tipo_planilla
+                                      join c in _context.Empleados on b.idplanilla equals c.IdPlanilla
+                                      where grupos.Contains(c.IdGrupo.ToString())
+                                        && fechaMov >= a.inicio && fechaMov <= a.fin
+                                      select a).Distinct().ToListAsync();
+                foreach(var periodo in periodos)
+                {
+                    var marcasperiodo = await(from m in _context.Marcas_Mov_Turnos
+                                              join c in _context.Empleados on new { idnumero=m.idnumero, idplanilla=m.idplanilla } equals new { idnumero=c.IdNumero, idplanilla = c.IdPlanilla }
+                                              where grupos.Contains(c.IdGrupo.ToString())
+                                                && m.fecha >= periodo.inicio
+                                                && m.fecha <= periodo.fin
+                                              select m).ToListAsync();
+
+                    marcaMovTurno.AddRange(marcasperiodo);
+                }
+                
+
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message); throw;
+            }
+            return marcaMovTurno;
+        }
+
 
         //Creado por: Marlon Loria Solano
         //Fecha: 2023-05-24
@@ -1624,7 +1667,7 @@ namespace GeoTimeConnectWebApi.Data
                        
 						marcaRes.NominaEq = item.NominaEq;
 						//marcaRes.Cantidad = item.Cantidad;
-						marcaRes.Monto = item.Monto;
+						marcaRes.Monto = marcaRes.Monto + item.Monto; 
 						marcaRes.Proyecto = item.Proyecto;
 						marcaRes.Fase = item.Fase;
 						marcaRes.IdPeriodo = item.IdPeriodo;
@@ -2529,6 +2572,61 @@ namespace GeoTimeConnectWebApi.Data
                 Console.WriteLine(e.Message); throw;
             }
             return marcaIncidencia;
+        }
+
+        /// <summary>
+        /// GetMarcaDistribucion: Lista de Marcas Distribución segun parametros de fecha indicados
+        /// </summary>
+        /// <param name="FechaInicio">Fecha de Inicio del reporte</param>
+        /// <param name="FechaFin">Fecha final del reporte</param>
+        /// <returns>lista de registros de la clase cMarcaDistribucion</returns>
+        public async Task<List<cMarcaDistribucion>> GetMarcaDistribucion(DateTime FechaInicio, DateTime FechaFin)
+        {
+            List<cMarcaDistribucion> marcasDistribuciones = new();
+            try
+            {
+                marcasDistribuciones = await (from md in _context.Marcas_Distribuciones
+                                              .Where(e => FechaInicio <= e.FECHA && FechaFin >= e.FECHA)
+                                              select new cMarcaDistribucion
+                                              {
+                                                  IDPLANILLA = md.IDPLANILLA,
+                                                  IDNUMERO = md.IDNUMERO,
+                                                  FECHA = md.FECHA,
+                                                  NOMINAEQ = md.NOMINAEQ,
+                                                  CANTIDAD = md.CANTIDAD,
+                                                  IDCCOSTO = md.IDCCOSTO,
+                                              }).ToListAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message); throw;
+            }
+            return marcasDistribuciones;
+        }
+
+
+
+        /// <summary>
+        /// GetPhUsuario: Obtener datos de usuario 
+        /// </summary>
+        /// <param name="idnumero">id numero del empleado</param>
+        /// <returns>Instancia de phusuario con los datos del usuario </returns>
+        public async Task<cPh_Usuario> GetPhUsuario(string idnumero)
+        {
+            cPh_Usuario? phUsuario = new();
+
+            try
+            {
+                phUsuario = await (from e in _context.Empleados.Where(e => e.IdNumero == idnumero)
+                                   join l in _context.PH_LOGIN on e.Email equals l.EMAIL
+                                   join u in _context.Ph_Usuarios on l.idusuario equals u.IDUSUARIO
+                                   select u).FirstOrDefaultAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message); throw;
+            }
+            return phUsuario;
         }
 
     }
