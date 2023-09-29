@@ -217,6 +217,14 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         public Task<EventResponse> Sincronizar_FaseProyectos(IEnumerable<cPh_FaseProyecto> phFaseProyectos);
 
         /// <summary>
+        /// GetMarcas: Obtener las marcas proceso para el periodo 
+        /// </summary>
+        /// <param name="fecha">fecha para determinar periodo</param>
+        /// <returns>Lista de Marcas del periodo</returns>
+
+        public Task<List<cMarcaProceso>> GetMarcasProceso(string fecha);
+
+        /// <summary>
         /// GetMarcas: Obtener las marcas proceso de un empleado para el periodo 
         /// </summary>
         /// <param name="idnumero">numero de empleado a buscar</param>
@@ -294,5 +302,11 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         /// <param name="idnumero">id numero del empleado</param>
         /// <returns>Instancia de phusuario con los datos del usuario </returns>
         public Task<cPh_Usuario> GetPhUsuario(string idnumero);
+
+        /// <summary>
+        /// GetPhSistema: Obtener datos de Sistema 
+        /// </summary>
+        /// <returns>Instancia de cPh_Sistema con los datos del sistema </returns>
+        public Task<cPh_Sistema> GetPhSistema();
     }
 }

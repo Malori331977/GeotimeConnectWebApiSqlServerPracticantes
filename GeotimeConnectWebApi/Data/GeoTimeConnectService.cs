@@ -2354,6 +2354,34 @@ namespace GeoTimeConnectWebApi.Data
         //Creado por: Marlon Loria Solano
         //Fecha: 2022-10-30
         /// <summary>
+        /// GetMarcas: Obtener las marcas proceso para el periodo 
+        /// </summary>
+        /// <param name="fecha">fecha para determinar periodo</param>
+        /// <returns>Lista de Marcas del periodo</returns>
+
+        public async Task<List<cMarcaProceso>> GetMarcasProceso(string fecha)
+        {
+            List<cMarcaProceso>? marca = new();
+            try
+            {
+                var periodos = await GetPeriodo(fecha, "T");
+
+                marca = (from p in periodos
+                            join pl in await _context.Ph_Planilla.ToListAsync() on p.tipo_planilla equals pl.tipo_planilla
+                            join m in await _context.Marcas_Proceso.ToListAsync() on pl.idplanilla equals m.idplanilla
+                            where m.fecha_entra >= p.inicio && m.fecha_entra <= p.fin
+                            select m).ToList();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message); throw;
+            }
+            return marca;
+        }
+
+        //Creado por: Marlon Loria Solano
+        //Fecha: 2022-10-30
+        /// <summary>
         /// GetMarcas: Obtener las marcas proceso de un empleado para el periodo 
         /// </summary>
         /// <param name="idnumero">numero de empleado a buscar</param>
@@ -2627,6 +2655,25 @@ namespace GeoTimeConnectWebApi.Data
                 Console.WriteLine(e.Message); throw;
             }
             return phUsuario;
+        }
+
+        /// <summary>
+        /// GetPhSistema: Obtener datos de Sistema 
+        /// </summary>
+        /// <returns>Instancia de cPh_Sistema con los datos del sistema </returns>
+        public async Task<cPh_Sistema> GetPhSistema()
+        {
+            cPh_Sistema? phSistema = new();
+
+            try
+            {
+                phSistema = await _context.Ph_Sistema.FirstOrDefaultAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message); throw;
+            }
+            return phSistema;
         }
 
     }
