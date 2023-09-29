@@ -8,7 +8,7 @@ using GeoTimeConnectWebApi.Data.Interfaz;
 using GeoTimeConnectWebApi.Models;
 using GeoTimeConnectWebApi.Models.Utils;
 using System.Text.Json;
-using GeoTimeConnectWebApi.Models.Request;
+using GeotimeConnectWebApi.Models;
 using GeoTimeConnectWebApi.Models.Response;
 
 namespace GeoTimeConnectWebApi.Controllers
@@ -16,19 +16,18 @@ namespace GeoTimeConnectWebApi.Controllers
     [ApiController]
     [Route("[controller]")]
     [Authorize]
-    public class MarcaProcesoController : Controller
+    public class PhSistemaController : Controller
     {
         private readonly IGeoTimeConnectService _repoGT;
-        public MarcaProcesoController(IGeoTimeConnectService repoGT)
+        public PhSistemaController(IGeoTimeConnectService repoGT)
         {
             _repoGT = repoGT;
         }
 
-        [HttpGet("{fecha}")]
-        public async Task<IEnumerable<cMarcaProceso>> Get(string fecha) => await _repoGT.GetMarcasProceso(fecha);
+        [HttpGet]
+        public async Task<cPh_Sistema> Get() => await _repoGT.GetPhSistema();      
 
-        [HttpGet("{idnumero}/{fecha}")]
-        public async Task<IEnumerable<cMarcaProceso>> Get(string idnumero, string fecha) => await _repoGT.GetMarcasProceso(idnumero,fecha);
+       
 
     }
 }
