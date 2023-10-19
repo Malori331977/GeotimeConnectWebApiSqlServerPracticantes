@@ -48,6 +48,42 @@ namespace GeoTimeConnectWebApi.Data
 
         //Creado por: Marlon Loria Solano
         //Fecha: 2022-10-30
+        //Obtener un registro de Acción de Personal
+        public async Task<cAccionPersonal> GetAccionPersonal(long idregistro)
+        {
+            cAccionPersonal? accionPersonal = new();
+            try
+            {
+                accionPersonal = await (from ap in _context.Acciones_Personal.Where(e => e.IdRegistro == idregistro)
+                                        join inc in _context.Incidencias on ap.IdIncidencia equals inc.Id
+                                        select new cAccionPersonal
+                                        {
+                                            IdRegistro = ap.IdRegistro,
+                                            IdPlanilla = ap.IdPlanilla,
+                                            IdNumero = ap.IdNumero,
+                                            Inicio = ap.Inicio,
+                                            Fin = ap.Fin,
+                                            IdIncidencia = ap.IdIncidencia,
+                                            Estado = ap.Estado,
+                                            IdAccion = ap.IdAccion,
+                                            Comentario = ap.Comentario,
+                                            Dias = ap.Dias,
+                                            Usuario = ap.Usuario,
+                                            Fecha_Just = ap.Fecha_Just,
+                                            Dias_Apl = ap.Dias_Apl,
+                                            SolicitudId = ap.SolicitudId,
+                                            Nom_Conector = inc.nom_conector,
+                                        }).FirstOrDefaultAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message); throw;
+            }
+            return accionPersonal;
+        }
+
+        //Creado por: Marlon Loria Solano
+        //Fecha: 2022-10-30
         //Obtener lista de Acciones de Personal
         public async Task<List<cAccionPersonal>> GetAccionPersonal(string IdPlanilla, DateTime FechaInicio, DateTime FechaFin)
         {
@@ -437,21 +473,53 @@ namespace GeoTimeConnectWebApi.Data
             {
                 foreach (var accion in accionPersonal)
                 {
-                    accion.IdAccion = 0;
-                    _context.Add(accion);
-                    await _context.SaveChangesAsync();
+                    var accionbuscar = await _context.Acciones_Personal.FirstOrDefaultAsync(e => e.IdRegistro == accion.IdRegistro);
 
-                    var ultimaAccion = await _context.Acciones_Personal.MaxAsync(e => e.IdRegistro);
-                    var marcasIncidencias = await GetMarcaIncidencia(accion.IdNumero, accion.IdPlanilla, accion.Inicio, accion.Fin);
-
-                    foreach (cMarcaIncidencia item in marcasIncidencias)
+                    if (accionbuscar is not null)
                     {
-                        item.FECHA_JUST = DateTime.Now;
-                        item.IDACC = ultimaAccion;
-
-                        _context.Marcas_Incidencias.Update(item);
+                        accionbuscar.IdIncidencia = accion.IdIncidencia;
+                        accionbuscar.Inicio = accion.Inicio;
+                        accionbuscar.Fin = accion.Fin;
+                        accionbuscar.Dias = accion.Dias;
+                        accionbuscar.Dias_Apl = accion.Dias_Apl;
+                        accionbuscar.IdAccion = accion.IdAccion;
+                        accionbuscar.Comentario = accion.Comentario;
+                        
+                        _context.Acciones_Personal.Update(accionbuscar);
                         await _context.SaveChangesAsync();
-                    }                   
+
+                        var marcasIncidencias = await GetMarcaIncidencia(accion.IdNumero, accion.IdPlanilla, accion.Inicio, accion.Fin);
+
+                        foreach (cMarcaIncidencia item in marcasIncidencias)
+                        {
+                            item.FECHA_JUST = DateTime.Now;
+                            item.IDACC = accionbuscar.IdRegistro;
+
+                            _context.Marcas_Incidencias.Update(item);
+                            await _context.SaveChangesAsync();
+                        }
+
+                    }
+                    else
+                    {
+                        accion.IdAccion = 0;
+                        _context.Add(accion);
+                        await _context.SaveChangesAsync();
+
+                        var ultimaAccion = await _context.Acciones_Personal.MaxAsync(e => e.IdRegistro);
+                        var marcasIncidencias = await GetMarcaIncidencia(accion.IdNumero, accion.IdPlanilla, accion.Inicio, accion.Fin);
+
+                        foreach (cMarcaIncidencia item in marcasIncidencias)
+                        {
+                            item.FECHA_JUST = DateTime.Now;
+                            item.IDACC = ultimaAccion;
+
+                            _context.Marcas_Incidencias.Update(item);
+                            await _context.SaveChangesAsync();
+                        }
+                    }
+
+                                     
 
                 }
             }
@@ -2523,8 +2591,9 @@ namespace GeoTimeConnectWebApi.Data
                     }
                 }
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                Console.WriteLine(e.Message);
                 throw;
             }
             return companiasUsuario;

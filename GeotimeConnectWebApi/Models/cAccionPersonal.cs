@@ -27,5 +27,6 @@ namespace GeotimeConnectWebApi.Models
         [NotMapped]
         public string? Nom_Conector { get; set; }
 
+
     }
 }
