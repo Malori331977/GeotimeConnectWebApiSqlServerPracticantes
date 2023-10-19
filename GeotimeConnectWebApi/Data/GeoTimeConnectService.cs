@@ -2925,8 +2925,143 @@ namespace GeoTimeConnectWebApi.Data
 
         }
 
+        //Creado por: Marlon Loria Solano
+        //Fecha: 2023-10-19
+        /// <summary>
+        /// GetPhFormulacion: Obtener lista de registros de la tabla PH_FROMULACION
+        /// </summary>
+        /// <returns>Lista de cPh_Formulacion </returns>
+        /// 
 
+        public async Task<List<cPh_Formulacion>> GetPhFormulacion()
+        {
+            List<cPh_Formulacion>? phFormulacion = new();
+
+            try
+            {
+                phFormulacion = await _context.Ph_Formulacion.ToListAsync();
+
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message); throw;
+            }
+            return phFormulacion;
+        }
+
+        //Creado por: Marlon Loria Solano
+        //Fecha: 2023-10-19
+        /// <summary>
+        /// GetPhFormulacion: Obtener datos de una opcion de sistema 
+        /// </summary>
+        /// <param name="id">id de la opcion</param>
+        /// <returns>Instancia de cPortal_Opcion con los datos de la opción </returns>
+        public async Task<cPh_Formulacion> GetPhFormulacion(int id)
+        {
+            cPh_Formulacion? phFormulacion = new();
+
+            try
+            {
+                phFormulacion = await _context.Ph_Formulacion.FirstOrDefaultAsync(e=>e.ID==id);
+
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message); throw;
+            }
+            return phFormulacion;
+        }
+
+        //Creado por: Marlon Loria Solano
+        //Fecha: 2023-10-19
+        /// <summary>
+        /// Sincronizar_PhFormulacion: Método para registrar los registros en la tabla Ph_Formulacion
+        /// </summary>
+        /// <returns>Una instancia de la Clase EventResponse, con el resultado del proceso</returns>
+        /// <param name="cPh_Formulacion">Lista de registros de la clase cPh_Formulacion</param>
+        public async Task<EventResponse> Sincronizar_PhFormulacion(IEnumerable<cPh_Formulacion> ph_Formulacion)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+                foreach (var item in ph_Formulacion)
+                {
+                    cPh_Formulacion? objetoBuscar = await _context.Ph_Formulacion
+                                    .Where(e => e.ID == item.ID)
+                                    .FirstOrDefaultAsync();
+                    //si la opcion existe se actualiza 
+                    //de lo contrario se agrega el registro
+                    if (objetoBuscar is not null)
+                    {
+                        objetoBuscar.DESCRIPCION = item.DESCRIPCION;
+                        objetoBuscar.FORMULA = item.FORMULA;
+
+                        _context.Ph_Formulacion.Update(objetoBuscar);
+                    }
+                    else
+                    {
+                        item.ID = 0;
+                        _context.Add(item);
+                    }
+                    await _context.SaveChangesAsync();
+
+                }
+
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo realizar el registro en la tabla PH_FORMULACION. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo realizar el registro en la tabla PH_FORMULACION. Detalle de Error: " + e.InnerException.Message;
+
+            }
+
+            return respuesta;
+        }
+
+        /// <summary>
+        /// Elimina_PhFormulacion:  Metodo boorado de datos de la tabla Ph_Formulacion
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns>EventResponse</returns>
+        public async Task<EventResponse> Elimina_PhFormulacion(string id)
+        {
+            EventResponse respuesta = new EventResponse();
+            try
+            {
+
+                cPh_Formulacion? model = await _context.Ph_Formulacion
+                    .FirstOrDefaultAsync(e => e.ID == int.Parse(id));                                            
+
+                if (model is not null)
+                {
+                    _context.Ph_Formulacion.Remove(model);
+                }
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo eliminar la fórmula. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo eliminar la fórmula. Detalle de Error: " + e.InnerException.Message;
+
+            }
+
+            return respuesta;
+
+        }
     }
+
+    
 
 
 }

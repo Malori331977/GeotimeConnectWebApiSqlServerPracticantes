@@ -71,6 +71,7 @@ namespace GeoTimeConnectWebApi.Data
         public DbSet<cPh_Sistema> Ph_Sistema { get; set; }
         public DbSet<cPortal_Config> Portal_Config { get; set; }
         public DbSet<cPortal_Opcion> Portal_Opciones { get; set; }
+        public DbSet<cPh_Formulacion> Ph_Formulacion { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -133,6 +134,10 @@ namespace GeoTimeConnectWebApi.Data
             .HasKey(e => new { e.ID });
             builder.Entity<cPortal_Opcion>().ToTable("PORTAL_OPCIONES", Schema)
            .HasKey(e => new { e.ID });
+            builder.Entity<cPh_Formulacion>().ToTable("PH_FORMULACION", Schema)
+           .HasKey(e => new { e.ID });
+
+
         }
 
 
