@@ -1,6 +1,7 @@
 ﻿using GeotimeConnectWebApi.Models;
 using GeoTimeConnectWebApi.Models;
 using GeoTimeConnectWebApi.Models.Response;
+using Microsoft.EntityFrameworkCore;
 
 namespace GeoTimeConnectWebApi.Data.Interfaz
 {
@@ -341,5 +342,32 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         /// <returns>Una instancia de la Clase EventResponse, con el resultado del proceso</returns>
         /// <param name="marcasExtraApb">Lista de registros de la clase cMarcaExtraApb</param>
         public Task<EventResponse> Sincronizar_PortalOpcion(IEnumerable<cPortal_Opcion> portalOpcion);
+
+        /// <summary>
+        /// GetPhFormulacion: Obtener lista de registros de la tabla PH_FROMULACION
+        /// </summary>
+        /// <returns>Lista de cPh_Formulacion </returns>
+        public Task<List<cPh_Formulacion>> GetPhFormulacion();
+
+        /// <summary>
+        /// GetPhFormulacion: Obtener datos de una opcion de sistema 
+        /// </summary>
+        /// <param name="id">id de la opcion</param>
+        /// <returns>Instancia de cPortal_Opcion con los datos de la opción </returns>
+        public Task<cPh_Formulacion> GetPhFormulacion(int id);
+
+        /// <summary>
+        /// Sincronizar_PhFormulacion: Método para registrar los registros en la tabla Ph_Formulacion
+        /// </summary>
+        /// <returns>Una instancia de la Clase EventResponse, con el resultado del proceso</returns>
+        /// <param name="cPh_Formulacion">Lista de registros de la clase cPh_Formulacion</param>
+        public Task<EventResponse> Sincronizar_PhFormulacion(IEnumerable<cPh_Formulacion> ph_Formulacion);
+
+        /// <summary>
+        /// Elimina_PhFormulacion:  Metodo boorado de datos de la tabla Ph_Formulacion
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns>EventResponse</returns>
+        public Task<EventResponse> Elimina_PhFormulacion(string id);
     }
 }
