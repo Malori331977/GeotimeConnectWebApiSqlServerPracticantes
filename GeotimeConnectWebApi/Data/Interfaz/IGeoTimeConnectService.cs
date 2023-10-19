@@ -5,7 +5,8 @@ using GeoTimeConnectWebApi.Models.Response;
 namespace GeoTimeConnectWebApi.Data.Interfaz
 {
     public interface IGeoTimeConnectService
-    {   
+    {
+        public Task<cAccionPersonal> GetAccionPersonal(long idregistro);
         public Task<List<cAccionPersonal>> GetAccionPersonal(string IdPlanilla, DateTime FechaInicio, DateTime FechaFin);
         public Task<List<cAccionPersonal>> GetAccionPersonal(string IdPlanilla, DateTime FechaInicio, DateTime FechaFin, string usuario);
         public Task<List<cAccionPersonal>> GetAccionPersonalPorEstado(string IdPlanilla, string usuario, char estado);
@@ -308,5 +309,37 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         /// </summary>
         /// <returns>Instancia de cPh_Sistema con los datos del sistema </returns>
         public Task<cPh_Sistema> GetPhSistema();
+
+        /// <summary>
+        /// GetPortalConfig: Obtener datos de Configuración del Portal 
+        /// </summary>
+        /// <returns>Instancia de cPortal_Config con los datos del sistema </returns>
+        public Task<cPortal_Config> GetPortalConfig();
+
+        /// <summary>
+        /// Sincronizar_PortalConfig: Sincronizar las configuraciones del Portal de Empleados, se verifica si existe el elemento, en cuyo caso actualiza el registro, de lo contrario se crea.
+        /// </summary>
+        /// <param name="portalConfig">Recibe una instancia del tipo cPortal_Config</param>
+        /// <returns>Una instancia del tipo EventResponse con las respuesta del proceso</returns>
+        public Task<EventResponse> Sincronizar_PortalConfig(cPortal_Config portalConfig);
+
+        /// <summary>
+        /// GetPortalOpcion: Obtener lista de opciones del menu de Portal 
+        /// </summary>
+        /// <returns>Lista de Opciones del sistema</returns>
+        public Task<List<cPortal_Opcion>> GetPortalOpcion();
+        /// <summary>
+        /// GetPortalOpcion: Obtener datos de una opcion de sistema 
+        /// </summary>
+        /// <param name="id">id de la opcion</param>
+        /// <returns>Instancia de cPortal_Opcion con los datos de la opción </returns>
+        public Task<cPortal_Opcion> GetPortalOpcion(string id);
+
+        /// <summary>
+        /// Sincronizar_MarcaExtraApb: Método para registrar las marcas de horas extras de los colaboradores en las tablas Marcas_Extras_Apb y Marcas_Proceso
+        /// </summary>
+        /// <returns>Una instancia de la Clase EventResponse, con el resultado del proceso</returns>
+        /// <param name="marcasExtraApb">Lista de registros de la clase cMarcaExtraApb</param>
+        public Task<EventResponse> Sincronizar_PortalOpcion(IEnumerable<cPortal_Opcion> portalOpcion);
     }
 }

@@ -17,7 +17,6 @@
         public char? DIST_LIC { get; set; }
         public char? DIST_LIC_USR { get; set; }
         public char? DIST_LIC_EMP { get; set; }
-        public char? LIC_PORTAL { get; set; }
-        public string? DATA_06 { get; set; }
+       
     }
 }

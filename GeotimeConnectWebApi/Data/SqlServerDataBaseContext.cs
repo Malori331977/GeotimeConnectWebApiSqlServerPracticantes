@@ -69,6 +69,8 @@ namespace GeoTimeConnectWebApi.Data
         public DbSet<cMarcaDistribucion> Marcas_Distribuciones { get; set; }
         public DbSet<cPh_Usuario> Ph_Usuarios { get; set; }
         public DbSet<cPh_Sistema> Ph_Sistema { get; set; }
+        public DbSet<cPortal_Config> Portal_Config { get; set; }
+        public DbSet<cPortal_Opcion> Portal_Opciones { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -127,6 +129,10 @@ namespace GeoTimeConnectWebApi.Data
              .HasKey(e => new { e.IDUSUARIO });
             builder.Entity<cPh_Sistema>().ToTable("PH_SISTEMA", schemaAdmin)
                .HasNoKey();
+            builder.Entity<cPortal_Config>().ToTable("PORTAL_CONFIG", Schema)
+            .HasKey(e => new { e.ID });
+            builder.Entity<cPortal_Opcion>().ToTable("PORTAL_OPCIONES", Schema)
+           .HasKey(e => new { e.ID });
         }
 
 

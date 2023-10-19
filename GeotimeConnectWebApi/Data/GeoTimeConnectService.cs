@@ -8,6 +8,8 @@ using System.Data;
 using System.Linq;
 using System.Reflection.PortableExecutable;
 using System.Security.Claims;
+using LibEncripta;
+using System.Collections.Generic;
 
 namespace GeoTimeConnectWebApi.Data
 {
@@ -42,6 +44,42 @@ namespace GeoTimeConnectWebApi.Data
             }
             _schema = schema;
             _context = SchemaChangeDbContext.GetSchemaChangeDbContext(schema, bdname);
+        }
+
+        //Creado por: Marlon Loria Solano
+        //Fecha: 2022-10-30
+        //Obtener un registro de Acción de Personal
+        public async Task<cAccionPersonal> GetAccionPersonal(long idregistro)
+        {
+            cAccionPersonal? accionPersonal = new();
+            try
+            {
+                accionPersonal = await (from ap in _context.Acciones_Personal.Where(e => e.IdRegistro == idregistro)
+                                        join inc in _context.Incidencias on ap.IdIncidencia equals inc.Id
+                                        select new cAccionPersonal
+                                        {
+                                            IdRegistro = ap.IdRegistro,
+                                            IdPlanilla = ap.IdPlanilla,
+                                            IdNumero = ap.IdNumero,
+                                            Inicio = ap.Inicio,
+                                            Fin = ap.Fin,
+                                            IdIncidencia = ap.IdIncidencia,
+                                            Estado = ap.Estado,
+                                            IdAccion = ap.IdAccion,
+                                            Comentario = ap.Comentario,
+                                            Dias = ap.Dias,
+                                            Usuario = ap.Usuario,
+                                            Fecha_Just = ap.Fecha_Just,
+                                            Dias_Apl = ap.Dias_Apl,
+                                            SolicitudId = ap.SolicitudId,
+                                            Nom_Conector = inc.nom_conector,
+                                        }).FirstOrDefaultAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message); throw;
+            }
+            return accionPersonal;
         }
 
         //Creado por: Marlon Loria Solano
@@ -435,21 +473,53 @@ namespace GeoTimeConnectWebApi.Data
             {
                 foreach (var accion in accionPersonal)
                 {
-                    accion.IdAccion = 0;
-                    _context.Add(accion);
-                    await _context.SaveChangesAsync();
+                    var accionbuscar = await _context.Acciones_Personal.FirstOrDefaultAsync(e => e.IdRegistro == accion.IdRegistro);
 
-                    var ultimaAccion = await _context.Acciones_Personal.MaxAsync(e => e.IdRegistro);
-                    var marcasIncidencias = await GetMarcaIncidencia(accion.IdNumero, accion.IdPlanilla, accion.Inicio, accion.Fin);
-
-                    foreach (cMarcaIncidencia item in marcasIncidencias)
+                    if (accionbuscar is not null)
                     {
-                        item.FECHA_JUST = DateTime.Now;
-                        item.IDACC = ultimaAccion;
-
-                        _context.Marcas_Incidencias.Update(item);
+                        accionbuscar.IdIncidencia = accion.IdIncidencia;
+                        accionbuscar.Inicio = accion.Inicio;
+                        accionbuscar.Fin = accion.Fin;
+                        accionbuscar.Dias = accion.Dias;
+                        accionbuscar.Dias_Apl = accion.Dias_Apl;
+                        accionbuscar.IdAccion = accion.IdAccion;
+                        accionbuscar.Comentario = accion.Comentario;
+                        
+                        _context.Acciones_Personal.Update(accionbuscar);
                         await _context.SaveChangesAsync();
-                    }                   
+
+                        var marcasIncidencias = await GetMarcaIncidencia(accion.IdNumero, accion.IdPlanilla, accion.Inicio, accion.Fin);
+
+                        foreach (cMarcaIncidencia item in marcasIncidencias)
+                        {
+                            item.FECHA_JUST = DateTime.Now;
+                            item.IDACC = accionbuscar.IdRegistro;
+
+                            _context.Marcas_Incidencias.Update(item);
+                            await _context.SaveChangesAsync();
+                        }
+
+                    }
+                    else
+                    {
+                        accion.IdAccion = 0;
+                        _context.Add(accion);
+                        await _context.SaveChangesAsync();
+
+                        var ultimaAccion = await _context.Acciones_Personal.MaxAsync(e => e.IdRegistro);
+                        var marcasIncidencias = await GetMarcaIncidencia(accion.IdNumero, accion.IdPlanilla, accion.Inicio, accion.Fin);
+
+                        foreach (cMarcaIncidencia item in marcasIncidencias)
+                        {
+                            item.FECHA_JUST = DateTime.Now;
+                            item.IDACC = ultimaAccion;
+
+                            _context.Marcas_Incidencias.Update(item);
+                            await _context.SaveChangesAsync();
+                        }
+                    }
+
+                                     
 
                 }
             }
@@ -1314,6 +1384,7 @@ namespace GeoTimeConnectWebApi.Data
                 if (emp is not null)
                 {
                     var pass = funcionesGeo.Global_encrypt(login.Password);
+                   // var m = funcionesGeo.Encrypt(login.Password);
 
                     if (emp.global_clave!= pass)
                     {
@@ -2366,11 +2437,17 @@ namespace GeoTimeConnectWebApi.Data
             {
                 var periodos = await GetPeriodo(fecha, "T");
 
-                marca = (from p in periodos
-                            join pl in await _context.Ph_Planilla.ToListAsync() on p.tipo_planilla equals pl.tipo_planilla
-                            join m in await _context.Marcas_Proceso.ToListAsync() on pl.idplanilla equals m.idplanilla
-                            where m.fecha_entra >= p.inicio && m.fecha_entra <= p.fin
-                            select m).ToList();
+                Task task = new Task(() =>
+                {
+                    marca = (from p in periodos
+                             join pl in _context.Ph_Planilla on p.tipo_planilla equals pl.tipo_planilla
+                             join m in _context.Marcas_Proceso on pl.idplanilla equals m.idplanilla
+                             where m.fecha_entra >= p.inicio && m.fecha_entra <= p.fin
+                             select m).ToList();
+                });
+                task.Start();
+                task.Wait();
+                
             }
             catch (Exception e)
             {
@@ -2514,8 +2591,9 @@ namespace GeoTimeConnectWebApi.Data
                     }
                 }
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                Console.WriteLine(e.Message);
                 throw;
             }
             return companiasUsuario;
@@ -2676,7 +2754,179 @@ namespace GeoTimeConnectWebApi.Data
             return phSistema;
         }
 
+        /// <summary>
+        /// GetPortalConfig: Obtener datos de Configuración del Portal 
+        /// </summary>
+        /// <returns>Instancia de cPortal_Config con los datos del sistema </returns>
+        public async Task<cPortal_Config> GetPortalConfig()
+        {
+            cPortal_Config? portalConfig = new();
+
+            try
+            {
+                portalConfig =  (from pc in await _context.Portal_Config.ToListAsync()
+                                    select new cPortal_Config
+                                    { 
+                                        ID=pc.ID,
+                                        DATA_01 = Encripta.getDecryptTripleDES(pc.DATA_01),
+                                        LIC_PORTAL = pc.LIC_PORTAL
+                                    }).FirstOrDefault();
+                                   
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message); throw;
+            }
+            return portalConfig;
+        }
+
+        //Creado por: Marlon Loria Solano
+        //Fecha: 2023-08-23
+        /// <summary>
+        /// Sincronizar_PortalConfig: Sincronizar las configuraciones del Portal de Empleados, se verifica si existe el elemento, en cuyo caso actualiza el registro, de lo contrario se crea.
+        /// </summary>
+        /// <param name="portalConfig">Recibe una instancia del tipo cPortal_Config</param>
+        /// <returns>Una instancia del tipo EventResponse con las respuesta del proceso</returns>
+        public async Task<EventResponse> Sincronizar_PortalConfig(cPortal_Config portalConfig)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+                
+                cPortal_Config? portConfBuscar = await _context.Portal_Config.FirstOrDefaultAsync(e=>e.ID==portalConfig.ID);
+                string dataEncrypt =Encripta.getEncryptTripleDES(portalConfig.DATA_01);
+
+                //si el proyectoFase existe se actualiza 
+                //de lo contrario se agrega el registro
+                if (portConfBuscar is not null)
+                {
+                    portConfBuscar.LIC_PORTAL = portalConfig.LIC_PORTAL;
+                    portConfBuscar.DATA_01 = dataEncrypt;
+                    
+                    _context.Portal_Config.Update(portConfBuscar);
+                }
+                else
+                {
+                    portalConfig.ID = Guid.NewGuid();
+                    _context.Add(portalConfig);
+                }
+                
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo realizar la sincronización de las configuraciones del Portal de Empleados. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo realizar la sincronización de las configuraciones del Portal de Empleados. Detalle de Error: " + e.InnerException.Message;
+
+            }
+
+            return respuesta;
+
+        }
+
+        /// <summary>
+        /// GetPortalOpcion: Obtener lista de opciones del menu de Portal 
+        /// </summary>
+        /// <returns>Lista de Opciones del sistema</returns>
+        public async Task<List<cPortal_Opcion>> GetPortalOpcion()
+        {
+            List<cPortal_Opcion>? portalOpcion = new();
+
+            try
+            {
+                portalOpcion = await _context.Portal_Opciones.ToListAsync();
+
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message); throw;
+            }
+            return portalOpcion;
+        }
+
+        /// <summary>
+        /// GetPortalOpcion: Obtener datos de una opcion de sistema 
+        /// </summary>
+        /// <param name="id">id de la opcion</param>
+        /// <returns>Instancia de cPortal_Opcion con los datos de la opción </returns>
+        public async Task<cPortal_Opcion> GetPortalOpcion(string id)
+        {
+            cPortal_Opcion? portalOpcion = new();
+
+            try
+            {
+                portalOpcion = await _context.Portal_Opciones.FirstOrDefaultAsync(e => e.ID == id);
+     
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message); throw;
+            }
+            return portalOpcion;
+        }
+
+
+        /// <summary>
+        /// Sincronizar_MarcaExtraApb: Método para registrar las marcas de horas extras de los colaboradores en las tablas Marcas_Extras_Apb y Marcas_Proceso
+        /// </summary>
+        /// <returns>Una instancia de la Clase EventResponse, con el resultado del proceso</returns>
+        /// <param name="marcasExtraApb">Lista de registros de la clase cMarcaExtraApb</param>
+        public async Task<EventResponse> Sincronizar_PortalOpcion(IEnumerable<cPortal_Opcion> portalOpcion)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+                foreach (var item in portalOpcion)
+                {
+                    cPortal_Opcion? portalOpcionBuscar = await _context.Portal_Opciones
+                                    .Where(e => e.ID == item.ID)
+                                    .FirstOrDefaultAsync();
+                    //si la opcion existe se actualiza 
+                    //de lo contrario se agrega el registro
+                    if (portalOpcionBuscar is not null)
+                    {
+                        portalOpcionBuscar.HREF = item.HREF;
+                        portalOpcionBuscar.ICONID = item.ICONID;
+                        portalOpcionBuscar.PRINCIPAL = item.PRINCIPAL;
+                        portalOpcionBuscar.MENUTEXT = item.MENUTEXT;
+                        portalOpcionBuscar.PARENTID = item.PARENTID;
+
+                        _context.Portal_Opciones.Update(portalOpcionBuscar);
+                    }
+                    else
+                    {
+                        _context.Add(item);
+                    }
+                    await _context.SaveChangesAsync();
+
+                }
+
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo realizar el registro de la opción de menú. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo realizar el registro de la opción de menú. Detalle de Error: " + e.InnerException.Message;
+
+            }
+
+            return respuesta;
+
+        }
+
+
     }
 
-    
+
 }
