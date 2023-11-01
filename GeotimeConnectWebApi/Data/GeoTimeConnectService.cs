@@ -10,6 +10,10 @@ using System.Reflection.PortableExecutable;
 using System.Security.Claims;
 using LibEncripta;
 using System.Collections.Generic;
+using System.Net.Mail;
+using System.Net.Mime;
+using System.Net;
+using System.Security;
 
 namespace GeoTimeConnectWebApi.Data
 {
@@ -1448,6 +1452,53 @@ namespace GeoTimeConnectWebApi.Data
                         _context.PH_LOGIN.Update(phlogin);
                     }
                     
+
+                    await _context.SaveChangesAsync();
+                }
+                else
+                {
+                    respuesta.Id = "1";
+                    respuesta.Respuesta = "Error";
+                    respuesta.Descripcion = "No se encontraron los datos del empleado.";
+
+                }
+
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo validar los datos del empleado. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo validar los datos del empleado. Detalle de Error: " + e.InnerException.Message;
+
+            }
+
+            return respuesta;
+
+        }
+
+        //Creado por: Marlon Loria Solano
+        //Fecha: 2023-11-01
+        //CambiarCodigoSeguridadEmpleado
+        //Parametro: Recibe una instancia de empleado, se verifica si existe
+        //y se actualiza codigo de seguridad
+        public async Task<EventResponse> CambiarCodigoSeguridadEmpleado(cEmpleado empleado)
+        {
+            EventResponse respuesta = new EventResponse();            
+
+            try
+            {
+                var emp = await _context.Empleados.FirstAsync(e => e.IdNumero == empleado.IdNumero);
+
+                if (emp is not null)
+                {
+                    emp.global_code = empleado.global_code;
+                    emp.fecha_act_code = DateTime.Now;
+
+                    _context.Empleados.Update(emp);
 
                     await _context.SaveChangesAsync();
                 }
@@ -3059,9 +3110,137 @@ namespace GeoTimeConnectWebApi.Data
             return respuesta;
 
         }
+        //Creado por: Marlon Loria Solano
+        //Fecha: 2022-11-10
+        //Obtener Parametros Email por Id
+        public async Task<cParametroEmail> GetParametroEmail(int id)
+        {
+            cParametroEmail parametroEmail = new();
+            try
+            {
+                parametroEmail = await _context.ParametrosEmail.FirstOrDefaultAsync(e => e.Id == id);
+                parametroEmail.DefaultPassWord = Encripta.getDecryptTripleDES(parametroEmail.DefaultPassWord);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
+            return parametroEmail;
+        }
+
+        //Creado por: Marlon Loria Solano
+        //Fecha: 2023-02-13
+        //Sincronizar ParametroEmail
+        //Parametro: Recibe una instancia de ParametroEmail, se verifica si existe en cuyo caso
+        //actualiza el registro, de lo contrario lo crea.
+        public async Task<EventResponse> Sincronizar_ParametroEmail(cParametroEmail parametroEmail)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+                cParametroEmail? parametroBuscado = await _context.ParametrosEmail
+                                .Where(e => e.Id == parametroEmail.Id)
+                                .FirstOrDefaultAsync();
+                //si el parametro existe se actualiza 
+                //de lo contrario se agrega el registro
+                if (parametroBuscado is not null)
+                {
+                    parametroBuscado.SmtpServer = parametroEmail.SmtpServer;
+                    parametroBuscado.SmtpPort = parametroEmail.SmtpPort;
+                    parametroBuscado.DefaultEmail = parametroEmail.DefaultEmail;
+                    parametroBuscado.DefaultPassWord = Encripta.getEncryptTripleDES(parametroEmail.DefaultPassWord);
+
+                    _context.ParametrosEmail.Update(parametroBuscado);
+                }
+                else
+                {
+                    _context.Add(parametroEmail);
+                }
+
+
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo realizar la sincronización del Parámetro Email. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo realizar la sincronización del Parámetro Email. Detalle de Error: " + e.InnerException.Message;
+
+            }
+
+            return respuesta;
+
+        }
+
+        public async Task<EventResponse> EnviarCorreo(Email correo)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+                var parametrosCorreo = await GetParametroEmail(1);
+
+                correo.De = parametrosCorreo.DefaultEmail;
+                correo.SmtpServer = parametrosCorreo.SmtpServer;
+                correo.SmtpPort = parametrosCorreo.SmtpPort;
+
+                string password = parametrosCorreo.DefaultPassWord;
+
+                SecureString secureString = new SecureString();
+                foreach (char c in password.ToCharArray())
+                {
+                    secureString.AppendChar(c);
+                }
+
+                MailMessage message = new MailMessage(correo.De, correo.Para, correo.Asunto, correo.Cuerpo);
+                message.IsBodyHtml = true;
+
+                if (correo.Adjunto != "")
+                {
+                    Stream stream = new MemoryStream(correo.StreamAdjunto);
+                    Attachment data = new Attachment(stream, correo.Adjunto, MediaTypeNames.Application.Octet);
+                    message.Attachments.Add(data);
+                }
+
+                SmtpClient client = new SmtpClient(correo.SmtpServer, correo.SmtpPort);
+
+                client.EnableSsl = true;
+                client.DeliveryMethod = SmtpDeliveryMethod.Network;
+
+                var Credentials = new NetworkCredential(correo.De, secureString);
+                client.Credentials = Credentials;
+                client.Send(message);
+
+
+            }
+            catch (System.Net.WebException e)
+            {
+                Console.WriteLine(e.Message);
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo realizar el envio del correo electrónico. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo realizar el envio del correo electrónico. Detalle de Error: " + e.InnerException.Message;
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (ex.InnerException == null)
+                    respuesta.Descripcion = "No se pudo realizar el envio del correo electrónico. Detalle de Error: " + ex.Message;
+                else
+                    respuesta.Descripcion = "No se pudo realizar el envio del correo electrónico. Detalle de Error: " + ex.InnerException.Message;
+
+            }
+            return respuesta;
+        }
     }
-
-    
-
-
 }
