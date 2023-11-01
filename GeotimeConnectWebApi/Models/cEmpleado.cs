@@ -23,6 +23,9 @@ namespace GeoTimeConnectWebApi.Models
         public string? global_clave { get; set; }
         public DateTime? Fecha_Salida { get; set; }
 
+        public string? global_code { get; set; }
+        public DateTime? fecha_act_code { get; set; }
+
 
     }
 }

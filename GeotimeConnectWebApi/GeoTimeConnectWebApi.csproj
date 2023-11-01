@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
@@ -17,12 +17,10 @@
 
 	<ItemGroup>
 	  <Reference Include="LibEncripta">
-	    <HintPath>..\..\LibEncripta\LibEncripta\bin\Release\net6.0\LibEncripta.dll</HintPath>
-	    <Private>True</Private>
+	    <HintPath>..\..\..\..\LibEncripta\LibEncripta\bin\Release\net6.0\LibEncripta.dll</HintPath>
 	  </Reference>
 	  <Reference Include="Seguridad_Geotime">
-	    <HintPath>..\..\Seguridad GeoTime\Seguridad_Geotime.dll</HintPath>
-	    <Private>True</Private>
+	    <HintPath>..\..\..\..\Seguridad GeoTime\Seguridad_Geotime.dll</HintPath>
 	  </Reference>
 	</ItemGroup>
 

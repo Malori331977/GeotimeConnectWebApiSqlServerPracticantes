@@ -369,5 +369,18 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         /// <param name="id"></param>
         /// <returns>EventResponse</returns>
         public Task<EventResponse> Elimina_PhFormulacion(string id);
+
+        /// <summary>
+        /// CambiarCodigoSeguridadEmpleado: Actualizar codigo de seguridad, para cambios de contraseñas
+        /// </summary>
+        /// <param name="empleado">instancia de empleado a actualizar</param>
+        /// <returns>instancia de EventResponse con el resultado de la operacion</returns>
+        public Task<EventResponse> CambiarCodigoSeguridadEmpleado(cEmpleado empleado);
+
+        public Task<EventResponse> EnviarCorreo(Email correo);
+        public Task<cParametroEmail> GetParametroEmail(int id);
+        public Task<EventResponse> Sincronizar_ParametroEmail(cParametroEmail parametroEmail);
+
+
     }
 }
