@@ -24,6 +24,10 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         public Task<List<cConcepto>> GetConcepto();
         public Task<cConcepto> GetConcepto(string concepto);
         public Task<EventResponse> Sincronizar_Concepto(IEnumerable<cConcepto> conceptos);
+        /// <summary>
+        /// GetDepartamento: obtener lista de departamentos
+        /// </summary>
+        /// <returns>Lista de departamentos</returns>
         public Task<List<cDepartamento>> GetDepartamento();
         public Task<cDepartamento> GetDepartamento(string idDepart);
         public Task<EventResponse> Sincronizar_Departamento(IEnumerable<cDepartamento> departamentos);

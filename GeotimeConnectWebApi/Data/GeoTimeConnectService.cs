@@ -554,7 +554,6 @@ namespace GeoTimeConnectWebApi.Data
                     {
                         command.CommandText = _schema + ".aplico_accpersonal @IDREGISTRO=" + idregistro;
                         System.Data.Common.DbDataReader result = command.ExecuteReader();
-
                     }
                 }
             }
@@ -1736,11 +1735,12 @@ namespace GeoTimeConnectWebApi.Data
                     {
                         marcaMovTurno.turno = item.turno;
                         marcaMovTurno.idplanilla = item.idplanilla;
-                        marcaMovTurno.hora = item.hora;
+                        marcaMovTurno.hora = "00:00";
                         _context.Marcas_Mov_Turnos.Update(marcaMovTurno);
                     }
                     else
                     {
+                        item.hora = "00:00";
                         item.idregistro = 0;
                         _context.Add(item);
                     }
@@ -2925,10 +2925,10 @@ namespace GeoTimeConnectWebApi.Data
 
 
         /// <summary>
-        /// Sincronizar_MarcaExtraApb: Método para registrar las marcas de horas extras de los colaboradores en las tablas Marcas_Extras_Apb y Marcas_Proceso
+        /// Sincronizar_PortalOpcion: Método para registrar las opciones del sistema Portal de empleados
         /// </summary>
         /// <returns>Una instancia de la Clase EventResponse, con el resultado del proceso</returns>
-        /// <param name="marcasExtraApb">Lista de registros de la clase cMarcaExtraApb</param>
+        /// <param name="portalOpcion">Lista de registros de cPortal_Opcion </param>
         public async Task<EventResponse> Sincronizar_PortalOpcion(IEnumerable<cPortal_Opcion> portalOpcion)
         {
             EventResponse respuesta = new EventResponse();

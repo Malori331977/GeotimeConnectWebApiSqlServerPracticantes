@@ -25,6 +25,11 @@ string SQLConnectionString = config.GetConnectionString("SqlServerDataBaseContex
 
 string userSQL = Encripta.getDecryptTripleDES(config.GetConnectionString("UserSQL"));
 string passSQL = Encripta.getDecryptTripleDES(config.GetConnectionString("PassSQL"));
+
+//ctadmin=7kRtaIP/ktY=
+//7ah3xu0$oa=TKbHv5rsQ0LqZRYKmhjE3g==
+
+
 string schema = config.GetConnectionString("Schema");
 string basedatos = config.GetConnectionString("DBName");
 string withCors = config.GetConnectionString("WithCors");
