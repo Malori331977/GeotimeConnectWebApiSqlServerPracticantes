@@ -94,26 +94,26 @@ namespace GeoTimeConnectWebApi.Data
             List<cAccionPersonal> accionPersonal = new();
             try
             {
-                accionPersonal = await (from ap in _context.Acciones_Personal.Where(e=>e.IdPlanilla== IdPlanilla && e.Inicio>=FechaInicio && e.Fin<=FechaFin)
-                                       join inc in _context.Incidencias on ap.IdIncidencia equals inc.Id
-                                       select new cAccionPersonal
-                                       {
-                                           IdRegistro = ap.IdRegistro,
-                                           IdPlanilla = ap.IdPlanilla,
-                                           IdNumero = ap.IdNumero,
-                                           Inicio = ap.Inicio,
-                                           Fin = ap.Fin,
-                                           IdIncidencia = ap.IdIncidencia,
-                                           Estado = ap.Estado,
-                                           IdAccion = ap.IdAccion,
-                                           Comentario = ap.Comentario,
-                                           Dias = ap.Dias,
-                                           Usuario = ap.Usuario,
-                                           Fecha_Just = ap.Fecha_Just,
-                                           Dias_Apl = ap.Dias_Apl,
-                                           SolicitudId = ap.SolicitudId,
-                                           Nom_Conector = inc.nom_conector
-                                       }).ToListAsync();
+                accionPersonal = await (from ap in _context.Acciones_Personal.Where(e => e.IdPlanilla == IdPlanilla && e.Inicio >= FechaInicio && e.Fin <= FechaFin)
+                                        join inc in _context.Incidencias on ap.IdIncidencia equals inc.Id
+                                        select new cAccionPersonal
+                                        {
+                                            IdRegistro = ap.IdRegistro,
+                                            IdPlanilla = ap.IdPlanilla,
+                                            IdNumero = ap.IdNumero,
+                                            Inicio = ap.Inicio,
+                                            Fin = ap.Fin,
+                                            IdIncidencia = ap.IdIncidencia,
+                                            Estado = ap.Estado,
+                                            IdAccion = ap.IdAccion,
+                                            Comentario = ap.Comentario,
+                                            Dias = ap.Dias,
+                                            Usuario = ap.Usuario,
+                                            Fecha_Just = ap.Fecha_Just,
+                                            Dias_Apl = ap.Dias_Apl,
+                                            SolicitudId = ap.SolicitudId,
+                                            Nom_Conector = inc.nom_conector
+                                        }).ToListAsync();
             }
             catch (Exception e)
             {
@@ -130,10 +130,10 @@ namespace GeoTimeConnectWebApi.Data
             List<cAccionPersonal> accionPersonal = new();
             try
             {
-             
 
-                accionPersonal = await (from ap in _context.Acciones_Personal.Where(e => e.IdPlanilla == IdPlanilla 
-                                                                              && e.Inicio >= FechaInicio 
+
+                accionPersonal = await (from ap in _context.Acciones_Personal.Where(e => e.IdPlanilla == IdPlanilla
+                                                                              && e.Inicio >= FechaInicio
                                                                               && e.Fin <= FechaFin
                                                                               && (e.Usuario == usuario || e.Usuario == (usuario + "\\")))
                                         join inc in _context.Incidencias on ap.IdIncidencia equals inc.Id
@@ -258,9 +258,9 @@ namespace GeoTimeConnectWebApi.Data
             {
                 var periodoVigente = await GetPeriodoVigenteEmpleado(idnumero, fecha);
 
-                accionPersonal = await (from ap in _context.Acciones_Personal.Where(e => e.IdNumero==idnumero 
+                accionPersonal = await (from ap in _context.Acciones_Personal.Where(e => e.IdNumero == idnumero
                                                                               && e.IdPlanilla == IdPlanilla
-                                                                              && (e.Inicio >= periodoVigente.inicio && e.Inicio<= periodoVigente.fin && e.Fin<= periodoVigente.fin)
+                                                                              && (e.Inicio >= periodoVigente.inicio && e.Inicio <= periodoVigente.fin && e.Fin <= periodoVigente.fin)
                                                                               || (e.Inicio < periodoVigente.inicio && e.Fin >= periodoVigente.inicio && e.Fin <= periodoVigente.fin)
                                                                               || (e.Inicio >= periodoVigente.inicio && e.Inicio <= periodoVigente.fin && e.Fin > periodoVigente.fin)
                                                                               || (e.Inicio < periodoVigente.inicio && e.Fin > periodoVigente.fin))
@@ -308,8 +308,8 @@ namespace GeoTimeConnectWebApi.Data
                     _context.Add(accion);
                     await _context.SaveChangesAsync();
 
-                    var ultimaAccion = await _context.Acciones_Personal.FirstOrDefaultAsync(e=>e.SolicitudId==accion.SolicitudId);
-                    
+                    var ultimaAccion = await _context.Acciones_Personal.FirstOrDefaultAsync(e => e.SolicitudId == accion.SolicitudId);
+
                     if (ultimaAccion is not null)
                         await EjecutaAplicaAccionPersonal(ultimaAccion.IdRegistro);
 
@@ -401,15 +401,15 @@ namespace GeoTimeConnectWebApi.Data
                 {
 
                     var incidencia = await _context.Incidencias.FirstOrDefaultAsync(e => e.nom_conector == accion.Nom_Conector);
-                    
+
                     if (incidencia is not null)
                     {
-                        var accionbuscar = await _context.Acciones_Personal.FirstOrDefaultAsync(e=>e.IdRegistro== accion.IdRegistro);
+                        var accionbuscar = await _context.Acciones_Personal.FirstOrDefaultAsync(e => e.IdRegistro == accion.IdRegistro);
 
                         if (accionbuscar is not null)
                         {
                             accionbuscar.Inicio = accion.Inicio;
-                            accionbuscar.Fin = accion.Fin;         
+                            accionbuscar.Fin = accion.Fin;
                             accionbuscar.Dias = accion.Dias;
                             accionbuscar.Dias_Apl = accion.Dias_Apl;
                             accionbuscar.IdAccion = accion.IdAccion;
@@ -421,11 +421,11 @@ namespace GeoTimeConnectWebApi.Data
 
                             _context.Acciones_Personal.Update(accionbuscar);
                             await _context.SaveChangesAsync();
-                            
+
                             if (accion.Estado == 'A')
                             {
                                 await EjecutaAplicaAccionPersonal(accionbuscar.IdRegistro);
-                            }                               
+                            }
                         }
                         else
                         {
@@ -437,17 +437,17 @@ namespace GeoTimeConnectWebApi.Data
 
                             await EjecutaAplicaAccionPersonal(ultimaAccion);
                         }
-                        
+
                     }
                     else
                     {
                         respuesta.Id = "1";
-                        respuesta.Respuesta = "Error";                      
+                        respuesta.Respuesta = "Error";
                         respuesta.Descripcion = "No logró encontrar la incidencia asociada a nom_conector";
-                    } 
-                    
+                    }
+
                 }
-                
+
             }
             catch (Exception e)
             {
@@ -488,7 +488,7 @@ namespace GeoTimeConnectWebApi.Data
                         accionbuscar.Dias_Apl = accion.Dias_Apl;
                         accionbuscar.IdAccion = accion.IdAccion;
                         accionbuscar.Comentario = accion.Comentario;
-                        
+
                         _context.Acciones_Personal.Update(accionbuscar);
                         await _context.SaveChangesAsync();
 
@@ -523,7 +523,7 @@ namespace GeoTimeConnectWebApi.Data
                         }
                     }
 
-                                     
+
 
                 }
             }
@@ -561,7 +561,7 @@ namespace GeoTimeConnectWebApi.Data
             {
                 throw;
             }
-           
+
 
         }
 
@@ -611,7 +611,7 @@ namespace GeoTimeConnectWebApi.Data
 
             try
             {
-                foreach(var centroCosto in centrosCosto)
+                foreach (var centroCosto in centrosCosto)
                 {
                     cCentroCosto? ceco = await _context.Ph_CCostos
                                     .Where(e => e.IdCCosto == centroCosto.IdCCosto)
@@ -630,10 +630,10 @@ namespace GeoTimeConnectWebApi.Data
                         _context.Add(centroCosto);
                     }
                 }
-                
+
                 await _context.SaveChangesAsync();
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
                 respuesta.Id = "1";
@@ -644,7 +644,7 @@ namespace GeoTimeConnectWebApi.Data
                     respuesta.Descripcion = "No se pudo realizar la sincronización de Centro de Costo. Detalle de Error: " + e.InnerException.Message;
 
             }
-            
+
             return respuesta;
 
         }
@@ -695,7 +695,7 @@ namespace GeoTimeConnectWebApi.Data
 
             try
             {
-                foreach(var concepto in conceptos)
+                foreach (var concepto in conceptos)
                 {
                     cConcepto? concept = await _context.Ph_Conceptos
                                                         .Where(e => e.Concepto == concepto.Concepto)
@@ -710,7 +710,7 @@ namespace GeoTimeConnectWebApi.Data
                     else
                     {
                         concepto.tipo_h = 1;
-                        concepto.tipo_j= 1;
+                        concepto.tipo_j = 1;
                         concepto.columnar = 1;
                         concepto.factor = 1;
                         concepto.tolerancia = 0;
@@ -720,10 +720,10 @@ namespace GeoTimeConnectWebApi.Data
                         concepto.tipo_ext_alm = null;
                         concepto.muestra_resumen = null;
 
-						_context.Add(concepto);
+                        _context.Add(concepto);
                     }
                 }
-                
+
                 await _context.SaveChangesAsync();
             }
             catch (Exception e)
@@ -788,7 +788,7 @@ namespace GeoTimeConnectWebApi.Data
 
             try
             {
-                foreach(var departamento in departamentos)
+                foreach (var departamento in departamentos)
                 {
                     cDepartamento? depto = await _context.Ph_Departamento
                                                         .Where(e => e.IDDEPART == departamento.IDDEPART)
@@ -804,7 +804,7 @@ namespace GeoTimeConnectWebApi.Data
                     {
                         _context.Add(departamento);
                     }
-                }                
+                }
                 await _context.SaveChangesAsync();
             }
             catch (Exception e)
@@ -834,7 +834,7 @@ namespace GeoTimeConnectWebApi.Data
             List<cEmpleado> empleado = new();
             try
             {
-               empleado = await _context.Empleados.Where(e=>e.Estado=='T').ToListAsync();
+                empleado = await _context.Empleados.Where(e => e.Estado == 'T').ToListAsync();
             }
             catch (Exception e)
             {
@@ -855,7 +855,7 @@ namespace GeoTimeConnectWebApi.Data
             cEmpleado? empleado = new();
             try
             {
-                empleado = await _context.Empleados.FirstOrDefaultAsync(e=>e.IdNumero == idNumero && e.Estado == 'T');
+                empleado = await _context.Empleados.FirstOrDefaultAsync(e => e.IdNumero == idNumero && e.Estado == 'T');
             }
             catch (Exception e)
             {
@@ -868,7 +868,7 @@ namespace GeoTimeConnectWebApi.Data
         public async Task<cEmpleado> GetEmpleadoByEmail(string email)
         {
             cEmpleado? empleado = new();
-           
+
             try
             {
                 empleado = await _context.Empleados.FirstOrDefaultAsync(e => e.Email == email && e.Estado == 'T');
@@ -905,10 +905,11 @@ namespace GeoTimeConnectWebApi.Data
                            && e.IdDepartamento!.ToLower().Contains(iddepartamento.ToLower()))
                     .ToListAsync();
                 }
-                else {
+                else
+                {
                     if (idnumero == "" && nombre == "" && iddepartamento == "")
                     {
-                        empleado = await _context.Empleados.Where(e=>e.Estado == 'T')  
+                        empleado = await _context.Empleados.Where(e => e.Estado == 'T')
                                             .ToListAsync();
                     }
                     else
@@ -983,13 +984,13 @@ namespace GeoTimeConnectWebApi.Data
                                     empleado = await _context.Empleados.Where(e => e.Estado == 'T')
                                     .ToListAsync();
                                 }
-                                
+
                             }
                         }
 
                     }
                 }
-                    
+
             }
             catch (Exception e)
             {
@@ -1017,9 +1018,9 @@ namespace GeoTimeConnectWebApi.Data
                     if (empleado.Fecha_Ingreso is null)
                         fechaIngreso = DateTime.Now;
                     else
-                        fechaIngreso =(DateTime) DateTime.Parse(empleado.Fecha_Ingreso.ToString());
+                        fechaIngreso = (DateTime)DateTime.Parse(empleado.Fecha_Ingreso.ToString());
 
-                    
+
                     cEmpleado? emp = await _context.Empleados
                                     .Where(e => e.IdNumero == empleado.IdNumero)
                                     .FirstOrDefaultAsync();
@@ -1048,7 +1049,7 @@ namespace GeoTimeConnectWebApi.Data
                         _context.Empleados.Update(emp);
                         await _context.SaveChangesAsync();
 
-                        if (idPlanillaAnt!= empleado.IdPlanilla)
+                        if (idPlanillaAnt != empleado.IdPlanilla)
                         {
                             await EjecutaPostCambioPlanilla(empleado.IdNumero, idPlanillaAnt, empleado.IdPlanilla);
                         }
@@ -1065,8 +1066,8 @@ namespace GeoTimeConnectWebApi.Data
                         await _context.SaveChangesAsync();
                     }
                 }
-                
-                
+
+
             }
             catch (Exception e)
             {
@@ -1089,7 +1090,7 @@ namespace GeoTimeConnectWebApi.Data
 
         public async Task<List<cIncidencia>> GetIncidencia()
         {
-            
+
 
             List<cIncidencia> incidencia = new();
             try
@@ -1167,7 +1168,7 @@ namespace GeoTimeConnectWebApi.Data
 
             try
             {
-                foreach(var incidencia in incidencias)
+                foreach (var incidencia in incidencias)
                 {
                     cIncidencia? incident = await _context.Incidencias
                                     .Where(e => e.Codigo == incidencia.Codigo)
@@ -1183,7 +1184,7 @@ namespace GeoTimeConnectWebApi.Data
                     {
                         _context.Add(incidencia);
                     }
-                }                
+                }
                 await _context.SaveChangesAsync();
             }
             catch (Exception e)
@@ -1211,7 +1212,7 @@ namespace GeoTimeConnectWebApi.Data
             try
             {
                 marcasResumen = await _context.Marcas_Resumen
-                                    .Where(e=>e.IdPlanilla==idPlanilla && e.IdPeriodo==idPeriodo)
+                                    .Where(e => e.IdPlanilla == idPlanilla && e.IdPeriodo == idPeriodo)
                                     .ToListAsync();
             }
             catch (Exception e)
@@ -1327,7 +1328,7 @@ namespace GeoTimeConnectWebApi.Data
             {
                 var periodoVigente = await GetPeriodoVigenteEmpleado(idnumero, fecha);
 
-                marca = await _context.Marcas.Where(e => e.idnumero == idnumero && (DateTime)e.fecha_hora>=periodoVigente.inicio && (DateTime)e.fecha_hora <= periodoVigente.fin).ToListAsync();
+                marca = await _context.Marcas.Where(e => e.idnumero == idnumero && (DateTime)e.fecha_hora >= periodoVigente.inicio && (DateTime)e.fecha_hora <= periodoVigente.fin).ToListAsync();
             }
             catch (Exception e)
             {
@@ -1387,15 +1388,15 @@ namespace GeoTimeConnectWebApi.Data
                 if (emp is not null)
                 {
                     var pass = funcionesGeo.Global_encrypt(login.Password);
-                   // var m = funcionesGeo.Encrypt(login.Password);
+                    // var m = funcionesGeo.Encrypt(login.Password);
 
-                    if (emp.global_clave!= pass)
+                    if (emp.global_clave != pass)
                     {
                         respuesta.Id = "1";
                         respuesta.Respuesta = "Error";
                         respuesta.Descripcion = "La contraseña indicada no es válida.";
                     }
-                    
+
                 }
                 else
                 {
@@ -1404,7 +1405,7 @@ namespace GeoTimeConnectWebApi.Data
                     respuesta.Descripcion = "No se encontraron los datos del empleado.";
 
                 }
-                
+
             }
             catch (Exception e)
             {
@@ -1450,7 +1451,7 @@ namespace GeoTimeConnectWebApi.Data
                         phlogin.GLOBAL_CLAVE = pass;
                         _context.PH_LOGIN.Update(phlogin);
                     }
-                    
+
 
                     await _context.SaveChangesAsync();
                 }
@@ -1486,7 +1487,7 @@ namespace GeoTimeConnectWebApi.Data
         //y se actualiza codigo de seguridad
         public async Task<EventResponse> CambiarCodigoSeguridadEmpleado(cEmpleado empleado)
         {
-            EventResponse respuesta = new EventResponse();            
+            EventResponse respuesta = new EventResponse();
 
             try
             {
@@ -1625,7 +1626,7 @@ namespace GeoTimeConnectWebApi.Data
             try
             {
                 DateTime fechaMov = DateTime.Parse($"{fecha.Substring(0, 4)}-{fecha.Substring(4, 2)}-{fecha.Substring(6, 2)}");
-                marcaMovTurno = await _context.Marcas_Mov_Turnos.FirstOrDefaultAsync(e => e.idnumero == idnumero && e.fecha== fechaMov && e.turno== idturno);
+                marcaMovTurno = await _context.Marcas_Mov_Turnos.FirstOrDefaultAsync(e => e.idnumero == idnumero && e.fecha == fechaMov && e.turno == idturno);
             }
             catch (Exception e)
             {
@@ -1640,10 +1641,10 @@ namespace GeoTimeConnectWebApi.Data
         /// <returns>Lista de cMarcaMovTurno</returns>
         /// <param name="idnumero">Número de Empleado</param>
         /// <param name="fechaPeriodo">Fecha del Periodo para el cual se requieren los turnos</param>
-        public async Task<List<cMarcaMovTurno>> GetMarcaMovTurno(string idnumero,string fechaPeriodo)
+        public async Task<List<cMarcaMovTurno>> GetMarcaMovTurno(string idnumero, string fechaPeriodo)
         {
-            
-            List < cMarcaMovTurno > marcaMovTurno = new();
+
+            List<cMarcaMovTurno> marcaMovTurno = new();
             try
             {
                 DateTime fechaMov = DateTime.Parse($"{fechaPeriodo.Substring(0, 4)}-{fechaPeriodo.Substring(4, 2)}-{fechaPeriodo.Substring(6, 2)}");
@@ -1651,16 +1652,16 @@ namespace GeoTimeConnectWebApi.Data
                                       join b in _context.Ph_Planilla on a.tipo_planilla equals b.tipo_planilla
                                       join c in _context.Empleados on b.idplanilla equals c.IdPlanilla
                                       where c.IdNumero == idnumero
-                                        && fechaMov>=a.inicio && fechaMov<= a.fin
+                                        && fechaMov >= a.inicio && fechaMov <= a.fin
                                       select a).FirstOrDefaultAsync();
                 if (periodos != null)
                 {
                     marcaMovTurno = await _context.Marcas_Mov_Turnos
-                                            .Where(e => e.idnumero==idnumero 
-                                                    && e.fecha>=periodos.inicio 
-                                                    && e.fecha<= periodos.fin).ToListAsync();
+                                            .Where(e => e.idnumero == idnumero
+                                                    && e.fecha >= periodos.inicio
+                                                    && e.fecha <= periodos.fin).ToListAsync();
                 }
-                
+
             }
             catch (Exception e)
             {
@@ -1690,18 +1691,18 @@ namespace GeoTimeConnectWebApi.Data
                                       where grupos.Contains(c.IdGrupo.ToString())
                                         && fechaMov >= a.inicio && fechaMov <= a.fin
                                       select a).Distinct().ToListAsync();
-                foreach(var periodo in periodos)
+                foreach (var periodo in periodos)
                 {
-                    var marcasperiodo = await(from m in _context.Marcas_Mov_Turnos
-                                              join c in _context.Empleados on new { idnumero=m.idnumero, idplanilla=m.idplanilla } equals new { idnumero=c.IdNumero, idplanilla = c.IdPlanilla }
-                                              where grupos.Contains(c.IdGrupo.ToString())
-                                                && m.fecha >= periodo.inicio
-                                                && m.fecha <= periodo.fin
-                                              select m).ToListAsync();
+                    var marcasperiodo = await (from m in _context.Marcas_Mov_Turnos
+                                               join c in _context.Empleados on new { idnumero = m.idnumero, idplanilla = m.idplanilla } equals new { idnumero = c.IdNumero, idplanilla = c.IdPlanilla }
+                                               where grupos.Contains(c.IdGrupo.ToString())
+                                                 && m.fecha >= periodo.inicio
+                                                 && m.fecha <= periodo.fin
+                                               select m).ToListAsync();
 
                     marcaMovTurno.AddRange(marcasperiodo);
                 }
-                
+
 
             }
             catch (Exception e)
@@ -1763,70 +1764,70 @@ namespace GeoTimeConnectWebApi.Data
 
         }
 
-		//Creado por: Marlon Loria Solano
-		//Fecha: 2023-05-24
-		//Sincronizar Marcas_Resumen
-		//Parametro: Recibe una instancia de Marcas_Resumen, se verifica si existe en cuyo caso
-		//actualiza el registro, de lo contrario lo crea.
-		public async Task<EventResponse> Sincronizar_MarcasResumen(IEnumerable<cMarcaResumen> marcasResumen)
-		{
-			EventResponse respuesta = new EventResponse();
+        //Creado por: Marlon Loria Solano
+        //Fecha: 2023-05-24
+        //Sincronizar Marcas_Resumen
+        //Parametro: Recibe una instancia de Marcas_Resumen, se verifica si existe en cuyo caso
+        //actualiza el registro, de lo contrario lo crea.
+        public async Task<EventResponse> Sincronizar_MarcasResumen(IEnumerable<cMarcaResumen> marcasResumen)
+        {
+            EventResponse respuesta = new EventResponse();
 
-			try
-			{
-				foreach (var item in marcasResumen)
-				{
+            try
+            {
+                foreach (var item in marcasResumen)
+                {
                     var concepto = await _context.Ph_Conceptos.FirstOrDefaultAsync(e => e.id == item.IdConcepto);
-					var empleado = await _context.Empleados.FirstOrDefaultAsync(e => e.IdNumero == item.IdNumero);
+                    var empleado = await _context.Empleados.FirstOrDefaultAsync(e => e.IdNumero == item.IdNumero);
 
 
-					cMarcaResumen? marcaRes = await _context.Marcas_Resumen
-									.Where(e => e.IdPlanilla == empleado!.IdPlanilla && e.IdNumero == item.IdNumero 
-                                            && e.IdConcepto==item.IdConcepto && e.IdCCosto== empleado.IdCCosto)
-									.FirstOrDefaultAsync();
-					if (marcaRes is not null)
-					{
-                       
-						marcaRes.NominaEq = item.NominaEq;
-						//marcaRes.Cantidad = item.Cantidad;
-						marcaRes.Monto = marcaRes.Monto + item.Monto; 
-						marcaRes.Proyecto = item.Proyecto;
-						marcaRes.Fase = item.Fase;
-						marcaRes.IdPeriodo = item.IdPeriodo;
+                    cMarcaResumen? marcaRes = await _context.Marcas_Resumen
+                                    .Where(e => e.IdPlanilla == empleado!.IdPlanilla && e.IdNumero == item.IdNumero
+                                            && e.IdConcepto == item.IdConcepto && e.IdCCosto == empleado.IdCCosto)
+                                    .FirstOrDefaultAsync();
+                    if (marcaRes is not null)
+                    {
+
+                        marcaRes.NominaEq = item.NominaEq;
+                        //marcaRes.Cantidad = item.Cantidad;
+                        marcaRes.Monto = marcaRes.Monto + item.Monto;
+                        marcaRes.Proyecto = item.Proyecto;
+                        marcaRes.Fase = item.Fase;
+                        marcaRes.IdPeriodo = item.IdPeriodo;
                         marcaRes.NominaEq = concepto!.nominaeq;
 
-						_context.Marcas_Resumen.Update(marcaRes);
-					}
-					else
-					{
+                        _context.Marcas_Resumen.Update(marcaRes);
+                    }
+                    else
+                    {
                         item.IdPlanilla = empleado.IdPlanilla;
-						item.IdCCosto = empleado.IdCCosto;
-						item.NominaEq = concepto!.nominaeq;
-						_context.Add(item);
-					}
-				}
+                        item.IdCCosto = empleado.IdCCosto;
+                        item.NominaEq = concepto!.nominaeq;
+                        _context.Add(item);
+                    }
+                }
 
-				await _context.SaveChangesAsync();
-			}
-			catch (Exception e)
-			{
-				Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
-				respuesta.Id = "1";
-				respuesta.Respuesta = "Error";
-				if (e.InnerException == null)
-					respuesta.Descripcion = "No se pudo realizar la sincronización de Marcas_Mov_Turno. Detalle de Error: " + e.Message;
-				else
-					respuesta.Descripcion = "No se pudo realizar la sincronización de Marcas_Mov_Turno. Detalle de Error: " + e.InnerException.Message;
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo realizar la sincronización de Marcas_Mov_Turno. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo realizar la sincronización de Marcas_Mov_Turno. Detalle de Error: " + e.InnerException.Message;
 
-			}
+            }
 
-			return respuesta;
+            return respuesta;
 
-		}
+        }
 
-		//Fecha: 2022-10-30
-		//Obtener lista de Conceptos
-		public async Task<List<cPh_Grupo>> GetGrupo()
+        //Fecha: 2022-10-30
+        //Obtener lista de Conceptos
+        public async Task<List<cPh_Grupo>> GetGrupo()
         {
             List<cPh_Grupo> grupo = new();
             try
@@ -1865,18 +1866,18 @@ namespace GeoTimeConnectWebApi.Data
         /// </summary>
         /// <returns>Lista de cPh_Periodos</returns>
         public async Task<IEnumerable<cPh_Periodos>> GetPeriodo()
-		{
-			List<cPh_Periodos>? periodos = new();
-			try
-			{
-				periodos = await _context.Ph_Periodos.ToListAsync();
-			}
-			catch (Exception e)
-			{
-				Console.WriteLine(e.Message); throw;
-			}
-			return periodos;
-		}
+        {
+            List<cPh_Periodos>? periodos = new();
+            try
+            {
+                periodos = await _context.Ph_Periodos.ToListAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message); throw;
+            }
+            return periodos;
+        }
 
         //Creado por: Marlon Loria Solano
         //Fecha: 2023-06-07
@@ -1886,18 +1887,18 @@ namespace GeoTimeConnectWebApi.Data
         /// <returns>Una instancia de la clase cPh_Periodos</returns>
         /// ///<param name="idperiodo">idperiodo del periodo requerido</param>
         public async Task<cPh_Periodos> GetPeriodo(string idperiodo)
-		{
-			cPh_Periodos? periodo = new();
-			try
-			{
-				periodo = await _context.Ph_Periodos.FirstOrDefaultAsync(e => e.idperiodo == idperiodo);
-			}
-			catch (Exception e)
-			{
-				Console.WriteLine(e.Message); throw;
-			}
-			return periodo;
-		}
+        {
+            cPh_Periodos? periodo = new();
+            try
+            {
+                periodo = await _context.Ph_Periodos.FirstOrDefaultAsync(e => e.idperiodo == idperiodo);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message); throw;
+            }
+            return periodo;
+        }
 
         /// <summary>
         /// GetPeriodoVigenteEmpleado: Método para obtener el periodo vigenta para un empleado  
@@ -1912,11 +1913,11 @@ namespace GeoTimeConnectWebApi.Data
             {
                 DateTime fechaMov = DateTime.Parse($"{fechaPeriodo.Substring(0, 4)}-{fechaPeriodo.Substring(4, 2)}-{fechaPeriodo.Substring(6, 2)}");
                 periodo = await (from a in _context.Ph_Periodos
-                                      join b in _context.Ph_Planilla on a.tipo_planilla equals b.tipo_planilla
-                                      join c in _context.Empleados on b.idplanilla equals c.IdPlanilla
-                                      where c.IdNumero == idnumero
-                                        && fechaMov >= a.inicio && fechaMov <= a.fin
-                                      select a).FirstOrDefaultAsync();
+                                 join b in _context.Ph_Planilla on a.tipo_planilla equals b.tipo_planilla
+                                 join c in _context.Empleados on b.idplanilla equals c.IdPlanilla
+                                 where c.IdNumero == idnumero
+                                   && fechaMov >= a.inicio && fechaMov <= a.fin
+                                 select a).FirstOrDefaultAsync();
             }
             catch (Exception e)
             {
@@ -1936,21 +1937,21 @@ namespace GeoTimeConnectWebApi.Data
         /// <param name="fecha">Fecha del periodo</param>
         /// <param name="vigente">Periodo está vigente </param>
         public async Task<IEnumerable<cPh_Periodos>> GetPeriodo(string fecha, string vigente)
-		{
+        {
 
-			List<cPh_Periodos>? periodos = new();
-			try
-			{
-				DateTime fechaMov = DateTime.Parse($"{fecha.Substring(0, 4)}-{fecha.Substring(4, 2)}-{fecha.Substring(6, 2)}");
-				periodos = await _context.Ph_Periodos.Where(e=> fechaMov>=e.inicio  && fechaMov <=e.fin)
+            List<cPh_Periodos>? periodos = new();
+            try
+            {
+                DateTime fechaMov = DateTime.Parse($"{fecha.Substring(0, 4)}-{fecha.Substring(4, 2)}-{fecha.Substring(6, 2)}");
+                periodos = await _context.Ph_Periodos.Where(e => fechaMov >= e.inicio && fechaMov <= e.fin)
                                                      .ToListAsync();
-			}
-			catch (Exception e)
-			{
-				Console.WriteLine(e.Message); throw;
-			}
-			return periodos;
-		}
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message); throw;
+            }
+            return periodos;
+        }
 
 
         //Creado por: Marlon Loria Solano
@@ -2162,7 +2163,7 @@ namespace GeoTimeConnectWebApi.Data
                                                  && e.fecha == fechaDia)
                                           .ToListAsync();
                 }
-                
+
             }
             catch (Exception e)
             {
@@ -2221,7 +2222,7 @@ namespace GeoTimeConnectWebApi.Data
 
                         _context.Marcas_Extras_Apb.Update(marcaExtra);
 
-                        var marcaProceso = await _context.Marcas_Proceso.FirstOrDefaultAsync(e => e.fecha_entra >= marcaExtra.fecha && e.fecha_sale <= marcaExtra.fecha && e.idnumero == marcaExtra.idnumero && e.idplanilla==marcaExtra.idplanilla);
+                        var marcaProceso = await _context.Marcas_Proceso.FirstOrDefaultAsync(e => e.fecha_entra >= marcaExtra.fecha && e.fecha_sale <= marcaExtra.fecha && e.idnumero == marcaExtra.idnumero && e.idplanilla == marcaExtra.idplanilla);
 
                         if (marcaProceso is not null)
                         {
@@ -2243,7 +2244,7 @@ namespace GeoTimeConnectWebApi.Data
                     await _context.SaveChangesAsync();
 
                 }
-               
+
             }
             catch (Exception e)
             {
@@ -2267,7 +2268,7 @@ namespace GeoTimeConnectWebApi.Data
         /// EjecutaInMarcasWeb: Método que ejecuta procedimiento almacenado IN_MARCAS_WEB, necesario para completar el registro de marca en Geotime
         /// </summary>
         /// <param name="idnumero">idnumero del empleado que realiza la marca</param>
-        public async Task EjecutaInMarcasWeb(string idnumero )
+        public async Task EjecutaInMarcasWeb(string idnumero)
         {
             try
             {
@@ -2498,7 +2499,7 @@ namespace GeoTimeConnectWebApi.Data
                 });
                 task.Start();
                 task.Wait();
-                
+
             }
             catch (Exception e)
             {
@@ -2549,10 +2550,10 @@ namespace GeoTimeConnectWebApi.Data
             {
                 var periodoVigente = await GetPeriodoVigenteEmpleado(idnumero, fecha);
 
-                marca = await _context.Marcas_Audit.Where(e => e.IDNUMERO == idnumero 
-                                                        && e.FECHA >= periodoVigente.inicio 
+                marca = await _context.Marcas_Audit.Where(e => e.IDNUMERO == idnumero
+                                                        && e.FECHA >= periodoVigente.inicio
                                                         && e.FECHA <= periodoVigente.fin
-                                                        && e.IDPLANILLA==idplanilla).ToListAsync();
+                                                        && e.IDPLANILLA == idplanilla).ToListAsync();
             }
             catch (Exception e)
             {
@@ -2598,7 +2599,7 @@ namespace GeoTimeConnectWebApi.Data
         /// </summary>
         /// <returns>Lista de Compania de Usuario </returns>
 
-        public async Task<List<cPh_CompaniaUsuario>> GetPhCompaniaUsuario(string idnumero )
+        public async Task<List<cPh_CompaniaUsuario>> GetPhCompaniaUsuario(string idnumero)
         {
             List<cPh_CompaniaUsuario> companiasUsuario = new();
             DataTable table;
@@ -2618,13 +2619,13 @@ namespace GeoTimeConnectWebApi.Data
                     await connection.OpenAsync();
                     using (var command = connection.CreateCommand())
                     {
-                        command.CommandText = $"{schemaAdmin}.VerificaCompaniaUsuarioWeb @IdNumero='{idnumero}'" ;
+                        command.CommandText = $"{schemaAdmin}.VerificaCompaniaUsuarioWeb @IdNumero='{idnumero}'";
                         System.Data.Common.DbDataReader result = command.ExecuteReader();
 
                         table = new DataTable();
                         table.Load(result);
 
-                        foreach(DataRow dr in table.Rows)
+                        foreach (DataRow dr in table.Rows)
                         {
                             cPh_CompaniaUsuario usrComp = new cPh_CompaniaUsuario
                             {
@@ -2693,7 +2694,7 @@ namespace GeoTimeConnectWebApi.Data
             try
             {
                 marcaIncidencia = await _context.Marcas_Incidencias.FirstOrDefaultAsync(e => e.INDICE == id);
-                                                       
+
             }
             catch (Exception e)
             {
@@ -2815,14 +2816,14 @@ namespace GeoTimeConnectWebApi.Data
 
             try
             {
-                portalConfig =  (from pc in await _context.Portal_Config.ToListAsync()
-                                    select new cPortal_Config
-                                    { 
-                                        ID=pc.ID,
-                                        DATA_01 = Encripta.getDecryptTripleDES(pc.DATA_01),
-                                        LIC_PORTAL = pc.LIC_PORTAL
-                                    }).FirstOrDefault();
-                                   
+                portalConfig = (from pc in await _context.Portal_Config.ToListAsync()
+                                select new cPortal_Config
+                                {
+                                    ID = pc.ID,
+                                    DATA_01 = Encripta.getDecryptTripleDES(pc.DATA_01),
+                                    LIC_PORTAL = pc.LIC_PORTAL
+                                }).FirstOrDefault();
+
             }
             catch (Exception e)
             {
@@ -2844,9 +2845,9 @@ namespace GeoTimeConnectWebApi.Data
 
             try
             {
-                
-                cPortal_Config? portConfBuscar = await _context.Portal_Config.FirstOrDefaultAsync(e=>e.ID==portalConfig.ID);
-                string dataEncrypt =Encripta.getEncryptTripleDES(portalConfig.DATA_01);
+
+                cPortal_Config? portConfBuscar = await _context.Portal_Config.FirstOrDefaultAsync(e => e.ID == portalConfig.ID);
+                string dataEncrypt = Encripta.getEncryptTripleDES(portalConfig.DATA_01);
 
                 //si el proyectoFase existe se actualiza 
                 //de lo contrario se agrega el registro
@@ -2854,7 +2855,7 @@ namespace GeoTimeConnectWebApi.Data
                 {
                     portConfBuscar.LIC_PORTAL = portalConfig.LIC_PORTAL;
                     portConfBuscar.DATA_01 = dataEncrypt;
-                    
+
                     _context.Portal_Config.Update(portConfBuscar);
                 }
                 else
@@ -2862,7 +2863,7 @@ namespace GeoTimeConnectWebApi.Data
                     portalConfig.ID = Guid.NewGuid();
                     _context.Add(portalConfig);
                 }
-                
+
                 await _context.SaveChangesAsync();
             }
             catch (Exception e)
@@ -2913,7 +2914,7 @@ namespace GeoTimeConnectWebApi.Data
             try
             {
                 portalOpcion = await _context.Portal_Opciones.FirstOrDefaultAsync(e => e.ID == id);
-     
+
             }
             catch (Exception e)
             {
@@ -3013,7 +3014,7 @@ namespace GeoTimeConnectWebApi.Data
 
             try
             {
-                phFormulacion = await _context.Ph_Formulacion.FirstOrDefaultAsync(e=>e.ID==id);
+                phFormulacion = await _context.Ph_Formulacion.FirstOrDefaultAsync(e => e.ID == id);
 
             }
             catch (Exception e)
@@ -3087,7 +3088,7 @@ namespace GeoTimeConnectWebApi.Data
             {
 
                 cPh_Formulacion? model = await _context.Ph_Formulacion
-                    .FirstOrDefaultAsync(e => e.ID == int.Parse(id));                                            
+                    .FirstOrDefaultAsync(e => e.ID == int.Parse(id));
 
                 if (model is not null)
                 {
@@ -3238,6 +3239,242 @@ namespace GeoTimeConnectWebApi.Data
                     respuesta.Descripcion = "No se pudo realizar el envio del correo electrónico. Detalle de Error: " + ex.Message;
                 else
                     respuesta.Descripcion = "No se pudo realizar el envio del correo electrónico. Detalle de Error: " + ex.InnerException.Message;
+
+            }
+            return respuesta;
+        }
+
+        //Creado por: María José Sánchez
+        //Fecha: 2023-11-08
+        //Obtener lista de Horarios
+        public async Task<List<cPh_Horarios>> GetHorarios()
+        {
+            List<cPh_Horarios> horarios = new();
+            try
+            {
+                horarios = await _context.Ph_Horarios.ToListAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message); throw;
+            }
+            return horarios;
+        }
+
+        //Creado por: María José Sánchez
+        //Fecha: 2023-11-08
+        //Obtener un Horario especifico
+        //Parametros: idHorario=Id de horarios a buscar
+        public async Task<cPh_Horarios> GetHorarios(int IDHORARIO)
+        {
+            cPh_Horarios? horarios = new();
+            try
+            {
+                horarios = await _context.Ph_Horarios.FirstOrDefaultAsync(e => e.IDHORARIO == IDHORARIO);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message); throw;
+            }
+            return horarios;
+        }
+
+        //Creado por: María José Sánchez
+        //Fecha: 2023-11-08
+        //Sincronizar Horarios
+        //Parametro: Recibe una instancia de horarios, se verifica si existe en cuyo caso
+        //actualiza el registro, de lo contrario lo crea.
+        public async Task<EventResponse> Sincronizar_Horarios(IEnumerable<cPh_Horarios> horarios)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+                foreach (var horario in horarios)
+                {
+                    cPh_Horarios? hora = await _context.Ph_Horarios
+                                                        .FirstOrDefaultAsync(e => e.IDHORARIO == horario.IDHORARIO);
+                    //si el horario existe se actualiza descripción
+                    //de lo contrario se agrega el registro
+                    if (hora is not null)
+                    {
+                        hora.DESCRIPCION = horario.DESCRIPCION;
+                        _context.Ph_Horarios.Update(hora);
+                    }
+                    else
+                    {
+                        _context.Add(horario);
+                    }
+                }
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo realizar la sincronización de Horarios. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo realizar la sincronización de Horarios. Detalle de Error: " + e.InnerException.Message;
+
+            }
+
+            return respuesta;
+
+        }
+        /// <summary>
+        /// Elimina_PhHorarios:  Metodo boorado de datos de la tabla PhHorarios
+        /// </summary>
+        /// <param name="IDHORARIO"></param>
+        /// <returns>EventResponse</returns>
+        public async Task<EventResponse> Elimina_Horarios(string IDHORARIO)
+        {
+            EventResponse respuesta = new EventResponse();
+            try
+            {
+
+                cPh_Horarios? model = await _context.Ph_Horarios
+                    .FirstOrDefaultAsync(e => e.IDHORARIO == int.Parse(IDHORARIO));
+
+                if (model is not null)
+                {
+                    _context.Ph_Horarios.Remove(model);
+                }
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo eliminar el Horario. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo eliminar el Horario. Detalle de Error: " + e.InnerException.Message;
+
+            }
+            return respuesta;
+        }
+
+        //Creado por: María José Sánchez
+        //Fecha: 2023-11-08
+        //Obtener lista de Horarios
+        public async Task<List<cPh_HorarioTurno>> GetHorario_Turno()
+        {
+            List<cPh_HorarioTurno> horario_turno = new();
+            try
+            {
+                horario_turno = await _context.Ph_Horario_Turnos.ToListAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message); throw;
+            }
+            return horario_turno;
+        }
+
+        //Creado por: María José Sánchez
+        //Fecha: 2023-11-08
+        //Obtener un Horario Turno especifico
+        //Parametros: IDHORARIO= Id de horario turno a buscar
+        public async Task<cPh_HorarioTurno> GetHorario_Turno(int IDHORARIO)
+        {
+            cPh_HorarioTurno? horario_turno = new();
+            try
+            {
+                horario_turno = await _context.Ph_Horario_Turnos.FirstOrDefaultAsync(e => e.IDHORARIO == IDHORARIO);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message); throw;
+            }
+            return horario_turno;
+        }
+
+        //Creado por: María José Sánchez
+        //Fecha: 2023-11-08
+        //Sincronizar Horario Turno
+        //Parametro: Recibe una instancia de HorarioTurno, se verifica si existe en cuyo caso
+        //actualiza el registro, de lo contrario lo crea.
+        public async Task<EventResponse> Sincronizar_HorarioTurno(IEnumerable<cPh_HorarioTurno> horario_turno)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+                foreach (var horario in horario_turno)
+                {
+                    cPh_HorarioTurno? hora = await _context.Ph_Horario_Turnos
+                                                        .FirstOrDefaultAsync(e => e.IDHORARIO == horario.IDHORARIO && e.ID_DIA == horario.ID_DIA);
+                    //si el horario existe se actualiza descripción
+                    //de lo contrario se agrega el registro
+                    if (hora is not null)
+                    {
+                        hora.IDHORARIO = horario.IDHORARIO;
+                        hora.ID_DIA = horario.ID_DIA;
+                        hora.T_1 = horario.T_1;
+                        hora.T_2 = horario.T_2;
+                        hora.T_3 = horario.T_3;
+                        hora.T_4 = horario.T_4;
+                        hora.T_5 = horario.T_5;
+
+
+                        _context.Ph_Horario_Turnos.Update(hora);
+                    }
+                    else
+                    {
+                        _context.Add(horario);
+                    }
+                }
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo realizar la sincronización de Horarios Turnos. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo realizar la sincronización de Horarios Turnos. Detalle de Error: " + e.InnerException.Message;
+
+            }
+
+            return respuesta;
+
+        }
+
+        /// <summary>
+        /// Elimina_Ph_Horario_Turno:  Metodo borrado de datos de la tabla Ph_Horario_Turno
+        /// </summary>
+        /// <param name="IDHORARIO"></param>
+        /// <returns>EventResponse</returns>
+        public async Task<EventResponse> Elimina_Horario_Turno(string IDHORARIO)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+
+                cPh_HorarioTurno? model = await _context.Ph_Horario_Turnos
+                    .FirstOrDefaultAsync(e => e.IDHORARIO == int.Parse(IDHORARIO));
+
+                if (model is not null)
+                {
+                    _context.Ph_Horario_Turnos.Remove(model);
+                }
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo eliminar el Horario Turno. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo eliminar el Horario Turno. Detalle de Error: " + e.InnerException.Message;
 
             }
             return respuesta;

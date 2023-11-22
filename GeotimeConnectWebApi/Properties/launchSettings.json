@@ -6,7 +6,7 @@
       "launchUrl": "swagger",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Production",
-        "ASPNETCORE_APPL_PATH": "https://localhost:7275"
+        "ASPNETCORE_APPL_PATH": "https://localhost:7275;http://localhost:5275"
       },
       "dotnetRunMessages": true,
       "applicationUrl": "https://localhost:7275;http://localhost:5275"
@@ -17,7 +17,7 @@
       "launchUrl": "swagger",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
-        "ASPNETCORE_APPL_PATH": "https://localhost:7275;"
+        "ASPNETCORE_APPL_PATH": "https://localhost:7275;https://localhost:7275"
       }
     }
   },
