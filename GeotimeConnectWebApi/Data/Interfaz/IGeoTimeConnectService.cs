@@ -381,6 +381,56 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         public Task<cParametroEmail> GetParametroEmail(int id);
         public Task<EventResponse> Sincronizar_ParametroEmail(cParametroEmail parametroEmail);
 
+        /// <summary>
+        /// GetHorarios: Método para obtener una lista de registros de la tabla ph_horarios
+        /// </summary>
+        /// <returns>Un horario</returns>
+        public Task<List<cPh_Horarios>> GetHorarios();
+        /// <summary>
+        /// GetHorarios: Obtener varios registros de la tabla ph_horarios
+        /// </summary>
+        /// <returns>Lista de horario</returns>
+        public Task<cPh_Horarios> GetHorarios(int IDHORARIO);
+
+        /// <summary>
+        /// Sincronizar_Horarios: Método para registrar los horarios en la tabla ph_horarios
+        /// </summary>
+        /// <returns>Una instancia de la Clase EventResponse, con el resultado del proceso</returns>
+        /// <param name="Horarios">Lista de registros de la clase cPh_horarios</param>
+        public Task<EventResponse> Sincronizar_Horarios(IEnumerable<cPh_Horarios> Horarios);
+
+        /// <summary>
+        /// Elimina_Horarios:  Metodo borrado de datos de la tabla ph_horarios
+        /// </summary>
+        /// <param name="IDHORARIO"></param>
+        /// <returns>EventResponse</returns>
+        public Task<EventResponse> Elimina_Horarios(string IDHORARIO);
+
+        /// <summary>
+        /// GetHorario_Turno: Método para obtener los registros de la tabla ph_horarios_turnos
+        /// </summary>
+        /// <returns>Listas de horario turno</returns>
+        public Task<List<cPh_HorarioTurno>> GetHorario_Turno();
+
+        /// <summary>
+        /// GetHorario_Turno: Método para obtener los registros de la tabla ph_horarios_turnos
+        /// </summary>
+        /// <returns>Un horario turno</returns>
+        public Task<cPh_HorarioTurno> GetHorario_Turno(int IDHORARIO);
+        /// <summary>
+        /// Sincronizar_Horario_Turno: Método para registrar los horarios en la tabla ph_horario_turno
+        /// </summary>
+        /// <returns>Una instancia de la Clase EventResponse, con el resultado del proceso</returns>
+        /// <param name="Horario_Turno">Lista de registros de la clase cPh_horario_turno</param>
+        public Task<EventResponse> Sincronizar_HorarioTurno(IEnumerable<cPh_HorarioTurno> Horario_Turno);
+
+        /// <summary>
+        /// Elimina_Horario_Turno:  Metodo borrado de datos de la tabla ph_horario_turno
+        /// </summary>
+        /// <param name="IDHORARIO"></param>
+        /// <returns>EventResponse</returns>
+        public Task<EventResponse> Elimina_Horario_Turno(string IDHORARIO);
+
 
     }
 }
