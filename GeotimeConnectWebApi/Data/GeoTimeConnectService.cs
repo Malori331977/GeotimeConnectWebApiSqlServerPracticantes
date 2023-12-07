@@ -46,6 +46,17 @@ namespace GeoTimeConnectWebApi.Data
                     break;
 
             }
+
+            if (schema == "")
+            {
+                // Build a config object, using env vars and JSON providers.
+                IConfiguration config = new ConfigurationBuilder()
+                    .AddJsonFile("appsettings.json")
+                    .AddEnvironmentVariables()
+                    .Build();
+
+                schema = config.GetConnectionString("Schema");
+            }
             _schema = schema;
             _context = SchemaChangeDbContext.GetSchemaChangeDbContext(schema, bdname);
         }
