@@ -1571,13 +1571,78 @@ namespace GeoTimeConnectWebApi.Data
             cPh_Compania? compania = new();
             try
             {
-                compania = await _context.PH_COMPANIAS.FirstOrDefaultAsync(e => e.idcomp == idcomp);
+                compania = await _context.PH_COMPANIAS.FirstOrDefaultAsync(e => e.IDCOMP == idcomp);
             }
             catch (Exception e)
             {
                 Console.WriteLine(e.Message); throw;
             }
             return compania;
+        }
+
+        /// <summary>
+        /// Sincronizar_PhCompania: metodo para sincronizar las compañias 
+        /// </summary>
+        /// <param name="phCompanias"></param>
+        /// <returns>una instancia EventResponse con el resultado de la operacion</returns>
+        public async Task<EventResponse> Sincronizar_PhCompania(IEnumerable<cPh_Compania> phCompanias)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+                foreach (var item in phCompanias)
+                {
+                    cPh_Compania? objetoBuscar = await _context.PH_COMPANIAS
+                                    .FirstOrDefaultAsync(e => e.IDCOMP == item.IDCOMP);
+                    //si el centro de costo existe se actualiza descripción
+                    //de lo contrario se agrega el registro
+                    if (objetoBuscar is not null)
+                    {
+                        objetoBuscar.COMPANIA = item.COMPANIA;
+                        objetoBuscar.NOM_CONECTOR = item.NOM_CONECTOR;
+                        objetoBuscar.STRING_SQL = item.STRING_SQL;
+                        objetoBuscar.STRING_SQL_ERP = item.STRING_SQL_ERP;
+                        objetoBuscar.PAIS = item.PAIS;
+                        objetoBuscar.AUTO_PROCESO = item.AUTO_PROCESO;
+                        objetoBuscar.REMOTE_ERPSERVICE = item.REMOTE_ERPSERVICE;
+                        objetoBuscar.MAIL_SERVER = item.MAIL_SERVER;
+                        objetoBuscar.MAIL_USER = item.MAIL_USER;
+                        objetoBuscar.MAIL_PASSWORD = item.MAIL_PASSWORD;
+                        objetoBuscar.MAIL_PORT = item.MAIL_PORT;
+                        objetoBuscar.MAIL_AUTH = item.MAIL_AUTH;
+                        objetoBuscar.MAIL_SSL = item.MAIL_SSL;
+                        objetoBuscar.HORA_SUP = item.HORA_SUP;
+                        objetoBuscar.HORA_EMP = item.HORA_EMP;
+                        objetoBuscar.SUPERVISOR_ACUM = item.SUPERVISOR_ACUM;
+                        objetoBuscar.MAIL_TLS = item.MAIL_TLS;
+                        objetoBuscar.HORA_CALC = item.HORA_CALC;
+                        objetoBuscar.IN_MARCAS = item.IN_MARCAS;
+
+                        _context.PH_COMPANIAS.Update(objetoBuscar);
+                    }
+                    else
+                    {
+                        _context.Add(item);
+                    }
+                }
+
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo realizar la sincronización de la compañía. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo realizar la sincronización de la compañía. Detalle de Error: " + e.InnerException.Message;
+
+            }
+
+            return respuesta;
+
         }
 
         //Creado por: Marlon Loria Solano
