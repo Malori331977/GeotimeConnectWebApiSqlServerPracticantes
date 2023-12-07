@@ -87,7 +87,7 @@ namespace GeoTimeConnectWebApi.Data
             builder.Entity<cPh_Login>().ToTable("PH_LOGIN", schemaAdmin)
                 .HasKey(e => new { e.idusuario });
             builder.Entity<cPh_Compania>().ToTable("PH_COMPANIAS", schemaAdmin)
-                .HasKey(e => new { e.idcomp });
+                .HasKey(e => new { e.IDCOMP });
 
             builder.Entity<cAccionPersonal>().ToTable("ACCIONES_PERSONAL", Schema)
                 .HasKey(e => new { e.IdRegistro});

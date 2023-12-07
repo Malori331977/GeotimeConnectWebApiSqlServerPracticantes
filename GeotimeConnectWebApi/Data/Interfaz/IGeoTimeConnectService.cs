@@ -72,7 +72,15 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         public Task<cPh_Login> GetPhLogin(string id);
         public Task<List<cPh_Compania>> GetPhCompania();
         public Task<cPh_Compania> GetPhCompania(string idcomp);
-        
+
+        /// <summary>
+        /// Sincronizar_PhCompania: metodo para sincronizar las compañias 
+        /// </summary>
+        /// <param name="phCompanias"></param>
+        /// <returns>una instancia EventResponse con el resultado de la operacion</returns>
+        public Task<EventResponse> Sincronizar_PhCompania(IEnumerable<cPh_Compania> phCompanias);
+
+
         public Task<List<cMarcaMovTurno>> GetMarcaMovTurno();
         public Task<cMarcaMovTurno> GetMarcaMovTurno(int idregistro);
         public Task<cMarcaMovTurno> GetMarcaMovTurno(string idnumero, string fecha, int idturno);
