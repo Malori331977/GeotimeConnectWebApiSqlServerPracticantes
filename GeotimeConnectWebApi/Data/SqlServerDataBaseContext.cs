@@ -40,6 +40,10 @@ namespace GeoTimeConnectWebApi.Data
                 _dbContextSchema1 = schema;
 
             }
+            if (Schema is null || Schema=="")
+            {
+                Schema = config.GetConnectionString("Schema");
+            }
 
         }
 
@@ -73,6 +77,8 @@ namespace GeoTimeConnectWebApi.Data
         public DbSet<cPortal_Opcion> Portal_Opciones { get; set; }
         public DbSet<cPh_Formulacion> Ph_Formulacion { get; set; }
         public DbSet<cParametroEmail> ParametrosEmail { get; set; }
+        public DbSet<cPh_Horarios> Ph_Horarios { get; set; }
+        public DbSet<cPh_HorarioTurno> Ph_Horario_Turnos { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -139,7 +145,10 @@ namespace GeoTimeConnectWebApi.Data
            .HasKey(e => new { e.ID });
             builder.Entity<cParametroEmail>().ToTable("PARAMETROSEMAIL", Schema)
             .HasKey(e => new { e.Id });
-
+            builder.Entity<cPh_Horarios>().ToTable("PH_HORARIOS", Schema)
+            .HasKey(e => new { e.IDHORARIO });
+            builder.Entity<cPh_HorarioTurno>().ToTable("PH_HORARIO_TURNO", Schema)
+            .HasKey(e => new { e.IDHORARIO, e.ID_DIA });
 
         }
 
