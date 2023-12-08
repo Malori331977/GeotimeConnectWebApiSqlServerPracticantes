@@ -3555,5 +3555,26 @@ namespace GeoTimeConnectWebApi.Data
             }
             return respuesta;
         }
+
+        //Creado por: Allan Prieto
+        //Fecha: 2023-12-8
+        /// <summary>
+        /// GetTipo_Planilla: Obtener lista de registros de la tabla TIPOS_PLANILLA
+        /// </summary>
+        /// <returns>Lista de cTipo_Planilla </returns>
+        /// 
+        public async Task<List<cTipo_Planilla>> GetTipo_Planilla()
+        {
+            List<cTipo_Planilla> planillas = new();
+            try
+            {
+                planillas = await _context.TIPOS_PLANILLA.ToListAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message); throw;
+            }
+            return planillas;
+        }
     }
 }
