@@ -443,6 +443,12 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         /// <returns>EventResponse</returns>
         public Task<EventResponse> Elimina_Horario_Turno(string IDHORARIO);
 
+        /// <summary>
+        /// GetTipo_Planilla: Método para obtener una lista de planillas 
+        /// </summary>
+        /// <returns>Lista de cTipo_Planilla</returns>
+        public Task<List<cTipo_Planilla>> GetTipo_Planilla();
+
 
     }
 }
