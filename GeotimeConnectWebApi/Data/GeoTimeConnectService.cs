@@ -3562,7 +3562,7 @@ namespace GeoTimeConnectWebApi.Data
         /// GetTipo_Planilla: Obtener lista de registros de la tabla TIPOS_PLANILLA
         /// </summary>
         /// <returns>Lista de cTipo_Planilla </returns>
-        /// 
+        /// *
         public async Task<List<cTipo_Planilla>> GetTipo_Planilla()
         {
             List<cTipo_Planilla> planillas = new();
