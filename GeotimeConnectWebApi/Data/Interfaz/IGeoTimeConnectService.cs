@@ -136,6 +136,8 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         public Task<IEnumerable<cPh_Planilla>> GetPhPlanilla();
         public Task<cPh_Planilla> GetPhPlanilla(string idplanilla);
         public Task<cPh_Planilla> GetPhPlanilla(string nomConector, string descPlanilla);
+        public Task<EventResponse> Sincronizar_PhPlanilla(IEnumerable<cPh_Planilla> PhPlanillas);
+        public Task<EventResponse> Elimina_PhPlanilla(string idplanilla);
 
 
         /// <summary>

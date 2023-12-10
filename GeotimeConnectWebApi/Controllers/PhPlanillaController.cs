@@ -33,5 +33,27 @@ namespace GeoTimeConnectWebApi.Controllers
         [HttpGet("{nomconector}/{descplanilla}")]
         public async Task<cPh_Planilla> Get(string nomconector, string descplanilla) => await _repoGT.GetPhPlanilla(nomconector, descplanilla);
 
+        [HttpPost]
+        public async Task<IActionResult> Post([FromBody] IEnumerable<cPh_Planilla> phPlanillas)
+        {
+            EventResponse respuesta = await _repoGT.Sincronizar_PhPlanilla(phPlanillas);
+
+            if (respuesta.Id != "0")
+                return BadRequest(respuesta);
+
+            return Ok(respuesta);
+        }
+
+        [HttpDelete("{idplanilla}")]
+        public async Task<IActionResult> Delete(string idplanilla)
+        {
+            EventResponse respuesta = await _repoGT.Elimina_PhPlanilla(idplanilla);
+
+            if (respuesta.Id != "0")
+                return BadRequest(respuesta);
+
+            return Ok(respuesta);
+        }
+
     }
 }

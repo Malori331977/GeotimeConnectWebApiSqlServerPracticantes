@@ -2086,6 +2086,100 @@ namespace GeoTimeConnectWebApi.Data
             return planilla;
         }
 
+        //Creado por: Allan Prieto Badilla
+        //Fecha: 2023-10-12
+        //Sincronizar Planilla 
+        //Parametro: Recibe una instancia de Planilla, se verifica si existe en cuyo caso
+        //actualiza el registro, de lo contrario lo crea.
+        public async Task<EventResponse> Sincronizar_PhPlanilla(IEnumerable<cPh_Planilla> PhPlanillas)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+                foreach (var item in PhPlanillas)
+                {
+                    cPh_Planilla? pla = await _context.Ph_Planilla
+                                                        .FirstOrDefaultAsync(e => e.idplanilla == item.idplanilla);
+                    
+                    if (pla is not null)
+                    {
+                        pla.planilla = item.planilla;
+                        pla.nom_conector = item.nom_conector;
+                        pla.tipo_planilla = item.tipo_planilla;
+                        pla.c_ext = item.c_ext;
+                        pla.c_inci = item.c_inci;
+                        pla.c_adic = item.c_adic;
+                        pla.m_desc = item.m_desc;
+                        pla.proyecta = item.proyecta;
+                        pla.dia_inicio = item.dia_inicio;
+                        pla.auto_proceso = item.auto_proceso;
+                        pla.tipo_dist = item.tipo_dist;
+                        pla.est_nomina = item.est_nomina;
+                        pla.ext_per_ant = item.ext_per_ant;
+                        pla.ext_det = item.ext_det;
+                        pla.agrup_salida = item.agrup_salida;
+                        pla.tipo_adic = item.tipo_adic;
+                        pla.nivel_aprob_ext = item.nivel_aprob_ext;
+                        _context.Ph_Planilla.Update(pla);
+                    }
+                    else
+                    {
+                        _context.Add(item);
+                    }
+                }
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo realizar la sincronización de la planilla. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo realizar la sincronización de la planilla. Detalle de Error: " + e.InnerException.Message;
+            }
+
+            return respuesta;
+
+        }
+
+        /// <summary>
+        /// Elimina_PhPlanilla:  Metodo borrado de datos de la tabla Ph_Planilla
+        /// </summary>
+        /// <param name="IDHORARIO"></param>
+        /// <returns>EventResponse</returns>
+        public async Task<EventResponse> Elimina_PhPlanilla(string idplanilla)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+
+                cPh_Planilla? model = await _context.Ph_Planilla
+                    .FirstOrDefaultAsync(e => e.idplanilla == idplanilla);
+
+                if (model is not null)
+                {
+                    _context.Ph_Planilla.Remove(model);
+                }
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo eliminar la planilla. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo eliminar la planill. Detalle de Error: " + e.InnerException.Message;
+
+            }
+            return respuesta;
+        }
+
         public async Task EjecutaPostCambioPlanilla(string idnumero, string oldPlanilla, string newPlanilla)
         {
             try
@@ -2179,7 +2273,6 @@ namespace GeoTimeConnectWebApi.Data
                     respuesta.Descripcion = "No se pudo realizar el registro de la Marca. Detalle de Error: " + e.Message;
                 else
                     respuesta.Descripcion = "No se pudo realizar el registro de la Marca. Detalle de Error: " + e.InnerException.Message;
-
             }
 
             return respuesta;
@@ -3562,7 +3655,7 @@ namespace GeoTimeConnectWebApi.Data
         /// GetTipo_Planilla: Obtener lista de registros de la tabla TIPOS_PLANILLA
         /// </summary>
         /// <returns>Lista de cTipo_Planilla </returns>
-        /// *
+        /// 
         public async Task<List<cTipo_Planilla>> GetTipo_Planilla()
         {
             List<cTipo_Planilla> planillas = new();
