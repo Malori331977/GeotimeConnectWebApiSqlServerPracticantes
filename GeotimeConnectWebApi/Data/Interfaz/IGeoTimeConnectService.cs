@@ -47,6 +47,8 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         public Task<cEmpleado> GetEmpleado(string idNumero);
         public Task<List<cEmpleado>> GetEmpleadoFiltrado(string idnumero, string nombre, string iddepartamento);
         public Task<EventResponse> Sincronizar_Empleado(IEnumerable<cEmpleado> empleados);
+        public Task<EventResponse> Elimina_Empleado(string idnumero);
+
         public Task<List<cIncidencia>> GetIncidencia();
         public Task<cIncidencia> GetIncidencia(int id);
         public Task<cIncidencia> GetIncidenciaByNomConector(string nom_conector);

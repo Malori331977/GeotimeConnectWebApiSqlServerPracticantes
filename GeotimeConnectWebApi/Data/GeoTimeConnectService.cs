@@ -1095,6 +1095,41 @@ namespace GeoTimeConnectWebApi.Data
 
         }
 
+        /// <summary>
+        /// Elimina_Empleado:  Metodo borrado de datos de la tabla Empleado
+        /// </summary>
+        /// <param name="idnumero"></param>
+        /// <returns>EventResponse</returns>
+        public async Task<EventResponse> Elimina_Empleado(string idnumero)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+
+                cEmpleado? model = await _context.Empleados
+                    .FirstOrDefaultAsync(e => e.IdNumero == idnumero);
+
+                if (model is not null)
+                {
+                    _context.Empleados.Remove(model);
+                }
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo eliminar el Empleado. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo eliminar el Empleado. Detalle de Error: " + e.InnerException.Message;
+
+            }
+            return respuesta;
+        }
+
         //Creado por: Marlon Loria Solano
         //Fecha: 2022-10-30
         //Obtener lista de Incidencias
@@ -2148,7 +2183,7 @@ namespace GeoTimeConnectWebApi.Data
         /// <summary>
         /// Elimina_PhPlanilla:  Metodo borrado de datos de la tabla Ph_Planilla
         /// </summary>
-        /// <param name="IDHORARIO"></param>
+        /// <param name="idplanilla"></param>
         /// <returns>EventResponse</returns>
         public async Task<EventResponse> Elimina_PhPlanilla(string idplanilla)
         {
