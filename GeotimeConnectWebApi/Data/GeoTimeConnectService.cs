@@ -1398,6 +1398,30 @@ namespace GeoTimeConnectWebApi.Data
             return marca;
         }
 
+        /// <summary>
+        /// GetMarcasDiaria: Obtener las marcas del dia para un empleado 
+        /// </summary>
+        /// <param name="idnumero">numero de empleado a buscar</param>
+        /// <param name="fecha">fecha del dia</param>
+        /// <returns>Lista de Marcas del periodo</returns>
+
+        public async Task<List<cMarca>> GetMarcasDiaria(string idnumero, string fecha)
+        {
+            List<cMarca>? marca = new();
+            try
+            {
+                DateTime fechaDia = DateTime.Parse($"{fecha.Substring(0, 4)}-{fecha.Substring(4, 2)}-{fecha.Substring(6, 2)}");
+                marca = await _context.Marcas.Where(e => e.idnumero == idnumero 
+                                                 && e.fecha == fechaDia).ToListAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message); throw;
+            }
+            return marca;
+        }
+
+
         //Creado por: Marlon Loria Solano
         //Fecha: 2022-10-30
         //Sincronizar Marcas

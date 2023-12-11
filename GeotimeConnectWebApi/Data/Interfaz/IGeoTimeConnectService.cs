@@ -68,6 +68,14 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         /// <param name="fecha">fecha para determinar periodo</param>
         /// <returns>Lista de Marcas del periodo</returns>
         public Task<List<cMarca>> GetMarcas(string idnumero, string fecha);
+
+        /// <summary>
+        /// GetMarcasDiaria: Obtener las marcas del dia para un empleado 
+        /// </summary>
+        /// <param name="idnumero">numero de empleado a buscar</param>
+        /// <param name="fecha">fecha del dia</param>
+        /// <returns>Lista de Marcas del dia</returns>
+        public Task<List<cMarca>> GetMarcasDiaria(string idnumero, string fecha);
         public Task<EventResponse> Sincronizar_Marca(IEnumerable<cMarca> marcas);
         public Task<EventResponse> ValidarClaveEmpleado(cLogin login);
         public Task<EventResponse> CambiarClaveEmpleado(cEmpleado empleado);
