@@ -14,6 +14,7 @@ using System.Net.Mail;
 using System.Net.Mime;
 using System.Net;
 using System.Security;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace GeoTimeConnectWebApi.Data
 {
@@ -1057,6 +1058,15 @@ namespace GeoTimeConnectWebApi.Data
                         emp.IdPlanilla = empleado.IdPlanilla;
                         emp.Fecha_Ingreso = fechaIngreso;
 
+                        emp.IdGrupo = (empleado.IdGrupo != null && empleado.IdGrupo != 0) ? empleado.IdGrupo : emp.IdGrupo;
+                        emp.IdHorario = (empleado.IdHorario != null && empleado.IdHorario != 0) ? empleado.IdHorario : emp.IdHorario;
+                        emp.Tipo_Marca = (empleado.Tipo_Marca != null && empleado.Tipo_Marca != "") ? empleado.Tipo_Marca : emp.Tipo_Marca;
+                        emp.IdAgrupamiento = (empleado.IdAgrupamiento != null && empleado.IdAgrupamiento != 0) ? empleado.IdAgrupamiento : emp.IdAgrupamiento;
+                        emp.Email = empleado.Email ?? emp.Email;
+                        emp.Tarjeta = empleado.Tarjeta ?? emp.Tarjeta;
+                        emp.exporta = (empleado.exporta != null) ? empleado.exporta : emp.exporta;  
+                        emp.id_transfo_conc = (empleado.id_transfo_conc != null && empleado.id_transfo_conc != 0) ? empleado.id_transfo_conc : emp.id_transfo_conc;
+
                         _context.Empleados.Update(emp);
                         await _context.SaveChangesAsync();
 
@@ -1069,10 +1079,15 @@ namespace GeoTimeConnectWebApi.Data
                     {
                         empleado.Fecha_Ingreso = fechaIngreso;
                         empleado.Fecha_Salida = null;
-                        empleado.IdGrupo = 1;
-                        empleado.IdHorario = 1;
-                        empleado.Tipo_Marca = "H";
-                        empleado.IdAgrupamiento = 0;
+                        empleado.IdGrupo = (empleado.IdGrupo==null || empleado.IdGrupo==0)? 1:empleado.IdGrupo;
+                        empleado.IdHorario = (empleado.IdHorario == null || empleado.IdHorario == 0) ? 1 : empleado.IdHorario; 
+                        empleado.Tipo_Marca = (empleado.Tipo_Marca == null || empleado.Tipo_Marca == "") ? "H" : empleado.Tipo_Marca;
+                        empleado.IdAgrupamiento = (empleado.IdAgrupamiento == null) ? 0 : empleado.IdAgrupamiento;
+                        empleado.Email = empleado.Email??"";
+                        empleado.Tarjeta = empleado.Tarjeta ?? "";
+                        empleado.exporta = empleado.exporta ?? 'T';
+                       
+
                         _context.Add(empleado);
                         await _context.SaveChangesAsync();
                     }
