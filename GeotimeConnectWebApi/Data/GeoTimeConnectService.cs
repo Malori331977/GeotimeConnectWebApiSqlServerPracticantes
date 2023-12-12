@@ -2009,6 +2009,94 @@ namespace GeoTimeConnectWebApi.Data
             return grupos;
         }
 
+        /// <summary>
+        /// Sincronizar_Grupo: metodo para sincronizar los Grupos 
+        /// </summary>
+        /// <param name="PhGrupos"></param>
+        /// <returns>una instancia EventResponse con el resultado de la operacion</returns>
+        public async Task<EventResponse> Sincronizar_Grupo(IEnumerable<cPh_Grupo> phGrupos)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+                foreach (var item in phGrupos)
+                {
+                    cPh_Grupo? objetoBuscar = await _context.Ph_Grupos
+                                    .FirstOrDefaultAsync(e => e.idgrupo == item.idgrupo);
+                    //si el centro de costo existe se actualiza descripción
+                    //de lo contrario se agrega el registro*
+                    if (objetoBuscar is not null)
+                    {
+                        objetoBuscar.idgrupo = item.idgrupo;
+                        objetoBuscar.descripcion = item.descripcion;
+                        objetoBuscar.idcomp = item.idcomp;
+                        objetoBuscar.idplanilla = item.idplanilla;
+                        objetoBuscar.estado = item.estado;
+                        objetoBuscar.idagrupamiento = item.idagrupamiento;
+                        objetoBuscar.turno_continuo = item.turno_continuo;
+
+                        _context.Ph_Grupos.Update(objetoBuscar);
+                    }
+                    else
+                    {
+                        _context.Add(item);
+                    }
+                }
+
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo realizar la sincronización del Grupo. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo realizar la sincronización del Grupo. Detalle de Error: " + e.InnerException.Message;
+
+            }
+
+            return respuesta;
+
+        }
+
+        /// <summary>
+        /// Elimina_Grupo:  Metodo borrado de datos de la tabla Ph_Grupos
+        /// </summary>
+        /// <param name="idgrupo"></param>
+        /// <returns>EventResponse</returns>
+        public async Task<EventResponse> Elimina_Grupo(int idgrupo)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+
+                cPh_Grupo? model = await _context.Ph_Grupos
+                    .FirstOrDefaultAsync(e => e.idgrupo == idgrupo);
+
+                if (model is not null)
+                {
+                    _context.Ph_Grupos.Remove(model);
+                }
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo eliminar el Grupo. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo eliminar el Grupo. Detalle de Error: " + e.InnerException.Message;
+
+            }
+            return respuesta;
+        }
+
         //Creado por: Marlon Loria Solano
         //Fecha: 2023-06-07
         /// <summary>
