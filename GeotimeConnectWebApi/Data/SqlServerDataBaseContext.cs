@@ -80,6 +80,7 @@ namespace GeoTimeConnectWebApi.Data
         public DbSet<cPh_Horarios> Ph_Horarios { get; set; }
         public DbSet<cPh_HorarioTurno> Ph_Horario_Turnos { get; set; }
         public DbSet<cTipo_Planilla> TIPOS_PLANILLA { get; set; }
+        public DbSet<cPh_Transformacion> Ph_Transformacion { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -152,6 +153,8 @@ namespace GeoTimeConnectWebApi.Data
             .HasKey(e => new { e.IDHORARIO, e.ID_DIA });
             builder.Entity<cTipo_Planilla>().ToTable("TIPOS_PLANILLA", Schema)
             .HasKey(e => new { e.TIPO_PLANILLA });
+            builder.Entity<cPh_Transformacion>().ToTable("PH_TRANSFORMACION", Schema)
+            .HasKey(e => new { e.ID_TRANSFORMACION });
 
         }
 
