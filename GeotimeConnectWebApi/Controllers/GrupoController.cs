@@ -31,6 +31,28 @@ namespace GeoTimeConnectWebApi.Controllers
         [HttpGet("{idgrupo}")]
         public async Task<cPh_Grupo> Get(int idgrupo) => await _repoGT.GetGrupo(idgrupo);
 
-        
+        [HttpPost]
+        public async Task<IActionResult> Post([FromBody] IEnumerable<cPh_Grupo> phGrupo)
+        {
+            EventResponse respuesta = await _repoGT.Sincronizar_Grupo(phGrupo);
+
+            if (respuesta.Id != "0")
+                return BadRequest(respuesta);
+
+            return Ok(respuesta);
+        }
+
+        [HttpDelete("{idgrupo}")]
+        public async Task<IActionResult> Delete(int idgrupo)
+        {
+            EventResponse respuesta = await _repoGT.Elimina_Grupo(idgrupo);
+
+            if (respuesta.Id != "0")
+                return BadRequest(respuesta);
+
+            return Ok(respuesta);
+        }
+
+
     }
 }
