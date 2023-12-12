@@ -3831,5 +3831,26 @@ namespace GeoTimeConnectWebApi.Data
             }
             return planillas;
         }
+
+        //Creado por: Allan Prieto
+        //Fecha: 2023-12-12
+        /// <summary>
+        /// GetPh_Tranformacion: Obtener lista de registros de la tabla PH_TRANFORMACION
+        /// </summary>
+        /// <returns>Lista de cPh_Tranformacion </returns>
+        /// 
+        public async Task<List<cPh_Transformacion>> GetPhTransformacion()
+        {
+            List<cPh_Transformacion> transformaciones = new();
+            try
+            {
+                transformaciones = await _context.Ph_Transformacion.ToListAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message); throw;
+            }
+            return transformaciones;
+        }
     }
 }

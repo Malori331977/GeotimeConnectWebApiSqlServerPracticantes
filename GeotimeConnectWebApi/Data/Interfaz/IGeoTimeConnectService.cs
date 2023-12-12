@@ -463,6 +463,12 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         /// <returns>Lista de cTipo_Planilla</returns>
         public Task<List<cTipo_Planilla>> GetTipo_Planilla();
 
+        /// <summary>
+        /// GetPh_Transformacion: Método para obtener una lista de tranformaciones 
+        /// </summary>
+        /// <returns>Lista de cPh_Transformacion</returns>
+        public Task<List<cPh_Transformacion>> GetPhTransformacion();
+
 
     }
 }
