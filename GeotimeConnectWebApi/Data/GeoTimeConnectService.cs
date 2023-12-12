@@ -2025,7 +2025,7 @@ namespace GeoTimeConnectWebApi.Data
                     cPh_Grupo? objetoBuscar = await _context.Ph_Grupos
                                     .FirstOrDefaultAsync(e => e.idgrupo == item.idgrupo);
                     //si el centro de costo existe se actualiza descripción
-                    //de lo contrario se agrega el registro
+                    //de lo contrario se agrega el registro*
                     if (objetoBuscar is not null)
                     {
                         objetoBuscar.idgrupo = item.idgrupo;
