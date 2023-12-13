@@ -3852,5 +3852,26 @@ namespace GeoTimeConnectWebApi.Data
             }
             return transformaciones;
         }
+
+        //Creado por: Allan Prieto
+        //Fecha: 2023-13-12
+        /// <summary>
+        /// GetPhRol: Obtener lista de registros de la tabla PH_ROLES
+        /// </summary>
+        /// <returns>Lista de cPh_Rol </returns>
+        /// 
+        public async Task<List<cPh_Rol>> GetPhRol()
+        {
+            List<cPh_Rol> roles = new();
+            try
+            {
+                roles = await _context.Ph_Roles.ToListAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message); throw;
+            }
+            return roles;
+        }
     }
 }

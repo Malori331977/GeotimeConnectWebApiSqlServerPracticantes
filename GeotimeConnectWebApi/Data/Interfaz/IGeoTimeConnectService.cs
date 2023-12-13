@@ -469,6 +469,12 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         /// <returns>Lista de cPh_Transformacion</returns>
         public Task<List<cPh_Transformacion>> GetPhTransformacion();
 
+        /// <summary>
+        /// GetPhRol: Método para obtener una lista de Roles 
+        /// </summary>
+        /// <returns>Lista de cPh_Rol</returns>
+        public Task<List<cPh_Rol>> GetPhRol();
+
 
     }
 }
