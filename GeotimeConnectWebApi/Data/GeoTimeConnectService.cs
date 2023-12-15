@@ -3782,7 +3782,26 @@ namespace GeoTimeConnectWebApi.Data
             List<cPh_Horarios> horarios = new();
             try
             {
-                horarios = await _context.Ph_Horarios.ToListAsync();
+                horarios = (from e in await _context.Ph_Horarios
+                                .Include(e=>e.Ph_HorarioTurno)
+                            .ToListAsync()
+                            select new cPh_Horarios
+                            {
+                                IDHORARIO = e.IDHORARIO,
+                                DESCRIPCION = e.DESCRIPCION,
+                                Ph_HorarioTurno = e.Ph_HorarioTurno==null?null:
+                                                ( from ht in e.Ph_HorarioTurno
+                                                  select new cPh_HorarioTurno
+                                                  {
+                                                      IDHORARIO = ht.IDHORARIO,
+                                                      ID_DIA = ht.ID_DIA,
+                                                      T_1 = ht.T_1,
+                                                      T_2 = ht.T_2,
+                                                      T_3 = ht.T_3,
+                                                      T_4 = ht.T_4,
+                                                      T_5 = ht.T_5,
+                                                  }).ToList()}
+                            ).ToList();
             }
             catch (Exception e)
             {
@@ -3801,6 +3820,29 @@ namespace GeoTimeConnectWebApi.Data
             try
             {
                 horarios = await _context.Ph_Horarios.FirstOrDefaultAsync(e => e.IDHORARIO == IDHORARIO);
+
+                horarios = (from e in await _context.Ph_Horarios
+                                .Include(e => e.Ph_HorarioTurno)
+                                .Where(e => e.IDHORARIO == IDHORARIO)
+                                .ToListAsync()
+                            select new cPh_Horarios
+                            {
+                                IDHORARIO = e.IDHORARIO,
+                                DESCRIPCION = e.DESCRIPCION,
+                                Ph_HorarioTurno = e.Ph_HorarioTurno == null ? null :
+                                                (from ht in e.Ph_HorarioTurno
+                                                 select new cPh_HorarioTurno
+                                                 {
+                                                     IDHORARIO = ht.IDHORARIO,
+                                                     ID_DIA = ht.ID_DIA,
+                                                     T_1 = ht.T_1,
+                                                     T_2 = ht.T_2,
+                                                     T_3 = ht.T_3,
+                                                     T_4 = ht.T_4,
+                                                     T_5 = ht.T_5,
+                                                 }).ToList()
+                            }
+                            ).FirstOrDefault();
             }
             catch (Exception e)
             {
@@ -3820,8 +3862,14 @@ namespace GeoTimeConnectWebApi.Data
 
             try
             {
+                IEnumerable<cPh_HorarioTurno> phHorarioTurnoList = null;
+
+                await _context.Database.BeginTransactionAsync();
+
                 foreach (var horario in horarios)
                 {
+                    phHorarioTurnoList = horario.Ph_HorarioTurno;
+
                     cPh_Horarios? hora = await _context.Ph_Horarios
                                                         .FirstOrDefaultAsync(e => e.IDHORARIO == horario.IDHORARIO);
                     //si el horario existe se actualiza descripción
@@ -3833,10 +3881,27 @@ namespace GeoTimeConnectWebApi.Data
                     }
                     else
                     {
+                        horario.Ph_HorarioTurno = null;
                         _context.Add(horario);
                     }
+                    await _context.SaveChangesAsync();
+
+                    if (phHorarioTurnoList is not null)
+                    {
+                        var resp=await Sincronizar_HorarioTurno(phHorarioTurnoList);
+                        if (resp.Id != "0")
+                        {
+                            respuesta.Id = "1";
+                            respuesta.Respuesta = "Error";
+                            respuesta.Descripcion = resp.Descripcion;
+                            await _context.Database.RollbackTransactionAsync();
+                            return respuesta;
+                        }
+                    }
+
                 }
-                await _context.SaveChangesAsync();
+                await _context.Database.CommitTransactionAsync();
+
             }
             catch (Exception e)
             {
@@ -3848,8 +3913,9 @@ namespace GeoTimeConnectWebApi.Data
                 else
                     respuesta.Descripcion = "No se pudo realizar la sincronización de Horarios. Detalle de Error: " + e.InnerException.Message;
 
+                await _context.Database.RollbackTransactionAsync();
             }
-
+  
             return respuesta;
 
         }

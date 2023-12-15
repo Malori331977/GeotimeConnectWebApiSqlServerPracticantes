@@ -176,6 +176,12 @@ namespace GeoTimeConnectWebApi.Data
                  .WithMany(d => d.Empleado)
                  .HasForeignKey(e => new { e.IdPlanilla });
 
+            builder.Entity<cPh_HorarioTurno>()
+                .ToTable("PH_HORARIO_TURNO", Schema)
+                .HasOne(e => e.Ph_Horarios)
+                .WithMany(d => d.Ph_HorarioTurno)
+                .HasForeignKey(e => new { e.IDHORARIO });
+
         }
 
 

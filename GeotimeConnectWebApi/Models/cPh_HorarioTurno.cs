@@ -10,5 +10,7 @@
         public int? T_4 { get; set; }
         public int? T_5 { get; set; }
 
+        public cPh_Horarios? Ph_Horarios { get; set;}
+
     }
 }
