@@ -24,7 +24,6 @@ namespace GeoTimeConnectWebApi.Models
         public DateTime? Fecha_Salida { get; set; }
         public string? global_code { get; set; }
         public DateTime? fecha_act_code { get; set; }
-
         public byte[]? foto { get; set; }
         public char? exporta { get; set; }
         public string? ubicacion { get; set; }
@@ -60,7 +59,10 @@ namespace GeoTimeConnectWebApi.Models
         public string? def_cc { get; set; }
         public string? def_py { get; set; }
         public string? def_fase { get; set; }
-        
+
+        public cDepartamento? Departamento { get; set; }
+        public cCentroCosto? CentroCosto { get; set; }
+        public cPh_Planilla? Ph_Planilla { get; set; }
 
 
     }
