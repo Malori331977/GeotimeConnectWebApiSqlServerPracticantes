@@ -159,6 +159,23 @@ namespace GeoTimeConnectWebApi.Data
             builder.Entity<cPh_Rol>().ToTable("PH_ROLES", Schema)
             .HasKey(e => new { e.IDROL });
 
+            //llaves foraneas
+            builder.Entity<cEmpleado>()
+                 .ToTable("EMPLEADOS", Schema)
+                 .HasOne(e => e.Departamento)
+                 .WithMany(d => d.Empleado)
+                 .HasForeignKey(e => new { e.IdDepartamento });
+            builder.Entity<cEmpleado>()
+                 .ToTable("EMPLEADOS", Schema)
+                 .HasOne(e => e.CentroCosto)
+                 .WithMany(d => d.Empleado)
+                 .HasForeignKey(e => new { e.IdCCosto });
+            builder.Entity<cEmpleado>()
+                 .ToTable("EMPLEADOS", Schema)
+                 .HasOne(e => e.Ph_Planilla)
+                 .WithMany(d => d.Empleado)
+                 .HasForeignKey(e => new { e.IdPlanilla });
+
         }
 
 

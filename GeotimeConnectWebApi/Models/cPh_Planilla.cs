@@ -20,5 +20,7 @@
         public char? agrup_salida { get; set; }
         public char? tipo_adic { get; set; }
         public int? nivel_aprob_ext { get; set; }
+
+        public IEnumerable<cEmpleado>? Empleado { get; set; }
     }
 }

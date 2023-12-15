@@ -4,7 +4,9 @@
     {
         public String? IdCCosto { get; set; }
         public String? Descripcion { get; set; }
-        public char? Distribuye { get; set; }   
+        public char? Distribuye { get; set; }
+
+        public IEnumerable<cEmpleado>? Empleado { get; set; }
 
     }
 }
