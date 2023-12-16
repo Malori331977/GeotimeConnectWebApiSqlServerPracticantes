@@ -37,6 +37,14 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         /// </summary>
         /// <returns>Lista de cEmpleados</returns>
         public Task<List<cEmpleado>> GetEmpleado();
+
+        //Creado por: Marlon Loria Solano
+        //Fecha: 2022-10-30
+        /// <summary>
+        /// GetEmpleadoTotal: Método para obtener la lista total de empleados 
+        /// </summary>
+        /// <returns>Lista de cEmpleados</returns>
+        public Task<List<cEmpleado>> GetEmpleadoTotal();
         public Task<cEmpleado> GetEmpleadoByEmail(string email);
 
         /// <summary>

@@ -956,6 +956,124 @@ namespace GeoTimeConnectWebApi.Data
         //Creado por: Marlon Loria Solano
         //Fecha: 2022-10-30
         /// <summary>
+        /// GetEmpleadoTotal: Método para obtener la lista total de empleados 
+        /// </summary>
+        /// <returns>Lista de cEmpleados</returns>
+        public async Task<List<cEmpleado>> GetEmpleadoTotal()
+        {
+            List<cEmpleado> empleado = new();
+            try
+            {
+                empleado = (from e in await _context.Empleados
+                                    .Include(e => e.Departamento)
+                                    .Include(e => e.CentroCosto)
+                                    .Include(e => e.Ph_Planilla)
+                                    .ToListAsync()
+                            select new cEmpleado
+                            {
+                                IdNumero = e.IdNumero,
+                                IdPlanilla = e.IdPlanilla,
+                                Nombre = e.Nombre,
+                                Tarjeta = e.Tarjeta,
+                                Identificacion = e.Identificacion,
+                                IdGrupo = e.IdGrupo,
+                                IdDepartamento = e.IdDepartamento,
+                                IdHorario = e.IdHorario,
+                                Estado = e.Estado,
+                                IdAgrupamiento = e.IdAgrupamiento,
+                                foto = e.foto,
+                                IdCCosto = e.IdCCosto,
+                                exporta = e.exporta,
+                                ubicacion = e.ubicacion,
+                                rubro1 = e.rubro1,
+                                rubro2 = e.rubro2,
+                                rubro3 = e.rubro3,
+                                rubro4 = e.rubro4,
+                                rubro5 = e.rubro5,
+                                rubro6 = e.rubro6,
+                                rubro7 = e.rubro7,
+                                rubro8 = e.rubro8,
+                                rubro9 = e.rubro9,
+                                rubro10 = e.rubro10,
+                                rubro11 = e.rubro11,
+                                rubro12 = e.rubro12,
+                                rubro13 = e.rubro13,
+                                rubro14 = e.rubro14,
+                                rubro15 = e.rubro15,
+                                rubro16 = e.rubro16,
+                                rubro17 = e.rubro17,
+                                rubro18 = e.rubro18,
+                                rubro19 = e.rubro19,
+                                rubro20 = e.rubro20,
+                                rubro21 = e.rubro21,
+                                rubro22 = e.rubro22,
+                                rubro23 = e.rubro23,
+                                rubro24 = e.rubro24,
+                                rubro25 = e.rubro25,
+                                Fecha_Ingreso = e.Fecha_Ingreso,
+                                Email = e.Email,
+                                Tipo_Marca = e.Tipo_Marca,
+                                inicio_rol = e.inicio_rol,
+                                web_pass = e.web_pass,
+                                id_transfo_conc = e.id_transfo_conc,
+                                widioma = e.widioma,
+                                global_clave = e.global_clave,
+                                def_fase = e.def_fase,
+                                def_py = e.def_py,
+                                def_cc = e.def_cc,
+                                Fecha_Salida = e.Fecha_Salida,
+                                global_code = e.global_code,
+                                fecha_act_code = e.fecha_act_code,
+                                Departamento = e.Departamento == null ? null :
+                                               new cDepartamento
+                                               {
+                                                   IDDEPART = e.Departamento.IDDEPART,
+                                                   DESCRIPCION = e.Departamento.DESCRIPCION,
+                                               },
+                                CentroCosto = e.CentroCosto == null ? null :
+                                               new cCentroCosto
+                                               {
+                                                   IdCCosto = e.CentroCosto.IdCCosto,
+                                                   Descripcion = e.CentroCosto.Descripcion,
+                                                   Distribuye = e.CentroCosto.Distribuye,
+                                               },
+                                Ph_Planilla = e.Ph_Planilla == null ? null :
+                                               new cPh_Planilla
+                                               {
+                                                   idplanilla = e.Ph_Planilla.idplanilla,
+                                                   planilla = e.Ph_Planilla.planilla,
+                                                   nom_conector = e.Ph_Planilla.nom_conector,
+                                                   tipo_planilla = e.Ph_Planilla.tipo_planilla,
+                                                   c_ext = e.Ph_Planilla.c_ext,
+                                                   c_inci = e.Ph_Planilla.c_inci,
+                                                   c_adic = e.Ph_Planilla.c_adic,
+                                                   m_desc = e.Ph_Planilla.m_desc,
+                                                   proyecta = e.Ph_Planilla.proyecta,
+                                                   dia_inicio = e.Ph_Planilla.dia_inicio,
+                                                   auto_proceso = e.Ph_Planilla.auto_proceso,
+                                                   tipo_dist = e.Ph_Planilla.tipo_dist,
+                                                   est_nomina = e.Ph_Planilla.est_nomina,
+                                                   ext_per_ant = e.Ph_Planilla.ext_per_ant,
+                                                   ext_det = e.Ph_Planilla.ext_det,
+                                                   agrup_salida = e.Ph_Planilla.agrup_salida,
+                                                   tipo_adic = e.Ph_Planilla.tipo_adic,
+                                                   nivel_aprob_ext = e.Ph_Planilla.nivel_aprob_ext,
+                                               },
+
+                            }).ToList();
+
+
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message); throw;
+            }
+            return empleado;
+        }
+
+        //Creado por: Marlon Loria Solano
+        //Fecha: 2022-10-30
+        /// <summary>
         /// GetEmpleado: Método para un empleado específico
         /// </summary>
         /// <returns>Una instancia de la clase cEmpleado</returns>
@@ -969,7 +1087,7 @@ namespace GeoTimeConnectWebApi.Data
                                     .Include(e => e.Departamento)
                                     .Include(e => e.CentroCosto)
                                     .Include(e => e.Ph_Planilla)
-                                .Where(e => e.Estado == 'T' && e.IdNumero == idNumero).ToListAsync()
+                                .Where(e => e.IdNumero == idNumero).ToListAsync()
                             select new cEmpleado
                             {
                                 IdNumero = e.IdNumero,
