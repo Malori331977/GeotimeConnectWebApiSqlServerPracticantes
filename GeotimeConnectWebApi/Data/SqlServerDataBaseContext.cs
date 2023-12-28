@@ -82,6 +82,7 @@ namespace GeoTimeConnectWebApi.Data
         public DbSet<cTipo_Planilla> TIPOS_PLANILLA { get; set; }
         public DbSet<cPh_Transformacion> Ph_Transformacion { get; set; }
         public DbSet<cPh_Rol> Ph_Roles { get; set; }
+        public DbSet<cPh_RolTurno> Ph_Roles_Turnos { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -158,6 +159,8 @@ namespace GeoTimeConnectWebApi.Data
             .HasKey(e => new { e.ID_TRANSFORMACION });
             builder.Entity<cPh_Rol>().ToTable("PH_ROLES", Schema)
             .HasKey(e => new { e.IDROL });
+            builder.Entity<cPh_RolTurno>().ToTable("PH_ROLES_TURNOS", Schema)
+            .HasKey(e => new { e.IDREGISTRO, e.IDROL });
 
             //llaves foraneas
             builder.Entity<cEmpleado>()
@@ -182,8 +185,13 @@ namespace GeoTimeConnectWebApi.Data
                 .WithMany(d => d.Ph_HorarioTurno)
                 .HasForeignKey(e => new { e.IDHORARIO });
 
-        }
+            builder.Entity<cPh_RolTurno>()
+                .ToTable("PH_ROLES_TURNOS", Schema)
+                .HasOne(e => e.Turno)
+                .WithMany(d => d.RolTurno)
+                .HasForeignKey(e => new { e.IDTURNO });
 
+        }
 
     }
 }

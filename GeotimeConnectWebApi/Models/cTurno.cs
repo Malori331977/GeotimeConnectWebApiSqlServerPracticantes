@@ -12,6 +12,7 @@
         public string? cant_con_3 { get; set; }
         public string? cant_con_4 { get; set; }
 
+        public IEnumerable<cPh_RolTurno>? RolTurno { get; set; }
 
     }
 }

@@ -1581,6 +1581,41 @@ namespace GeoTimeConnectWebApi.Data
 
         }
 
+        //Creado por: Allan Prieto
+        //Fecha: 2023-12-27
+        //Obtener lista de Marcas Resumen
+        /// <summary>
+        /// Elimina_Incidencia:  Metodo borrado de datos de la tabla Incidencias
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns>EventResponse</returns>
+        public async Task<EventResponse> Elimina_Incidencia(int id)
+        {
+            EventResponse respuesta = new EventResponse();
+            try
+            {
+                cIncidencia? model = await _context.Incidencias
+                    .FirstOrDefaultAsync(e => e.Id == id);
+
+                if (model is not null)
+                {
+                    _context.Incidencias.Remove(model);
+                }
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo eliminar la Incidencia. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo eliminar la Incidencia. Detalle de Error: " + e.InnerException.Message;
+            }
+            return respuesta;
+        }
+
         //Creado por: Marlon Loria Solano
         //Fecha: 2022-10-30
         //Obtener lista de Marcas Resumen
@@ -1653,6 +1688,169 @@ namespace GeoTimeConnectWebApi.Data
                 Console.WriteLine(e.Message); throw;
             }
             return turno;
+        }
+
+        /// <summary>
+        /// Sincronizar_Turno: metodo para sincronizar los Turnos 
+        /// </summary>
+        /// <param name="phTurno"></param>
+        /// <returns>una instancia EventResponse con el resultado de la operacion</returns>
+        public async Task<EventResponse> Sincronizar_Turno(IEnumerable<cTurno> phTurno)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+                foreach (var item in phTurno)
+                {
+                    cTurno? objetoBuscar = await _context.Ph_Turnos
+                                    .FirstOrDefaultAsync(e => e.IdTurno == item.IdTurno);
+                    //si el Turno existe se actualiza descripción
+                    //de lo contrario se agrega el registro*
+                    if (objetoBuscar is not null)
+                    {
+                        /* Datos de relleno */
+                        objetoBuscar.IdTurno = item.IdTurno;
+                        objetoBuscar.Descripcion = item.Descripcion;
+
+                        /* Datops listos para cuando se modifique el metodo correctamente */
+
+                        //objetoBuscar.idturno = item.idturno;
+                        //objetoBuscar.descripcion = item.descripcion;
+                        //objetoBuscar.hentra = item.hentra;
+                        //objetoBuscar.hsale = item.hsale;
+                        //objetoBuscar.tar_apl = item.tar_apl;
+                        //objetoBuscar.ant_apl = item.ant_apl;
+                        //objetoBuscar.des_1_in = item.des_1_in;
+                        //objetoBuscar.des_1_out = item.des_1_out;
+                        //objetoBuscar.des_2_in = item.des_2_in;
+                        //objetoBuscar.des_2_out = item.des_2_out;
+                        //objetoBuscar.des_3_in = item.des_3_in;
+                        //objetoBuscar.des_3_out = item.des_3_out;
+                        //objetoBuscar.apl_des_1 = item.apl_des_1;
+                        //objetoBuscar.apl_des_2 = item.apl_des_2;
+                        //objetoBuscar.apl_des_3 = item.apl_des_3;
+                        //objetoBuscar.des_1_tiem = item.des_1_tiem;
+                        //objetoBuscar.des_2_tiem = item.des_2_tiem;
+                        //objetoBuscar.des_3_tiem = item.des_3_tiem;
+                        //objetoBuscar.marca_des_1 = item.marca_des_1;
+                        //objetoBuscar.marca_des_2 = item.marca_des_2;
+                        //objetoBuscar.marca_des_3 = item.marca_des_3;
+                        //objetoBuscar.tar_tiem = item.tar_tiem;
+                        //objetoBuscar.ant_tiem = item.ant_tiem;
+                        //objetoBuscar.con_1 = item.con_1;
+                        //objetoBuscar.con_2 = item.con_2;
+                        //objetoBuscar.con_3 = item.con_3;
+                        //objetoBuscar.con_4 = item.con_4;
+                        //objetoBuscar.con_5 = item.con_5;
+                        //objetoBuscar.con_6 = item.con_6;
+                        //objetoBuscar.cant_con_1 = item.cant_con_1;
+                        //objetoBuscar.cant_con_2 = item.cant_con_2;
+                        //objetoBuscar.cant_con_3 = item.cant_con_3;
+                        //objetoBuscar.cant_con_4 = item.cant_con_4;
+                        //objetoBuscar.cant_con_5 = item.cant_con_5;
+                        //objetoBuscar.cant_con_6 = item.cant_con_6;
+                        //objetoBuscar.min_con_1 = item.min_con_1;
+                        //objetoBuscar.min_con_2 = item.min_con_2;
+                        //objetoBuscar.min_con_3 = item.min_con_3;
+                        //objetoBuscar.min_con_4 = item.min_con_4;
+                        //objetoBuscar.min_con_5 = item.min_con_5;
+                        //objetoBuscar.min_con_6 = item.min_con_6;
+                        //objetoBuscar.tipo = item.tipo;
+                        //objetoBuscar.tipo_jor = item.tipo_jor;
+                        //objetoBuscar.fuerza_calc = item.fuerza_calc;
+                        //objetoBuscar.idagrupamiento = item.idagrupamiento;
+                        //objetoBuscar.apl_trans1 = item.apl_trans1;
+                        //objetoBuscar.id_trans1 = item.id_trans1;
+                        //objetoBuscar.apl_trans2 = item.apl_trans2;
+                        //objetoBuscar.id_trans2 = item.id_trans2;
+                        //objetoBuscar.apl_trans3 = item.apl_trans3;
+                        //objetoBuscar.id_trans3 = item.id_trans3;
+                        //objetoBuscar.apl_trans4 = item.apl_trans4;
+                        //objetoBuscar.id_trans4 = item.id_trans4;
+                        //objetoBuscar.apl_trans5 = item.apl_trans5;
+                        //objetoBuscar.id_trans5 = item.id_trans5;
+                        //objetoBuscar.apl_trans6 = item.apl_trans6;
+                        //objetoBuscar.id_trans6 = item.id_trans6;
+                        //objetoBuscar.apl_ben1 = item.apl_ben1;
+                        //objetoBuscar.id_ben1 = item.id_ben1;
+                        //objetoBuscar.apl_ben2 = item.apl_ben2;
+                        //objetoBuscar.id_ben2 = item.id_ben2;
+                        //objetoBuscar.apl_ben3 = item.apl_ben3;
+                        //objetoBuscar.id_ben3 = item.id_ben3;
+                        //objetoBuscar.apl_ben4 = item.apl_ben4;
+                        //objetoBuscar.id_ben4 = item.id_ben4;
+                        //objetoBuscar.apl_ben5 = item.apl_ben5;
+                        //objetoBuscar.id_ben5 = item.id_ben5;
+                        //objetoBuscar.apl_ben6 = item.apl_ben6;
+                        //objetoBuscar.id_ben6 = item.id_ben6;
+                        //objetoBuscar.conc_ben1 = item.conc_ben1;
+                        //objetoBuscar.conc_ben2 = item.conc_ben2;
+                        //objetoBuscar.conc_ben3 = item.conc_ben3;
+                        //objetoBuscar.conc_ben4 = item.conc_ben4;
+                        //objetoBuscar.conc_ben5 = item.conc_ben5;
+                        //objetoBuscar.conc_ben6 = item.conc_ben6;
+                        //objetoBuscar.apl_trans_post = item.apl_trans_post;
+                        //objetoBuscar.id_trans_post = item.id_trans_post;
+                        //objetoBuscar.apl_redond_entrada = item.apl_redond_entrada;
+                        //objetoBuscar.cant_redond_entrada = item.cant_redond_entrada;
+                        //objetoBuscar.auto_pan = item.auto_pan;
+
+                        _context.Ph_Turnos.Update(objetoBuscar);
+                    }
+                    else
+                    {
+                        _context.Add(item);
+                    }
+                }
+
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo realizar la sincronización del Turno. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo realizar la sincronización del Turno. Detalle de Error: " + e.InnerException.Message;
+            }
+            return respuesta;
+        }
+
+        /// <summary>
+        /// Elimina_Turno:  Metodo borrado de datos de la tabla Ph_Turnos
+        /// </summary>
+        /// <param name="idturno"></param>
+        /// <returns>EventResponse</returns>
+        public async Task<EventResponse> Elimina_Turno(int idturno)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+
+                cTurno? model = await _context.Ph_Turnos
+                    .FirstOrDefaultAsync(e => e.IdTurno == idturno);
+
+                if (model is not null)
+                {
+                    _context.Ph_Turnos.Remove(model);
+                }
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo eliminar el Turno. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo eliminar el Turno. Detalle de Error: " + e.InnerException.Message;
+            }
+            return respuesta;
         }
 
         //Creado por: Marlon Loria Solano
@@ -2310,7 +2508,7 @@ namespace GeoTimeConnectWebApi.Data
 
         //Creado por: Marlon Loria Solano
         //Fecha: 2022-10-30
-        //Obtener un Concepto especifico
+        //Obtener un Grupo especifico
         //Parametros: concepto=concepto a buscar
         public async Task<cPh_Grupo> GetGrupo(int idgrupo)
         {
@@ -4256,5 +4454,218 @@ namespace GeoTimeConnectWebApi.Data
             }
             return roles;
         }
+
+        //Creado por: Allan Prieto
+        //Fecha: 2023-12-27
+        //Obtener un Rol especifico
+        //Parametros: idrol=id a buscar
+        public async Task<cPh_Rol> GetPhRol(int idrol)
+        {
+            cPh_Rol? roles = new();
+            try
+            {
+                roles = await _context.Ph_Roles.FirstOrDefaultAsync(e => e.IDROL == idrol);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message); throw;
+            }
+            return roles;
+        }
+
+        /// <summary>
+        /// Sincronizar_PhRol: metodo para sincronizar los Roles 
+        /// </summary>
+        /// <param name="phRoles"></param>
+        /// <returns>una instancia EventResponse con el resultado de la operacion</returns>
+        public async Task<EventResponse> Sincronizar_PhRol(IEnumerable<cPh_Rol> phRoles)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+                foreach (var item in phRoles)
+                {
+                    cPh_Rol? objetoBuscar = await _context.Ph_Roles
+                                    .FirstOrDefaultAsync(e => e.IDROL == item.IDROL);
+                    //si el rol existe se actualiza descripción
+                    //de lo contrario se agrega el registro*
+                    if (objetoBuscar is not null)
+                    {
+                        objetoBuscar.IDROL = item.IDROL;
+                        objetoBuscar.DESCRIPCION = item.DESCRIPCION;
+
+                        _context.Ph_Roles.Update(objetoBuscar);
+                    }
+                    else
+                    {
+                        _context.Add(item);
+                    }
+                }
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo realizar la sincronización del Rol. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo realizar la sincronización del Rol. Detalle de Error: " + e.InnerException.Message;
+            }
+            return respuesta;
+        }
+
+        /// <summary>
+        /// Elimina_PhRol:  Metodo borrado de datos de la tabla Ph_Roles
+        /// </summary>
+        /// <param name="idrol"></param>
+        /// <returns>EventResponse</returns>
+        public async Task<EventResponse> Elimina_PhRol(int idrol)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+                cPh_Rol? model = await _context.Ph_Roles
+                    .FirstOrDefaultAsync(e => e.IDROL == idrol);
+
+                if (model is not null)
+                {
+                    _context.Ph_Roles.Remove(model);
+                }
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo eliminar el Rol. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo eliminar el Rol. Detalle de Error: " + e.InnerException.Message;
+            }
+            return respuesta;
+        }
+
+        //Creado por: Allan Prieto
+        //Fecha: 2023-12-27
+        /// <summary>
+        /// GetEmpleado: Método para una lista de rolesTurno
+        /// </summary>
+        /// <returns>Una instancia de la clase cPh_RolTurno</returns>
+        /// ///<param name="idrol">idNumero del empleado requerido</param>
+        public async Task<List<cPh_RolTurno>> GetRolTurno(int idrol)
+        {
+            List<cPh_RolTurno> rolturno = new();
+            try
+            {
+                rolturno = (from e in await _context.Ph_Roles_Turnos
+                                .Include(e => e.Turno)
+                                .Where(e => e.IDROL == idrol).ToListAsync()
+                            select new cPh_RolTurno
+                            {
+                                IDREGISTRO = e.IDREGISTRO,
+                                IDROL = e.IDROL,
+                                IDTURNO = e.IDTURNO,
+                                
+                                Turno = e.Turno == null ? null :
+                                               new cTurno
+                                               {
+                                                   IdTurno = e.Turno.IdTurno,
+                                                   Descripcion = e.Turno.Descripcion,
+                                               },
+
+                            }).ToList();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message); throw;
+            }
+            return rolturno;
+        }
+
+        //Creado por: Allan Prieto
+        //Fecha: 2023-12-27
+        //Sincronizar RolTurno
+        //Parametro: Recibe una instancia de RolTurno, se verifica si existe en cuyo caso
+        //actualiza el registro, de lo contrario lo crea.
+        public async Task<EventResponse> Sincronizar_RolTurno(IEnumerable<cPh_RolTurno> roles_Turno)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+                foreach (var rlTurno in roles_Turno)
+                {
+                    cPh_RolTurno? rturno = await _context.Ph_Roles_Turnos
+                                                        .FirstOrDefaultAsync(e => e.IDREGISTRO == rlTurno.IDREGISTRO && e.IDROL == rlTurno.IDROL);
+                    //si existe se actualiza 
+                    //de lo contrario se agrega el registro
+                    if (rturno is not null)
+                    {
+                        rturno.IDTURNO = rlTurno.IDTURNO;
+
+                        _context.Ph_Roles_Turnos.Update(rturno);
+                    }
+                    else
+                    {
+                        rlTurno.IDREGISTRO = 0;
+                        _context.Add(rlTurno);
+                    }
+                }
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo realizar la sincronización de RolTurno. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo realizar la sincronización de RolTurno. Detalle de Error: " + e.InnerException.Message;
+            }
+            return respuesta;
+
+        }
+
+        /// <summary>
+        /// Elimina_RolTurn:  Metodo borrado de datos de la tabla RolesTurnos
+        /// </summary>
+        /// <param name="idregistro"></param>
+        /// <returns>EventResponse</returns>
+        public async Task<EventResponse> Elimina_RolTurno(int idregistro)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+                cPh_RolTurno? model = await _context.Ph_Roles_Turnos
+                    .FirstOrDefaultAsync(e => e.IDREGISTRO == idregistro);
+
+                if (model is not null)
+                {
+                    _context.Ph_Roles_Turnos.Remove(model);
+                }
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo eliminar el registro de Empleado Turno. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo eliminar el registro de Empleado Turno. Detalle de Error: " + e.InnerException.Message;
+
+            }
+            return respuesta;
+        }
+
+
     }
 }
