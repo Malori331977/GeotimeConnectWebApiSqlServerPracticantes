@@ -2310,7 +2310,7 @@ namespace GeoTimeConnectWebApi.Data
 
         //Creado por: Marlon Loria Solano
         //Fecha: 2022-10-30
-        //Obtener un Concepto especifico
+        //Obtener un Grupo especifico
         //Parametros: concepto=concepto a buscar
         public async Task<cPh_Grupo> GetGrupo(int idgrupo)
         {
@@ -4259,6 +4259,101 @@ namespace GeoTimeConnectWebApi.Data
 
         //Creado por: Allan Prieto
         //Fecha: 2023-12-27
+        //Obtener un Rol especifico
+        //Parametros: idrol=id a buscar
+        public async Task<cPh_Rol> GetPhRol(int idrol)
+        {
+            cPh_Rol? roles = new();
+            try
+            {
+                roles = await _context.Ph_Roles.FirstOrDefaultAsync(e => e.IDROL == idrol);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message); throw;
+            }
+            return roles;
+        }
+
+        /// <summary>
+        /// Sincronizar_PhRol: metodo para sincronizar los Roles 
+        /// </summary>
+        /// <param name="phRoles"></param>
+        /// <returns>una instancia EventResponse con el resultado de la operacion</returns>
+        public async Task<EventResponse> Sincronizar_PhRol(IEnumerable<cPh_Rol> phRoles)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+                foreach (var item in phRoles)
+                {
+                    cPh_Rol? objetoBuscar = await _context.Ph_Roles
+                                    .FirstOrDefaultAsync(e => e.IDROL == item.IDROL);
+                    //si el rol existe se actualiza descripción
+                    //de lo contrario se agrega el registro*
+                    if (objetoBuscar is not null)
+                    {
+                        objetoBuscar.IDROL = item.IDROL;
+                        objetoBuscar.DESCRIPCION = item.DESCRIPCION;
+
+                        _context.Ph_Roles.Update(objetoBuscar);
+                    }
+                    else
+                    {
+                        _context.Add(item);
+                    }
+                }
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo realizar la sincronización del Rol. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo realizar la sincronización del Rol. Detalle de Error: " + e.InnerException.Message;
+            }
+            return respuesta;
+        }
+
+        /// <summary>
+        /// Elimina_PhRol:  Metodo borrado de datos de la tabla Ph_Roles
+        /// </summary>
+        /// <param name="idrol"></param>
+        /// <returns>EventResponse</returns>
+        public async Task<EventResponse> Elimina_PhRol(int idrol)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+                cPh_Rol? model = await _context.Ph_Roles
+                    .FirstOrDefaultAsync(e => e.IDROL == idrol);
+
+                if (model is not null)
+                {
+                    _context.Ph_Roles.Remove(model);
+                }
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo eliminar el Rol. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo eliminar el Rol. Detalle de Error: " + e.InnerException.Message;
+            }
+            return respuesta;
+        }
+
+        //Creado por: Allan Prieto
+        //Fecha: 2023-12-27
         /// <summary>
         /// GetEmpleado: Método para una lista de rolesTurno
         /// </summary>
@@ -4350,7 +4445,6 @@ namespace GeoTimeConnectWebApi.Data
 
             try
             {
-
                 cPh_RolTurno? model = await _context.Ph_Roles_Turnos
                     .FirstOrDefaultAsync(e => e.IDREGISTRO == idregistro);
 

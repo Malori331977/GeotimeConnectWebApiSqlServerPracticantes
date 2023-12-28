@@ -11,7 +11,6 @@ namespace GeoTimeConnectWebApi.Models
         [Key]
         public int IDROL { get; set; }
         public int IDTURNO { get; set; }
-
         public cTurno? Turno { get; set; }
     }
 }

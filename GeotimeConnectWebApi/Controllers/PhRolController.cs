@@ -25,7 +25,32 @@ namespace GeoTimeConnectWebApi.Controllers
         }
 
         [HttpGet]
-        public async Task<IEnumerable<cPh_Rol>> Get() => await _repoGT.GetPhRol();      
+        public async Task<IEnumerable<cPh_Rol>> Get() => await _repoGT.GetPhRol();
+
+        [HttpGet("{idrol}")]
+        public async Task<cPh_Rol> Get(int idrol) => await _repoGT.GetPhRol(idrol);
+
+        [HttpPost]
+        public async Task<IActionResult> Post([FromBody] IEnumerable<cPh_Rol> phRol)
+        {
+            EventResponse respuesta = await _repoGT.Sincronizar_PhRol(phRol);
+
+            if (respuesta.Id != "0")
+                return BadRequest(respuesta);
+
+            return Ok(respuesta);
+        }
+
+        [HttpDelete("{idrol}")]
+        public async Task<IActionResult> Delete(int idrol)
+        {
+            EventResponse respuesta = await _repoGT.Elimina_PhRol(idrol);
+
+            if (respuesta.Id != "0")
+                return BadRequest(respuesta);
+
+            return Ok(respuesta);
+        }
 
     }
 }

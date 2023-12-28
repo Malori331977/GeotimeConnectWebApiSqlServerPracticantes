@@ -485,6 +485,26 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         public Task<List<cPh_Rol>> GetPhRol();
 
         /// <summary>
+        /// GetPhRol: Método para obtener los registros de la tabla ph_Roles
+        /// </summary>
+        /// <returns>Un horario turno</returns>
+        public Task<cPh_Rol> GetPhRol(int idrol);
+
+        /// <summary>
+        /// Sincronizar_PhRol: Método para registrar los Roles en la tabla ph_Roles
+        /// </summary>
+        /// <returns>Una instancia de la Clase EventResponse, con el resultado del proceso</returns>
+        /// <param name="Roles">Lista de registros de la clase cPh_Roles</param>
+        public Task<EventResponse> Sincronizar_PhRol(IEnumerable<cPh_Rol> phRol);
+
+        /// <summary>
+        /// Elimina_PhRol:  Metodo borrado de datos de la tabla ph_Roles
+        /// </summary>
+        /// <param name="idrol"></param>
+        /// <returns>EventResponse</returns>
+        public Task<EventResponse> Elimina_PhRol(int idrol);
+
+        /// <summary>
         /// GetRolTurno: Método para la tabla Rol Turno
         /// </summary>
         /// <returns>Una instancia de la clase cPh_RolTurno</returns>
