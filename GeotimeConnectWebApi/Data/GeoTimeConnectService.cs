@@ -4256,5 +4256,124 @@ namespace GeoTimeConnectWebApi.Data
             }
             return roles;
         }
+
+        //Creado por: Allan Prieto
+        //Fecha: 2023-12-27
+        /// <summary>
+        /// GetEmpleado: Método para una lista de rolesTurno
+        /// </summary>
+        /// <returns>Una instancia de la clase cPh_RolTurno</returns>
+        /// ///<param name="idrol">idNumero del empleado requerido</param>
+        public async Task<List<cPh_RolTurno>> GetRolTurno(int idrol)
+        {
+            List<cPh_RolTurno> rolturno = new();
+            try
+            {
+                rolturno = (from e in await _context.Ph_Roles_Turnos
+                                .Include(e => e.Turno)
+                                .Where(e => e.IDROL == idrol).ToListAsync()
+                            select new cPh_RolTurno
+                            {
+                                IDREGISTRO = e.IDREGISTRO,
+                                IDROL = e.IDROL,
+                                IDTURNO = e.IDTURNO,
+                                
+                                Turno = e.Turno == null ? null :
+                                               new cTurno
+                                               {
+                                                   IdTurno = e.Turno.IdTurno,
+                                                   Descripcion = e.Turno.Descripcion,
+                                               },
+
+                            }).ToList();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message); throw;
+            }
+            return rolturno;
+        }
+
+        //Creado por: Allan Prieto
+        //Fecha: 2023-12-27
+        //Sincronizar RolTurno
+        //Parametro: Recibe una instancia de RolTurno, se verifica si existe en cuyo caso
+        //actualiza el registro, de lo contrario lo crea.
+        public async Task<EventResponse> Sincronizar_RolTurno(IEnumerable<cPh_RolTurno> roles_Turno)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+                foreach (var rlTurno in roles_Turno)
+                {
+                    cPh_RolTurno? rturno = await _context.Ph_Roles_Turnos
+                                                        .FirstOrDefaultAsync(e => e.IDREGISTRO == rlTurno.IDREGISTRO && e.IDROL == rlTurno.IDROL);
+                    //si existe se actualiza 
+                    //de lo contrario se agrega el registro
+                    if (rturno is not null)
+                    {
+                        rturno.IDTURNO = rlTurno.IDTURNO;
+
+                        _context.Ph_Roles_Turnos.Update(rturno);
+                    }
+                    else
+                    {
+                        rlTurno.IDREGISTRO = 0;
+                        _context.Add(rlTurno);
+                    }
+                }
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo realizar la sincronización de RolTurno. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo realizar la sincronización de RolTurno. Detalle de Error: " + e.InnerException.Message;
+            }
+            return respuesta;
+
+        }
+
+        /// <summary>
+        /// Elimina_RolTurn:  Metodo borrado de datos de la tabla RolesTurnos
+        /// </summary>
+        /// <param name="idregistro"></param>
+        /// <returns>EventResponse</returns>
+        public async Task<EventResponse> Elimina_RolTurno(int idregistro)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+
+                cPh_RolTurno? model = await _context.Ph_Roles_Turnos
+                    .FirstOrDefaultAsync(e => e.IDREGISTRO == idregistro);
+
+                if (model is not null)
+                {
+                    _context.Ph_Roles_Turnos.Remove(model);
+                }
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo eliminar el registro de Empleado Turno. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo eliminar el registro de Empleado Turno. Detalle de Error: " + e.InnerException.Message;
+
+            }
+            return respuesta;
+        }
+
+
     }
 }

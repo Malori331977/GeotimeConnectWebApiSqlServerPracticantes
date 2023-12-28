@@ -451,6 +451,7 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         /// </summary>
         /// <returns>Un horario turno</returns>
         public Task<cPh_HorarioTurno> GetHorario_Turno(int IDHORARIO);
+
         /// <summary>
         /// Sincronizar_Horario_Turno: Método para registrar los horarios en la tabla ph_horario_turno
         /// </summary>
@@ -482,6 +483,27 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         /// </summary>
         /// <returns>Lista de cPh_Rol</returns>
         public Task<List<cPh_Rol>> GetPhRol();
+
+        /// <summary>
+        /// GetRolTurno: Método para la tabla Rol Turno
+        /// </summary>
+        /// <returns>Una instancia de la clase cPh_RolTurno</returns>
+        /// ///<param name="idNumero">idNumero del empleado requerido</param>
+        public Task<List<cPh_RolTurno>> GetRolTurno(int idrol);
+
+        /// <summary>
+        /// Sincronizar_RolTurno: Método para registrar los Roles Turno en la tabla ph_roles_turnos
+        /// </summary>
+        /// <returns>Una instancia de la Clase EventResponse, con el resultado del proceso</returns>
+        /// <param name="Roles_Turnos">Lista de registros de la clase cPh_horario_turno</param>
+        public Task<EventResponse> Sincronizar_RolTurno(IEnumerable<cPh_RolTurno> rolesTurno);
+
+        /// <summary>
+        /// Elimina_RolTurnoo:  Metodo borrado de datos de la tabla ph_roles_turnos
+        /// </summary>
+        /// <param name="IDREGISTRO"></param>
+        /// <returns>EventResponse</returns>
+        public Task<EventResponse> Elimina_RolTurno(int idregistro);
 
 
     }
