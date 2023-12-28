@@ -62,10 +62,28 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         public Task<cIncidencia> GetIncidenciaByNomConector(string nom_conector);
         public Task<List<cIncidencia>> GetIncidenciaReqAccPer();
         public Task<EventResponse> Sincronizar_Incidencia(IEnumerable<cIncidencia> incidencias);
+
+        /// <summary>
+        /// Elimina_Incidencia:  Metodo borrado de datos de la tabla Incidencias
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns>EventResponse</returns>
+        public Task<EventResponse> Elimina_Incidencia(int id);
+
         public Task<List<cMarcaResumen>> GetMarcasResumen(string idPlanilla, string idPeriodo);
 		public Task<EventResponse> Sincronizar_MarcasResumen(IEnumerable<cMarcaResumen> marcasResumen);
+
         public Task<List<cTurno>> GetTurno();
         public Task<cTurno> GetTurno(int idTurno);
+        public Task<EventResponse> Sincronizar_Turno(IEnumerable<cTurno> phTurno);
+
+        /// <summary>
+        /// Elimina_Turno:  Metodo borrado de datos de la tabla ph_Turnos
+        /// </summary>
+        /// <param name="idTurno"></param>
+        /// <returns>EventResponse</returns>
+        public Task<EventResponse> Elimina_Turno(int idTurno);
+
         public Task<List<cMarca>> GetMarcas();
         public Task<List<cMarca>> GetMarcas(string idnumero);
 
