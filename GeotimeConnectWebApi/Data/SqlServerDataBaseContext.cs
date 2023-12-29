@@ -126,41 +126,41 @@ namespace GeoTimeConnectWebApi.Data
             builder.Entity<cMarcaProceso>().ToTable("MARCAS_PROCESO", Schema)
                 .HasKey(e => new { e.idregistro });
             builder.Entity<cPh_Proyecto>().ToTable("PH_PROYECTO", Schema)
-               .HasKey(e => new { e.PROYECTO });
+                .HasKey(e => new { e.PROYECTO });
             builder.Entity<cPh_FaseProyecto>().ToTable("PH_FASEPROYECTO", Schema)
-               .HasKey(e => new { e.PROYECTO, e.FASE });
+                .HasKey(e => new { e.PROYECTO, e.FASE });
             builder.Entity<cMarcaAudit>().ToTable("MARCAS_AUDIT", Schema)
-              .HasKey(e => new { e.IDREGISTRO });
+                .HasKey(e => new { e.IDREGISTRO });
             builder.Entity<cMarcaDescanso>().ToTable("MARCAS_DESCANSOS", Schema)
-             .HasKey(e => new { e.IDREGISTRO });
+                .HasKey(e => new { e.IDREGISTRO });
             builder.Entity<cMarcaIncidencia>().ToTable("MARCAS_INCIDENCIAS", Schema)
-             .HasKey(e => new { e.INDICE });
+                .HasKey(e => new { e.INDICE });
             builder.Entity<cMarcaDistribucion>().ToTable("MARCAS_DISTRIBUCIONES", Schema)
-               .HasNoKey();
+                .HasNoKey();
             builder.Entity<cPh_Usuario>().ToTable("PH_USUARIO", Schema)
-             .HasKey(e => new { e.IDUSUARIO });
+                .HasKey(e => new { e.IDUSUARIO });
             builder.Entity<cPh_Sistema>().ToTable("PH_SISTEMA", schemaAdmin)
-               .HasNoKey();
+                .HasNoKey();
             builder.Entity<cPortal_Config>().ToTable("PORTAL_CONFIG", Schema)
-            .HasKey(e => new { e.ID });
+                .HasKey(e => new { e.ID });
             builder.Entity<cPortal_Opcion>().ToTable("PORTAL_OPCIONES", Schema)
-           .HasKey(e => new { e.ID });
+                .HasKey(e => new { e.ID });
             builder.Entity<cPh_Formulacion>().ToTable("PH_FORMULACION", Schema)
-           .HasKey(e => new { e.ID });
+                .HasKey(e => new { e.ID });
             builder.Entity<cParametroEmail>().ToTable("PARAMETROSEMAIL", Schema)
-            .HasKey(e => new { e.Id });
+                .HasKey(e => new { e.Id });
             builder.Entity<cPh_Horarios>().ToTable("PH_HORARIOS", Schema)
-            .HasKey(e => new { e.IDHORARIO });
+                .HasKey(e => new { e.IDHORARIO });
             builder.Entity<cPh_HorarioTurno>().ToTable("PH_HORARIO_TURNO", Schema)
-            .HasKey(e => new { e.IDHORARIO, e.ID_DIA });
+                .HasKey(e => new { e.IDHORARIO, e.ID_DIA });
             builder.Entity<cTipo_Planilla>().ToTable("TIPOS_PLANILLA", Schema)
-            .HasKey(e => new { e.TIPO_PLANILLA });
+                .HasKey(e => new { e.TIPO_PLANILLA });
             builder.Entity<cPh_Transformacion>().ToTable("PH_TRANSFORMACION", Schema)
-            .HasKey(e => new { e.ID_TRANSFORMACION });
+                .HasKey(e => new { e.ID_TRANSFORMACION });
             builder.Entity<cPh_Rol>().ToTable("PH_ROLES", Schema)
-            .HasKey(e => new { e.IDROL });
+                .HasKey(e => new { e.IDROL });
             builder.Entity<cPh_RolTurno>().ToTable("PH_ROLES_TURNOS", Schema)
-            .HasKey(e => new { e.IDREGISTRO, e.IDROL });
+                .HasKey(e => new { e.IDREGISTRO, e.IDROL });
 
             //llaves foraneas
             builder.Entity<cEmpleado>()
