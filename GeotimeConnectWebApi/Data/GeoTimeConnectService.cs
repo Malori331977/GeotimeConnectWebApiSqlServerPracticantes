@@ -1715,86 +1715,86 @@ namespace GeoTimeConnectWebApi.Data
 
                         /* Datops listos para cuando se modifique el metodo correctamente */
 
-                        //objetoBuscar.idturno = item.idturno;
-                        //objetoBuscar.descripcion = item.descripcion;
-                        //objetoBuscar.hentra = item.hentra;
-                        //objetoBuscar.hsale = item.hsale;
-                        //objetoBuscar.tar_apl = item.tar_apl;
-                        //objetoBuscar.ant_apl = item.ant_apl;
-                        //objetoBuscar.des_1_in = item.des_1_in;
-                        //objetoBuscar.des_1_out = item.des_1_out;
-                        //objetoBuscar.des_2_in = item.des_2_in;
-                        //objetoBuscar.des_2_out = item.des_2_out;
-                        //objetoBuscar.des_3_in = item.des_3_in;
-                        //objetoBuscar.des_3_out = item.des_3_out;
-                        //objetoBuscar.apl_des_1 = item.apl_des_1;
-                        //objetoBuscar.apl_des_2 = item.apl_des_2;
-                        //objetoBuscar.apl_des_3 = item.apl_des_3;
-                        //objetoBuscar.des_1_tiem = item.des_1_tiem;
-                        //objetoBuscar.des_2_tiem = item.des_2_tiem;
-                        //objetoBuscar.des_3_tiem = item.des_3_tiem;
-                        //objetoBuscar.marca_des_1 = item.marca_des_1;
-                        //objetoBuscar.marca_des_2 = item.marca_des_2;
-                        //objetoBuscar.marca_des_3 = item.marca_des_3;
-                        //objetoBuscar.tar_tiem = item.tar_tiem;
-                        //objetoBuscar.ant_tiem = item.ant_tiem;
-                        //objetoBuscar.con_1 = item.con_1;
-                        //objetoBuscar.con_2 = item.con_2;
-                        //objetoBuscar.con_3 = item.con_3;
-                        //objetoBuscar.con_4 = item.con_4;
-                        //objetoBuscar.con_5 = item.con_5;
-                        //objetoBuscar.con_6 = item.con_6;
-                        //objetoBuscar.cant_con_1 = item.cant_con_1;
-                        //objetoBuscar.cant_con_2 = item.cant_con_2;
-                        //objetoBuscar.cant_con_3 = item.cant_con_3;
-                        //objetoBuscar.cant_con_4 = item.cant_con_4;
-                        //objetoBuscar.cant_con_5 = item.cant_con_5;
-                        //objetoBuscar.cant_con_6 = item.cant_con_6;
-                        //objetoBuscar.min_con_1 = item.min_con_1;
-                        //objetoBuscar.min_con_2 = item.min_con_2;
-                        //objetoBuscar.min_con_3 = item.min_con_3;
-                        //objetoBuscar.min_con_4 = item.min_con_4;
-                        //objetoBuscar.min_con_5 = item.min_con_5;
-                        //objetoBuscar.min_con_6 = item.min_con_6;
-                        //objetoBuscar.tipo = item.tipo;
-                        //objetoBuscar.tipo_jor = item.tipo_jor;
-                        //objetoBuscar.fuerza_calc = item.fuerza_calc;
-                        //objetoBuscar.idagrupamiento = item.idagrupamiento;
-                        //objetoBuscar.apl_trans1 = item.apl_trans1;
-                        //objetoBuscar.id_trans1 = item.id_trans1;
-                        //objetoBuscar.apl_trans2 = item.apl_trans2;
-                        //objetoBuscar.id_trans2 = item.id_trans2;
-                        //objetoBuscar.apl_trans3 = item.apl_trans3;
-                        //objetoBuscar.id_trans3 = item.id_trans3;
-                        //objetoBuscar.apl_trans4 = item.apl_trans4;
-                        //objetoBuscar.id_trans4 = item.id_trans4;
-                        //objetoBuscar.apl_trans5 = item.apl_trans5;
-                        //objetoBuscar.id_trans5 = item.id_trans5;
-                        //objetoBuscar.apl_trans6 = item.apl_trans6;
-                        //objetoBuscar.id_trans6 = item.id_trans6;
-                        //objetoBuscar.apl_ben1 = item.apl_ben1;
-                        //objetoBuscar.id_ben1 = item.id_ben1;
-                        //objetoBuscar.apl_ben2 = item.apl_ben2;
-                        //objetoBuscar.id_ben2 = item.id_ben2;
-                        //objetoBuscar.apl_ben3 = item.apl_ben3;
-                        //objetoBuscar.id_ben3 = item.id_ben3;
-                        //objetoBuscar.apl_ben4 = item.apl_ben4;
-                        //objetoBuscar.id_ben4 = item.id_ben4;
-                        //objetoBuscar.apl_ben5 = item.apl_ben5;
-                        //objetoBuscar.id_ben5 = item.id_ben5;
-                        //objetoBuscar.apl_ben6 = item.apl_ben6;
-                        //objetoBuscar.id_ben6 = item.id_ben6;
-                        //objetoBuscar.conc_ben1 = item.conc_ben1;
-                        //objetoBuscar.conc_ben2 = item.conc_ben2;
-                        //objetoBuscar.conc_ben3 = item.conc_ben3;
-                        //objetoBuscar.conc_ben4 = item.conc_ben4;
-                        //objetoBuscar.conc_ben5 = item.conc_ben5;
-                        //objetoBuscar.conc_ben6 = item.conc_ben6;
-                        //objetoBuscar.apl_trans_post = item.apl_trans_post;
-                        //objetoBuscar.id_trans_post = item.id_trans_post;
-                        //objetoBuscar.apl_redond_entrada = item.apl_redond_entrada;
-                        //objetoBuscar.cant_redond_entrada = item.cant_redond_entrada;
-                        //objetoBuscar.auto_pan = item.auto_pan;
+                        objetoBuscar.IdTurno = item.IdTurno;
+                        objetoBuscar.Descripcion = item.Descripcion;
+                        objetoBuscar.HEntra = item.HEntra;
+                        objetoBuscar.HSale = item.HSale;
+                        objetoBuscar.tar_apl = item.tar_apl;
+                        objetoBuscar.ant_apl = item.ant_apl;
+                        objetoBuscar.des_1_in = item.des_1_in;
+                        objetoBuscar.des_1_out = item.des_1_out;
+                        objetoBuscar.des_2_in = item.des_2_in;
+                        objetoBuscar.des_2_out = item.des_2_out;
+                        objetoBuscar.des_3_in = item.des_3_in;
+                        objetoBuscar.des_3_out = item.des_3_out;
+                        objetoBuscar.apl_des_1 = item.apl_des_1;
+                        objetoBuscar.apl_des_2 = item.apl_des_2;
+                        objetoBuscar.apl_des_3 = item.apl_des_3;
+                        objetoBuscar.des_1_tiem = item.des_1_tiem;
+                        objetoBuscar.des_2_tiem = item.des_2_tiem;
+                        objetoBuscar.des_3_tiem = item.des_3_tiem;
+                        objetoBuscar.marca_des_1 = item.marca_des_1;
+                        objetoBuscar.marca_des_2 = item.marca_des_2;
+                        objetoBuscar.marca_des_3 = item.marca_des_3;
+                        objetoBuscar.tar_tiem = item.tar_tiem;
+                        objetoBuscar.ant_tiem = item.ant_tiem;
+                        objetoBuscar.con_1 = item.con_1;
+                        objetoBuscar.con_2 = item.con_2;
+                        objetoBuscar.con_3 = item.con_3;
+                        objetoBuscar.con_4 = item.con_4;
+                        objetoBuscar.con_5 = item.con_5;
+                        objetoBuscar.con_6 = item.con_6;
+                        objetoBuscar.cant_con_1 = item.cant_con_1;
+                        objetoBuscar.cant_con_2 = item.cant_con_2;
+                        objetoBuscar.cant_con_3 = item.cant_con_3;
+                        objetoBuscar.cant_con_4 = item.cant_con_4;
+                        objetoBuscar.cant_con_5 = item.cant_con_5;
+                        objetoBuscar.cant_con_6 = item.cant_con_6;
+                        objetoBuscar.min_con_1 = item.min_con_1;
+                        objetoBuscar.min_con_2 = item.min_con_2;
+                        objetoBuscar.min_con_3 = item.min_con_3;
+                        objetoBuscar.min_con_4 = item.min_con_4;
+                        objetoBuscar.min_con_5 = item.min_con_5;
+                        objetoBuscar.min_con_6 = item.min_con_6;
+                        objetoBuscar.Tipo = item.Tipo;
+                        objetoBuscar.Tipo_Jor = item.Tipo_Jor;
+                        objetoBuscar.fuerza_calc = item.fuerza_calc;
+                        objetoBuscar.idagrupamiento = item.idagrupamiento;
+                        objetoBuscar.apl_trans1 = item.apl_trans1;
+                        objetoBuscar.id_trans1 = item.id_trans1;
+                        objetoBuscar.apl_trans2 = item.apl_trans2;
+                        objetoBuscar.id_trans2 = item.id_trans2;
+                        objetoBuscar.apl_trans3 = item.apl_trans3;
+                        objetoBuscar.id_trans3 = item.id_trans3;
+                        objetoBuscar.apl_trans4 = item.apl_trans4;
+                        objetoBuscar.id_trans4 = item.id_trans4;
+                        objetoBuscar.apl_trans5 = item.apl_trans5;
+                        objetoBuscar.id_trans5 = item.id_trans5;
+                        objetoBuscar.apl_trans6 = item.apl_trans6;
+                        objetoBuscar.id_trans6 = item.id_trans6;
+                        objetoBuscar.apl_ben1 = item.apl_ben1;
+                        objetoBuscar.id_ben1 = item.id_ben1;
+                        objetoBuscar.apl_ben2 = item.apl_ben2;
+                        objetoBuscar.id_ben2 = item.id_ben2;
+                        objetoBuscar.apl_ben3 = item.apl_ben3;
+                        objetoBuscar.id_ben3 = item.id_ben3;
+                        objetoBuscar.apl_ben4 = item.apl_ben4;
+                        objetoBuscar.id_ben4 = item.id_ben4;
+                        objetoBuscar.apl_ben5 = item.apl_ben5;
+                        objetoBuscar.id_ben5 = item.id_ben5;
+                        objetoBuscar.apl_ben6 = item.apl_ben6;
+                        objetoBuscar.id_ben6 = item.id_ben6;
+                        objetoBuscar.conc_ben1 = item.conc_ben1;
+                        objetoBuscar.conc_ben2 = item.conc_ben2;
+                        objetoBuscar.conc_ben3 = item.conc_ben3;
+                        objetoBuscar.conc_ben4 = item.conc_ben4;
+                        objetoBuscar.conc_ben5 = item.conc_ben5;
+                        objetoBuscar.conc_ben6 = item.conc_ben6;
+                        objetoBuscar.apl_trans_post = item.apl_trans_post;
+                        objetoBuscar.id_trans_post = item.id_trans_post;
+                        objetoBuscar.apl_redond_entrada = item.apl_redond_entrada;
+                        objetoBuscar.cant_redond_entrada = item.cant_redond_entrada;
+                        objetoBuscar.auto_pan = item.auto_pan;
 
                         _context.Ph_Turnos.Update(objetoBuscar);
                     }
@@ -1812,9 +1812,9 @@ namespace GeoTimeConnectWebApi.Data
                 respuesta.Id = "1";
                 respuesta.Respuesta = "Error";
                 if (e.InnerException == null)
-                    respuesta.Descripcion = "No se pudo realizar la sincronización del Turno. Detalle de Error: " + e.Message;
+                    respuesta.Descripcion = "No se pudo realizar la sincronización del PhTurno. Detalle de Error: " + e.Message;
                 else
-                    respuesta.Descripcion = "No se pudo realizar la sincronización del Turno. Detalle de Error: " + e.InnerException.Message;
+                    respuesta.Descripcion = "No se pudo realizar la sincronización del PhTurno. Detalle de Error: " + e.InnerException.Message;
             }
             return respuesta;
         }
@@ -1846,9 +1846,9 @@ namespace GeoTimeConnectWebApi.Data
                 respuesta.Id = "1";
                 respuesta.Respuesta = "Error";
                 if (e.InnerException == null)
-                    respuesta.Descripcion = "No se pudo eliminar el Turno. Detalle de Error: " + e.Message;
+                    respuesta.Descripcion = "No se pudo eliminar el PhTurno. Detalle de Error: " + e.Message;
                 else
-                    respuesta.Descripcion = "No se pudo eliminar el Turno. Detalle de Error: " + e.InnerException.Message;
+                    respuesta.Descripcion = "No se pudo eliminar el PhTurno. Detalle de Error: " + e.InnerException.Message;
             }
             return respuesta;
         }
@@ -4665,6 +4665,7 @@ namespace GeoTimeConnectWebApi.Data
             }
             return respuesta;
         }
+
 
 
     }
