@@ -1556,6 +1556,12 @@ namespace GeoTimeConnectWebApi.Data
                     if (incident is not null)
                     {
                         incident.Descripcion = incidencia.Descripcion;
+                        incidencia.Codigo = incidencia.Codigo;
+                        incidencia.nom_conector = incidencia.nom_conector;
+                        incidencia.id_pago = incidencia.id_pago;
+                        incidencia.tipo = incidencia.tipo;
+                        incidencia.ed_tiempo = incidencia.ed_tiempo;
+                        incidencia.requiere_accper = incidencia.requiere_accper;
                         _context.Incidencias.Update(incident);
                     }
                     else
@@ -1710,8 +1716,8 @@ namespace GeoTimeConnectWebApi.Data
                     if (objetoBuscar is not null)
                     {
                         /* Datos de relleno */
-                        objetoBuscar.IdTurno = item.IdTurno;
-                        objetoBuscar.Descripcion = item.Descripcion;
+                        // objetoBuscar.IdTurno = item.IdTurno;
+                        // objetoBuscar.Descripcion = item.Descripcion;
 
                         /* Datops listos para cuando se modifique el metodo correctamente */
 
