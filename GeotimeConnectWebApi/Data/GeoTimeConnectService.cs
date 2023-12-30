@@ -1525,7 +1525,7 @@ namespace GeoTimeConnectWebApi.Data
             try
             {
                 incidencia = await _context.Incidencias
-                        .Where(e => e.requiere_accper == "T")
+                        .Where(e => e.requiere_accper == 'T')
                         .ToListAsync();
             }
             catch (Exception e)
