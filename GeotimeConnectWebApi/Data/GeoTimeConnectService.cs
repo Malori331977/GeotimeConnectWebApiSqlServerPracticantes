@@ -1566,6 +1566,7 @@ namespace GeoTimeConnectWebApi.Data
                     }
                     else
                     {
+                        incidencia.Id = 0;
                         _context.Add(incidencia);
                     }
                 }
