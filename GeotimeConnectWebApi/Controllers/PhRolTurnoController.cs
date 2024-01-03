@@ -21,8 +21,10 @@ namespace GeoTimeConnectWebApi.Controllers
             _repoGT = repoGT;
         }
 
+        /*
         [HttpGet("{idrol}")]
         public async Task<IEnumerable<cPh_RolTurno>> Get(int idrol) => await _repoGT.GetRolTurno(idrol);
+        */
 
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] IEnumerable<cPh_RolTurno> rolesTurno)

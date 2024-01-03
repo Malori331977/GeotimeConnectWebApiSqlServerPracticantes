@@ -4,5 +4,7 @@
     {
         public int IDROL { get; set; }
         public string DESCRIPCION { get; set; }
+
+        public List<cTurno>? Turno { get; set; }
     }
 }
