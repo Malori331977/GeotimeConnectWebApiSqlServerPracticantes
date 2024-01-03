@@ -90,7 +90,8 @@
         public string? cant_redond_entrada { get; set; }
         public char? auto_pan { get; set; }
 
-        public IEnumerable<cPh_RolTurno>? RolTurno { get; set; }
+        //public IEnumerable<cPh_RolTurno>? RolTurno { get; set; }
+        public IEnumerable<cPh_Rol>? Rol { get; set; }
 
     }
 }

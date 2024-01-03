@@ -527,7 +527,7 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         /// </summary>
         /// <returns>Una instancia de la clase cPh_RolTurno</returns>
         /// ///<param name="idNumero">idNumero del empleado requerido</param>
-        public Task<List<cPh_RolTurno>> GetRolTurno(int idrol);
+        //public Task<List<cPh_RolTurno>> GetRolTurno(int idrol);
 
         /// <summary>
         /// Sincronizar_RolTurno: Método para registrar los Roles Turno en la tabla ph_roles_turnos

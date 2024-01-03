@@ -185,11 +185,11 @@ namespace GeoTimeConnectWebApi.Data
                 .WithMany(d => d.Ph_HorarioTurno)
                 .HasForeignKey(e => new { e.IDHORARIO });
 
-            builder.Entity<cPh_RolTurno>()
+            /*builder.Entity<cPh_RolTurno>()
                 .ToTable("PH_ROLES_TURNOS", Schema)
                 .HasOne(e => e.Turno)
                 .WithMany(d => d.RolTurno)
-                .HasForeignKey(e => new { e.IDTURNO });
+                .HasForeignKey(e => new { e.IDTURNO });*/
 
         }
 

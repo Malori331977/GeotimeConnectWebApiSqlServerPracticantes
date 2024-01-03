@@ -4469,9 +4469,24 @@ namespace GeoTimeConnectWebApi.Data
         public async Task<cPh_Rol> GetPhRol(int idrol)
         {
             cPh_Rol? roles = new();
+            //cPh_Rol? roles = new cPh_Rol();
             try
             {
-                roles = await _context.Ph_Roles.FirstOrDefaultAsync(e => e.IDROL == idrol);
+                roles = await (from r in _context.Ph_Roles
+                             where r.IDROL == idrol
+                             select new cPh_Rol
+                             {
+                                 IDROL = r.IDROL,
+                                 DESCRIPCION = r.DESCRIPCION,
+                                 Turno = (from rt in _context.Ph_Roles_Turnos
+                                           join t in _context.Ph_Turnos on rt.IDTURNO equals t.IdTurno
+                                           where rt.IDROL == idrol
+                                           select new cTurno
+                                           {
+                                               IdTurno = t.IdTurno,
+                                               Descripcion = t.Descripcion
+                                           }).ToList()
+                             }).FirstOrDefaultAsync();
             }
             catch (Exception e)
             {
@@ -4557,20 +4572,22 @@ namespace GeoTimeConnectWebApi.Data
             return respuesta;
         }
 
-        //Creado por: Allan Prieto
+        //Creado por: Allan Prieto  // No se ocupa 
         //Fecha: 2023-12-27
         /// <summary>
         /// GetEmpleado: Método para una lista de rolesTurno
         /// </summary>
         /// <returns>Una instancia de la clase cPh_RolTurno</returns>
         /// ///<param name="idrol">idNumero del empleado requerido</param>
+        /// 
+        /*
         public async Task<List<cPh_RolTurno>> GetRolTurno(int idrol)
         {
             List<cPh_RolTurno> rolturno = new();
             try
             {
                 rolturno = (from e in await _context.Ph_Roles_Turnos
-                                .Include(e => e.Turno)
+                                //.Include(e => e.Turno)
                                 .Where(e => e.IDROL == idrol).ToListAsync()
                             select new cPh_RolTurno
                             {
@@ -4593,6 +4610,7 @@ namespace GeoTimeConnectWebApi.Data
             }
             return rolturno;
         }
+            */
 
         //Creado por: Allan Prieto
         //Fecha: 2023-12-27
