@@ -15,6 +15,7 @@ using System.Net.Mime;
 using System.Net;
 using System.Security;
 using static System.Runtime.InteropServices.JavaScript.JSType;
+using System;
 
 namespace GeoTimeConnectWebApi.Data
 {
@@ -1549,19 +1550,20 @@ namespace GeoTimeConnectWebApi.Data
                 foreach (var incidencia in incidencias)
                 {
                     cIncidencia? incident = await _context.Incidencias
-                                    .Where(e => e.Codigo == incidencia.Codigo)
+                                    .Where(e => e.Id == incidencia.Id)
                                     .FirstOrDefaultAsync();
-                    //si el departamento existe se actualiza descripción
-                    //de lo contrario se agrega el registro
+                   
                     if (incident is not null)
                     {
+                        //incident.Id = incidencia.Id;
                         incident.Descripcion = incidencia.Descripcion;
-                        incidencia.Codigo = incidencia.Codigo;
-                        incidencia.nom_conector = incidencia.nom_conector;
-                        incidencia.id_pago = incidencia.id_pago;
-                        incidencia.tipo = incidencia.tipo;
-                        incidencia.ed_tiempo = incidencia.ed_tiempo;
-                        incidencia.requiere_accper = incidencia.requiere_accper;
+                        incident.Codigo = incidencia.Codigo;
+                        incident.nom_conector = incidencia.nom_conector;
+                        incident.id_pago = incidencia.id_pago;
+                        incident.tipo = incidencia.tipo;
+                        incident.ed_tiempo = incidencia.ed_tiempo;
+                        incident.requiere_accper = incidencia.requiere_accper;
+
                         _context.Incidencias.Update(incident);
                     }
                     else
