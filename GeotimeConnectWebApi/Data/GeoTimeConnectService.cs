@@ -4486,7 +4486,8 @@ namespace GeoTimeConnectWebApi.Data
                                            select new cTurno
                                            {
                                                IdTurno = t.IdTurno,
-                                               Descripcion = t.Descripcion
+                                               Descripcion = t.Descripcion,
+                                               idRegistro = rt.IDREGISTRO
                                            }).ToList()
                              }).FirstOrDefaultAsync();
             }
