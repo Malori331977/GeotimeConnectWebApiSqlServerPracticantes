@@ -1,4 +1,6 @@
-﻿namespace GeoTimeConnectWebApi.Models
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace GeoTimeConnectWebApi.Models
 {
     public class cTurno
     { 
@@ -92,6 +94,10 @@
 
         //public IEnumerable<cPh_RolTurno>? RolTurno { get; set; }
         public IEnumerable<cPh_Rol>? Rol { get; set; }
+
+        /* Para poder enviar el ideregistro de la tabla Ph_Rol_Turno */
+        [NotMapped]
+        public int? idRegistro { get; set; }
 
     }
 }
