@@ -2715,6 +2715,101 @@ namespace GeoTimeConnectWebApi.Data
             return periodos;
         }
 
+        //Creado por: Allan Prieto Badilla
+        //Fecha: 2024-1-15
+        /// <summary>
+        /// Sincronizar_Periodo: Método para registrar los registros en la tabla Ph_Periodos
+        /// </summary>
+        /// <returns>Una instancia de la Clase EventResponse, con el resultado del proceso</returns>
+        /// <param name="ph_Periodo">Lista de registros de la clase cPh_Periodos</param>
+        public async Task<EventResponse> Sincronizar_Periodo(IEnumerable<cPh_Periodos> ph_Periodo)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+                foreach (var item in ph_Periodo)
+                {
+                    cPh_Periodos? objetoBuscar = await _context.Ph_Periodos
+                                    .Where(e => e.idperiodo == item.idperiodo)
+                                    .FirstOrDefaultAsync();
+                    //si la opcion existe se actualiza 
+                    //de lo contrario se agrega el registro
+                    if (objetoBuscar is not null)
+                    {
+
+                        objetoBuscar.idperiodo = item.idperiodo;
+                        objetoBuscar.tipo_planilla = item.tipo_planilla;
+                        objetoBuscar.inicio = item.inicio;
+                        objetoBuscar.fin = item.fin;
+                        objetoBuscar.estado = item.estado;
+                        objetoBuscar.inicio_proy = item.inicio_proy;
+                        objetoBuscar.fin_proy = item.fin_proy;
+                        objetoBuscar.periodo_proy = item.periodo_proy;
+                        objetoBuscar.dia_inicio = item.dia_inicio;
+
+                        _context.Ph_Periodos.Update(objetoBuscar);
+                    }
+                    else
+                    {
+                        _context.Add(item);
+                    }
+                    await _context.SaveChangesAsync();
+
+                }
+
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo realizar el registro en la tabla Ph_Periodos. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo realizar el registro en la tabla Ph_Periodos. Detalle de Error: " + e.InnerException.Message;
+
+            }
+
+            return respuesta;
+        }
+
+        /// <summary>
+        /// Elimina_Periodo:  Metodo boorado de datos de la tabla cPh_Periodos
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns>EventResponse</returns>
+        public async Task<EventResponse> Elimina_Periodo(string id)
+        {
+            EventResponse respuesta = new EventResponse();
+            try
+            {
+
+                cPh_Periodos? model = await _context.Ph_Periodos
+                    .FirstOrDefaultAsync(e => e.idperiodo == id);
+
+                if (model is not null)
+                {
+                    _context.Ph_Periodos.Remove(model);
+                }
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo eliminar el Periodo. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo eliminar Periodo. Detalle de Error: " + e.InnerException.Message;
+
+            }
+
+            return respuesta;
+
+        }
+
 
         //Creado por: Marlon Loria Solano
         //Fecha: 2023-06-27
@@ -3885,7 +3980,7 @@ namespace GeoTimeConnectWebApi.Data
         /// Sincronizar_PhFormulacion: Método para registrar los registros en la tabla Ph_Formulacion
         /// </summary>
         /// <returns>Una instancia de la Clase EventResponse, con el resultado del proceso</returns>
-        /// <param name="cPh_Formulacion">Lista de registros de la clase cPh_Formulacion</param>
+        /// <param name="ph_Formulacion">Lista de registros de la clase cPh_Formulacion</param>
         public async Task<EventResponse> Sincronizar_PhFormulacion(IEnumerable<cPh_Formulacion> ph_Formulacion)
         {
             EventResponse respuesta = new EventResponse();
@@ -4692,6 +4787,156 @@ namespace GeoTimeConnectWebApi.Data
 
             }
             return respuesta;
+        }
+
+        //Creado por: Allan Prieto Badilla
+        //Fecha: 2024-1-15
+        /// <summary>
+        /// GetTransformacion: Método para obtener una lista de Transformaciones 
+        /// </summary>
+        /// <returns>Lista de cTransformacion</returns>
+        public async Task<IEnumerable<cTransformacion>> GetTransformacion()
+        {
+            List<cTransformacion>? transformaciones = new();
+            try
+            {
+                transformaciones = await _context.Transformaciones.ToListAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message); throw;
+            }
+            return transformaciones;
+        }
+
+        //Creado por: Allan Prieto
+        //Fecha: 2024-1-15
+        /// <summary>
+        /// GetTransformacion: Método para un periodo específico
+        /// </summary>
+        /// <returns>Una instancia de la clase cTransformacion</returns>
+        /// ///<param name="id">idperiodo de la Transformacion requerido</param>
+        public async Task<cTransformacion> GetTransformacion(int id)
+        {
+            cTransformacion? transformacion = new();
+            try
+            {
+                transformacion = await _context.Transformaciones.FirstOrDefaultAsync(e => e.ID == id);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message); throw;
+            }
+            return transformacion;
+        }
+
+        //Creado por: Allan Prieto Badilla
+        //Fecha: 2023-10-19
+        /// <summary>
+        /// Sincronizar_Transformacion: Método para registrar los registros en la tabla Transformacion
+        /// </summary>
+        /// <returns>Una instancia de la Clase EventResponse, con el resultado del proceso</returns>
+        /// <param name="transformacion">Lista de registros de la clase cTransformacion</param>
+        public async Task<EventResponse> Sincronizar_Transformacion(IEnumerable<cTransformacion> transformacion)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+                foreach (var item in transformacion)
+                {
+                    cTransformacion? objetoBuscar = await _context.Transformaciones
+                                    .Where(e => e.ID == item.ID)
+                                    .FirstOrDefaultAsync();
+                    //si la opcion existe se actualiza 
+                    //de lo contrario se agrega el registro
+                    if (objetoBuscar is not null)
+                    {
+
+                        objetoBuscar.ID = item.ID;
+                        objetoBuscar.DESCRIPCION = item.DESCRIPCION;
+                        objetoBuscar.IDCONCEPTO_1 = item.IDCONCEPTO_1;
+                        objetoBuscar.IDCONCEPTO_2 = item.IDCONCEPTO_2;
+                        objetoBuscar.IDCONCEPTO_3 = item.IDCONCEPTO_3;
+                        objetoBuscar.IDCONCEPTO_4 = item.IDCONCEPTO_4;
+                        objetoBuscar.IDCONCEPTO_5 = item.IDCONCEPTO_5;
+                        objetoBuscar.IDCONCEPTO_6 = item.IDCONCEPTO_6;
+                        objetoBuscar.IDCONCEPTO_7 = item.IDCONCEPTO_7;
+                        objetoBuscar.CALCULADAS = item.CALCULADAS;
+                        objetoBuscar.HRS_CONCEPTO_1 = item.HRS_CONCEPTO_1;
+                        objetoBuscar.HRS_CONCEPTO_2 = item.HRS_CONCEPTO_2;
+                        objetoBuscar.HRS_CONCEPTO_3 = item.HRS_CONCEPTO_3;
+                        objetoBuscar.HRS_CONCEPTO_4 = item.HRS_CONCEPTO_4;
+                        objetoBuscar.HRS_CONCEPTO_5 = item.HRS_CONCEPTO_5;
+                        objetoBuscar.HRS_CONCEPTO_6 = item.HRS_CONCEPTO_6;
+                        objetoBuscar.HRS_CONCEPTO_7 = item.HRS_CONCEPTO_7;
+                        objetoBuscar.MIN_CONCEPTO_1 = item.MIN_CONCEPTO_1;
+                        objetoBuscar.MIN_CONCEPTO_2 = item.MIN_CONCEPTO_2;
+                        objetoBuscar.MIN_CONCEPTO_3 = item.MIN_CONCEPTO_3;
+                        objetoBuscar.MIN_CONCEPTO_4 = item.MIN_CONCEPTO_4;
+                        objetoBuscar.MIN_CONCEPTO_5 = item.MIN_CONCEPTO_5;
+                        objetoBuscar.MIN_CONCEPTO_6 = item.MIN_CONCEPTO_6;
+                        objetoBuscar.MIN_CONCEPTO_7 = item.MIN_CONCEPTO_7;
+
+                        _context.Transformaciones.Update(objetoBuscar);
+                    }
+                    else
+                    {
+                        _context.Add(item);
+                    }
+                    await _context.SaveChangesAsync();
+
+                }
+
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo realizar el registro en la tabla Transformacion. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo realizar el registro en la tabla Transformacion. Detalle de Error: " + e.InnerException.Message;
+
+            }
+
+            return respuesta;
+        }
+
+        /// <summary>
+        /// Elimina_Transformacion:  Metodo boorado de datos de la tabla cTransformacion
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns>EventResponse</returns>
+        public async Task<EventResponse> Elimina_Transformacion(int id)
+        {
+            EventResponse respuesta = new EventResponse();
+            try
+            {
+
+                cTransformacion? model = await _context.Transformaciones
+                    .FirstOrDefaultAsync(e => e.ID == id);
+
+                if (model is not null)
+                {
+                    _context.Transformaciones.Remove(model);
+                }
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo eliminar la Transformación. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo eliminar la Transformación. Detalle de Error: " + e.InnerException.Message;
+            }
+
+            return respuesta;
+
         }
 
 
