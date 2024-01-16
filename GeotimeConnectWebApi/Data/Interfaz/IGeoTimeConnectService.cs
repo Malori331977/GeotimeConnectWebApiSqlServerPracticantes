@@ -171,6 +171,9 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         /// <param name="idnumero">Número de empleado</param>
         public Task<cPh_Periodos> GetPeriodoVigenteEmpleado(string idnumero, string fechaPeriodo);
 
+        public Task<EventResponse> Sincronizar_Periodo(IEnumerable<cPh_Periodos> periodos);
+        public Task<EventResponse> Elimina_Periodo(string id);
+
         public Task<IEnumerable<cPh_Planilla>> GetPhPlanilla();
         public Task<cPh_Planilla> GetPhPlanilla(string idplanilla);
         public Task<cPh_Planilla> GetPhPlanilla(string nomConector, string descPlanilla);
@@ -533,15 +536,31 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         /// Sincronizar_RolTurno: Método para registrar los Roles Turno en la tabla ph_roles_turnos
         /// </summary>
         /// <returns>Una instancia de la Clase EventResponse, con el resultado del proceso</returns>
-        /// <param name="Roles_Turnos">Lista de registros de la clase cPh_horario_turno</param>
+        /// <param name="rolesTurno">Lista de registros de la clase cPh_horario_turno</param>
         public Task<EventResponse> Sincronizar_RolTurno(IEnumerable<cPh_RolTurno> rolesTurno);
 
         /// <summary>
         /// Elimina_RolTurnoo:  Metodo borrado de datos de la tabla ph_roles_turnos
         /// </summary>
-        /// <param name="IDREGISTRO"></param>
+        /// <param name="idregistro"></param>
         /// <returns>EventResponse</returns>
         public Task<EventResponse> Elimina_RolTurno(int idregistro);
+
+        // Metodos TRANSFORMACIONES
+        public Task<IEnumerable<cTransformacion>> GetTransformacion();
+        public Task<cTransformacion> GetTransformacion(int id);
+        /// <summary>
+        /// Sincronizar_Transformacion: Método para registrar las Transformaciones Turno en la tabla Tranformaciones
+        /// </summary>
+        /// <returns>Una instancia de la Clase EventResponse, con el resultado del proceso</returns>
+        /// <param name="transformaciones">Lista de registros de la clase cTransformacion</param>
+        public Task<EventResponse> Sincronizar_Transformacion(IEnumerable<cTransformacion> transformaciones);
+        /// <summary>
+        /// Elimina_Transformacion:  Metodo borrado de datos de la tabla Transformacion
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns>EventResponse</returns>
+        public Task<EventResponse> Elimina_Transformacion(int id);
 
 
     }
