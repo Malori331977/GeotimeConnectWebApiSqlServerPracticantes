@@ -755,6 +755,39 @@ namespace GeoTimeConnectWebApi.Data
 
         }
 
+        /// <summary>
+        /// Elimina_Concepto:  Metodo borrado de datos de la tabla Concepto
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns>EventResponse</returns>
+        public async Task<EventResponse> Elimina_Concepto(int id)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+                cConcepto? model = await _context.Ph_Conceptos
+                    .FirstOrDefaultAsync(e => e.id == id);
+
+                if (model is not null)
+                {
+                    _context.Ph_Conceptos.Remove(model);
+                }
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo eliminar el Concepto. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo eliminar el Concepto. Detalle de Error: " + e.InnerException.Message;
+            }
+            return respuesta;
+        }
+
         //Creado por: Marlon Loria Solano
         //Fecha: 2022-10-30
         //Obtener lista de Departamentos
@@ -4940,6 +4973,139 @@ namespace GeoTimeConnectWebApi.Data
         }
 
 
+        //Creado por: Allan Prieto Badilla
+        //Fecha: 2024-1-23
+        /// <summary>
+        /// GetTransformacion: Método para obtener una lista de Transformaciones Globales 
+        /// </summary>
+        /// <returns>Lista de cTransformacion</returns>
+        public async Task<IEnumerable<cTransformacionGlobal>> GetTransformacionGlobal()
+        {
+            List<cTransformacionGlobal>? transformacionesGlobales = new();
+            try
+            {
+                transformacionesGlobales = await _context.TransformacionesGlobales.ToListAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message); throw;
+            }
+            return transformacionesGlobales;
+        }
+
+        //Creado por: Allan Prieto
+        //Fecha: 2024-1-23
+        /// <summary>
+        /// GetTransformacionGlobal: Método para una Transformacion Global específica
+        /// </summary>
+        /// <returns>Una instancia de la clase cTransformacionGlobal</returns>
+        /// ///<param name="id">idperiodo de la Transformacion Global requerido</param>
+        public async Task<cTransformacionGlobal> GetTransformacionGlobal(int id)
+        {
+            cTransformacionGlobal? transformacionesGlobales = new();
+            try
+            {
+                transformacionesGlobales = await _context.TransformacionesGlobales.FirstOrDefaultAsync(e => e.ID == id);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message); throw;
+            }
+            return transformacionesGlobales;
+        }
+
+        //Creado por: Allan Prieto Badilla
+        //Fecha: 2024-1-23
+        /// <summary>
+        /// Sincronizar_TransformacionGlobal: Método para registrar los registros en la tabla Transformaciones Globales
+        /// </summary>
+        /// <returns>Una instancia de la Clase EventResponse, con el resultado del proceso</returns>
+        /// <param name="transformacion">Lista de registros de la clase cTransformacionGlobal</param>
+        public async Task<EventResponse> Sincronizar_TransformacionGlobal(IEnumerable<cTransformacionGlobal> transformacion)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+                foreach (var item in transformacion)
+                {
+                    cTransformacionGlobal? objetoBuscar = await _context.TransformacionesGlobales
+                                    .Where(e => e.ID == item.ID)
+                                    .FirstOrDefaultAsync();
+                    //si la opcion existe se actualiza 
+                    //de lo contrario se agrega el registro
+                    if (objetoBuscar is not null)
+                    {
+
+                        objetoBuscar.ID = item.ID;
+                        objetoBuscar.ID_ORDEN = item.ID_ORDEN;
+                        objetoBuscar.DESCRIPCION = item.DESCRIPCION;
+                        objetoBuscar.IDPLANILLA = item.IDPLANILLA;
+                        objetoBuscar.ESTADO = item.ESTADO;
+                        objetoBuscar.FORMULA_APL = item.FORMULA_APL;
+                        objetoBuscar.FORMULA_HRS = item.FORMULA_HRS;
+                        objetoBuscar.FORMULA_CONCEPTO = item.FORMULA_CONCEPTO;
+
+                        _context.TransformacionesGlobales.Update(objetoBuscar);
+                    }
+                    else
+                    {
+                        _context.Add(item);
+                    }
+                    await _context.SaveChangesAsync();
+
+                }
+
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo realizar el registro en la tabla Transformacion Global. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo realizar el registro en la tabla Transformacion Global. Detalle de Error: " + e.InnerException.Message;
+
+            }
+
+            return respuesta;
+        }
+
+        /// <summary>
+        /// Elimina_Transformacion:  Metodo boorado de datos de la tabla cTransformacion Global
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns>EventResponse</returns>
+        public async Task<EventResponse> Elimina_TransformacionGlobal(int id)
+        {
+            EventResponse respuesta = new EventResponse();
+            try
+            {
+
+                cTransformacionGlobal? model = await _context.TransformacionesGlobales
+                    .FirstOrDefaultAsync(e => e.ID == id);
+
+                if (model is not null)
+                {
+                    _context.TransformacionesGlobales.Remove(model);
+                }
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo eliminar la Transformación Global. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo eliminar la Transformación Global. Detalle de Error: " + e.InnerException.Message;
+            }
+
+            return respuesta;
+
+        }
 
     }
 }
