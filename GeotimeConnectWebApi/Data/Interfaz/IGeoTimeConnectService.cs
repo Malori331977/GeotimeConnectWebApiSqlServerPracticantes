@@ -24,6 +24,7 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         public Task<List<cConcepto>> GetConcepto();
         public Task<cConcepto> GetConcepto(string concepto);
         public Task<EventResponse> Sincronizar_Concepto(IEnumerable<cConcepto> conceptos);
+        public Task<EventResponse> Elimina_Concepto(int id);
         /// <summary>
         /// GetDepartamento: obtener lista de departamentos
         /// </summary>
@@ -31,6 +32,7 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         public Task<List<cDepartamento>> GetDepartamento();
         public Task<cDepartamento> GetDepartamento(string idDepart);
         public Task<EventResponse> Sincronizar_Departamento(IEnumerable<cDepartamento> departamentos);
+        //public Task<EventResponse> Elimina_Concepto(int id);
 
         /// <summary>
         /// GetEmpleado: Método para obtener una lista de empleados 
@@ -561,6 +563,16 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         /// <param name="id"></param>
         /// <returns>EventResponse</returns>
         public Task<EventResponse> Elimina_Transformacion(int id);
+
+        /// <summary>
+        /// GetTransformacionGlobal: obtener lista de Transformaciones Globales
+        /// </summary>
+        /// <returns>Lista de Transformacion Global</returns>
+        public Task<IEnumerable<cTransformacionGlobal>> GetTransformacionGlobal();
+        public Task<cTransformacionGlobal> GetTransformacionGlobal(int id);
+        public Task<EventResponse> Sincronizar_TransformacionGlobal(IEnumerable<cTransformacionGlobal> departamentos);
+        public Task<EventResponse> Elimina_TransformacionGlobal(int id);
+
 
 
     }
