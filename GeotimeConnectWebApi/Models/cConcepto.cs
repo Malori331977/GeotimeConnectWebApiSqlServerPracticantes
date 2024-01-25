@@ -1,8 +1,13 @@
-﻿namespace GeotimeConnectWebApi.Models
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations;
+
+namespace GeotimeConnectWebApi.Models
 {
     public class cConcepto
     {
-		public int id { get; set; }
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int id { get; set; }
 		public string Concepto { get; set; }
 		public string Descripcion { get; set; }
 		public int tipo_j { get; set; }
