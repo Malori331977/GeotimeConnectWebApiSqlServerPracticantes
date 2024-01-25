@@ -722,17 +722,6 @@ namespace GeoTimeConnectWebApi.Data
                     }
                     else
                     {
-                        concepto.tipo_h = 1;
-                        concepto.tipo_j = 1;
-                        concepto.columnar = 1;
-                        concepto.factor = 1;
-                        concepto.tolerancia = 0;
-                        concepto.ordinario = 'T';
-                        concepto.autorizado = 'T';
-                        concepto.adicional = 'F';
-                        concepto.tipo_ext_alm = null;
-                        concepto.muestra_resumen = null;
-
                         _context.Add(concepto);
                     }
                 }
