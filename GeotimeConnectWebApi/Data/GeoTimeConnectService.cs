@@ -711,13 +711,28 @@ namespace GeoTimeConnectWebApi.Data
                 foreach (var concepto in conceptos)
                 {
                     cConcepto? concept = await _context.Ph_Conceptos
-                                                        .Where(e => e.Concepto == concepto.Concepto)
+                                                        .Where(e => e.id == concepto.id)
                                                         .FirstOrDefaultAsync();
                     //si el consepto existe se actualiza descripción
                     //de lo contrario se agrega el registro
                     if (concept is not null)
                     {
+                        concept.id = concepto.id;
+                        concept.Concepto = concepto.Concepto;
                         concept.Descripcion = concepto.Descripcion;
+                        concept.tipo_j = concepto.tipo_j;
+                        concept.tipo_h = concepto.tipo_h;
+                        concept.columnar = concepto.columnar;
+                        concept.nominaeq = concepto.nominaeq;
+                        concept.factor = concepto.factor;
+                        concept.tolerancia = concepto.tolerancia;
+                        concept.ordinario = concepto.ordinario;
+                        concept.autorizado = concepto.autorizado;
+                        concept.transferir = concepto.transferir;
+                        concept.adicional = concepto.adicional;
+                        concept.tipo_ext_alm = concepto.tipo_ext_alm;
+                        concept.muestra_resumen = concepto.muestra_resumen;
+
                         _context.Ph_Conceptos.Update(concept);
                     }
                     else
