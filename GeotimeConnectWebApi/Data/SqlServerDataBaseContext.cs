@@ -100,7 +100,7 @@ namespace GeoTimeConnectWebApi.Data
             builder.Entity<cCentroCosto>().ToTable("PH_CCOSTOS", Schema)
                  .HasKey(e => new { e.IdCCosto });
             builder.Entity<cConcepto>().ToTable("PH_CONCEPTOS", Schema)
-                 .HasKey(e => new { e.Concepto });
+                 .HasKey(e => new { e.id });
             builder.Entity<cDepartamento>().ToTable("PH_DEPARTAMENTO", Schema)
                 .HasKey(e => new { e.IDDEPART });
             builder.Entity<cEmpleado>().ToTable("EMPLEADOS", Schema)
