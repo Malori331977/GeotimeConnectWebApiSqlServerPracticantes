@@ -578,6 +578,9 @@ namespace GeoTimeConnectWebApi.Data
         }
 
         /* Metodo para Activar el periodo */
+        //Creado por: Allan Prieto 
+        //Fecha: 2024-2-5
+        // Ejecutar el procedimiento almacenado apertura periodo
         public async Task<EventResponse> ActivarPeriodoPAAsync(cActivarPeriodo parametros)
         {
             EventResponse respuesta = new EventResponse();
@@ -613,9 +616,7 @@ namespace GeoTimeConnectWebApi.Data
                     respuesta.Descripcion = "Problemas al Activar El periodo. Detalle de Error: " + e.Message;
                 else
                     respuesta.Descripcion = "Problemas al Activar El periodo. Detalle de Error: " + e.InnerException.Message;
-
             }
-
             return respuesta;
         }
 
