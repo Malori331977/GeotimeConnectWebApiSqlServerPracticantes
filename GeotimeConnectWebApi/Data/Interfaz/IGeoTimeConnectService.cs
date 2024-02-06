@@ -575,6 +575,16 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         public Task<EventResponse> Elimina_TransformacionGlobal(int id);
 
 
+        /// <summary>
+        /// GetIncidencia_Conf_Pago: obtener lista de Incidencias Conf Pago
+        /// </summary>
+        /// <returns>Lista de Incidencias Conf Pago</returns>
+        public Task<IEnumerable<cIncidencia_Conf_Pago>> GetIncidencia_Conf_Pago();
+        public Task<cIncidencia_Conf_Pago> GetIncidencia_Conf_Pago(int id);
+        public Task<EventResponse> Sincronizar_Incidencia_Conf_Pago(IEnumerable<cIncidencia_Conf_Pago> incidenciasConfPago);
+        public Task<EventResponse> Elimina_Incidencia_Conf_Pago(int id);
+
+
 
     }
 }

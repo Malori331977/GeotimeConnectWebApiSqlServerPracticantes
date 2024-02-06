@@ -85,6 +85,7 @@ namespace GeoTimeConnectWebApi.Data
         public DbSet<cPh_RolTurno> Ph_Roles_Turnos { get; set; }
         public DbSet<cTransformacion> Transformaciones { get; set; }
         public DbSet<cTransformacionGlobal> TransformacionesGlobales { get; set; }
+        public DbSet<cIncidencia_Conf_Pago> Incidencias_Conf_Pago { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -166,6 +167,8 @@ namespace GeoTimeConnectWebApi.Data
             builder.Entity<cTransformacion>().ToTable("TRANSFORMACIONES", Schema)
                 .HasKey(e => new { e.ID });
             builder.Entity<cTransformacionGlobal>().ToTable("TRANSFORMACIONES_GLOBALES", Schema)
+                .HasKey(e => new { e.ID });
+            builder.Entity<cIncidencia_Conf_Pago>().ToTable("INCIDENCIAS_CONF_PAGO", Schema)
                 .HasKey(e => new { e.ID });
 
             //llaves foraneas

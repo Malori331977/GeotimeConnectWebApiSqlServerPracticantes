@@ -5153,5 +5153,140 @@ namespace GeoTimeConnectWebApi.Data
 
         }
 
+
+        //Creado por: Allan Prieto Badilla
+        //Fecha: 2024-2-6
+        /// <summary>
+        /// GetIncidencia_Conf_Pago: Método para obtener una lista de IncidenciaConfPago 
+        /// </summary>
+        /// <returns>Lista de cIncidencia_Conf_Pago</returns>
+        public async Task<IEnumerable<cIncidencia_Conf_Pago>> GetIncidencia_Conf_Pago()
+        {
+            List<cIncidencia_Conf_Pago>? IncidenciaConfPagos = new();
+            try
+            {
+                IncidenciaConfPagos = await _context.Incidencias_Conf_Pago.ToListAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message); throw;
+            }
+            return IncidenciaConfPagos;
+        }
+
+        //Creado por: Allan Prieto
+        //Fecha: 2024-2-6
+        /// <summary>
+        /// GetIncidencia_Conf_Pago: Método para una Incidencia_Con_Pago
+        /// </summary>
+        /// <returns>Una instancia de la clase cIncidencia_Conf_Pago</returns>
+        /// ///<param name="id">Id Incidencia Conf Pago</param>
+        public async Task<cIncidencia_Conf_Pago> GetIncidencia_Conf_Pago(int id)
+        {
+            cIncidencia_Conf_Pago? IncidenciaConfPago = new();
+            try
+            {
+                IncidenciaConfPago = await _context.Incidencias_Conf_Pago.FirstOrDefaultAsync(e => e.ID == id);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message); throw;
+            }
+            return IncidenciaConfPago;
+        }
+
+        //Creado por: Allan Prieto Badilla
+        //Fecha: 2024-2-6
+        /// <summary>
+        /// Sincronizar_Incidencia_Conf_Pago: Método para registrar los registros en la tabla Incidencia_Conf_Pago
+        /// </summary>
+        /// <returns>Una instancia de la Clase EventResponse, con el resultado del proceso</returns>
+        /// <param name="incidenciasConfPago">Lista de registros de la clase cIncidencia_Conf_Pago</param>
+        public async Task<EventResponse> Sincronizar_Incidencia_Conf_Pago(IEnumerable<cIncidencia_Conf_Pago> incidenciasConfPago)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+                foreach (var item in incidenciasConfPago)
+                {
+                    cIncidencia_Conf_Pago? objetoBuscar = await _context.Incidencias_Conf_Pago
+                                    .Where(e => e.ID == item.ID)
+                                    .FirstOrDefaultAsync();
+                    //si la opcion existe se actualiza 
+                    //de lo contrario se agrega el registro
+                    if (objetoBuscar is not null)
+                    {
+
+                        objetoBuscar.ID = item.ID;
+                        objetoBuscar.DESCRIPCION = item.DESCRIPCION;
+                        objetoBuscar.ID_APL = item.ID_APL;
+                        objetoBuscar.ID_HRS = item.ID_HRS;
+                        objetoBuscar.ID_CON = item.ID_CON;
+                        objetoBuscar.ID_ADICIONAL = item.ID_ADICIONAL;
+                        objetoBuscar.APL_TURNO = item.APL_TURNO;
+                        objetoBuscar.TRAN_TURNO = item.TRAN_TURNO;
+
+                        _context.Incidencias_Conf_Pago.Update(objetoBuscar);
+                    }
+                    else
+                    {
+                        _context.Add(item);
+                    }
+                    await _context.SaveChangesAsync();
+
+                }
+
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo realizar el registro en la tabla Inicdencia_Conf_Pago. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo realizar el registro en la tabla Incidencia_Conf_Pago. Detalle de Error: " + e.InnerException.Message;
+
+            }
+
+            return respuesta;
+        }
+
+        /// <summary>
+        /// Elimina_Incidencia_Conf_Pago:  Metodo borrado de datos de la tabla cIncidencia_Conf_Pago
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns>EventResponse</returns>
+        public async Task<EventResponse> Elimina_Incidencia_Conf_Pago(int id)
+        {
+            EventResponse respuesta = new EventResponse();
+            try
+            {
+
+                cIncidencia_Conf_Pago? model = await _context.Incidencias_Conf_Pago
+                    .FirstOrDefaultAsync(e => e.ID == id);
+
+                if (model is not null)
+                {
+                    _context.Incidencias_Conf_Pago.Remove(model);
+                }
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo eliminar la Incidencia_Cond_Pago. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo eliminar la Incidencia_Cond_Pago. Detalle de Error: " + e.InnerException.Message;
+            }
+
+            return respuesta;
+
+        }
+
     }
 }
