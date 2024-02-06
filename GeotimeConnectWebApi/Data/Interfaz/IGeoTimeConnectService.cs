@@ -7,6 +7,7 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
 {
     public interface IGeoTimeConnectService
     {
+        public Task<EventResponse> ActivarPeriodoPAAsync(cActivarPeriodo parametros);
         public Task<cAccionPersonal> GetAccionPersonal(long idregistro);
         public Task<List<cAccionPersonal>> GetAccionPersonal(string IdPlanilla, DateTime FechaInicio, DateTime FechaFin);
         public Task<List<cAccionPersonal>> GetAccionPersonal(string IdPlanilla, DateTime FechaInicio, DateTime FechaFin, string usuario);

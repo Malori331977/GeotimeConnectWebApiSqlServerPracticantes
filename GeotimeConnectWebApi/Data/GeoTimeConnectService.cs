@@ -16,6 +16,7 @@ using System.Net;
 using System.Security;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using System;
+using Microsoft.Data.SqlClient;
 
 namespace GeoTimeConnectWebApi.Data
 {
@@ -574,8 +575,48 @@ namespace GeoTimeConnectWebApi.Data
             {
                 throw;
             }
+        }
 
+        /* Metodo para Activar el periodo */
+        public async Task<EventResponse> ActivarPeriodoPAAsync(cActivarPeriodo parametros)
+        {
+            EventResponse respuesta = new EventResponse();
+            try
+            {
+                using (var connection = _context.Database.GetDbConnection())
+                {
+                    await connection.OpenAsync();
 
+                    using (var command = connection.CreateCommand())
+                    {
+                        command.CommandText = _schema + ".apertura_periodo";
+                        command.CommandType = CommandType.StoredProcedure;
+
+                        /* Parametros necesarios */
+                        command.Parameters.Add(new SqlParameter("@IDPLANILLA", SqlDbType.VarChar) { Value = parametros.IdPlanilla });
+                        command.Parameters.Add(new SqlParameter("@GRUPO", SqlDbType.Int) { Value = parametros.Grupo });
+                        command.Parameters.Add(new SqlParameter("@PERIODO", SqlDbType.VarChar) { Value = parametros.Periodo });
+                        command.Parameters.Add(new SqlParameter("@INICIO", SqlDbType.DateTime) { Value = parametros.Inicio });
+                        command.Parameters.Add(new SqlParameter("@FIN", SqlDbType.DateTime) { Value = parametros.Fin });
+                        command.Parameters.Add(new SqlParameter("@USUARIO", SqlDbType.Int) { Value = parametros.Usuario });
+
+                        await command.ExecuteNonQueryAsync();
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.InnerException);
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "Problemas al Activar El periodo. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "Problemas al Activar El periodo. Detalle de Error: " + e.InnerException.Message;
+
+            }
+
+            return respuesta;
         }
 
         //Creado por: Marlon Loria Solano
