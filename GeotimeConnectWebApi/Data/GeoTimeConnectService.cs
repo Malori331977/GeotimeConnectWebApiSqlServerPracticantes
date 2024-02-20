@@ -3375,6 +3375,75 @@ namespace GeoTimeConnectWebApi.Data
         //Creado por: Marlon Loria Solano
         //Fecha: 2023-08-10
         /// <summary>
+        /// Autorizar_MarcaExtraApb: Método para autorizar las marcas de horas extras de los colaboradores en las tablas Marcas_Extras_Apb y Marcas_Proceso
+        /// </summary>
+        /// <returns>Una instancia de la Clase EventResponse, con el resultado del proceso</returns>
+        /// <param name="marcasExtraApb">Lista de registros de la clase cMarcaExtraApb</param>
+        public async Task<EventResponse> Autorizar_MarcaExtraApb(IEnumerable<cMarcaExtraApb> marcasExtraApb)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+                foreach (var marcaExtraApb in marcasExtraApb)
+                {
+
+                    cMarcaExtraApb? marcaExtra = await _context.Marcas_Extras_Apb
+                                    .Where(e => e.idregistro == marcaExtraApb.idregistro)
+                                    .FirstOrDefaultAsync();
+                    //si la marca de hora extra existe se actualiza 
+                    //de lo contrario se agrega el registro
+                    if (marcaExtra is not null)
+                    {
+                        marcaExtra.cantidad_aprob_nivel1 = marcaExtraApb.cantidad_aprob_nivel1;
+                        marcaExtra.cantidad_aprob_nivel2 = marcaExtraApb.cantidad_aprob_nivel2;
+                        marcaExtra.cantidad_aprob_nivel3 = marcaExtraApb.cantidad_aprob_nivel3;
+                        marcaExtra.aprob_nivel1 = marcaExtraApb.aprob_nivel1;
+                        marcaExtra.aprob_nivel2 = marcaExtraApb.aprob_nivel2;
+                        marcaExtra.aprob_nivel3 = marcaExtraApb.aprob_nivel3;
+                        marcaExtra.comentario_aprob_nivel1 = marcaExtraApb.comentario_aprob_nivel1;
+                        marcaExtra.comentario_aprob_nivel2 = marcaExtraApb.comentario_aprob_nivel2;
+                        marcaExtra.comentario_aprob_nivel3 = marcaExtraApb.comentario_aprob_nivel3;
+                        marcaExtra.fecha_aprob_nivel1 = marcaExtraApb.fecha_aprob_nivel1;
+                        marcaExtra.fecha_aprob_nivel2 = marcaExtraApb.fecha_aprob_nivel2;
+                        marcaExtra.fecha_aprob_nivel3 = marcaExtraApb.fecha_aprob_nivel3;
+
+                        string cantidadAprobada = marcaExtra.cantidad_aprob_nivel3 == null ? (marcaExtra.cantidad_aprob_nivel2 == null ? marcaExtra.cantidad_aprob_nivel1 : marcaExtra.cantidad_aprob_nivel2) : marcaExtra.cantidad_aprob_nivel3;
+
+                        _context.Marcas_Extras_Apb.Update(marcaExtra);
+
+                        var marcaProceso = await _context.Marcas_Proceso.FirstOrDefaultAsync(e => e.fecha_entra >= marcaExtra.fecha && e.fecha_sale <= marcaExtra.fecha && e.idnumero == marcaExtra.idnumero && e.idplanilla == marcaExtra.idplanilla);
+
+                        if (marcaProceso is not null)
+                        {
+                            marcaProceso.EXTT = cantidadAprobada;
+                        }
+                    }
+
+                    await _context.SaveChangesAsync();
+
+                }
+
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo realizar la autorización de la solicitud de Hora Extra. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo realizar la autorización de la solicitud de Hora Extra. Detalle de Error: " + e.InnerException.Message;
+
+            }
+
+            return respuesta;
+
+        }
+
+        //Creado por: Marlon Loria Solano
+        //Fecha: 2023-08-10
+        /// <summary>
         /// EjecutaInMarcasWeb: Método que ejecuta procedimiento almacenado IN_MARCAS_WEB, necesario para completar el registro de marca en Geotime
         /// </summary>
         /// <param name="idnumero">idnumero del empleado que realiza la marca</param>

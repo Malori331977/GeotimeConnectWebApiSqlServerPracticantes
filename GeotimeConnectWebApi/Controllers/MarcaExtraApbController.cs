@@ -43,5 +43,16 @@ namespace GeoTimeConnectWebApi.Controllers
 
             return Ok(respuesta);
         }
+
+        [HttpPut]
+        public async Task<IActionResult> Put([FromBody] IEnumerable<cMarcaExtraApb> marcaExtraApb)
+        {
+            EventResponse respuesta = await _repoGT.Autorizar_MarcaExtraApb(marcaExtraApb);
+
+            if (respuesta.Id != "0")
+                return BadRequest(respuesta);
+
+            return Ok(respuesta);
+        }
     }
 }

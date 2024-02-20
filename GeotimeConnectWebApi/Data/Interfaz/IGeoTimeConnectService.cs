@@ -242,6 +242,15 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         /// <param name="marcasExtraApb">Lista de registros de la clase cMarcaExtraApb</param>
         public Task<EventResponse> Sincronizar_MarcaExtraApb(IEnumerable<cMarcaExtraApb> marcasExtraApb);
 
+        //Creado por: Marlon Loria Solano
+        //Fecha: 2023-08-10
+        /// <summary>
+        /// Autorizar_MarcaExtraApb: Método para autorizar las marcas de horas extras de los colaboradores en las tablas Marcas_Extras_Apb y Marcas_Proceso
+        /// </summary>
+        /// <returns>Una instancia de la Clase EventResponse, con el resultado del proceso</returns>
+        /// <param name="marcasExtraApb">Lista de registros de la clase cMarcaExtraApb</param>
+        public Task<EventResponse> Autorizar_MarcaExtraApb(IEnumerable<cMarcaExtraApb> marcasExtraApb);
+
         /// <summary>
         /// GetProyecto: Obtener lista de Proyectos
         /// </summary>
