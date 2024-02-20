@@ -3239,8 +3239,8 @@ namespace GeoTimeConnectWebApi.Data
                 DateTime fechaMov = DateTime.Parse($"{fechaPeriodo.Substring(0, 4)}-{fechaPeriodo.Substring(4, 2)}-{fechaPeriodo.Substring(6, 2)}");
                 var periodos = await (from a in _context.Ph_Periodos
                                       join b in _context.Ph_Planilla on a.tipo_planilla equals b.tipo_planilla
-                                      join c in _context.Empleados on b.idplanilla equals c.IDPLANILLA
-                                      where grupos.Contains(c.IDGRUPO.ToString())
+                                      join c in _context.Empleados on b.idplanilla equals c.IdPlanilla
+                                      where grupos.Contains(c.IdGrupo.ToString())
                                         && ((fechaMov >= a.inicio && fechaMov <= a.fin))
                                       select new
                                       {
@@ -3256,8 +3256,8 @@ namespace GeoTimeConnectWebApi.Data
                     {
                         case 1:
                             marcasextrasApb = await (from m in _context.Marcas_Extras_Apb.Where(e => e.idplanilla == periodo.idplanilla)
-                                                     join c in _context.Empleados on new { idnumero = m.idnumero, idplanilla = m.idplanilla } equals new { idnumero = c.IDNUMERO, idplanilla = c.IDPLANILLA }
-                                                     where grupos.Contains(c.IDGRUPO.ToString())
+                                                     join c in _context.Empleados on new { idnumero = m.idnumero, idplanilla = m.idplanilla } equals new { idnumero = c.IdNumero, idplanilla = c.IdPlanilla }
+                                                     where grupos.Contains(c.IdGrupo.ToString())
                                                        && m.estado == 'A'
                                                        && ((m.aprob_nivel1 == 'F' || m.aprob_nivel1 == null) && m.fecha_aprob_nivel1 == null && m.aprob_nivel1 == null)
                                                        && ((m.fecha >= periodo.inicio && m.fecha <= periodo.fin)
@@ -3266,8 +3266,8 @@ namespace GeoTimeConnectWebApi.Data
                             break;
                         case 2:
                             marcasextrasApb = await (from m in _context.Marcas_Extras_Apb.Where(e => e.idplanilla == periodo.idplanilla)
-                                                     join c in _context.Empleados on new { idnumero = m.idnumero, idplanilla = m.idplanilla } equals new { idnumero = c.IDNUMERO, idplanilla = c.IDPLANILLA }
-                                                     where grupos.Contains(c.IDGRUPO.ToString())
+                                                     join c in _context.Empleados on new { idnumero = m.idnumero, idplanilla = m.idplanilla } equals new { idnumero = c.IdNumero, idplanilla = c.IdPlanilla }
+                                                     where grupos.Contains(c.IdGrupo.ToString())
                                                        && m.estado == 'A'
                                                        && (((m.aprob_nivel1 == 'F' || m.aprob_nivel1 == null) && m.fecha_aprob_nivel1 == null && m.aprob_nivel1 == null) ||
                                                            ((m.aprob_nivel2 == 'F' || m.aprob_nivel2 == null) && m.fecha_aprob_nivel2 == null && m.aprob_nivel2 == null))
@@ -3277,8 +3277,8 @@ namespace GeoTimeConnectWebApi.Data
                             break;
                         case 3:
                             marcasextrasApb = await (from m in _context.Marcas_Extras_Apb.Where(e => e.idplanilla == periodo.idplanilla)
-                                                     join c in _context.Empleados on new { idnumero = m.idnumero, idplanilla = m.idplanilla } equals new { idnumero = c.IDNUMERO, idplanilla = c.IDPLANILLA }
-                                                     where grupos.Contains(c.IDGRUPO.ToString())
+                                                     join c in _context.Empleados on new { idnumero = m.idnumero, idplanilla = m.idplanilla } equals new { idnumero = c.IdNumero, idplanilla = c.IdPlanilla }
+                                                     where grupos.Contains(c.IdGrupo.ToString())
                                                        && m.estado == 'A'
                                                        && (((m.aprob_nivel1 == 'F' || m.aprob_nivel1 == null) && m.fecha_aprob_nivel1 == null && m.aprob_nivel1 == null) ||
                                                            ((m.aprob_nivel2 == 'F' || m.aprob_nivel2 == null) && m.fecha_aprob_nivel2 == null && m.aprob_nivel2 == null) ||
