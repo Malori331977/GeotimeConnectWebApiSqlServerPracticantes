@@ -228,6 +228,14 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         public Task<cMarcaExtraApb> GetMarcaExtraApb(long idregistro);
 
         /// <summary>
+        /// GetMarcaExtraApb: Método para obtener una lista de Horas Extras pendientes de Aprobación de los empleados asignados a un supervisor 
+        /// </summary>
+        /// <returns>Lista de cMarcaExtraApb</returns>
+        /// <param name="fechaPeriodo">Fecha del Periodo para el cual se requieren las extras</param>
+        /// <param name="idgrupo">grupo de empleado</param>
+        public Task<List<cMarcaExtraApb>> GetMarcaExtraApb(string fechaPeriodo, string idgrupo);
+
+        /// <summary>
         /// Sincronizar_MarcaExtraApb: Método para registrar las marcas de horas extras de los colaboradores en las tablas Marcas_Extras_Apb y Marcas_Proceso
         /// </summary>
         /// <returns>Una instancia de la Clase EventResponse, con el resultado del proceso</returns>

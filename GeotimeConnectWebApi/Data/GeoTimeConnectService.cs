@@ -3222,6 +3222,87 @@ namespace GeoTimeConnectWebApi.Data
             return marcaExtraApb;
         }
 
+        /// <summary>
+        /// GetMarcaExtraApb: Método para obtener una lista de Horas Extras pendientes de Aprobación de los empleados asignados a un supervisor 
+        /// </summary>
+        /// <returns>Lista de cMarcaExtraApb</returns>
+        /// <param name="fechaPeriodo">Fecha del Periodo para el cual se requieren las extras</param>
+        /// <param name="idgrupo">grupo de empleado</param>
+        public async Task<List<cMarcaExtraApb>> GetMarcaExtraApb(string fechaPeriodo, string idgrupo)
+        {
+
+            List<cMarcaExtraApb> marcaExtraApb = new();
+            try
+            {
+                var grupos = idgrupo.Split(",");
+
+                DateTime fechaMov = DateTime.Parse($"{fechaPeriodo.Substring(0, 4)}-{fechaPeriodo.Substring(4, 2)}-{fechaPeriodo.Substring(6, 2)}");
+                var periodos = await (from a in _context.Ph_Periodos
+                                      join b in _context.Ph_Planilla on a.tipo_planilla equals b.tipo_planilla
+                                      join c in _context.Empleados on b.idplanilla equals c.IDPLANILLA
+                                      where grupos.Contains(c.IDGRUPO.ToString())
+                                        && ((fechaMov >= a.inicio && fechaMov <= a.fin))
+                                      select new
+                                      {
+                                          idplanilla = b.idplanilla,
+                                          inicio = a.inicio,
+                                          fin = a.fin,
+                                          nivel_aprob_ext = b.nivel_aprob_ext,
+                                      }).Distinct().ToListAsync();
+                foreach (var periodo in periodos)
+                {
+                    List<cMarcaExtraApb> marcasextrasApb = new();
+                    switch (periodo.nivel_aprob_ext)
+                    {
+                        case 1:
+                            marcasextrasApb = await (from m in _context.Marcas_Extras_Apb.Where(e => e.idplanilla == periodo.idplanilla)
+                                                     join c in _context.Empleados on new { idnumero = m.idnumero, idplanilla = m.idplanilla } equals new { idnumero = c.IDNUMERO, idplanilla = c.IDPLANILLA }
+                                                     where grupos.Contains(c.IDGRUPO.ToString())
+                                                       && m.estado == 'A'
+                                                       && ((m.aprob_nivel1 == 'F' || m.aprob_nivel1 == null) && m.fecha_aprob_nivel1 == null && m.aprob_nivel1 == null)
+                                                       && ((m.fecha >= periodo.inicio && m.fecha <= periodo.fin)
+                                                          || (m.fecha >= periodo.inicio && m.fecha > periodo.fin))
+                                                     select m).ToListAsync();
+                            break;
+                        case 2:
+                            marcasextrasApb = await (from m in _context.Marcas_Extras_Apb.Where(e => e.idplanilla == periodo.idplanilla)
+                                                     join c in _context.Empleados on new { idnumero = m.idnumero, idplanilla = m.idplanilla } equals new { idnumero = c.IDNUMERO, idplanilla = c.IDPLANILLA }
+                                                     where grupos.Contains(c.IDGRUPO.ToString())
+                                                       && m.estado == 'A'
+                                                       && (((m.aprob_nivel1 == 'F' || m.aprob_nivel1 == null) && m.fecha_aprob_nivel1 == null && m.aprob_nivel1 == null) ||
+                                                           ((m.aprob_nivel2 == 'F' || m.aprob_nivel2 == null) && m.fecha_aprob_nivel2 == null && m.aprob_nivel2 == null))
+                                                       && ((m.fecha >= periodo.inicio && m.fecha <= periodo.fin)
+                                                          || (m.fecha >= periodo.inicio && m.fecha > periodo.fin))
+                                                     select m).ToListAsync();
+                            break;
+                        case 3:
+                            marcasextrasApb = await (from m in _context.Marcas_Extras_Apb.Where(e => e.idplanilla == periodo.idplanilla)
+                                                     join c in _context.Empleados on new { idnumero = m.idnumero, idplanilla = m.idplanilla } equals new { idnumero = c.IDNUMERO, idplanilla = c.IDPLANILLA }
+                                                     where grupos.Contains(c.IDGRUPO.ToString())
+                                                       && m.estado == 'A'
+                                                       && (((m.aprob_nivel1 == 'F' || m.aprob_nivel1 == null) && m.fecha_aprob_nivel1 == null && m.aprob_nivel1 == null) ||
+                                                           ((m.aprob_nivel2 == 'F' || m.aprob_nivel2 == null) && m.fecha_aprob_nivel2 == null && m.aprob_nivel2 == null) ||
+                                                           ((m.aprob_nivel3 == 'F' || m.aprob_nivel3 == null) && m.fecha_aprob_nivel3 == null && m.aprob_nivel3 == null))
+                                                       && ((m.fecha >= periodo.inicio && m.fecha <= periodo.fin)
+                                                          || (m.fecha >= periodo.inicio && m.fecha > periodo.fin))
+                                                     select m).ToListAsync();
+                            break;
+
+                    }
+
+
+                    marcaExtraApb.AddRange(marcasextrasApb);
+                }
+
+
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message); throw;
+            }
+            return marcaExtraApb;
+        }
+
         //Creado por: Marlon Loria Solano
         //Fecha: 2023-08-10
         /// <summary>
