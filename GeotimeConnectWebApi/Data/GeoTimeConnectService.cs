@@ -5451,6 +5451,28 @@ namespace GeoTimeConnectWebApi.Data
 
             try
             {
+                portalMenu = (from e in await _context.Portal_Menu
+                                .Include(e => e.cPortal_Opcion)
+                            .ToListAsync()
+                            select new cPortal_Menu
+                            {
+                                ID = e.ID,
+                                MENUTEXT = e.MENUTEXT,
+                                ICONID = e.ICONID,
+                                cPortal_Opcion = e.cPortal_Opcion == null ? null :
+                                                (from po in e.cPortal_Opcion
+                                                 select new cPortal_Opcion
+                                                 {
+                                                     PARENTID = po.PARENTID,
+                                                     ID = po.ID,
+                                                     MENUTEXT = po.MENUTEXT,
+                                                     ICONID = po.ICONID,
+                                                     PRINCIPAL = po.PRINCIPAL,
+                                                     HREF = po.HREF,
+                                                 }).ToList()
+                            }
+                            ).ToList();
+
                 portalMenu = await _context.Portal_Menu.ToListAsync();
 
             }
@@ -5472,7 +5494,28 @@ namespace GeoTimeConnectWebApi.Data
 
             try
             {
-                portalMenu = await _context.Portal_Menu.FirstOrDefaultAsync(e => e.ID == id);
+
+                portalMenu = (from e in await _context.Portal_Menu.Where(e => e.ID == id)
+                                .Include(e => e.cPortal_Opcion)
+                            .ToListAsync()
+                              select new cPortal_Menu
+                              {
+                                  ID = e.ID,
+                                  MENUTEXT = e.MENUTEXT,
+                                  ICONID = e.ICONID,
+                                  cPortal_Opcion = e.cPortal_Opcion == null ? null :
+                                                  (from po in e.cPortal_Opcion
+                                                   select new cPortal_Opcion
+                                                   {
+                                                       PARENTID = po.PARENTID,
+                                                       ID = po.ID,
+                                                       MENUTEXT = po.MENUTEXT,
+                                                       ICONID = po.ICONID,
+                                                       PRINCIPAL = po.PRINCIPAL,
+                                                       HREF = po.HREF,
+                                                   }).ToList()
+                              }
+                            ).FirstOrDefault();
 
             }
             catch (Exception e)
@@ -5510,6 +5553,7 @@ namespace GeoTimeConnectWebApi.Data
                     }
                     else
                     {
+                        item.cPortal_Opcion = null;
                         _context.Add(item);
                     }
                     await _context.SaveChangesAsync();
