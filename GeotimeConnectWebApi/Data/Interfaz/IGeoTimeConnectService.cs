@@ -601,7 +601,23 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         public Task<EventResponse> Sincronizar_Incidencia_Conf_Pago(IEnumerable<cIncidencia_Conf_Pago> incidenciasConfPago);
         public Task<EventResponse> Elimina_Incidencia_Conf_Pago(int id);
 
-
+        /// <summary>
+        /// GetPortalMenu: Obtener lista de menus de sistema 
+        /// </summary>
+        /// <returns>Lista de lista de menus del sistema</returns>
+        public Task<List<cPortal_Menu>> GetPortalMenu();
+        /// <summary>
+        /// GetPortalMenu: Obtener datos de una opcion de menu de sistema 
+        /// </summary>
+        /// <param name="id">id de la opcion</param>
+        /// <returns>Instancia de cPortal_Menu </returns>
+        public Task<cPortal_Menu> GetPortalMenu(string id);
+        /// <summary>
+        /// Sincronizar_PortalMenu: Método para registrar los menus del sistema
+        /// </summary>
+        /// <returns>Una instancia de la Clase EventResponse, con el resultado del proceso</returns>
+        /// <param name="portalOpcion">Lista de registros de cPortal_Menu </param>
+        public Task<EventResponse> Sincronizar_PortalMenu(IEnumerable<cPortal_Menu> portalMenu);
 
     }
 }

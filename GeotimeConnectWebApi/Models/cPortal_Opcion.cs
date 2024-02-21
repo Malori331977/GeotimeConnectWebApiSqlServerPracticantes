@@ -8,5 +8,6 @@
         public int ICONID { get; set; }
         public string MENUTEXT { get; set; }
         public string? PARENTID { get; set; }
+        public cPortal_Menu? cPortal_Menu { get; set; }
     }
 }

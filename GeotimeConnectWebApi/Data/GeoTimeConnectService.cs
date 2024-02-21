@@ -3395,12 +3395,15 @@ namespace GeoTimeConnectWebApi.Data
                     //de lo contrario se agrega el registro
                     if (marcaExtra is not null)
                     {
-                        marcaExtra.cantidad_aprob_nivel1 = marcaExtraApb.cantidad_aprob_nivel1;
-                        marcaExtra.cantidad_aprob_nivel2 = marcaExtraApb.cantidad_aprob_nivel2;
-                        marcaExtra.cantidad_aprob_nivel3 = marcaExtraApb.cantidad_aprob_nivel3;
                         marcaExtra.aprob_nivel1 = marcaExtraApb.aprob_nivel1;
                         marcaExtra.aprob_nivel2 = marcaExtraApb.aprob_nivel2;
                         marcaExtra.aprob_nivel3 = marcaExtraApb.aprob_nivel3;
+                        marcaExtra.usuario_aprob_nivel1 = marcaExtraApb.usuario_aprob_nivel1;
+                        marcaExtra.usuario_aprob_nivel2 = marcaExtraApb.usuario_aprob_nivel2;
+                        marcaExtra.usuario_aprob_nivel3 = marcaExtraApb.usuario_aprob_nivel3;
+                        marcaExtra.cantidad_aprob_nivel1 = marcaExtraApb.cantidad_aprob_nivel1;
+                        marcaExtra.cantidad_aprob_nivel2 = marcaExtraApb.cantidad_aprob_nivel2;
+                        marcaExtra.cantidad_aprob_nivel3 = marcaExtraApb.cantidad_aprob_nivel3;
                         marcaExtra.comentario_aprob_nivel1 = marcaExtraApb.comentario_aprob_nivel1;
                         marcaExtra.comentario_aprob_nivel2 = marcaExtraApb.comentario_aprob_nivel2;
                         marcaExtra.comentario_aprob_nivel3 = marcaExtraApb.comentario_aprob_nivel3;
@@ -5438,5 +5441,96 @@ namespace GeoTimeConnectWebApi.Data
 
         }
 
+        /// <summary>
+        /// GetPortalMenu: Obtener lista de menus de sistema 
+        /// </summary>
+        /// <returns>Lista de lista de menus del sistema</returns>
+        public async Task<List<cPortal_Menu>> GetPortalMenu()
+        {
+            List<cPortal_Menu>? portalMenu = new();
+
+            try
+            {
+                portalMenu = await _context.Portal_Menu.ToListAsync();
+
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message); throw;
+            }
+            return portalMenu;
+        }
+
+        /// <summary>
+        /// GetPortalMenu: Obtener datos de una opcion de menu de sistema 
+        /// </summary>
+        /// <param name="id">id de la opcion</param>
+        /// <returns>Instancia de cPortal_Menu </returns>
+        public async Task<cPortal_Menu> GetPortalMenu(string id)
+        {
+            cPortal_Menu? portalMenu = new();
+
+            try
+            {
+                portalMenu = await _context.Portal_Menu.FirstOrDefaultAsync(e => e.ID == id);
+
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message); throw;
+            }
+            return portalMenu;
+        }
+
+
+        /// <summary>
+        /// Sincronizar_PortalMenu: Método para registrar los menus del sistema
+        /// </summary>
+        /// <returns>Una instancia de la Clase EventResponse, con el resultado del proceso</returns>
+        /// <param name="portalOpcion">Lista de registros de cPortal_Menu </param>
+        public async Task<EventResponse> Sincronizar_PortalMenu(IEnumerable<cPortal_Menu> portalMenu)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+                foreach (var item in portalMenu)
+                {
+                    cPortal_Menu? portalMenuBuscar = await _context.Portal_Menu
+                                    .Where(e => e.ID == item.ID)
+                                    .FirstOrDefaultAsync();
+                    //si la opcion existe se actualiza 
+                    //de lo contrario se agrega el registro
+                    if (portalMenuBuscar is not null)
+                    {
+                        portalMenuBuscar.ICONID = item.ICONID;
+                        portalMenuBuscar.MENUTEXT = item.MENUTEXT;
+
+                        _context.Portal_Menu.Update(portalMenuBuscar);
+                    }
+                    else
+                    {
+                        _context.Add(item);
+                    }
+                    await _context.SaveChangesAsync();
+
+                }
+
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo realizar el registro del menú. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo realizar el registro del menú. Detalle de Error: " + e.InnerException.Message;
+
+            }
+
+            return respuesta;
+
+        }
     }
 }

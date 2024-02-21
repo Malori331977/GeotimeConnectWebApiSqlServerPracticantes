@@ -74,6 +74,8 @@ namespace GeoTimeConnectWebApi.Data
         public DbSet<cPh_Usuario> Ph_Usuarios { get; set; }
         public DbSet<cPh_Sistema> Ph_Sistema { get; set; }
         public DbSet<cPortal_Config> Portal_Config { get; set; }
+
+        public DbSet<cPortal_Menu> Portal_Menu { get; set; }
         public DbSet<cPortal_Opcion> Portal_Opciones { get; set; }
         public DbSet<cPh_Formulacion> Ph_Formulacion { get; set; }
         public DbSet<cParametroEmail> ParametrosEmail { get; set; }
@@ -146,6 +148,8 @@ namespace GeoTimeConnectWebApi.Data
                 .HasNoKey();
             builder.Entity<cPortal_Config>().ToTable("PORTAL_CONFIG", Schema)
                 .HasKey(e => new { e.ID });
+            builder.Entity<cPortal_Menu>().ToTable("PORTAL_MENU", Schema)
+                .HasKey(e => new { e.ID });
             builder.Entity<cPortal_Opcion>().ToTable("PORTAL_OPCIONES", Schema)
                 .HasKey(e => new { e.ID });
             builder.Entity<cPh_Formulacion>().ToTable("PH_FORMULACION", Schema)
@@ -194,6 +198,11 @@ namespace GeoTimeConnectWebApi.Data
                 .WithMany(d => d.Ph_HorarioTurno)
                 .HasForeignKey(e => new { e.IDHORARIO });
 
+            builder.Entity<cPortal_Opcion>()
+               .ToTable("PORTAL_OPCIONES", Schema)
+               .HasOne(e => e.cPortal_Menu)
+               .WithMany(d => d.cPortal_Opcion)
+               .HasForeignKey(e => new { e.PARENTID });
 
             /*builder.Entity<cPh_RolTurno>()
                 .ToTable("PH_ROLES_TURNOS", Schema)
