@@ -4074,7 +4074,26 @@ namespace GeoTimeConnectWebApi.Data
 
             try
             {
-                portalOpcion = await _context.Portal_Opciones.ToListAsync();
+                portalOpcion = (from e in await _context.Portal_Opciones
+                                .Include(e => e.cPortal_Menu)
+                                .ToListAsync()
+                                select new cPortal_Opcion
+                                {
+                                    PARENTID = e.PARENTID,
+                                    ID = e.ID,
+                                    MENUTEXT = e.MENUTEXT,
+                                    ICONID = e.ICONID,
+                                    PRINCIPAL = e.PRINCIPAL,
+                                    HREF = e.HREF,
+                                    cPortal_Menu = e.cPortal_Menu == null ? null :
+                                                    new cPortal_Menu
+                                                    {
+                                                        ID = e.cPortal_Menu.ID,
+                                                        MENUTEXT = e.cPortal_Menu.MENUTEXT,
+                                                        ICONID = e.cPortal_Menu.ICONID,
+                                                    },
+                                }
+                           ).ToList();
 
             }
             catch (Exception e)
@@ -4095,7 +4114,27 @@ namespace GeoTimeConnectWebApi.Data
 
             try
             {
-                portalOpcion = await _context.Portal_Opciones.FirstOrDefaultAsync(e => e.ID == id);
+                
+                portalOpcion = (from e in await _context.Portal_Opciones.Where(e => e.ID == id)
+                                .Include(e => e.cPortal_Menu)
+                                .ToListAsync()
+                                select new cPortal_Opcion
+                                {
+                                    PARENTID = e.PARENTID,
+                                    ID = e.ID,
+                                    MENUTEXT = e.MENUTEXT,
+                                    ICONID = e.ICONID,
+                                    PRINCIPAL = e.PRINCIPAL,
+                                    HREF = e.HREF,
+                                    cPortal_Menu = e.cPortal_Menu == null ? null :
+                                                    new cPortal_Menu
+                                                    {
+                                                        ID = e.cPortal_Menu.ID,
+                                                        MENUTEXT = e.cPortal_Menu.MENUTEXT,
+                                                        ICONID = e.cPortal_Menu.ICONID,
+                                                    },
+                                }
+                           ).FirstOrDefault();
 
             }
             catch (Exception e)
@@ -5473,8 +5512,6 @@ namespace GeoTimeConnectWebApi.Data
                             }
                             ).ToList();
 
-                portalMenu = await _context.Portal_Menu.ToListAsync();
-
             }
             catch (Exception e)
             {
@@ -5570,6 +5607,161 @@ namespace GeoTimeConnectWebApi.Data
                     respuesta.Descripcion = "No se pudo realizar el registro del menú. Detalle de Error: " + e.Message;
                 else
                     respuesta.Descripcion = "No se pudo realizar el registro del menú. Detalle de Error: " + e.InnerException.Message;
+
+            }
+
+            return respuesta;
+
+        }
+
+
+        /// <summary>
+        /// GetPortalPol: Obtener lista de roles del Portal de empleado y Geotime.net 
+        /// </summary>
+        /// <returns>Lista de lista de roles del Portal de empleado y Geotime.net </returns>
+        public async Task<List<cPortal_Rol>> GetPortalRol()
+        {
+            List<cPortal_Rol>? portalRol = new();
+
+            try
+            {
+                portalRol = (from e in await _context.Portal_Rol
+                                .Include(e => e.cPortal_RolDet)
+                            .ToListAsync()
+                              select new cPortal_Rol
+                              {
+                                  ID = e.ID,
+                                  DESCRIPCION = e.DESCRIPCION,
+                                  ROLDEFAULT = e.ROLDEFAULT,
+                                  cPortal_RolDet = e.cPortal_RolDet == null ? null :
+                                                  (from po in e.cPortal_RolDet
+                                                   select new cPortal_RolDet
+                                                   {
+                                                       PORTALROLID = po.PORTALROLID,
+                                                       PORTALMENUID = po.PORTALMENUID,
+                                                       PORTALOPCIONID = po.PORTALOPCIONID,
+                                                       HABILITADO = po.HABILITADO,
+                                                   }).ToList()
+                              }
+                            ).ToList();
+
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message); throw;
+            }
+            return portalRol;
+        }
+
+        /// <summary>
+        /// GetPortalRol: Obtener datos de un rol del portal especifico
+        /// </summary>
+        /// <param name="id">id de la opcion</param>
+        /// <returns>Instancia de cPortal_Rol </returns>
+        public async Task<cPortal_Rol> GetPortalRol(int id)
+        {
+            cPortal_Rol? portalRol = new();
+
+            try
+            {
+
+                portalRol = (from e in await _context.Portal_Rol.Where(e=>e.ID==id)
+                                .Include(e => e.cPortal_RolDet)
+                            .ToListAsync()
+                             select new cPortal_Rol
+                             {
+                                 ID = e.ID,
+                                 DESCRIPCION = e.DESCRIPCION,
+                                 ROLDEFAULT = e.ROLDEFAULT,
+                                 cPortal_RolDet = e.cPortal_RolDet == null ? null :
+                                                 (from po in e.cPortal_RolDet
+                                                  select new cPortal_RolDet
+                                                  {
+                                                      PORTALROLID = po.PORTALROLID,
+                                                      PORTALMENUID = po.PORTALMENUID,
+                                                      PORTALOPCIONID = po.PORTALOPCIONID,
+                                                      HABILITADO = po.HABILITADO,
+                                                  }).ToList()
+                             }
+                            ).FirstOrDefault();
+
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message); throw;
+            }
+            return portalRol;
+        }
+
+        /// <summary>
+        /// Sincronizar_PortalRol: Método para registrar los roles del portal
+        /// </summary>
+        /// <returns>Una instancia de la Clase EventResponse, con el resultado del proceso</returns>
+        /// <param name="portalOpcion">Lista de registros de cPortal_Rol </param>
+        public async Task<EventResponse> Sincronizar_PortalRol(IEnumerable<cPortal_Rol> portalRol)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+                List<cPortal_RolDet>? rolesDet;
+                foreach (var item in portalRol)
+                {
+
+                    rolesDet = item.cPortal_RolDet.ToList();
+                    cPortal_Rol? portalrolBuscar = await _context.Portal_Rol
+                                    .Where(e => e.ID == item.ID)
+                                    .FirstOrDefaultAsync();
+                    //si la opcion existe se actualiza 
+                    //de lo contrario se agrega el registro
+                    if (portalrolBuscar is not null)
+                    {
+                        portalrolBuscar.DESCRIPCION = item.DESCRIPCION;
+                        portalrolBuscar.ROLDEFAULT = item.ROLDEFAULT;
+
+                        _context.Portal_Rol.Update(portalrolBuscar);
+                    }
+                    else
+                    {
+                        item.cPortal_RolDet = null;
+                        _context.Add(item);
+                    }
+                    await _context.SaveChangesAsync();
+
+                    foreach(var roldet in rolesDet)
+                    {
+                        cPortal_RolDet? portalroldetBuscar = await _context.Portal_RolDet
+                                    .Where(e => e.PORTALROLID == roldet.PORTALROLID 
+                                             && e.PORTALMENUID==roldet.PORTALMENUID
+                                             && e.PORTALOPCIONID == roldet.PORTALOPCIONID)
+                                    .FirstOrDefaultAsync();
+                        //si la opcion existe se actualiza 
+                        //de lo contrario se agrega el registro
+                        if (portalroldetBuscar is not null)
+                        {
+                            portalroldetBuscar.HABILITADO = roldet.HABILITADO;
+
+                            _context.Portal_RolDet.Update(portalroldetBuscar);
+                        }
+                        else
+                        {
+                            _context.Add(roldet);
+                        }
+
+                        await _context.SaveChangesAsync();
+                    }
+                }
+
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo realizar el registro del rol. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo realizar el registro del rol. Detalle de Error: " + e.InnerException.Message;
 
             }
 

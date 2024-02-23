@@ -619,5 +619,22 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         /// <param name="portalOpcion">Lista de registros de cPortal_Menu </param>
         public Task<EventResponse> Sincronizar_PortalMenu(IEnumerable<cPortal_Menu> portalMenu);
 
+        /// <summary>
+        /// GetPortalPol: Obtener lista de roles del Portal de empleado y Geotime.net 
+        /// </summary>
+        /// <returns>Lista de lista de roles del Portal de empleado y Geotime.net </returns>
+        public Task<List<cPortal_Rol>> GetPortalRol();
+        /// <summary>
+        /// GetPortalRol: Obtener datos de un rol del portal especifico
+        /// </summary>
+        /// <param name="id">id de la opcion</param>
+        /// <returns>Instancia de cPortal_Rol </returns>
+        public Task<cPortal_Rol> GetPortalRol(int id);
+        /// <summary>
+        /// Sincronizar_PortalRol: Método para registrar los roles del portal
+        /// </summary>
+        /// <returns>Una instancia de la Clase EventResponse, con el resultado del proceso</returns>
+        /// <param name="portalOpcion">Lista de registros de cPortal_Rol </param>
+        public Task<EventResponse> Sincronizar_PortalRol(IEnumerable<cPortal_Rol> portalRol);
     }
 }

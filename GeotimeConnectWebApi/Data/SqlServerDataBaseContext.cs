@@ -74,7 +74,6 @@ namespace GeoTimeConnectWebApi.Data
         public DbSet<cPh_Usuario> Ph_Usuarios { get; set; }
         public DbSet<cPh_Sistema> Ph_Sistema { get; set; }
         public DbSet<cPortal_Config> Portal_Config { get; set; }
-
         public DbSet<cPortal_Menu> Portal_Menu { get; set; }
         public DbSet<cPortal_Opcion> Portal_Opciones { get; set; }
         public DbSet<cPh_Formulacion> Ph_Formulacion { get; set; }
@@ -88,6 +87,8 @@ namespace GeoTimeConnectWebApi.Data
         public DbSet<cTransformacion> Transformaciones { get; set; }
         public DbSet<cTransformacionGlobal> TransformacionesGlobales { get; set; }
         public DbSet<cIncidencia_Conf_Pago> Incidencias_Conf_Pago { get; set; }
+        public DbSet<cPortal_Rol> Portal_Rol { get; set; }
+        public DbSet<cPortal_RolDet> Portal_RolDet { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -174,6 +175,11 @@ namespace GeoTimeConnectWebApi.Data
                 .HasKey(e => new { e.ID });
             builder.Entity<cIncidencia_Conf_Pago>().ToTable("INCIDENCIAS_CONF_PAGO", Schema)
                 .HasKey(e => new { e.ID });
+            builder.Entity<cPortal_Opcion>().ToTable("PORTAL_ROL", Schema)
+                .HasKey(e => new { e.ID});
+            builder.Entity<cPortal_RolDet>().ToTable("PORTAL_ROLDET", Schema)
+               .HasKey(e => new { e.PORTALROLID,e.PORTALMENUID,e.PORTALOPCIONID });
+           
 
             //llaves foraneas
             builder.Entity<cEmpleado>()
@@ -204,11 +210,11 @@ namespace GeoTimeConnectWebApi.Data
                .WithMany(d => d.cPortal_Opcion)
                .HasForeignKey(e => new { e.PARENTID });
 
-            /*builder.Entity<cPh_RolTurno>()
-                .ToTable("PH_ROLES_TURNOS", Schema)
-                .HasOne(e => e.Turno)
-                .WithMany(d => d.RolTurno)
-                .HasForeignKey(e => new { e.IDTURNO });*/
+            builder.Entity<cPortal_RolDet>()
+                .ToTable("PORTAL_ROLDET", Schema)
+                .HasOne(e => e.cPortal_Rol)
+                .WithMany(d => d.cPortal_RolDet)
+                .HasForeignKey(e => new { e.PORTALROLID });
 
         }
 
