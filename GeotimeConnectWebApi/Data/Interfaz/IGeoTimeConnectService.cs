@@ -629,7 +629,7 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         /// </summary>
         /// <param name="id">id de la opcion</param>
         /// <returns>Instancia de cPortal_Rol </returns>
-        public Task<cPortal_Rol> GetPortalRol(int id);
+        public Task<cPortal_Rol> GetPortalRol(string id);
         /// <summary>
         /// Sincronizar_PortalRol: Método para registrar los roles del portal
         /// </summary>

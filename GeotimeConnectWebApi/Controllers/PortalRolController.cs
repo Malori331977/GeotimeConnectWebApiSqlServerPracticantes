@@ -29,7 +29,7 @@ namespace GeoTimeConnectWebApi.Controllers
         public async Task<IEnumerable<cPortal_Rol>> Get() => await _repoGT.GetPortalRol();      
 
         [HttpGet("{id}")]
-        public async Task<cPortal_Rol> Get(int id) => await _repoGT.GetPortalRol(id);
+        public async Task<cPortal_Rol> Get(string id) => await _repoGT.GetPortalRol(id);
 
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] IEnumerable<cPortal_Rol> portalRol)

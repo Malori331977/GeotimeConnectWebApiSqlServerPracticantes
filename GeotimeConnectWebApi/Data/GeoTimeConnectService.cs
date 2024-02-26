@@ -17,6 +17,8 @@ using System.Security;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using System;
 using Microsoft.Data.SqlClient;
+using GeoTimeServiceReference;
+using static GeoTimeServiceReference.ServiceSoapClient;
 
 namespace GeoTimeConnectWebApi.Data
 {
@@ -5658,7 +5660,7 @@ namespace GeoTimeConnectWebApi.Data
         /// </summary>
         /// <param name="id">id de la opcion</param>
         /// <returns>Instancia de cPortal_Rol </returns>
-        public async Task<cPortal_Rol> GetPortalRol(int id)
+        public async Task<cPortal_Rol> GetPortalRol(string id)
         {
             cPortal_Rol? portalRol = new();
 
@@ -5718,6 +5720,7 @@ namespace GeoTimeConnectWebApi.Data
                     {
                         portalrolBuscar.DESCRIPCION = item.DESCRIPCION;
                         portalrolBuscar.ROLDEFAULT = item.ROLDEFAULT;
+                        portalrolBuscar.HABILITADO = item.HABILITADO;
 
                         _context.Portal_Rol.Update(portalrolBuscar);
                     }
@@ -5762,6 +5765,182 @@ namespace GeoTimeConnectWebApi.Data
                     respuesta.Descripcion = "No se pudo realizar el registro del rol. Detalle de Error: " + e.Message;
                 else
                     respuesta.Descripcion = "No se pudo realizar el registro del rol. Detalle de Error: " + e.InnerException.Message;
+
+            }
+
+            return respuesta;
+
+        }
+
+        //Creado por: Marlon Loria Solano
+        //Fecha: 2023-05-24
+        /// <summary>
+        /// EjecutaCalculoPlanilla: Recibe una lista de MarcaMovTurno y a partir de ella realiza el calculo de planilla de forma temporal
+        /// </summary>
+        /// <param name="marcasMovTurnos">lista de MarcaMovTurno</param>
+        /// <returns>EventResponse con resultado del proceso</returns>
+        public async Task<EventResponse> EjecutaCalculoPlanilla(IEnumerable<cMarcaMovTurno> marcasMovTurnos)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+                cMarcaProceso? marcaProcesoEnCero;
+                List<cMarcaProceso> marcasProcesoInicializada = new();
+                var compania = await _context.PH_COMPANIAS.FirstOrDefaultAsync();
+
+
+                foreach (var item in marcasMovTurnos)
+                {
+                    var horario = item.hora.Split("|");
+                    var turno = await _context.Ph_Turnos.FirstOrDefaultAsync(e => e.IdTurno == item.turno);
+                    var fechaSalida = turno.HEntra.CompareTo(turno.HSale) > 0 ? item.fecha.AddDays(1) : item.fecha;
+
+
+                    cMarcaProceso? marcaProceso = new cMarcaProceso
+                    {
+                        idregistro = 0,
+                        idplanilla = item.idplanilla,
+                        idnumero = item.idnumero,
+                        fecha_entra = item.fecha,
+                        fecha_sale = fechaSalida,
+                        hora_entra = horario[0] == "99:99" ? "00:00" : turno.HEntra,
+                        hora_sale = horario[0] == "99:99" ? "00:00" : turno.HSale,
+                        idturno = item.turno,
+                        CON_1 = 1,
+                        CON_2 = 1,
+                        CON_3 = 1,
+                        CON_4 = 1,
+                        CON_5 = 1,
+                    };
+
+                    marcaProcesoEnCero = new cMarcaProceso
+                    {
+                        idregistro = 0,
+                        idplanilla = item.idplanilla,
+                        idnumero = item.idnumero,
+                        fecha_entra = item.fecha,
+                        fecha_sale = fechaSalida,
+                        hora_entra = "00:00", //se debe inicilizar la marca en 00:00 horas para que no afecte el proceso que realiza Geotime
+                        hora_sale = "00:00", //se debe inicilizar la marca en 00:00 horas para que no afecte el proceso que realiza Geotime
+                        idturno = item.turno,
+                        CON_1 = 1,
+                        CON_2 = 1,
+                        CON_3 = 1,
+                        CON_4 = 1,
+                        CON_5 = 1,
+                    };
+
+                    marcasProcesoInicializada.Add(marcaProcesoEnCero);
+
+                    var existeMarca = await _context.Marcas_Proceso
+                                    .Where(e => e.idnumero == item.idnumero
+                                            && e.fecha_entra == item.fecha
+                                            && e.idturno == item.turno)
+                                    .FirstOrDefaultAsync();
+
+                    if (existeMarca is not null)
+                    {
+                        existeMarca.hora_entra = marcaProceso.hora_entra;
+                        existeMarca.hora_sale = marcaProceso.hora_sale;
+                        existeMarca.fecha_sale = marcaProceso.fecha_sale;
+
+                        _context.Marcas_Proceso.Update(existeMarca);
+                    }
+                    else
+                    {
+                        _context.Add(marcaProceso);
+                    }
+                }
+                await _context.SaveChangesAsync();
+
+
+
+                DateTime fechaInicial = marcasMovTurnos.Min(e => e.fecha);
+                DateTime fechaFinal = marcasMovTurnos.Max(e => e.fecha);
+                var periodos = await GetPeriodo(fechaInicial.ToString("yyyyMMdd"), "S");
+                //var planillasEmpleados = marcasMovTurnos.Select(e=>e.idplanilla).Distinct();
+                var phplanillas = await GetPhPlanilla();
+                var listaEmpleados = (from e in marcasMovTurnos
+                                      select new
+                                      {
+                                          idnumero = e.idnumero,
+                                          idplanilla = e.idplanilla
+                                      })
+                                     .Distinct().ToList();
+
+                //var empleados = await _context.Empleados.Where(e => listaEmpleados.Contains(e.IdNumero)).ToListAsync();
+                //var listaGrupos = String.Join(",", empleados.Select(e => e.IdGrupo).Distinct().ToList());
+
+                var phloginAdmin = await _context.PH_LOGIN.FirstOrDefaultAsync(e => e.usuario.ToUpper() == "Admin");
+                if (phloginAdmin is not null)
+                {
+                    phloginAdmin.ultimo_login = DateTime.Now;
+                    phloginAdmin.ultimo_estado = DateTime.Now;
+                    phloginAdmin.idsesion = 1;
+                    _context.PH_LOGIN.Update(phloginAdmin);
+                    await _context.SaveChangesAsync();
+
+                }
+
+                foreach (var empleado in listaEmpleados)
+                {
+                    var planilla = phplanillas.FirstOrDefault(e => e.idplanilla == empleado.idplanilla);
+                    var periodo = periodos.FirstOrDefault(e => e.tipo_planilla == planilla.tipo_planilla);
+                    calculo_periodo_empleadoRequest calculoPlanilla = new calculo_periodo_empleadoRequest
+                    {
+                        comp = compania.IDCOMP,
+                        idpais = compania.PAIS,
+                        plan = planilla.idplanilla,
+                        sesion = (int)phloginAdmin.idsesion,
+                        empleado = empleado.idnumero,
+                        periodo = periodo.idperiodo,
+                        //inicio = fechaInicial.ToString("yyyy-MM-dd"),
+                        //fin = fechaFinal.ToString("yyyy-MM-dd"),
+                        inicio = periodo.inicio.ToString("yyyy-MM-dd"),
+                        fin = periodo.fin.ToString("yyyy-MM-dd"),
+                    };
+
+                    EndpointConfiguration endpointConfiguration = new();
+                    GeoTimeServiceReference.ServiceSoapClient geoWebService = new(endpointConfiguration);
+
+                    var result = await geoWebService.calculo_periodo_empleadoAsync(calculoPlanilla);
+                    if (result.calculo_periodo_empleadoResult != "")
+                    {
+                        respuesta.Id = "1";
+                        respuesta.Respuesta = "Error";
+                        respuesta.Descripcion = $"Error al procesar Empleado Id=: {empleado.idnumero}: {result.calculo_periodo_empleadoResult}";
+                    }
+                }
+
+                if (respuesta.Id == "0")
+                {
+                    var MarcasEliminar = (from mp in await _context.Marcas_Proceso
+                                                      .Where(e => e.fecha_entra >= fechaInicial && e.fecha_entra <= fechaFinal).ToListAsync()
+                                          join e in listaEmpleados on mp.idnumero equals e.idnumero
+                                          select mp).ToList();
+
+                    _context.Marcas_Proceso.RemoveRange(MarcasEliminar);
+                    await _context.SaveChangesAsync();
+
+                    //Proceso requerido para Guandy.
+                    //una vez finalizado el proceso de Calculo se debe volver a registrar en Marcas proceso pero con la hora de entrada y salida 
+                    //inicializadas en cero.
+
+                    //var resp = await InicializaMarcaProceso(marcasProcesoInicializada);
+                }
+
+
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo realizar el Calculo de Planilla. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo realizar el Calculo de Planilla. Detalle de Error: " + e.InnerException.Message;
 
             }
 
