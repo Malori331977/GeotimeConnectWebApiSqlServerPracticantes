@@ -6027,9 +6027,87 @@ namespace GeoTimeConnectWebApi.Data
                 respuesta.Id = "1";
                 respuesta.Respuesta = "Error";
                 if (e.InnerException == null)
-                    respuesta.Descripcion = "No se pudo realizar el registro en la tabla Inicdencia_Conf_Pago. Detalle de Error: " + e.Message;
+                    respuesta.Descripcion = "No se pudo realizar el registro en la tabla Ph_DescansoTurno. Detalle de Error: " + e.Message;
                 else
-                    respuesta.Descripcion = "No se pudo realizar el registro en la tabla Incidencia_Conf_Pago. Detalle de Error: " + e.InnerException.Message;
+                    respuesta.Descripcion = "No se pudo realizar el registro en la tabla Ph_DescansoTurno. Detalle de Error: " + e.InnerException.Message;
+
+            }
+
+            return respuesta;
+        }
+
+        /// <summary>
+        /// GetPhOpciones: Obtener datos de Sistema 
+        /// </summary>
+        /// <returns>Instancia de cPh_Opciones con las Opciones del sistema </returns>
+        public async Task<cPh_Opciones> GetPhOpciones()
+        {
+            cPh_Opciones? phOpciones = new();
+
+            try
+            {
+                phOpciones = await _context.Ph_Opciones.FirstOrDefaultAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message); throw;
+            }
+            return phOpciones;
+        }
+
+        //Creado por: Allan Prieto Badilla
+        //Fecha: 2024-05-13
+        //Sincronizar Opciones del Sisstema
+        //Parametro: Recibe una instancia de cPh_Opciones
+        //actualiza el registro, de lo contrario lo crea.
+        public async Task<EventResponse> Sincronizar_PhOpciones(cPh_Opciones item)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+                cPh_Opciones? parametroBuscado = await _context.Ph_Opciones.FirstOrDefaultAsync();
+                //si el parametro existe se actualiza 
+                //de lo contrario se agrega el registro
+                if (parametroBuscado is not null)
+                {
+                    parametroBuscado.POST_EMP = item.POST_EMP;
+                    parametroBuscado.POST_SINC = item.POST_SINC;
+                    parametroBuscado.NUM_ALM = item.NUM_ALM;
+                    parametroBuscado.UTILIZA_DESC = item.UTILIZA_DESC;
+                    parametroBuscado.DESC_ABIERT = item.DESC_ABIERT;
+                    parametroBuscado.VER_DB = item.VER_DB;
+                    parametroBuscado.CORTE_DIURNO = item.CORTE_DIURNO;
+                    parametroBuscado.CORTE_NOCTURNO = item.CORTE_NOCTURNO;
+                    parametroBuscado.USA_ALERTA_EXD = item.USA_ALERTA_EXD;
+                    parametroBuscado.ALERTA_EXTRAS_DIARIAS = item.ALERTA_EXTRAS_DIARIAS;
+                    parametroBuscado.COLOR_FONDO_ALERTD = item.COLOR_FONDO_ALERTD;
+                    parametroBuscado.COLOR_FUENTE_ALERTD = item.COLOR_FUENTE_ALERTD;
+                    parametroBuscado.DIST_TADIC = item.DIST_TADIC;
+                    parametroBuscado.DIST_LIC_USR = item.DIST_LIC_USR;
+                    parametroBuscado.DIST_LIC_EMP = item.DIST_LIC_EMP;
+                    parametroBuscado.TIPO_DIST = item.TIPO_DIST;
+                    parametroBuscado.ACC_BLOC_PT = item.ACC_BLOC_PT;
+
+                    _context.Ph_Opciones.Update(parametroBuscado);
+                }
+                else
+                {
+                    _context.Add(item);
+                }
+
+
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo realizar la sincronización de Opciones del Sistema. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo realizar la sincronización de Opciones del Sistema. Detalle de Error: " + e.InnerException.Message;
 
             }
 

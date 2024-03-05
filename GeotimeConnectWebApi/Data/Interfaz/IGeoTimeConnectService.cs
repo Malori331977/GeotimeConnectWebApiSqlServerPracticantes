@@ -652,5 +652,18 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         /// <returns>Una instancia de la Clase EventResponse, con el resultado del proceso</returns>
         /// <param name="ph_DescansoTurno">Lista de registros de la clase cPh_DescansoTurno</param>
         public Task<EventResponse> Sincronizar_PhDescansoTurno(IEnumerable<cPh_DescansoTurno> ph_DescansoTurno);
+
+        /// <summary>
+        /// GetPhOpciones: Obtener datos de Sistema 
+        /// </summary>
+        /// <returns>Instancia de cPh_Opciones con las Opciones del sistema </returns>
+        public Task<cPh_Opciones> GetPhOpciones();
+
+        /// <summary>
+        /// Sincronizar_PhOpciones: Método para Registrar las opciones del Sistema
+        /// </summary>
+        /// <returns>Una instancia de la Clase EventResponse, con el resultado del proceso</returns>
+        /// <param name="ph_Opciones">Lista de registros de la clase cPh_Opciones</param>
+        public Task<EventResponse> Sincronizar_PhOpciones(cPh_Opciones ph_Opciones);
     }
 }
