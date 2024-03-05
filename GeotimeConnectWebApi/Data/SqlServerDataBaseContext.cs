@@ -90,6 +90,7 @@ namespace GeoTimeConnectWebApi.Data
         public DbSet<cPortal_Rol> Portal_Rol { get; set; }
         public DbSet<cPortal_RolDet> Portal_RolDet { get; set; }
         public DbSet<cPh_DescansoTurno> Ph_Descansos_Turnos { get; set; }
+        public DbSet<cPh_Opciones> Ph_Opciones { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -182,6 +183,8 @@ namespace GeoTimeConnectWebApi.Data
                .HasKey(e => new { e.PORTALROLID,e.PORTALMENUID,e.PORTALOPCIONID });
             builder.Entity<cPh_DescansoTurno>().ToTable("PH_DESCANSOS_TURNOS", Schema)
                 .HasKey(e => new { e.IDTURNO, e.IDTIEMPO });
+            builder.Entity<cPh_Opciones>().ToTable("PH_OPCIONES", Schema)
+                .HasNoKey();
 
 
             //llaves foraneas
