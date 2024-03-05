@@ -636,5 +636,21 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         /// <returns>Una instancia de la Clase EventResponse, con el resultado del proceso</returns>
         /// <param name="portalOpcion">Lista de registros de cPortal_Rol </param>
         public Task<EventResponse> Sincronizar_PortalRol(IEnumerable<cPortal_Rol> portalRol);
+
+        /* Descanso Turno Allan 4/3/2024 */
+        /// <summary>
+        /// GetPhDescansoTurno: Obtener datos de Descanso Turno 
+        /// </summary>
+        /// <param name="idTurno">idTurno de Descanso Turno</param>
+        /// <param name="idTiempo">idTiempo de Descanso Turno</param>
+        /// <returns>Instancia de cPh_DescansoTurno </returns>
+        public Task<List<cPh_DescansoTurno>> GetPhDescansoTurno(int idTurno, int idTiempo);
+
+        /// <summary>
+        /// Sincronizar_PhDescansoTurno: Método para registrar los Descanso de Turno
+        /// </summary>
+        /// <returns>Una instancia de la Clase EventResponse, con el resultado del proceso</returns>
+        /// <param name="ph_DescansoTurno">Lista de registros de la clase cPh_DescansoTurno</param>
+        public Task<EventResponse> Sincronizar_PhDescansoTurno(IEnumerable<cPh_DescansoTurno> ph_DescansoTurno);
     }
 }
