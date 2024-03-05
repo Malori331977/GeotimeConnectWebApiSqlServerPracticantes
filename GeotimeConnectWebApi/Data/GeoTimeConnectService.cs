@@ -5947,5 +5947,94 @@ namespace GeoTimeConnectWebApi.Data
             return respuesta;
 
         }
+
+        //Creado por: Allan Prieto
+        //Fecha: 2024-4-3
+        /// <summary>
+        /// GetPhDescansoTurno: Obtener lista de registros de la tabla cPh_DescansoTurno
+        /// </summary>
+        /// <returns>Lista de cPh_DescansoTurno </returns>
+        /// 
+        public async Task<List<cPh_DescansoTurno>> GetPhDescansoTurno(int idTurno, int idTiempo)
+        {
+            List<cPh_DescansoTurno> descansoTurno = new();
+            //List<cPh_DescansoTurno> item = new();
+            try
+            {
+                descansoTurno = await _context.Ph_Descansos_Turnos.Where(e => e.IDTURNO == idTurno &&
+                                                                              e.IDTIEMPO <= idTiempo).ToListAsync();
+
+                //for (int i = 1; i <= idTiempo; i++)
+                //{
+                //    int tiempoActual = i;
+                //    var resultados =  await _context.Ph_Descansos_Turnos.Where(e => e.IDTURNO == idTurno && e.IDTIEMPO == tiempoActual).ToListAsync();
+                //    descansoTurno.AddRange(resultados);
+                //}
+
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message); throw;
+            }
+            return descansoTurno;
+        }
+
+        //Creado por: Allan Prieto Badilla
+        //Fecha: 2024-4-3
+        /// <summary>
+        /// Sincronizar_PhDescansoTurno: Método para registrar los registros en la tabla Descansos de Turnos
+        /// </summary>
+        /// <returns>Una instancia de la Clase EventResponse, con el resultado del proceso</returns>
+        /// <param name="ph_DescansoTurno">Lista de registros de la clase cPh_DescansoTurno</param>
+        public async Task<EventResponse> Sincronizar_PhDescansoTurno(IEnumerable<cPh_DescansoTurno> ph_DescansoTurno)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+                foreach (var item in ph_DescansoTurno)
+                {
+                    cPh_DescansoTurno? objetoBuscar = await _context.Ph_Descansos_Turnos
+                                    .Where(e => e.IDTURNO == item.IDTURNO && e.IDTIEMPO == item.IDTIEMPO)
+                                    .FirstOrDefaultAsync();
+                    //si la opcion existe se actualiza 
+                    //de lo contrario se agrega el registro
+                    if (objetoBuscar is not null)
+                    {
+
+                        objetoBuscar.IDTURNO = item.IDTURNO;
+                        objetoBuscar.IDTIEMPO = item.IDTIEMPO;
+                        objetoBuscar.INICIO = item.INICIO;
+                        objetoBuscar.FIN = item.FIN;
+                        objetoBuscar.TIEMPO = item.TIEMPO;
+                        objetoBuscar.DESCUENTA = item.DESCUENTA;
+                        objetoBuscar.TIEMP_EXT = item.TIEMP_EXT;
+                        objetoBuscar.DESC_EXC = item.DESC_EXC;
+
+                        _context.Ph_Descansos_Turnos.Update(objetoBuscar);
+                    }
+                    else
+                    {
+                        _context.Add(item);
+                    }
+                    await _context.SaveChangesAsync();
+                }
+
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo realizar el registro en la tabla Inicdencia_Conf_Pago. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo realizar el registro en la tabla Incidencia_Conf_Pago. Detalle de Error: " + e.InnerException.Message;
+
+            }
+
+            return respuesta;
+        }
+
     }
 }
