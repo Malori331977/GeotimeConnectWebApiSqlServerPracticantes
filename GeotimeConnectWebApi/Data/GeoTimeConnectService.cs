@@ -6114,5 +6114,95 @@ namespace GeoTimeConnectWebApi.Data
             return respuesta;
         }
 
+
+        //Creado por: Marlon Loria Solano
+        //11-03-2024
+        /// <summary>
+        /// GetPortalEmpleado: Lista de empleados con acceso al portal de marcas web
+        /// </summary>
+        /// <returns>Lista de empleados con acceso al portal de marcas web</returns>
+        public async Task<List<cPortal_Empleado>> GetPortalEmpleado()
+        {
+            List<cPortal_Empleado> model = new();
+            try
+            {
+                model = await _context.Portal_Empleado.ToListAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message); throw;
+            }
+            return model;
+        }
+
+        //Creado por: Marlon Loria Solano
+        //11-03-2024
+        /// <summary>
+        /// GetPortalEmpleado: Un empleado con acceso al portal de marcas web
+        /// </summary>
+        /// <param name="id">id de empleado a buscar</param>
+        /// <returns>Un empleado con acceso al portal de marcas web</returns>
+        public async Task<cPortal_Empleado> GetPortalEmpleado(string id)
+        {
+            cPortal_Empleado? model = new();
+            try
+            {
+                model = await _context.Portal_Empleado.FirstOrDefaultAsync(e => e.IDNUMERO == id);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message); throw;
+            }
+            return model;
+        }
+
+        /// <summary>
+        /// Sincronizar_PortalEmpleado:  Crear o actualizar la lista de empleados con acceso a marcar web.  Se verifica cada elemento si existe en cuyo caso actualiza el registro, de lo contrario lo crea.
+        /// </summary>
+        /// <param name="portalEmpleados">Recibe una instancia de cPortal_Empleado</param>
+        /// <returns>Instancia de EventResponse con el resultado de la operación</returns>
+        public async Task<EventResponse> Sincronizar_PortalEmpleado(IEnumerable<cPortal_Empleado> portalEmpleados)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+                foreach (var item in portalEmpleados)
+                {
+                    cPortal_Empleado? portalEmp = await _context.Portal_Empleado
+                                                        .FirstOrDefaultAsync(e => e.IDNUMERO == item.IDNUMERO);
+                    //si el empleado existe se actualiza 
+                    //de lo contrario se agrega el registro
+                    if (portalEmp is not null)
+                    {
+                        portalEmp.PORTALROLID = item.PORTALROLID;
+                        portalEmp.HABILITADO = item.HABILITADO;
+                        _context.Portal_Empleado.Update(portalEmp);
+                    }
+                    else
+                    {
+                        _context.Add(item);
+                    }
+                }
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo realizar la sincronización de Empleados para el portal de Marcas. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo realizar la sincronización de Empleados para el portal de Marcas. Detalle de Error: " + e.InnerException.Message;
+
+            }
+
+            return respuesta;
+
+        }
+
     }
+
+
 }
