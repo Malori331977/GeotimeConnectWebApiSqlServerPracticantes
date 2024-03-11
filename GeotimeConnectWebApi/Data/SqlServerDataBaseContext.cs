@@ -178,16 +178,16 @@ namespace GeoTimeConnectWebApi.Data
                 .HasKey(e => new { e.ID });
             builder.Entity<cIncidencia_Conf_Pago>().ToTable("INCIDENCIAS_CONF_PAGO", Schema)
                 .HasKey(e => new { e.ID });
-            builder.Entity<cPortal_Opcion>().ToTable("PORTAL_ROL", Schema)
+            builder.Entity<cPortal_Rol>().ToTable("PORTAL_ROLES", Schema)
                 .HasKey(e => new { e.ID});
-            builder.Entity<cPortal_RolDet>().ToTable("PORTAL_ROLDET", Schema)
+            builder.Entity<cPortal_RolDet>().ToTable("PORTAL_ROLESDET", Schema)
                .HasKey(e => new { e.PORTALROLID,e.PORTALMENUID,e.PORTALOPCIONID });
             builder.Entity<cPh_DescansoTurno>().ToTable("PH_DESCANSOS_TURNOS", Schema)
                 .HasKey(e => new { e.IDTURNO, e.IDTIEMPO });
             builder.Entity<cPh_Opciones>().ToTable("PH_OPCIONES", Schema)
                 .HasNoKey();
             builder.Entity<cPortal_Empleado>().ToTable("PORTAL_EMPLEADO", Schema)
-           .HasKey(e => new { e.IdNumero });
+           .HasKey(e => new { e.IDNUMERO });
 
 
             //llaves foraneas
@@ -220,7 +220,7 @@ namespace GeoTimeConnectWebApi.Data
                .HasForeignKey(e => new { e.PARENTID });
 
             builder.Entity<cPortal_RolDet>()
-                .ToTable("PORTAL_ROLDET", Schema)
+                .ToTable("PORTAL_ROLESDET", Schema)
                 .HasOne(e => e.cPortal_Rol)
                 .WithMany(d => d.cPortal_RolDet)
                 .HasForeignKey(e => new { e.PORTALROLID });
