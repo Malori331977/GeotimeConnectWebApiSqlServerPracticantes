@@ -92,6 +92,8 @@ namespace GeoTimeConnectWebApi.Data
         public DbSet<cPh_DescansoTurno> Ph_Descansos_Turnos { get; set; }
         public DbSet<cPh_Opciones> Ph_Opciones { get; set; }
         public DbSet<cPortal_Empleado> Portal_Empleado { get; set; }
+        public DbSet<cPortal_DocMarca> Portal_DocsMarcas { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -175,7 +177,7 @@ namespace GeoTimeConnectWebApi.Data
                 .HasKey(e => new { e.IDTURNO, e.IDTIEMPO });
             #endregion
 
-            #region Objetos Seguridad
+            #region Objetos Seguridad y de Portal 
 
             builder.Entity<cPortal_Config>().ToTable("PORTAL_CONFIG", Schema)
                 .HasKey(e => new { e.ID });
@@ -196,6 +198,8 @@ namespace GeoTimeConnectWebApi.Data
             builder.Entity<cPh_Opciones>().ToTable("PH_OPCIONES", Schema)
                .HasKey(e => new { e.IDOPCION });
             builder.Entity<cPortal_Empleado>().ToTable("PORTAL_EMPLEADO", Schema)
+               .HasKey(e => new { e.IDNUMERO });
+            builder.Entity<cPortal_DocMarca>().ToTable("PORTAL_DOCSMARCA", Schema)
                .HasKey(e => new { e.IDNUMERO });
 
             #endregion
