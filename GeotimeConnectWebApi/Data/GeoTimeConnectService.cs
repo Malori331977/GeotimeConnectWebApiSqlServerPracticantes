@@ -5635,6 +5635,7 @@ namespace GeoTimeConnectWebApi.Data
                                   ID = e.ID,
                                   DESCRIPCION = e.DESCRIPCION,
                                   ROLDEFAULT = e.ROLDEFAULT,
+                                  HABILITADO = e.HABILITADO,
                                   cPortal_RolDet = e.cPortal_RolDet == null ? null :
                                                   (from po in e.cPortal_RolDet
                                                    select new cPortal_RolDet
@@ -5675,6 +5676,7 @@ namespace GeoTimeConnectWebApi.Data
                                  ID = e.ID,
                                  DESCRIPCION = e.DESCRIPCION,
                                  ROLDEFAULT = e.ROLDEFAULT,
+                                 HABILITADO = e.HABILITADO,
                                  cPortal_RolDet = e.cPortal_RolDet == null ? null :
                                                  (from po in e.cPortal_RolDet
                                                   select new cPortal_RolDet

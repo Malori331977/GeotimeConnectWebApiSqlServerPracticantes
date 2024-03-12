@@ -97,13 +97,20 @@ namespace GeoTimeConnectWebApi.Data
         {
             builder.HasDefaultSchema(schemaAdmin);
 
+            #region Objetos del CTAADMIN
             builder.Entity<cPh_Login>().ToTable("PH_LOGIN", schemaAdmin)
-                .HasKey(e => new { e.idusuario });
+               .HasKey(e => new { e.idusuario });
             builder.Entity<cPh_Compania>().ToTable("PH_COMPANIAS", schemaAdmin)
                 .HasKey(e => new { e.IDCOMP });
+            builder.Entity<cPh_Sistema>().ToTable("PH_SISTEMA", schemaAdmin)
+                .HasNoKey();
+
+            #endregion
+
+            #region Objetos Estandar Geotime
 
             builder.Entity<cAccionPersonal>().ToTable("ACCIONES_PERSONAL", Schema)
-                .HasKey(e => new { e.IdRegistro});
+                .HasKey(e => new { e.IdRegistro });
             builder.Entity<cCentroCosto>().ToTable("PH_CCOSTOS", Schema)
                  .HasKey(e => new { e.IdCCosto });
             builder.Entity<cConcepto>().ToTable("PH_CONCEPTOS", Schema)
@@ -115,7 +122,7 @@ namespace GeoTimeConnectWebApi.Data
             builder.Entity<cIncidencia>().ToTable("INCIDENCIAS", Schema)
                 .HasKey(e => new { e.Id });
             builder.Entity<cMarcaResumen>().ToTable("MARCAS_RESUMEN", Schema)
-                .HasKey(e => new { e.IdPlanilla,e.IdNumero,e.IdConcepto,e.IdCCosto });
+                .HasKey(e => new { e.IdPlanilla, e.IdNumero, e.IdConcepto, e.IdCCosto });
             builder.Entity<cTurno>().ToTable("PH_TURNOS", Schema)
                 .HasKey(e => new { e.IdTurno });
             builder.Entity<cMarca>().ToTable("MARCAS", Schema)
@@ -123,15 +130,15 @@ namespace GeoTimeConnectWebApi.Data
             builder.Entity<cMarcaMovTurno>().ToTable("MARCAS_MOV_TURNOS", Schema)
                .HasKey(e => new { e.idregistro });
             builder.Entity<cPh_Grupo>().ToTable("PH_GRUPOS", Schema)
-                 .HasKey(e => new { e.idgrupo });
-			builder.Entity<cPh_Periodos>().ToTable("PH_PERIODOS", Schema)
-				.HasKey(e => new { e.idperiodo });
+                .HasKey(e => new { e.idgrupo });
+            builder.Entity<cPh_Periodos>().ToTable("PH_PERIODOS", Schema)
+                .HasKey(e => new { e.idperiodo });
             builder.Entity<cPh_Planilla>().ToTable("PH_PLANILLA", Schema)
                 .HasKey(e => new { e.idplanilla });
             builder.Entity<cMarcaIn>().ToTable("MARCAS_IN", Schema)
-                .HasKey(e => new { e.idtarjeta, e.fecha,e.hora,e.idnumero,e.tipo });
+                .HasKey(e => new { e.idtarjeta, e.fecha, e.hora, e.idnumero, e.tipo });
             builder.Entity<cMarcaExtraApb>().ToTable("MARCAS_EXTRAS_APB", Schema)
-                .HasKey(e => new {e.idregistro});
+                .HasKey(e => new { e.idregistro });
             builder.Entity<cMarcaProceso>().ToTable("MARCAS_PROCESO", Schema)
                 .HasKey(e => new { e.idregistro });
             builder.Entity<cPh_Proyecto>().ToTable("PH_PROYECTO", Schema)
@@ -147,19 +154,9 @@ namespace GeoTimeConnectWebApi.Data
             builder.Entity<cMarcaDistribucion>().ToTable("MARCAS_DISTRIBUCIONES", Schema)
                 .HasNoKey();
             builder.Entity<cPh_Usuario>().ToTable("PH_USUARIO", Schema)
-                .HasKey(e => new { e.IDUSUARIO });
-            builder.Entity<cPh_Sistema>().ToTable("PH_SISTEMA", schemaAdmin)
-                .HasNoKey();
-            builder.Entity<cPortal_Config>().ToTable("PORTAL_CONFIG", Schema)
-                .HasKey(e => new { e.ID });
-            builder.Entity<cPortal_Menu>().ToTable("PORTAL_MENU", Schema)
-                .HasKey(e => new { e.ID });
-            builder.Entity<cPortal_Opcion>().ToTable("PORTAL_OPCIONES", Schema)
-                .HasKey(e => new { e.ID });
+               .HasKey(e => new { e.IDUSUARIO });
             builder.Entity<cPh_Formulacion>().ToTable("PH_FORMULACION", Schema)
                 .HasKey(e => new { e.ID });
-            builder.Entity<cParametroEmail>().ToTable("PARAMETROSEMAIL", Schema)
-                .HasKey(e => new { e.Id });
             builder.Entity<cPh_Horarios>().ToTable("PH_HORARIOS", Schema)
                 .HasKey(e => new { e.IDHORARIO });
             builder.Entity<cPh_HorarioTurno>().ToTable("PH_HORARIO_TURNO", Schema)
@@ -168,34 +165,48 @@ namespace GeoTimeConnectWebApi.Data
                 .HasKey(e => new { e.TIPO_PLANILLA });
             builder.Entity<cPh_Transformacion>().ToTable("PH_TRANSFORMACION", Schema)
                 .HasKey(e => new { e.ID_TRANSFORMACION });
-            builder.Entity<cPh_Rol>().ToTable("PH_ROLES", Schema)
-                .HasKey(e => new { e.IDROL });
-            builder.Entity<cPh_RolTurno>().ToTable("PH_ROLES_TURNOS", Schema)
-                .HasKey(e => new { e.IDREGISTRO, e.IDROL });
             builder.Entity<cTransformacion>().ToTable("TRANSFORMACIONES", Schema)
                 .HasKey(e => new { e.ID });
             builder.Entity<cTransformacionGlobal>().ToTable("TRANSFORMACIONES_GLOBALES", Schema)
                 .HasKey(e => new { e.ID });
             builder.Entity<cIncidencia_Conf_Pago>().ToTable("INCIDENCIAS_CONF_PAGO", Schema)
                 .HasKey(e => new { e.ID });
-            builder.Entity<cPortal_Rol>().ToTable("PORTAL_ROLES", Schema)
-                .HasKey(e => new { e.ID});
-            builder.Entity<cPortal_RolDet>().ToTable("PORTAL_ROLESDET", Schema)
-               .HasKey(e => new { e.PORTALROLID,e.PORTALMENUID,e.PORTALOPCIONID });
             builder.Entity<cPh_DescansoTurno>().ToTable("PH_DESCANSOS_TURNOS", Schema)
                 .HasKey(e => new { e.IDTURNO, e.IDTIEMPO });
+            #endregion
+
+            #region Objetos Seguridad
+
+            builder.Entity<cPortal_Config>().ToTable("PORTAL_CONFIG", Schema)
+                .HasKey(e => new { e.ID });
+            builder.Entity<cPortal_Menu>().ToTable("PORTAL_MENU", Schema)
+                .HasKey(e => new { e.ID });
+            builder.Entity<cPortal_Opcion>().ToTable("PORTAL_OPCIONES", Schema)
+                .HasKey(e => new { e.ID });
+            builder.Entity<cParametroEmail>().ToTable("PARAMETROSEMAIL", Schema)
+                .HasKey(e => new { e.Id });
+            builder.Entity<cPh_Rol>().ToTable("PH_ROLES", Schema)
+                .HasKey(e => new { e.IDROL });
+            builder.Entity<cPh_RolTurno>().ToTable("PH_ROLES_TURNOS", Schema)
+                .HasKey(e => new { e.IDREGISTRO, e.IDROL });
+            builder.Entity<cPortal_Rol>().ToTable("PORTAL_ROLES", Schema)
+               .HasKey(e => new { e.ID });
+            builder.Entity<cPortal_RolDet>().ToTable("PORTAL_ROLESDET", Schema)
+               .HasKey(e => new { e.PORTALROLID, e.PORTALMENUID, e.PORTALOPCIONID });
             builder.Entity<cPh_Opciones>().ToTable("PH_OPCIONES", Schema)
-                .HasNoKey();
+               .HasNoKey();
             builder.Entity<cPortal_Empleado>().ToTable("PORTAL_EMPLEADO", Schema)
-           .HasKey(e => new { e.IDNUMERO });
+               .HasKey(e => new { e.IDNUMERO });
 
+            #endregion
 
-            //llaves foraneas
+            #region LLaves foraneas
+
             builder.Entity<cEmpleado>()
-                 .ToTable("EMPLEADOS", Schema)
-                 .HasOne(e => e.Departamento)
-                 .WithMany(d => d.Empleado)
-                 .HasForeignKey(e => new { e.IdDepartamento });
+                .ToTable("EMPLEADOS", Schema)
+                .HasOne(e => e.Departamento)
+                .WithMany(d => d.Empleado)
+                .HasForeignKey(e => new { e.IdDepartamento });
             builder.Entity<cEmpleado>()
                  .ToTable("EMPLEADOS", Schema)
                  .HasOne(e => e.CentroCosto)
@@ -224,6 +235,8 @@ namespace GeoTimeConnectWebApi.Data
                 .HasOne(e => e.cPortal_Rol)
                 .WithMany(d => d.cPortal_RolDet)
                 .HasForeignKey(e => new { e.PORTALROLID });
+
+            #endregion
 
         }
 
