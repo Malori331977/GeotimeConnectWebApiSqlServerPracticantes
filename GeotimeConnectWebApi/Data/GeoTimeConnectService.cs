@@ -6271,6 +6271,107 @@ namespace GeoTimeConnectWebApi.Data
 
         }
 
+        //Creado por: Marlon Loria Solano
+        //11-03-2024
+        /// <summary>
+        /// GetPortalDocMarca: Lista de documentos total de Documentos Marcas
+        /// </summary>
+        /// <returns>Lista de documentos total de Documentos Marcas</returns>
+        public async Task<List<cPortal_DocMarca>> GetPortalDocMarca()
+        {
+            List<cPortal_DocMarca> model = new();
+            try
+            {
+                model = await _context.Portal_DocsMarcas.ToListAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message); throw;
+            }
+            return model;
+        }
+
+        //Creado por: Marlon Loria Solano
+        //11-03-2024
+        /// <summary>
+        /// GetPortalDocMarca: Lista de documentos asociados al empleado en una fecha especifica
+        /// </summary>
+        /// <param name="idnumero">numero de empleado</param>
+        /// <param name="fecha">fecha del documento</param>
+        /// <returns>Lista de documentos asociados al empleado en una fecha especifica</returns>
+        public async Task<List<cPortal_DocMarca>> GetPortalDocMarca(string idnumero, string fecha)
+        {
+            List<cPortal_DocMarca> model = new();
+            try
+            {
+                model = await _context.Portal_DocsMarcas
+                                .Where(e=>e.FECHA.ToString("yyyyMMdd")==fecha && e.IDNUMERO==idnumero)
+                                .ToListAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message); throw;
+            }
+            return model;
+        }
+
+        //Creado por: Marlon Loria Solano
+        //11-03-2024
+        /// <summary>
+        /// GetPortalDocMarca: Obtiene un documento especifico de Portal DocsMarcas
+        /// </summary>
+        /// <param name="idregistro">id del registro</param>
+        /// <returns>Un documento especifico de Portal DocsMarcas</returns>
+        public async Task<cPortal_DocMarca> GetPortalDocMarca(int idregistro )
+        {
+            cPortal_DocMarca? model = new();
+            try
+            {
+                model = await _context.Portal_DocsMarcas.FirstOrDefaultAsync(e => e.IDREGISTRO == idregistro);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message); throw;
+            }
+            return model;
+        }
+
+        /// <summary>
+        /// Sincronizar_PortalDocMarca:  Crear o actualizar la lista de documentos asociados a las marcas.  Se verifica cada elemento si existe en cuyo caso actualiza el registro, de lo contrario lo crea.
+        /// </summary>
+        /// <param name="portalDocsMarcas">Recibe una instancia de cPortal_DocMarca</param>
+        /// <returns>Instancia de EventResponse con el resultado de la operación</returns>
+        public async Task<EventResponse> Sincronizar_PortalDocMarca(IEnumerable<cPortal_DocMarca> portalDocsMarcas)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+                
+                foreach (var item in portalDocsMarcas)
+                {
+                    item.IDREGISTRO = 0;
+                    _context.Add(item);
+                    
+                }
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo realizar la sincronización del documento asociado a la Marca. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo realizar la sincronización del documento asociado a la Marca. Detalle de Error: " + e.InnerException.Message;
+
+            }
+
+            return respuesta;
+
+        }
+
     }
 
 
