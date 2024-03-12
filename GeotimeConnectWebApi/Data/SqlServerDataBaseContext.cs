@@ -200,7 +200,7 @@ namespace GeoTimeConnectWebApi.Data
             builder.Entity<cPortal_Empleado>().ToTable("PORTAL_EMPLEADO", Schema)
                .HasKey(e => new { e.IDNUMERO });
             builder.Entity<cPortal_DocMarca>().ToTable("PORTAL_DOCSMARCAS", Schema)
-               .HasKey(e => new { e.IDNUMERO });
+               .HasKey(e => new { e.IDREGISTRO,e.IDNUMERO,e.FECHA });
 
             #endregion
 
