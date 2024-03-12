@@ -194,7 +194,7 @@ namespace GeoTimeConnectWebApi.Data
             builder.Entity<cPortal_RolDet>().ToTable("PORTAL_ROLESDET", Schema)
                .HasKey(e => new { e.PORTALROLID, e.PORTALMENUID, e.PORTALOPCIONID });
             builder.Entity<cPh_Opciones>().ToTable("PH_OPCIONES", Schema)
-               .HasNoKey();
+               .HasKey(e => new { e.IDOPCION });
             builder.Entity<cPortal_Empleado>().ToTable("PORTAL_EMPLEADO", Schema)
                .HasKey(e => new { e.IDNUMERO });
 

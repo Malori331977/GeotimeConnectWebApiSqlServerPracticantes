@@ -6069,16 +6069,16 @@ namespace GeoTimeConnectWebApi.Data
             try
             {
                 cPh_Opciones? parametroBuscado = await _context.Ph_Opciones.FirstOrDefaultAsync();
-                //si el parametro existe se actualiza 
-                //de lo contrario se agrega el registro
+
                 if (parametroBuscado is not null)
                 {
+                    parametroBuscado.IDOPCION = item.IDOPCION;
                     parametroBuscado.POST_EMP = item.POST_EMP;
                     parametroBuscado.POST_SINC = item.POST_SINC;
                     parametroBuscado.NUM_ALM = item.NUM_ALM;
                     parametroBuscado.UTILIZA_DESC = item.UTILIZA_DESC;
                     parametroBuscado.DESC_ABIERT = item.DESC_ABIERT;
-                    parametroBuscado.VER_DB = item.VER_DB;
+                    //parametroBuscado.VER_DB = item.VER_DB; /* Dato no es necesario actualizarlo
                     parametroBuscado.CORTE_DIURNO = item.CORTE_DIURNO;
                     parametroBuscado.CORTE_NOCTURNO = item.CORTE_NOCTURNO;
                     parametroBuscado.USA_ALERTA_EXD = item.USA_ALERTA_EXD;
@@ -6093,11 +6093,6 @@ namespace GeoTimeConnectWebApi.Data
 
                     _context.Ph_Opciones.Update(parametroBuscado);
                 }
-                else
-                {
-                    _context.Add(item);
-                }
-
 
                 await _context.SaveChangesAsync();
             }
