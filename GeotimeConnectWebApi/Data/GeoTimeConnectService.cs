@@ -2115,6 +2115,58 @@ namespace GeoTimeConnectWebApi.Data
 
         //Creado por: Marlon Loria Solano
         //Fecha: 2022-10-30
+        //Validar Clave de Usuario Admin
+        //Parametro: Recibe una instancia de empleado, se verifica si existe
+        //y se valida contraseña indicada contra la registrada en la base de datos
+        public async Task<EventResponse> ValidarClaveAdm(cLogin login)
+        {
+            EventResponse respuesta = new EventResponse();
+            funciones.funciones_geo funcionesGeo = new();
+
+            try
+            {
+                var user = await _context.PH_LOGIN.FirstAsync(e => e.usuario.ToLower() == login.Usuario.ToLower());
+
+                if (user is not null)
+                {
+                    var pass = funcionesGeo.Global_encrypt(login.Password);
+                    // var m = funcionesGeo.Encrypt(login.Password);
+
+                    if (user.GLOBAL_CLAVE != pass)
+                    {
+                        respuesta.Id = "1";
+                        respuesta.Respuesta = "Error";
+                        respuesta.Descripcion = "La contraseña indicada no es válida.";
+                    }
+
+                }
+                else
+                {
+                    respuesta.Id = "1";
+                    respuesta.Respuesta = "Error";
+                    respuesta.Descripcion = "No se encontraron los datos del usuario.";
+
+                }
+
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo validar los datos del usuario. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo validar los datos del usuario. Detalle de Error: " + e.InnerException.Message;
+
+            }
+
+            return respuesta;
+
+        }
+
+        //Creado por: Marlon Loria Solano
+        //Fecha: 2022-10-30
         //Validar Clave de Usuario
         //Parametro: Recibe una instancia de empleado, se verifica si existe
         //y se valida contraseña indicada contra la registrada en la base de datos

@@ -107,6 +107,13 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         public Task<List<cMarca>> GetMarcasDiaria(string idnumero, string fecha);
         public Task<EventResponse> Sincronizar_Marca(IEnumerable<cMarca> marcas);
         public Task<EventResponse> ValidarClaveEmpleado(cLogin login);
+
+        /// <summary>
+        /// ValidarClaveAdm: Validar Clave de Usuario Admin.  Recibe una instancia de empleado, se verifica si existe y se valida contraseña indicada contra la registrada en la base de datos
+        /// </summary>
+        /// <param name="login">datos del usuario a validar</param>
+        /// <returns>Instancia de EventResponse con el resultado de la operación</returns>
+        public Task<EventResponse> ValidarClaveAdm(cLogin login);
         public Task<EventResponse> CambiarClaveEmpleado(cEmpleado empleado);
         public Task<cPh_Login> GetPhLogin(string id);
         public Task<List<cPh_Compania>> GetPhCompania();
