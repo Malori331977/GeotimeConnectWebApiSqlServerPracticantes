@@ -4057,7 +4057,8 @@ namespace GeoTimeConnectWebApi.Data
                                 {
                                     ID = pc.ID,
                                     DATA_01 = Encripta.getDecryptTripleDES(pc.DATA_01),
-                                    LIC_PORTAL = pc.LIC_PORTAL
+                                    LIC_PORTAL = pc.LIC_PORTAL,
+                                    USORESTRINGIDO = pc.USORESTRINGIDO
                                 }).FirstOrDefault();
 
             }
@@ -4091,6 +4092,7 @@ namespace GeoTimeConnectWebApi.Data
                 {
                     portConfBuscar.LIC_PORTAL = portalConfig.LIC_PORTAL;
                     portConfBuscar.DATA_01 = dataEncrypt;
+                    portConfBuscar.USORESTRINGIDO = portalConfig.USORESTRINGIDO;
 
                     _context.Portal_Config.Update(portConfBuscar);
                 }
@@ -6221,6 +6223,24 @@ namespace GeoTimeConnectWebApi.Data
 
             try
             {
+                var portalConfig = await GetPortalConfig();
+
+                if (!portalConfig.USORESTRINGIDO)
+                {
+                    var listPortalEmpleados = await _context.Portal_Empleado.ToListAsync();
+                    foreach (var empleado in listPortalEmpleados)
+                    {
+                        var existeEmpleado = portalEmpleados.FirstOrDefault(e => e.IDNUMERO == empleado.IDNUMERO);
+
+                        if (existeEmpleado is null)
+                        {
+                            _context.Portal_Empleado.Remove(empleado);
+                        }
+                        
+                    }
+                    await _context.SaveChangesAsync();
+                }
+
                 foreach (var item in portalEmpleados)
                 {
                     cPortal_Empleado? portalEmp = await _context.Portal_Empleado
