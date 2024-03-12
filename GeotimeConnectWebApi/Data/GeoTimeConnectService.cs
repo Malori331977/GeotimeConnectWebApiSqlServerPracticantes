@@ -6123,16 +6123,16 @@ namespace GeoTimeConnectWebApi.Data
             try
             {
                 cPh_Opciones? parametroBuscado = await _context.Ph_Opciones.FirstOrDefaultAsync();
-                //si el parametro existe se actualiza 
-                //de lo contrario se agrega el registro
+
                 if (parametroBuscado is not null)
                 {
+                    parametroBuscado.IDOPCION = item.IDOPCION;
                     parametroBuscado.POST_EMP = item.POST_EMP;
                     parametroBuscado.POST_SINC = item.POST_SINC;
                     parametroBuscado.NUM_ALM = item.NUM_ALM;
                     parametroBuscado.UTILIZA_DESC = item.UTILIZA_DESC;
                     parametroBuscado.DESC_ABIERT = item.DESC_ABIERT;
-                    parametroBuscado.VER_DB = item.VER_DB;
+                    //parametroBuscado.VER_DB = item.VER_DB; /* Dato no es necesario actualizarlo
                     parametroBuscado.CORTE_DIURNO = item.CORTE_DIURNO;
                     parametroBuscado.CORTE_NOCTURNO = item.CORTE_NOCTURNO;
                     parametroBuscado.USA_ALERTA_EXD = item.USA_ALERTA_EXD;
@@ -6147,11 +6147,6 @@ namespace GeoTimeConnectWebApi.Data
 
                     _context.Ph_Opciones.Update(parametroBuscado);
                 }
-                else
-                {
-                    _context.Add(item);
-                }
-
 
                 await _context.SaveChangesAsync();
             }
@@ -6327,7 +6322,7 @@ namespace GeoTimeConnectWebApi.Data
         /// </summary>
         /// <param name="idregistro">id del registro</param>
         /// <returns>Un documento especifico de Portal DocsMarcas</returns>
-        public async Task<cPortal_DocMarca> GetPortalDocMarca(int idregistro )
+        public async Task<cPortal_DocMarca> GetPortalDocMarca(long idregistro )
         {
             cPortal_DocMarca? model = new();
             try
@@ -6370,6 +6365,57 @@ namespace GeoTimeConnectWebApi.Data
                     respuesta.Descripcion = "No se pudo realizar la sincronización del documento asociado a la Marca. Detalle de Error: " + e.Message;
                 else
                     respuesta.Descripcion = "No se pudo realizar la sincronización del documento asociado a la Marca. Detalle de Error: " + e.InnerException.Message;
+
+            }
+
+            return respuesta;
+
+        }
+
+        //Creado por: Allan Prieto Badilla
+        //Fecha: 2024-03-12
+        /// <summary>
+        /// EjecutaInitPeriodo: Ejecuta WS de Init_Periodo
+        /// </summary>
+        /// <param name="parametros">Ejecuta el Web Service</param>
+        /// <returns>EventResponse con resultado del proceso</returns>
+        public async Task<EventResponse> EjecutaInitPeriodo(IEnumerable<cInit_Periodo> parametros)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+                foreach (var item in parametros)
+                {
+                    init_periodoRequest initPeriodo = new init_periodoRequest
+                    {
+                        comp = item.IdComp,
+                        periodo = item.IdPeriodo,
+                        plan = item.IdPlanilla,
+                    };
+
+                    EndpointConfiguration endpointConfiguration = new();
+                    GeoTimeServiceReference.ServiceSoapClient geoWebService = new(endpointConfiguration);
+
+                    var result = await geoWebService.init_periodoAsync(initPeriodo);
+                    if (result.init_periodoResult != "")
+                    {
+                        respuesta.Id = "0";
+                        respuesta.Respuesta = "Ok";
+                        respuesta.Descripcion = $"Respuesta: {result.init_periodoResult}";
+                    }
+                }
+
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo realizar la Activación del Periodo. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo realizar la Activación del Periodo. Detalle de Error: " + e.InnerException.Message;
 
             }
 

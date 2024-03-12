@@ -2,6 +2,7 @@
 {
     public class cPh_Opciones
     {
+        public int IDOPCION { get; set; }
         public char POST_EMP { get; set; }
         public char POST_SINC { get; set; }
         public int NUM_ALM { get; set; }
