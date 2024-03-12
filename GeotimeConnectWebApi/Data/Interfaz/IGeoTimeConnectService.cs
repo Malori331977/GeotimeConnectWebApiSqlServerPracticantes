@@ -690,5 +690,37 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         /// <param name="portalEmpleados">Recibe una instancia de cPortal_Empleado</param>
         /// <returns>Instancia de EventResponse con el resultado de la operación</returns>
         public Task<EventResponse> Sincronizar_PortalEmpleado(IEnumerable<cPortal_Empleado> portalEmpleados);
+
+        /// <summary>
+        /// GetPortalDocMarca: Lista de documentos total de Documentos Marcas
+        /// </summary>
+        /// <returns>Lista de documentos total de Documentos Marcas</returns>
+        public Task<List<cPortal_DocMarca>> GetPortalDocMarca();
+        /// <summary>
+        /// GetPortalDocMarca: Lista de documentos asociados al empleado en una fecha especifica
+        /// </summary>
+        /// <param name="idnumero">numero de empleado</param>
+        /// <param name="fecha">fecha del documento</param>
+        /// <returns>Lista de documentos asociados al empleado en una fecha especifica</returns>
+        public Task<List<cPortal_DocMarca>> GetPortalDocMarca(string idnumero, string fecha);
+        /// <summary>
+        /// GetPortalDocMarca: Obtiene un documento especifico de Portal DocsMarcas
+        /// </summary>
+        /// <param name="idregistro">id del registro</param>
+        /// <returns>Un documento especifico de Portal DocsMarcas</returns>
+        public Task<cPortal_DocMarca> GetPortalDocMarca(long idregistro);
+        /// <summary>
+        /// Sincronizar_PortalDocMarca:  Crear o actualizar la lista de documentos asociados a las marcas.  Se verifica cada elemento si existe en cuyo caso actualiza el registro, de lo contrario lo crea.
+        /// </summary>
+        /// <param name="portalDocsMarcas">Recibe una instancia de cPortal_DocMarca</param>
+        /// <returns>Instancia de EventResponse con el resultado de la operación</returns>
+        public Task<EventResponse> Sincronizar_PortalDocMarca(IEnumerable<cPortal_DocMarca> portalDocsMarcas);
+
+        /// <summary>
+        /// EjecutaInitPeriodo:  Se ejecuta el WebService Init_Periodo.
+        /// </summary>
+        /// <param name="parametros">Recibe una instancia de cInit_Periodo</param>
+        /// <returns>Instancia de EventResponse con el resultado de la operación</returns>
+        public Task<EventResponse> EjecutaInitPeriodo(IEnumerable<cInit_Periodo> parametros);
     }
 }

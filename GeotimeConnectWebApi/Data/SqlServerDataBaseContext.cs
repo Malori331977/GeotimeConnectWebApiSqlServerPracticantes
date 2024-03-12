@@ -175,6 +175,8 @@ namespace GeoTimeConnectWebApi.Data
                 .HasKey(e => new { e.ID });
             builder.Entity<cPh_DescansoTurno>().ToTable("PH_DESCANSOS_TURNOS", Schema)
                 .HasKey(e => new { e.IDTURNO, e.IDTIEMPO });
+            builder.Entity<cPh_Opciones>().ToTable("PH_OPCIONES", Schema)
+                .HasKey(e => new { e.IDOPCION});
             #endregion
 
             #region Objetos Seguridad y de Portal 
