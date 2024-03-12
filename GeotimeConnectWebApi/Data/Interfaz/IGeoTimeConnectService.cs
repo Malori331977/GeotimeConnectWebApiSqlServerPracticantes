@@ -683,5 +683,11 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         /// <param name="portalEmpleados">Recibe una instancia de cPortal_Empleado</param>
         /// <returns>Instancia de EventResponse con el resultado de la operación</returns>
         public Task<EventResponse> Sincronizar_PortalEmpleado(IEnumerable<cPortal_Empleado> portalEmpleados);
+        /// <summary>
+        /// EjecutaInitPeriodo:  Se ejecuta el WebService Init_Periodo.
+        /// </summary>
+        /// <param name="parametros">Recibe una instancia de cInit_Periodo</param>
+        /// <returns>Instancia de EventResponse con el resultado de la operación</returns>
+        public Task<EventResponse> EjecutaInitPeriodo(IEnumerable<cInit_Periodo> parametros);
     }
 }

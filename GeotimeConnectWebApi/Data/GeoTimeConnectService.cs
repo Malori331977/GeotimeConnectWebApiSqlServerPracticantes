@@ -6199,7 +6199,57 @@ namespace GeoTimeConnectWebApi.Data
 
         }
 
+        //Creado por: Allan Prieto Badilla
+        //Fecha: 2024-03-12
+        /// <summary>
+        /// EjecutaInitPeriodo: Ejecuta WS de Init_Periodo
+        /// </summary>
+        /// <param name="parametros">Ejecuta el Web Service</param>
+        /// <returns>EventResponse con resultado del proceso</returns>
+        public async Task<EventResponse> EjecutaInitPeriodo(IEnumerable<cInit_Periodo> parametros)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+                foreach (var item in parametros)
+                {
+                    init_periodoRequest initPeriodo = new init_periodoRequest
+                    {
+                        comp = item.IdComp,
+                        periodo = item.IdPeriodo,
+                        plan = item.IdPlanilla,
+                    };
+
+                    EndpointConfiguration endpointConfiguration = new();
+                    GeoTimeServiceReference.ServiceSoapClient geoWebService = new(endpointConfiguration);
+
+                    var result = await geoWebService.init_periodoAsync(initPeriodo);
+                    if (result.init_periodoResult != "")
+                    {
+                        respuesta.Id = "0";
+                        respuesta.Respuesta = "Ok";
+                        respuesta.Descripcion = $"Respuesta: {result.init_periodoResult}";
+                    }
+                }
+
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo realizar la Activación del Periodo. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo realizar la Activación del Periodo. Detalle de Error: " + e.InnerException.Message;
+
+            }
+
+            return respuesta;
+
+        }
+
+
     }
-
-
 }
