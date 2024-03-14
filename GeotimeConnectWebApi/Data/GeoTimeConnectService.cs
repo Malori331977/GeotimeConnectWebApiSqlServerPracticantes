@@ -6304,8 +6304,9 @@ namespace GeoTimeConnectWebApi.Data
             List<cPortal_DocMarca> model = new();
             try
             {
+                DateTime fechaDoc = DateTime.Parse($"{fecha.Substring(0, 4)}-{fecha.Substring(4, 2)}-{fecha.Substring(6, 2)}");
                 model = await _context.Portal_DocsMarcas
-                                .Where(e=>e.FECHA.ToString("yyyyMMdd")==fecha && e.IDNUMERO==idnumero)
+                                .Where(e=>e.FECHA== fechaDoc && e.IDNUMERO==idnumero)
                                 .ToListAsync();
             }
             catch (Exception e)

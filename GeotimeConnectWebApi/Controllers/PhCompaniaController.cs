@@ -16,7 +16,7 @@ namespace GeoTimeConnectWebApi.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    [Authorize]
+    
     public class PhCompaniaController : Controller
     {
         private readonly IGeoTimeConnectService _repoGT;
@@ -27,11 +27,13 @@ namespace GeoTimeConnectWebApi.Controllers
         }
 
         [HttpGet]
-        public async Task<IEnumerable<cPh_Compania>> Get() => await _repoGT.GetPhCompania();      
+        public async Task<IEnumerable<cPh_Compania>> Get() => await _repoGT.GetPhCompania();
 
+        [Authorize]
         [HttpGet("{idcomp}")]
         public async Task<cPh_Compania> Get(string idcomp) => await _repoGT.GetPhCompania(idcomp);
 
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] IEnumerable<cPh_Compania> phCompanias)
         {
