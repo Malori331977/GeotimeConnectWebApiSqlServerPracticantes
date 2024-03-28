@@ -8,6 +8,35 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
     public interface IGeoTimeConnectService
     {
         public Task<EventResponse> ActivarPeriodoPAAsync(cActivarPeriodo parametros);
+
+        /* Metodos SQL */
+        #region SQLMetodes
+        public Task<IEnumerable<cPh_Login>> GetPhLogin();
+        public Task<cPh_Login> GetPhLogin(string id);
+        public Task<List<cPh_Compania>> GetPhCompania();
+        public Task<cPh_Compania> GetPhCompania(string idcomp);
+
+        /// <summary>
+        /// Sincronizar_PhCompania: metodo para sincronizar las compañias 
+        /// </summary>
+        /// <param name="phCompanias"></param>
+        /// <returns>una instancia EventResponse con el resultado de la operacion</returns>
+        public Task<EventResponse> Sincronizar_PhCompania(IEnumerable<cPh_Compania> phCompanias);
+
+
+        #endregion
+
+        #region SPMetodos
+
+        /// <summary>
+        /// /Obtener lista de Compañias asociadas al usuario
+        /// </summary>
+        /// <returns>Lista de Companias de Usuario </returns>
+        public Task<List<cPh_CompaniaUsuario>> GetPhCompaniaUsuario(string idnumero);
+
+
+        #endregion
+
         public Task<cAccionPersonal> GetAccionPersonal(long idregistro);
         public Task<List<cAccionPersonal>> GetAccionPersonal(string IdPlanilla, DateTime FechaInicio, DateTime FechaFin);
         public Task<List<cAccionPersonal>> GetAccionPersonal(string IdPlanilla, DateTime FechaInicio, DateTime FechaFin, string usuario);
@@ -115,16 +144,6 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         /// <returns>Instancia de EventResponse con el resultado de la operación</returns>
         public Task<EventResponse> ValidarClaveAdm(cLogin login);
         public Task<EventResponse> CambiarClaveEmpleado(cEmpleado empleado);
-        public Task<cPh_Login> GetPhLogin(string id);
-        public Task<List<cPh_Compania>> GetPhCompania();
-        public Task<cPh_Compania> GetPhCompania(string idcomp);
-
-        /// <summary>
-        /// Sincronizar_PhCompania: metodo para sincronizar las compañias 
-        /// </summary>
-        /// <param name="phCompanias"></param>
-        /// <returns>una instancia EventResponse con el resultado de la operacion</returns>
-        public Task<EventResponse> Sincronizar_PhCompania(IEnumerable<cPh_Compania> phCompanias);
 
 
         public Task<List<cMarcaMovTurno>> GetMarcaMovTurno();
@@ -346,12 +365,7 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         //Obtener lista de Acciones de Personal
         public Task<List<cAccionPersonal>> GetAccionPersonalPorPeriodo(string idnumero, string fecha, string IdPlanilla);
 
-        /// <summary>
-        /// /Obtener lista de Compañias asociadas al usuario
-        /// </summary>
-        /// <returns>Lista de Companias de Usuario </returns>
-
-        public Task<List<cPh_CompaniaUsuario>> GetPhCompaniaUsuario(string idnumero);
+        
 
         /// <summary>
         /// GetMarcasIncidencias: Obtener las Marcas Incidencias para un empleado, planilla y un periodo especifico

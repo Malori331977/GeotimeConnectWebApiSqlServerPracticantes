@@ -22,7 +22,10 @@ namespace GeoTimeConnectWebApi.Controllers
         public PhLoginController(IGeoTimeConnectService repoGT)
         {
             _repoGT = repoGT;
-        }     
+        }
+
+        [HttpGet]
+        public async Task<IEnumerable<cPh_Login>> Get() => await _repoGT.GetPhLogin();
 
         [HttpGet("{id}")]
         public async Task<cPh_Login> Get(string id) => await _repoGT.GetPhLogin(id);

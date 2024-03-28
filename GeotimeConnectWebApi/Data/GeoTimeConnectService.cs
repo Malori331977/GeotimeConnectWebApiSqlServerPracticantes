@@ -66,6 +66,213 @@ namespace GeoTimeConnectWebApi.Data
             _context = SchemaChangeDbContext.GetSchemaChangeDbContext(schema, bdname);
         }
 
+        #region SQLMetodes
+
+        //Creado por: Allan Prieto 
+        //Fecha: 2024-3-26
+        //Obtener datos de Ph_Login
+        public async Task<IEnumerable<cPh_Login>> GetPhLogin()
+        {
+            List<cPh_Login> phlogin = new();
+
+            try
+            {
+                phlogin = await _context.PH_LOGIN.ToListAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message); throw;
+            }
+            return phlogin;
+        }
+
+        //Creado por: Marlon Loria Solano
+        //Fecha: 2022-10-30
+        //Obtener datos de phlogin de una cuenta de usuario
+        //Parametros: id=email de empleado a buscar
+        public async Task<cPh_Login> GetPhLogin(string id)
+        {
+            cPh_Login? phlogin = new();
+
+            try
+            {
+                phlogin = await _context.PH_LOGIN.FirstOrDefaultAsync(e => e.EMAIL.ToUpper() == id.ToUpper());
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message); throw;
+            }
+            return phlogin;
+        }
+
+        //Creado por: Marlon Loria Solano
+        //Fecha: 2022-01-02
+        //Obtener lista de Centros de Costo
+        public async Task<List<cPh_Compania>> GetPhCompania()
+        {
+            List<cPh_Compania> companias = new();
+            try
+            {
+                companias = await _context.PH_COMPANIAS.ToListAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message); throw;
+            }
+            return companias;
+        }
+
+        //Creado por: Marlon Loria Solano
+        //Fecha: 2022-10-30
+        //Obtener un centro de costo especifico
+        //Parametros: idCCosto=centro de costo a buscar
+        public async Task<cPh_Compania> GetPhCompania(string idcomp)
+        {
+            cPh_Compania? compania = new();
+            try
+            {
+                compania = await _context.PH_COMPANIAS.FirstOrDefaultAsync(e => e.IDCOMP == idcomp);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message); throw;
+            }
+            return compania;
+        }
+
+        /// <summary>
+        /// Sincronizar_PhCompania: metodo para sincronizar las compañias 
+        /// </summary>
+        /// <param name="phCompanias"></param>
+        /// <returns>una instancia EventResponse con el resultado de la operacion</returns>
+        public async Task<EventResponse> Sincronizar_PhCompania(IEnumerable<cPh_Compania> phCompanias)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+                foreach (var item in phCompanias)
+                {
+                    cPh_Compania? objetoBuscar = await _context.PH_COMPANIAS
+                                    .FirstOrDefaultAsync(e => e.IDCOMP == item.IDCOMP);
+                    //si el centro de costo existe se actualiza descripción
+                    //de lo contrario se agrega el registro
+                    if (objetoBuscar is not null)
+                    {
+                        objetoBuscar.COMPANIA = item.COMPANIA;
+                        objetoBuscar.NOM_CONECTOR = item.NOM_CONECTOR;
+                        objetoBuscar.STRING_SQL = item.STRING_SQL;
+                        objetoBuscar.STRING_SQL_ERP = item.STRING_SQL_ERP;
+                        objetoBuscar.PAIS = item.PAIS;
+                        objetoBuscar.AUTO_PROCESO = item.AUTO_PROCESO;
+                        objetoBuscar.REMOTE_ERPSERVICE = item.REMOTE_ERPSERVICE;
+                        objetoBuscar.MAIL_SERVER = item.MAIL_SERVER;
+                        objetoBuscar.MAIL_USER = item.MAIL_USER;
+                        objetoBuscar.MAIL_PASSWORD = item.MAIL_PASSWORD;
+                        objetoBuscar.MAIL_PORT = item.MAIL_PORT;
+                        objetoBuscar.MAIL_AUTH = item.MAIL_AUTH;
+                        objetoBuscar.MAIL_SSL = item.MAIL_SSL;
+                        objetoBuscar.HORA_SUP = item.HORA_SUP;
+                        objetoBuscar.HORA_EMP = item.HORA_EMP;
+                        objetoBuscar.SUPERVISOR_ACUM = item.SUPERVISOR_ACUM;
+                        objetoBuscar.MAIL_TLS = item.MAIL_TLS;
+                        objetoBuscar.HORA_CALC = item.HORA_CALC;
+                        objetoBuscar.IN_MARCAS = item.IN_MARCAS;
+
+                        _context.PH_COMPANIAS.Update(objetoBuscar);
+                    }
+                    else
+                    {
+                        _context.Add(item);
+                    }
+                }
+
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo realizar la sincronización de la compañía. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo realizar la sincronización de la compañía. Detalle de Error: " + e.InnerException.Message;
+
+            }
+
+            return respuesta;
+
+        }
+
+
+
+        #endregion
+
+        #region SPMetodos
+        //Creado por: Marlon Loria Solano
+        //Fecha: 2022-01-02
+        /// <summary>
+        /// /Obtener lista de Compañias asociadas al usuario
+        /// </summary>
+        /// <returns>Lista de Compania de Usuario </returns>
+
+        public async Task<List<cPh_CompaniaUsuario>> GetPhCompaniaUsuario(string idnumero)
+        {
+            List<cPh_CompaniaUsuario> companiasUsuario = new();
+            DataTable table;
+
+            try
+            {
+                // Build a config object, using env vars and JSON providers.
+                IConfiguration config = new ConfigurationBuilder()
+                    .AddJsonFile("appsettings.json")
+                    .AddEnvironmentVariables()
+                    .Build();
+
+                string schemaAdmin = config.GetConnectionString("SchemaAdmin");
+
+                using (var connection = _context.Database.GetDbConnection())
+                {
+                    await connection.OpenAsync();
+                    using (var command = connection.CreateCommand())
+                    {
+                        command.CommandText = $"{schemaAdmin}.VerificaCompaniaUsuarioWeb @IdNumero='{idnumero}'";
+                        System.Data.Common.DbDataReader result = command.ExecuteReader();
+
+                        table = new DataTable();
+                        table.Load(result);
+
+                        foreach (DataRow dr in table.Rows)
+                        {
+                            cPh_CompaniaUsuario usrComp = new cPh_CompaniaUsuario
+                            {
+                                idcomp = dr.ItemArray[0].ToString(),
+                                compania = dr.ItemArray[1].ToString(),
+                                nom_conector = dr.ItemArray[2].ToString(),
+                                idnumero = dr.ItemArray[3].ToString(),
+                            };
+                            companiasUsuario.Add(usrComp);
+                        }
+
+                        // Close the reader
+                        result.Close();
+
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                throw;
+            }
+            return companiasUsuario;
+        }
+
+
+        #endregion
+
+
         //Creado por: Marlon Loria Solano
         //Fecha: 2022-10-30
         //Obtener un registro de Acción de Personal
@@ -2270,125 +2477,6 @@ namespace GeoTimeConnectWebApi.Data
         }
 
         //Creado por: Marlon Loria Solano
-        //Fecha: 2022-10-30
-        //Obtener datos de phlogin de una cuenta de usuario
-        //Parametros: id=email de empleado a buscar
-        public async Task<cPh_Login> GetPhLogin(string id)
-        {
-            cPh_Login? phlogin = new();
-
-            try
-            {
-                phlogin = await _context.PH_LOGIN.FirstOrDefaultAsync(e => e.EMAIL.ToUpper() == id.ToUpper());
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.Message); throw;
-            }
-            return phlogin;
-        }
-
-        //Creado por: Marlon Loria Solano
-        //Fecha: 2022-01-02
-        //Obtener lista de Centros de Costo
-        public async Task<List<cPh_Compania>> GetPhCompania()
-        {
-            List<cPh_Compania> companias = new();
-            try
-            {
-                companias = await _context.PH_COMPANIAS.ToListAsync();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.Message); throw;
-            }
-            return companias;
-        }
-
-        //Creado por: Marlon Loria Solano
-        //Fecha: 2022-10-30
-        //Obtener un centro de costo especifico
-        //Parametros: idCCosto=centro de costo a buscar
-        public async Task<cPh_Compania> GetPhCompania(string idcomp)
-        {
-            cPh_Compania? compania = new();
-            try
-            {
-                compania = await _context.PH_COMPANIAS.FirstOrDefaultAsync(e => e.IDCOMP == idcomp);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.Message); throw;
-            }
-            return compania;
-        }
-
-        /// <summary>
-        /// Sincronizar_PhCompania: metodo para sincronizar las compañias 
-        /// </summary>
-        /// <param name="phCompanias"></param>
-        /// <returns>una instancia EventResponse con el resultado de la operacion</returns>
-        public async Task<EventResponse> Sincronizar_PhCompania(IEnumerable<cPh_Compania> phCompanias)
-        {
-            EventResponse respuesta = new EventResponse();
-
-            try
-            {
-                foreach (var item in phCompanias)
-                {
-                    cPh_Compania? objetoBuscar = await _context.PH_COMPANIAS
-                                    .FirstOrDefaultAsync(e => e.IDCOMP == item.IDCOMP);
-                    //si el centro de costo existe se actualiza descripción
-                    //de lo contrario se agrega el registro
-                    if (objetoBuscar is not null)
-                    {
-                        objetoBuscar.COMPANIA = item.COMPANIA;
-                        objetoBuscar.NOM_CONECTOR = item.NOM_CONECTOR;
-                        objetoBuscar.STRING_SQL = item.STRING_SQL;
-                        objetoBuscar.STRING_SQL_ERP = item.STRING_SQL_ERP;
-                        objetoBuscar.PAIS = item.PAIS;
-                        objetoBuscar.AUTO_PROCESO = item.AUTO_PROCESO;
-                        objetoBuscar.REMOTE_ERPSERVICE = item.REMOTE_ERPSERVICE;
-                        objetoBuscar.MAIL_SERVER = item.MAIL_SERVER;
-                        objetoBuscar.MAIL_USER = item.MAIL_USER;
-                        objetoBuscar.MAIL_PASSWORD = item.MAIL_PASSWORD;
-                        objetoBuscar.MAIL_PORT = item.MAIL_PORT;
-                        objetoBuscar.MAIL_AUTH = item.MAIL_AUTH;
-                        objetoBuscar.MAIL_SSL = item.MAIL_SSL;
-                        objetoBuscar.HORA_SUP = item.HORA_SUP;
-                        objetoBuscar.HORA_EMP = item.HORA_EMP;
-                        objetoBuscar.SUPERVISOR_ACUM = item.SUPERVISOR_ACUM;
-                        objetoBuscar.MAIL_TLS = item.MAIL_TLS;
-                        objetoBuscar.HORA_CALC = item.HORA_CALC;
-                        objetoBuscar.IN_MARCAS = item.IN_MARCAS;
-
-                        _context.PH_COMPANIAS.Update(objetoBuscar);
-                    }
-                    else
-                    {
-                        _context.Add(item);
-                    }
-                }
-
-                await _context.SaveChangesAsync();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
-                respuesta.Id = "1";
-                respuesta.Respuesta = "Error";
-                if (e.InnerException == null)
-                    respuesta.Descripcion = "No se pudo realizar la sincronización de la compañía. Detalle de Error: " + e.Message;
-                else
-                    respuesta.Descripcion = "No se pudo realizar la sincronización de la compañía. Detalle de Error: " + e.InnerException.Message;
-
-            }
-
-            return respuesta;
-
-        }
-
-        //Creado por: Marlon Loria Solano
         //Fecha: 2023-05-24
         //Obtener lista de Marcas_Mov_Turnos
         public async Task<List<cMarcaMovTurno>> GetMarcaMovTurno()
@@ -3828,64 +3916,7 @@ namespace GeoTimeConnectWebApi.Data
         }
 
 
-        //Creado por: Marlon Loria Solano
-        //Fecha: 2022-01-02
-        /// <summary>
-        /// /Obtener lista de Compañias asociadas al usuario
-        /// </summary>
-        /// <returns>Lista de Compania de Usuario </returns>
-
-        public async Task<List<cPh_CompaniaUsuario>> GetPhCompaniaUsuario(string idnumero)
-        {
-            List<cPh_CompaniaUsuario> companiasUsuario = new();
-            DataTable table;
-
-            try
-            {
-                // Build a config object, using env vars and JSON providers.
-                IConfiguration config = new ConfigurationBuilder()
-                    .AddJsonFile("appsettings.json")
-                    .AddEnvironmentVariables()
-                    .Build();
-
-                string schemaAdmin = config.GetConnectionString("SchemaAdmin");
-
-                using (var connection = _context.Database.GetDbConnection())
-                {
-                    await connection.OpenAsync();
-                    using (var command = connection.CreateCommand())
-                    {
-                        command.CommandText = $"{schemaAdmin}.VerificaCompaniaUsuarioWeb @IdNumero='{idnumero}'";
-                        System.Data.Common.DbDataReader result = command.ExecuteReader();
-
-                        table = new DataTable();
-                        table.Load(result);
-
-                        foreach (DataRow dr in table.Rows)
-                        {
-                            cPh_CompaniaUsuario usrComp = new cPh_CompaniaUsuario
-                            {
-                                idcomp = dr.ItemArray[0].ToString(),
-                                compania = dr.ItemArray[1].ToString(),
-                                nom_conector = dr.ItemArray[2].ToString(),
-                                idnumero = dr.ItemArray[3].ToString(),
-                            };
-                            companiasUsuario.Add(usrComp);
-                        }
-
-                        // Close the reader
-                        result.Close();
-
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.Message);
-                throw;
-            }
-            return companiasUsuario;
-        }
+        
 
         //Creado por: Marlon Loria Solano
         //Fecha: 2023-09-01
