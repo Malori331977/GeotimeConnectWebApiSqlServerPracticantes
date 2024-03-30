@@ -22,6 +22,29 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         /// <param name="phCompanias"></param>
         /// <returns>una instancia EventResponse con el resultado de la operacion</returns>
         public Task<EventResponse> Sincronizar_PhCompania(IEnumerable<cPh_Compania> phCompanias);
+        public Task<IEnumerable<cPh_Planilla>> GetPhPlanilla();
+        public Task<cPh_Planilla> GetPhPlanilla(string idplanilla);
+        public Task<cPh_Planilla> GetPhPlanilla(string nomConector, string descPlanilla);
+        public Task<EventResponse> Sincronizar_PhPlanilla(IEnumerable<cPh_Planilla> PhPlanillas);
+        public Task<EventResponse> Elimina_PhPlanilla(string idplanilla);
+        /// <summary>
+        /// GetTipo_Planilla: Método para obtener una lista de planillas 
+        /// </summary>
+        /// <returns>Lista de cTipo_Planilla</returns>
+        public Task<List<cTipo_Planilla>> GetTipo_Planilla();
+        /// <summary>
+        /// GetDepartamento: obtener lista de departamentos
+        /// </summary>
+        /// <returns>Lista de departamentos</returns>
+        public Task<List<cDepartamento>> GetDepartamento();
+        public Task<cDepartamento> GetDepartamento(string idDepart);
+        public Task<EventResponse> Sincronizar_Departamento(IEnumerable<cDepartamento> departamentos);
+        public Task<EventResponse> Elimina_Departamento(string id);
+        public Task<List<cPh_Grupo>> GetGrupo();
+        public Task<cPh_Grupo> GetGrupo(int idgrupo);
+        public Task<EventResponse> Sincronizar_Grupo(IEnumerable<cPh_Grupo> PhGrupos);
+        public Task<EventResponse> Elimina_Grupo(int idgrupo);
+
 
 
         #endregion
@@ -34,6 +57,16 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         /// <returns>Lista de Companias de Usuario </returns>
         public Task<List<cPh_CompaniaUsuario>> GetPhCompaniaUsuario(string idnumero);
 
+
+        #endregion
+
+        #region WSMetodos
+        /// <summary>
+        /// EjecutaInitPeriodo:  Se ejecuta el WebService Init_Periodo.
+        /// </summary>
+        /// <param name="parametros">Recibe una instancia de cInit_Periodo</param>
+        /// <returns>Instancia de EventResponse con el resultado de la operación</returns>
+        public Task<EventResponse> EjecutaInitPeriodo(IEnumerable<cInit_Periodo> parametros);
 
         #endregion
 
@@ -55,14 +88,8 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         public Task<cConcepto> GetConcepto(string concepto);
         public Task<EventResponse> Sincronizar_Concepto(IEnumerable<cConcepto> conceptos);
         public Task<EventResponse> Elimina_Concepto(int id);
-        /// <summary>
-        /// GetDepartamento: obtener lista de departamentos
-        /// </summary>
-        /// <returns>Lista de departamentos</returns>
-        public Task<List<cDepartamento>> GetDepartamento();
-        public Task<cDepartamento> GetDepartamento(string idDepart);
-        public Task<EventResponse> Sincronizar_Departamento(IEnumerable<cDepartamento> departamentos);
-        //public Task<EventResponse> Elimina_Concepto(int id);
+        
+        
 
         /// <summary>
         /// GetEmpleado: Método para obtener una lista de empleados 
@@ -166,10 +193,7 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         /// <param name="idgrupo">grupo de empleado</param>
         public Task<List<cMarcaMovTurno>> GetMarcaMovTurnoByGrupo(string fechaPeriodo, string idgrupo);
         public Task<EventResponse> Sincronizar_MarcasMovTurnos(IEnumerable<cMarcaMovTurno> marcasMovTurnos);
-        public Task<List<cPh_Grupo>> GetGrupo();
-        public Task<cPh_Grupo> GetGrupo(int idgrupo);
-        public Task<EventResponse> Sincronizar_Grupo(IEnumerable<cPh_Grupo> PhGrupos);
-        public Task<EventResponse> Elimina_Grupo(int idgrupo);
+        
 
         /// <summary>
         /// getPeriodo: Método para obtener una lista de Periodos 
@@ -203,11 +227,6 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         public Task<EventResponse> Sincronizar_Periodo(IEnumerable<cPh_Periodos> periodos);
         public Task<EventResponse> Elimina_Periodo(string id);
 
-        public Task<IEnumerable<cPh_Planilla>> GetPhPlanilla();
-        public Task<cPh_Planilla> GetPhPlanilla(string idplanilla);
-        public Task<cPh_Planilla> GetPhPlanilla(string nomConector, string descPlanilla);
-        public Task<EventResponse> Sincronizar_PhPlanilla(IEnumerable<cPh_Planilla> PhPlanillas);
-        public Task<EventResponse> Elimina_PhPlanilla(string idplanilla);
 
 
         /// <summary>
@@ -528,11 +547,6 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         /// <returns>EventResponse</returns>
         public Task<EventResponse> Elimina_Horario_Turno(string IDHORARIO);
 
-        /// <summary>
-        /// GetTipo_Planilla: Método para obtener una lista de planillas 
-        /// </summary>
-        /// <returns>Lista de cTipo_Planilla</returns>
-        public Task<List<cTipo_Planilla>> GetTipo_Planilla();
 
         /// <summary>
         /// GetPh_Transformacion: Método para obtener una lista de tranformaciones 
@@ -730,11 +744,6 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         /// <returns>Instancia de EventResponse con el resultado de la operación</returns>
         public Task<EventResponse> Sincronizar_PortalDocMarca(IEnumerable<cPortal_DocMarca> portalDocsMarcas);
 
-        /// <summary>
-        /// EjecutaInitPeriodo:  Se ejecuta el WebService Init_Periodo.
-        /// </summary>
-        /// <param name="parametros">Recibe una instancia de cInit_Periodo</param>
-        /// <returns>Instancia de EventResponse con el resultado de la operación</returns>
-        public Task<EventResponse> EjecutaInitPeriodo(IEnumerable<cInit_Periodo> parametros);
+        
     }
 }
