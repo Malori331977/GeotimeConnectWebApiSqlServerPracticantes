@@ -205,6 +205,413 @@ namespace GeoTimeConnectWebApi.Data
 
         }
 
+        //Creado por: Marlon Loria Solano
+        //Fecha: 2023-06-27
+        //Obtener lista de tipos de planilla 
+        public async Task<IEnumerable<cPh_Planilla>> GetPhPlanilla()
+        {
+            List<cPh_Planilla>? planilla = new();
+            try
+            {
+                planilla = await _context.Ph_Planilla.ToListAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message); throw;
+            }
+            return planilla;
+        }
+
+        //Creado por: Marlon Loria Solano
+        //Fecha: 2023-06-27
+        //Obtener un tipo de planilla especifico
+        public async Task<cPh_Planilla> GetPhPlanilla(string idplanilla)
+        {
+            cPh_Planilla? planilla = new();
+            try
+            {
+                planilla = await _context.Ph_Planilla.FirstOrDefaultAsync(e => e.idplanilla == idplanilla);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message); throw;
+            }
+            return planilla;
+        }
+
+        //Creado por: Marlon Loria Solano
+        //Fecha: 2023-06-27
+        //Obtener un tipo de planilla especifico por nom conector
+        public async Task<cPh_Planilla> GetPhPlanilla(string nomConector, string descPlanilla)
+        {
+            cPh_Planilla? planilla = new();
+            try
+            {
+                planilla = await _context.Ph_Planilla.FirstOrDefaultAsync(e => e.nom_conector.ToLower() == nomConector.ToLower());
+
+                if (planilla == null)
+                {
+                    planilla = await _context.Ph_Planilla.FirstOrDefaultAsync(e => e.planilla.ToLower() == descPlanilla.ToLower());
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message); throw;
+            }
+            return planilla;
+        }
+
+        //Creado por: Allan Prieto Badilla
+        //Fecha: 2023-10-12
+        //Sincronizar Planilla 
+        //Parametro: Recibe una instancia de Planilla, se verifica si existe en cuyo caso
+        //actualiza el registro, de lo contrario lo crea.
+        public async Task<EventResponse> Sincronizar_PhPlanilla(IEnumerable<cPh_Planilla> PhPlanillas)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+                foreach (var item in PhPlanillas)
+                {
+                    cPh_Planilla? pla = await _context.Ph_Planilla
+                                                        .FirstOrDefaultAsync(e => e.idplanilla == item.idplanilla);
+
+                    if (pla is not null)
+                    {
+                        pla.planilla = item.planilla;
+                        pla.nom_conector = item.nom_conector;
+                        pla.tipo_planilla = item.tipo_planilla;
+                        pla.c_ext = item.c_ext;
+                        pla.c_inci = item.c_inci;
+                        pla.c_adic = item.c_adic;
+                        pla.m_desc = item.m_desc;
+                        pla.proyecta = item.proyecta;
+                        pla.dia_inicio = item.dia_inicio;
+                        pla.auto_proceso = item.auto_proceso;
+                        pla.tipo_dist = item.tipo_dist;
+                        pla.est_nomina = item.est_nomina;
+                        pla.ext_per_ant = item.ext_per_ant;
+                        pla.ext_det = item.ext_det;
+                        pla.agrup_salida = item.agrup_salida;
+                        pla.tipo_adic = item.tipo_adic;
+                        pla.nivel_aprob_ext = item.nivel_aprob_ext;
+                        _context.Ph_Planilla.Update(pla);
+                    }
+                    else
+                    {
+                        _context.Add(item);
+                    }
+                }
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo realizar la sincronización de la planilla. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo realizar la sincronización de la planilla. Detalle de Error: " + e.InnerException.Message;
+            }
+
+            return respuesta;
+
+        }
+
+        /// <summary>
+        /// Elimina_PhPlanilla:  Metodo borrado de datos de la tabla Ph_Planilla
+        /// </summary>
+        /// <param name="idplanilla"></param>
+        /// <returns>EventResponse</returns>
+        public async Task<EventResponse> Elimina_PhPlanilla(string idplanilla)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+
+                cPh_Planilla? model = await _context.Ph_Planilla
+                    .FirstOrDefaultAsync(e => e.idplanilla == idplanilla);
+
+                if (model is not null)
+                {
+                    _context.Ph_Planilla.Remove(model);
+                }
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo eliminar la planilla. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo eliminar la planill. Detalle de Error: " + e.InnerException.Message;
+
+            }
+            return respuesta;
+        }
+
+        //Creado por: Allan Prieto
+        //Fecha: 2023-12-8
+        /// <summary>
+        /// GetTipo_Planilla: Obtener lista de registros de la tabla TIPOS_PLANILLA
+        /// </summary>
+        /// <returns>Lista de cTipo_Planilla </returns>
+        /// 
+        public async Task<List<cTipo_Planilla>> GetTipo_Planilla()
+        {
+            List<cTipo_Planilla> planillas = new();
+            try
+            {
+                planillas = await _context.TIPOS_PLANILLA.ToListAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message); throw;
+            }
+            return planillas;
+        }
+
+        //Creado por: Marlon Loria Solano
+        //Fecha: 2022-10-30
+        //Obtener lista de Departamentos
+        public async Task<List<cDepartamento>> GetDepartamento()
+        {
+            List<cDepartamento> departamento = new();
+            try
+            {
+                departamento = await _context.Ph_Departamento.ToListAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message); throw;
+            }
+            return departamento;
+        }
+
+        //Creado por: Marlon Loria Solano
+        //Fecha: 2022-10-30
+        //Obtener un Departamento especifico
+        //Parametros: idDepart=Id de departamento a buscar
+        public async Task<cDepartamento> GetDepartamento(string idDepart)
+        {
+            cDepartamento? departamento = new();
+            try
+            {
+                departamento = await _context.Ph_Departamento.FirstOrDefaultAsync(e => e.IDDEPART == idDepart);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message); throw;
+            }
+            return departamento;
+        }
+
+        //Creado por: Marlon Loria Solano
+        //Fecha: 2022-10-30
+        //Sincronizar Departamentos
+        //Parametro: Recibe una instancia de departamento, se verifica si existe en cuyo caso
+        //actualiza el registro, de lo contrario lo crea.
+        public async Task<EventResponse> Sincronizar_Departamento(IEnumerable<cDepartamento> departamentos)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+                foreach (var departamento in departamentos)
+                {
+                    cDepartamento? depto = await _context.Ph_Departamento
+                                                        .Where(e => e.IDDEPART == departamento.IDDEPART)
+                                                        .FirstOrDefaultAsync();
+                    //si el departamento existe se actualiza descripción
+                    //de lo contrario se agrega el registro
+                    if (depto is not null)
+                    {
+                        depto.DESCRIPCION = departamento.DESCRIPCION;
+                        _context.Ph_Departamento.Update(depto);
+                    }
+                    else
+                    {
+                        _context.Add(departamento);
+                    }
+                }
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo realizar la sincronización de Departamentos. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo realizar la sincronización de Departamentos. Detalle de Error: " + e.InnerException.Message;
+
+            }
+
+            return respuesta;
+
+        }
+
+        /// <summary>
+        /// Elimina_Departamento:  Metodo boorado de datos de la tabla cDepartamento
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns>EventResponse</returns>
+        public async Task<EventResponse> Elimina_Departamento(string id)
+        {
+            EventResponse respuesta = new EventResponse();
+            try
+            {
+
+                cDepartamento? model = await _context.Ph_Departamento
+                    .FirstOrDefaultAsync(e => e.IDDEPART == id);
+
+                if (model is not null)
+                {
+                    _context.Ph_Departamento.Remove(model);
+                }
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo eliminar el Departamento. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo eliminar Departamento. Detalle de Error: " + e.InnerException.Message;
+            }
+            return respuesta;
+
+        }
+        //Fecha: 2022-10-30
+        //Obtener lista de Conceptos
+        public async Task<List<cPh_Grupo>> GetGrupo()
+        {
+            List<cPh_Grupo> grupo = new();
+            try
+            {
+                grupo = await _context.Ph_Grupos.ToListAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message); throw;
+            }
+            return grupo;
+        }
+
+        //Creado por: Marlon Loria Solano
+        //Fecha: 2022-10-30
+        //Obtener un Grupo especifico
+        //Parametros: concepto=concepto a buscar
+        public async Task<cPh_Grupo> GetGrupo(int idgrupo)
+        {
+            cPh_Grupo? grupos = new();
+            try
+            {
+                grupos = await _context.Ph_Grupos.FirstOrDefaultAsync(e => e.idgrupo == idgrupo);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message); throw;
+            }
+            return grupos;
+        }
+
+        /// <summary>
+        /// Sincronizar_Grupo: metodo para sincronizar los Grupos 
+        /// </summary>
+        /// <param name="PhGrupos"></param>
+        /// <returns>una instancia EventResponse con el resultado de la operacion</returns>
+        public async Task<EventResponse> Sincronizar_Grupo(IEnumerable<cPh_Grupo> phGrupos)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+                foreach (var item in phGrupos)
+                {
+                    cPh_Grupo? objetoBuscar = await _context.Ph_Grupos
+                                    .FirstOrDefaultAsync(e => e.idgrupo == item.idgrupo);
+                    //si el centro de costo existe se actualiza descripción
+                    //de lo contrario se agrega el registro*
+                    if (objetoBuscar is not null)
+                    {
+                        objetoBuscar.idgrupo = item.idgrupo;
+                        objetoBuscar.descripcion = item.descripcion;
+                        objetoBuscar.idcomp = item.idcomp;
+                        objetoBuscar.idplanilla = item.idplanilla;
+                        objetoBuscar.estado = item.estado;
+                        objetoBuscar.idagrupamiento = item.idagrupamiento;
+                        objetoBuscar.turno_continuo = item.turno_continuo;
+
+                        _context.Ph_Grupos.Update(objetoBuscar);
+                    }
+                    else
+                    {
+                        _context.Add(item);
+                    }
+                }
+
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo realizar la sincronización del Grupo. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo realizar la sincronización del Grupo. Detalle de Error: " + e.InnerException.Message;
+
+            }
+
+            return respuesta;
+
+        }
+
+        /// <summary>
+        /// Elimina_Grupo:  Metodo borrado de datos de la tabla Ph_Grupos
+        /// </summary>
+        /// <param name="idgrupo"></param>
+        /// <returns>EventResponse</returns>
+        public async Task<EventResponse> Elimina_Grupo(int idgrupo)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+
+                cPh_Grupo? model = await _context.Ph_Grupos
+                    .FirstOrDefaultAsync(e => e.idgrupo == idgrupo);
+
+                if (model is not null)
+                {
+                    _context.Ph_Grupos.Remove(model);
+                }
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo eliminar el Grupo. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo eliminar el Grupo. Detalle de Error: " + e.InnerException.Message;
+
+            }
+            return respuesta;
+        }
+
 
 
         #endregion
@@ -216,7 +623,6 @@ namespace GeoTimeConnectWebApi.Data
         /// /Obtener lista de Compañias asociadas al usuario
         /// </summary>
         /// <returns>Lista de Compania de Usuario </returns>
-
         public async Task<List<cPh_CompaniaUsuario>> GetPhCompaniaUsuario(string idnumero)
         {
             List<cPh_CompaniaUsuario> companiasUsuario = new();
@@ -267,6 +673,78 @@ namespace GeoTimeConnectWebApi.Data
                 throw;
             }
             return companiasUsuario;
+        }
+        public async Task EjecutaPostCambioPlanilla(string idnumero, string oldPlanilla, string newPlanilla)
+        {
+            try
+            {
+                using (var connection = _context.Database.GetDbConnection())
+                {
+                    await connection.OpenAsync();
+                    using (var command = connection.CreateCommand())
+                    {
+                        command.CommandText = _schema + $".DM_POST_CAMBIOPLANILLA @idnumero='{idnumero}', @OLDPLANILLA='{oldPlanilla}',@NEWPLANILLA='{newPlanilla}'";
+                        await command.ExecuteNonQueryAsync();
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+
+        }
+
+
+        #endregion
+
+        #region WSMetodos
+        //Creado por: Allan Prieto Badilla
+        //Fecha: 2024-03-12
+        /// <summary>
+        /// EjecutaInitPeriodo: Ejecuta WS de Init_Periodo
+        /// </summary>
+        /// <param name="parametros">Ejecuta el Web Service</param>
+        /// <returns>EventResponse con resultado del proceso</returns>
+        public async Task<EventResponse> EjecutaInitPeriodo(IEnumerable<cInit_Periodo> parametros)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+                foreach (var item in parametros)
+                {
+                    init_periodoRequest initPeriodo = new init_periodoRequest
+                    {
+                        comp = item.IdComp,
+                        periodo = item.IdPeriodo,
+                        plan = item.IdPlanilla,
+                    };
+
+                    EndpointConfiguration endpointConfiguration = new();
+                    GeoTimeServiceReference.ServiceSoapClient geoWebService = new(endpointConfiguration);
+
+                    var result = await geoWebService.init_periodoAsync(initPeriodo);
+                    if (result.init_periodoResult != "")
+                    {
+                        respuesta.Id = "0";
+                        respuesta.Respuesta = "Ok";
+                        respuesta.Descripcion = $"Respuesta: {result.init_periodoResult}";
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo realizar la Activación del Periodo. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo realizar la Activación del Periodo. Detalle de Error: " + e.InnerException.Message;
+            }
+            return respuesta;
+
         }
 
 
@@ -1043,86 +1521,7 @@ namespace GeoTimeConnectWebApi.Data
             return respuesta;
         }
 
-        //Creado por: Marlon Loria Solano
-        //Fecha: 2022-10-30
-        //Obtener lista de Departamentos
-        public async Task<List<cDepartamento>> GetDepartamento()
-        {
-            List<cDepartamento> departamento = new();
-            try
-            {
-                departamento = await _context.Ph_Departamento.ToListAsync();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.Message); throw;
-            }
-            return departamento;
-        }
-
-        //Creado por: Marlon Loria Solano
-        //Fecha: 2022-10-30
-        //Obtener un Departamento especifico
-        //Parametros: idDepart=Id de departamento a buscar
-        public async Task<cDepartamento> GetDepartamento(string idDepart)
-        {
-            cDepartamento? departamento = new();
-            try
-            {
-                departamento = await _context.Ph_Departamento.FirstOrDefaultAsync(e => e.IDDEPART == idDepart);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.Message); throw;
-            }
-            return departamento;
-        }
-
-        //Creado por: Marlon Loria Solano
-        //Fecha: 2022-10-30
-        //Sincronizar Departamentos
-        //Parametro: Recibe una instancia de departamento, se verifica si existe en cuyo caso
-        //actualiza el registro, de lo contrario lo crea.
-        public async Task<EventResponse> Sincronizar_Departamento(IEnumerable<cDepartamento> departamentos)
-        {
-            EventResponse respuesta = new EventResponse();
-
-            try
-            {
-                foreach (var departamento in departamentos)
-                {
-                    cDepartamento? depto = await _context.Ph_Departamento
-                                                        .Where(e => e.IDDEPART == departamento.IDDEPART)
-                                                        .FirstOrDefaultAsync();
-                    //si el departamento existe se actualiza descripción
-                    //de lo contrario se agrega el registro
-                    if (depto is not null)
-                    {
-                        depto.DESCRIPCION = departamento.DESCRIPCION;
-                        _context.Ph_Departamento.Update(depto);
-                    }
-                    else
-                    {
-                        _context.Add(departamento);
-                    }
-                }
-                await _context.SaveChangesAsync();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
-                respuesta.Id = "1";
-                respuesta.Respuesta = "Error";
-                if (e.InnerException == null)
-                    respuesta.Descripcion = "No se pudo realizar la sincronización de Departamentos. Detalle de Error: " + e.Message;
-                else
-                    respuesta.Descripcion = "No se pudo realizar la sincronización de Departamentos. Detalle de Error: " + e.InnerException.Message;
-
-            }
-
-            return respuesta;
-
-        }
+        
 
         //Creado por: Marlon Loria Solano
         //Fecha: 2022-10-30
@@ -2720,127 +3119,7 @@ namespace GeoTimeConnectWebApi.Data
 
         }
 
-        //Fecha: 2022-10-30
-        //Obtener lista de Conceptos
-        public async Task<List<cPh_Grupo>> GetGrupo()
-        {
-            List<cPh_Grupo> grupo = new();
-            try
-            {
-                grupo = await _context.Ph_Grupos.ToListAsync();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.Message); throw;
-            }
-            return grupo;
-        }
-
-        //Creado por: Marlon Loria Solano
-        //Fecha: 2022-10-30
-        //Obtener un Grupo especifico
-        //Parametros: concepto=concepto a buscar
-        public async Task<cPh_Grupo> GetGrupo(int idgrupo)
-        {
-            cPh_Grupo? grupos = new();
-            try
-            {
-                grupos = await _context.Ph_Grupos.FirstOrDefaultAsync(e => e.idgrupo == idgrupo);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.Message); throw;
-            }
-            return grupos;
-        }
-
-        /// <summary>
-        /// Sincronizar_Grupo: metodo para sincronizar los Grupos 
-        /// </summary>
-        /// <param name="PhGrupos"></param>
-        /// <returns>una instancia EventResponse con el resultado de la operacion</returns>
-        public async Task<EventResponse> Sincronizar_Grupo(IEnumerable<cPh_Grupo> phGrupos)
-        {
-            EventResponse respuesta = new EventResponse();
-
-            try
-            {
-                foreach (var item in phGrupos)
-                {
-                    cPh_Grupo? objetoBuscar = await _context.Ph_Grupos
-                                    .FirstOrDefaultAsync(e => e.idgrupo == item.idgrupo);
-                    //si el centro de costo existe se actualiza descripción
-                    //de lo contrario se agrega el registro*
-                    if (objetoBuscar is not null)
-                    {
-                        objetoBuscar.idgrupo = item.idgrupo;
-                        objetoBuscar.descripcion = item.descripcion;
-                        objetoBuscar.idcomp = item.idcomp;
-                        objetoBuscar.idplanilla = item.idplanilla;
-                        objetoBuscar.estado = item.estado;
-                        objetoBuscar.idagrupamiento = item.idagrupamiento;
-                        objetoBuscar.turno_continuo = item.turno_continuo;
-
-                        _context.Ph_Grupos.Update(objetoBuscar);
-                    }
-                    else
-                    {
-                        _context.Add(item);
-                    }
-                }
-
-                await _context.SaveChangesAsync();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
-                respuesta.Id = "1";
-                respuesta.Respuesta = "Error";
-                if (e.InnerException == null)
-                    respuesta.Descripcion = "No se pudo realizar la sincronización del Grupo. Detalle de Error: " + e.Message;
-                else
-                    respuesta.Descripcion = "No se pudo realizar la sincronización del Grupo. Detalle de Error: " + e.InnerException.Message;
-
-            }
-
-            return respuesta;
-
-        }
-
-        /// <summary>
-        /// Elimina_Grupo:  Metodo borrado de datos de la tabla Ph_Grupos
-        /// </summary>
-        /// <param name="idgrupo"></param>
-        /// <returns>EventResponse</returns>
-        public async Task<EventResponse> Elimina_Grupo(int idgrupo)
-        {
-            EventResponse respuesta = new EventResponse();
-
-            try
-            {
-
-                cPh_Grupo? model = await _context.Ph_Grupos
-                    .FirstOrDefaultAsync(e => e.idgrupo == idgrupo);
-
-                if (model is not null)
-                {
-                    _context.Ph_Grupos.Remove(model);
-                }
-                await _context.SaveChangesAsync();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
-                respuesta.Id = "1";
-                respuesta.Respuesta = "Error";
-                if (e.InnerException == null)
-                    respuesta.Descripcion = "No se pudo eliminar el Grupo. Detalle de Error: " + e.Message;
-                else
-                    respuesta.Descripcion = "No se pudo eliminar el Grupo. Detalle de Error: " + e.InnerException.Message;
-
-            }
-            return respuesta;
-        }
+        
 
         //Creado por: Marlon Loria Solano
         //Fecha: 2023-06-07
@@ -3031,177 +3310,7 @@ namespace GeoTimeConnectWebApi.Data
 
         }
 
-
-        //Creado por: Marlon Loria Solano
-        //Fecha: 2023-06-27
-        //Obtener lista de tipos de planilla 
-        public async Task<IEnumerable<cPh_Planilla>> GetPhPlanilla()
-        {
-            List<cPh_Planilla>? planilla = new();
-            try
-            {
-                planilla = await _context.Ph_Planilla.ToListAsync();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.Message); throw;
-            }
-            return planilla;
-        }
-
-        //Creado por: Marlon Loria Solano
-        //Fecha: 2023-06-27
-        //Obtener un tipo de planilla especifico
-        public async Task<cPh_Planilla> GetPhPlanilla(string idplanilla)
-        {
-            cPh_Planilla? planilla = new();
-            try
-            {
-                planilla = await _context.Ph_Planilla.FirstOrDefaultAsync(e => e.idplanilla == idplanilla);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.Message); throw;
-            }
-            return planilla;
-        }
-
-        //Creado por: Marlon Loria Solano
-        //Fecha: 2023-06-27
-        //Obtener un tipo de planilla especifico por nom conector
-        public async Task<cPh_Planilla> GetPhPlanilla(string nomConector, string descPlanilla)
-        {
-            cPh_Planilla? planilla = new();
-            try
-            {
-                planilla = await _context.Ph_Planilla.FirstOrDefaultAsync(e => e.nom_conector.ToLower() == nomConector.ToLower());
-
-                if (planilla == null)
-                {
-                    planilla = await _context.Ph_Planilla.FirstOrDefaultAsync(e => e.planilla.ToLower() == descPlanilla.ToLower());
-                }
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.Message); throw;
-            }
-            return planilla;
-        }
-
-        //Creado por: Allan Prieto Badilla
-        //Fecha: 2023-10-12
-        //Sincronizar Planilla 
-        //Parametro: Recibe una instancia de Planilla, se verifica si existe en cuyo caso
-        //actualiza el registro, de lo contrario lo crea.
-        public async Task<EventResponse> Sincronizar_PhPlanilla(IEnumerable<cPh_Planilla> PhPlanillas)
-        {
-            EventResponse respuesta = new EventResponse();
-
-            try
-            {
-                foreach (var item in PhPlanillas)
-                {
-                    cPh_Planilla? pla = await _context.Ph_Planilla
-                                                        .FirstOrDefaultAsync(e => e.idplanilla == item.idplanilla);
-                    
-                    if (pla is not null)
-                    {
-                        pla.planilla = item.planilla;
-                        pla.nom_conector = item.nom_conector;
-                        pla.tipo_planilla = item.tipo_planilla;
-                        pla.c_ext = item.c_ext;
-                        pla.c_inci = item.c_inci;
-                        pla.c_adic = item.c_adic;
-                        pla.m_desc = item.m_desc;
-                        pla.proyecta = item.proyecta;
-                        pla.dia_inicio = item.dia_inicio;
-                        pla.auto_proceso = item.auto_proceso;
-                        pla.tipo_dist = item.tipo_dist;
-                        pla.est_nomina = item.est_nomina;
-                        pla.ext_per_ant = item.ext_per_ant;
-                        pla.ext_det = item.ext_det;
-                        pla.agrup_salida = item.agrup_salida;
-                        pla.tipo_adic = item.tipo_adic;
-                        pla.nivel_aprob_ext = item.nivel_aprob_ext;
-                        _context.Ph_Planilla.Update(pla);
-                    }
-                    else
-                    {
-                        _context.Add(item);
-                    }
-                }
-                await _context.SaveChangesAsync();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
-                respuesta.Id = "1";
-                respuesta.Respuesta = "Error";
-                if (e.InnerException == null)
-                    respuesta.Descripcion = "No se pudo realizar la sincronización de la planilla. Detalle de Error: " + e.Message;
-                else
-                    respuesta.Descripcion = "No se pudo realizar la sincronización de la planilla. Detalle de Error: " + e.InnerException.Message;
-            }
-
-            return respuesta;
-
-        }
-
-        /// <summary>
-        /// Elimina_PhPlanilla:  Metodo borrado de datos de la tabla Ph_Planilla
-        /// </summary>
-        /// <param name="idplanilla"></param>
-        /// <returns>EventResponse</returns>
-        public async Task<EventResponse> Elimina_PhPlanilla(string idplanilla)
-        {
-            EventResponse respuesta = new EventResponse();
-
-            try
-            {
-
-                cPh_Planilla? model = await _context.Ph_Planilla
-                    .FirstOrDefaultAsync(e => e.idplanilla == idplanilla);
-
-                if (model is not null)
-                {
-                    _context.Ph_Planilla.Remove(model);
-                }
-                await _context.SaveChangesAsync();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
-                respuesta.Id = "1";
-                respuesta.Respuesta = "Error";
-                if (e.InnerException == null)
-                    respuesta.Descripcion = "No se pudo eliminar la planilla. Detalle de Error: " + e.Message;
-                else
-                    respuesta.Descripcion = "No se pudo eliminar la planill. Detalle de Error: " + e.InnerException.Message;
-
-            }
-            return respuesta;
-        }
-
-        public async Task EjecutaPostCambioPlanilla(string idnumero, string oldPlanilla, string newPlanilla)
-        {
-            try
-            {
-                using (var connection = _context.Database.GetDbConnection())
-                {
-                    await connection.OpenAsync();
-                    using (var command = connection.CreateCommand())
-                    {
-                        command.CommandText = _schema + $".DM_POST_CAMBIOPLANILLA @idnumero='{idnumero}', @OLDPLANILLA='{oldPlanilla}',@NEWPLANILLA='{newPlanilla}'";
-                        await command.ExecuteNonQueryAsync();
-                    }
-                }
-            }
-            catch (Exception)
-            {
-                throw;
-            }
-
-        }
+       
 
         //Creado por: Marlon Loria Solano
         //Fecha: 2023-08-10
@@ -4855,27 +4964,6 @@ namespace GeoTimeConnectWebApi.Data
         }
 
         //Creado por: Allan Prieto
-        //Fecha: 2023-12-8
-        /// <summary>
-        /// GetTipo_Planilla: Obtener lista de registros de la tabla TIPOS_PLANILLA
-        /// </summary>
-        /// <returns>Lista de cTipo_Planilla </returns>
-        /// 
-        public async Task<List<cTipo_Planilla>> GetTipo_Planilla()
-        {
-            List<cTipo_Planilla> planillas = new();
-            try
-            {
-                planillas = await _context.TIPOS_PLANILLA.ToListAsync();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.Message); throw;
-            }
-            return planillas;
-        }
-
-        //Creado por: Allan Prieto
         //Fecha: 2023-12-12
         /// <summary>
         /// GetPh_Tranformacion: Obtener lista de registros de la tabla PH_TRANFORMACION
@@ -6404,56 +6492,7 @@ namespace GeoTimeConnectWebApi.Data
 
         }
 
-        //Creado por: Allan Prieto Badilla
-        //Fecha: 2024-03-12
-        /// <summary>
-        /// EjecutaInitPeriodo: Ejecuta WS de Init_Periodo
-        /// </summary>
-        /// <param name="parametros">Ejecuta el Web Service</param>
-        /// <returns>EventResponse con resultado del proceso</returns>
-        public async Task<EventResponse> EjecutaInitPeriodo(IEnumerable<cInit_Periodo> parametros)
-        {
-            EventResponse respuesta = new EventResponse();
-
-            try
-            {
-                foreach (var item in parametros)
-                {
-                    init_periodoRequest initPeriodo = new init_periodoRequest
-                    {
-                        comp = item.IdComp,
-                        periodo = item.IdPeriodo,
-                        plan = item.IdPlanilla,
-                    };
-
-                    EndpointConfiguration endpointConfiguration = new();
-                    GeoTimeServiceReference.ServiceSoapClient geoWebService = new(endpointConfiguration);
-
-                    var result = await geoWebService.init_periodoAsync(initPeriodo);
-                    if (result.init_periodoResult != "")
-                    {
-                        respuesta.Id = "0";
-                        respuesta.Respuesta = "Ok";
-                        respuesta.Descripcion = $"Respuesta: {result.init_periodoResult}";
-                    }
-                }
-
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
-                respuesta.Id = "1";
-                respuesta.Respuesta = "Error";
-                if (e.InnerException == null)
-                    respuesta.Descripcion = "No se pudo realizar la Activación del Periodo. Detalle de Error: " + e.Message;
-                else
-                    respuesta.Descripcion = "No se pudo realizar la Activación del Periodo. Detalle de Error: " + e.InnerException.Message;
-
-            }
-
-            return respuesta;
-
-        }
+        
 
     }
 
