@@ -182,14 +182,16 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         #endregion
 
         #region WSMetodos
+        public Task<EventResponse> Sincronizo_erp(IEnumerable<cSincronizo_erp> parametros);
+        public Task<EventResponse> Sincronizo_Acciones(IEnumerable<cSincronizo_Acciones> parametros);
         /// <summary>
         /// EjecutaInitPeriodo:  Se ejecuta el WebService Init_Periodo.
         /// </summary>
         /// <param name="parametros">Recibe una instancia de cInit_Periodo</param>
         /// <returns>Instancia de EventResponse con el resultado de la operación</returns>
         public Task<EventResponse> Init_Periodo(IEnumerable<cInit_Periodo> parametros);
-        public Task<EventResponse> Sincronizo_erp(IEnumerable<cSincronizo_erp> parametros);
-        public Task<EventResponse> Sincronizo_Acciones(IEnumerable<cSincronizo_Acciones> parametros);
+        public Task<EventResponse> Cal_Periodo_Planilla(IEnumerable<cCal_Periodo_Planilla> parametros);
+
 
         #endregion
 
