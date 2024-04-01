@@ -15,7 +15,6 @@ namespace GeoTimeConnectWebApi.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    [Authorize]
     public class PhLoginByUsuarioController : Controller
     {
         private readonly IGeoTimeConnectService _repoGT;
