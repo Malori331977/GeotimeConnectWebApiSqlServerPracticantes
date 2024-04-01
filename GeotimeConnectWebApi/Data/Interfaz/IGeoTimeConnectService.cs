@@ -189,6 +189,7 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         /// <returns>Instancia de EventResponse con el resultado de la operación</returns>
         public Task<EventResponse> Init_Periodo(IEnumerable<cInit_Periodo> parametros);
         public Task<EventResponse> Sincronizo_erp(IEnumerable<cSincronizo_erp> parametros);
+        public Task<EventResponse> Sincronizo_Acciones(IEnumerable<cSincronizo_Acciones> parametros);
 
         #endregion
 

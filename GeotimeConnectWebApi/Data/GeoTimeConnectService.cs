@@ -2169,6 +2169,47 @@ namespace GeoTimeConnectWebApi.Data
             }
             return respuesta;
         }
+        public async Task<EventResponse> Sincronizo_Acciones(IEnumerable<cSincronizo_Acciones> parametros)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+                foreach (var item in parametros)
+                {
+                    sincronizo_accionesRequest sincronizoAcciones = new sincronizo_accionesRequest
+                    {
+                        comp = item.IdComp,
+                        plan = item.IdPlanilla,
+                        inicio = item.inicio,
+                        fin = item.fin,
+                        sesion = item.sesion
+                    };
+
+                    EndpointConfiguration endpointConfiguration = new();
+                    GeoTimeServiceReference.ServiceSoapClient geoWebService = new(endpointConfiguration);
+
+                    var result = await geoWebService.sincronizo_accionesAsync(sincronizoAcciones);
+                    if (result.sincronizo_accionesResult == "")
+                    {
+                        respuesta.Id = "0";
+                        respuesta.Respuesta = "Ok";
+                        respuesta.Descripcion = $"Respuesta: {result.sincronizo_accionesResult}";
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo realizar la Sincronización de Acciones. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo realizar la Sincronización de Acciones. Detalle de Error: " + e.InnerException.Message;
+            }
+            return respuesta;
+        }
 
 
         #endregion
