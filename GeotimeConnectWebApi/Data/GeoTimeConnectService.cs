@@ -2084,53 +2084,6 @@ namespace GeoTimeConnectWebApi.Data
         #endregion
 
         #region WSMetodos
-        //Creado por: Allan Prieto Badilla
-        //Fecha: 2024-03-12
-        /// <summary>
-        /// EjecutaInitPeriodo: Ejecuta WS de Init_Periodo
-        /// </summary>
-        /// <param name="parametros">Ejecuta el Web Service</param>
-        /// <returns>EventResponse con resultado del proceso</returns>
-        public async Task<EventResponse> Init_Periodo(IEnumerable<cInit_Periodo> parametros)
-        {
-            EventResponse respuesta = new EventResponse();
-
-            try
-            {
-                foreach (var item in parametros)
-                {
-                    init_periodoRequest initPeriodo = new init_periodoRequest
-                    {
-                        comp = item.IdComp,
-                        periodo = item.IdPeriodo,
-                        plan = item.IdPlanilla,
-                    };
-
-                    EndpointConfiguration endpointConfiguration = new();
-                    GeoTimeServiceReference.ServiceSoapClient geoWebService = new(endpointConfiguration);
-
-                    var result = await geoWebService.init_periodoAsync(initPeriodo);
-                    if (result.init_periodoResult != "")
-                    {
-                        respuesta.Id = "0";
-                        respuesta.Respuesta = "Ok";
-                        respuesta.Descripcion = $"Respuesta: {result.init_periodoResult}";
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
-                respuesta.Id = "1";
-                respuesta.Respuesta = "Error";
-                if (e.InnerException == null)
-                    respuesta.Descripcion = "No se pudo realizar la Activación del Periodo. Detalle de Error: " + e.Message;
-                else
-                    respuesta.Descripcion = "No se pudo realizar la Activación del Periodo. Detalle de Error: " + e.InnerException.Message;
-            }
-            return respuesta;
-
-        }
         public async Task<EventResponse> Sincronizo_erp(IEnumerable<cSincronizo_erp> parametros)
         {
             EventResponse respuesta = new EventResponse();
@@ -2210,6 +2163,99 @@ namespace GeoTimeConnectWebApi.Data
             }
             return respuesta;
         }
+        //Creado por: Allan Prieto Badilla
+        //Fecha: 2024-03-12
+        /// <summary>
+        /// EjecutaInitPeriodo: Ejecuta WS de Init_Periodo
+        /// </summary>
+        /// <param name="parametros">Ejecuta el Web Service</param>
+        /// <returns>EventResponse con resultado del proceso</returns>
+        public async Task<EventResponse> Init_Periodo(IEnumerable<cInit_Periodo> parametros)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+                foreach (var item in parametros)
+                {
+                    init_periodoRequest initPeriodo = new init_periodoRequest
+                    {
+                        comp = item.IdComp,
+                        periodo = item.IdPeriodo,
+                        plan = item.IdPlanilla,
+                    };
+
+                    EndpointConfiguration endpointConfiguration = new();
+                    GeoTimeServiceReference.ServiceSoapClient geoWebService = new(endpointConfiguration);
+
+                    var result = await geoWebService.init_periodoAsync(initPeriodo);
+                    if (result.init_periodoResult != "")
+                    {
+                        respuesta.Id = "0";
+                        respuesta.Respuesta = "Ok";
+                        respuesta.Descripcion = $"Respuesta: {result.init_periodoResult}";
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo realizar la Activación del Periodo. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo realizar la Activación del Periodo. Detalle de Error: " + e.InnerException.Message;
+            }
+            return respuesta;
+
+        }
+        public async Task<EventResponse> Cal_Periodo_Planilla(IEnumerable<cCal_Periodo_Planilla> parametros)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+                foreach (var item in parametros)
+                {
+                    calculo_periodo_planillaRequest CalculoPariodoP = new calculo_periodo_planillaRequest
+                    {
+                        comp = item.IdComp,
+                        periodo = item.IdPeriodo,
+                        plan = item.IdPlanilla,
+                        inicio = item.Inicio,
+                        fin = item.Fin,
+                        grupo = item.Grupo,
+                        sesion = item.Sesion,
+                        idpais = item.IdPais,
+                    };
+
+                    EndpointConfiguration endpointConfiguration = new();
+                    GeoTimeServiceReference.ServiceSoapClient geoWebService = new(endpointConfiguration);
+
+                    var result = await geoWebService.calculo_periodo_planillaAsync(CalculoPariodoP);
+                    if (result.calculo_periodo_planillaResult != "")
+                    {
+                        respuesta.Id = "0";
+                        respuesta.Respuesta = "Ok";
+                        respuesta.Descripcion = $"Respuesta: {result.calculo_periodo_planillaResult}";
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo realizar el Calculo Periodo Planilla. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo realizar el Calculo Periodo Planilla. Detalle de Error: " + e.InnerException.Message;
+            }
+            return respuesta;
+
+        }
+
 
 
         #endregion
