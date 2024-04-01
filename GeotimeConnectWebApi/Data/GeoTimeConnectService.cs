@@ -612,6 +612,1391 @@ namespace GeoTimeConnectWebApi.Data
             return respuesta;
         }
 
+        //Creado por: Marlon Loria Solano
+        //Fecha: 2022-10-30
+        /// <summary>
+        /// GetEmpleado: Método para obtener una lista de empleados 
+        /// </summary>
+        /// <returns>Lista de cEmpleados</returns>
+        public async Task<List<cEmpleado>> GetEmpleado()
+        {
+            List<cEmpleado> empleado = new();
+            try
+            {
+                empleado = (from e in await _context.Empleados
+                                    .Include(e => e.Departamento)
+                                    .Include(e => e.CentroCosto)
+                                    .Include(e => e.Ph_Planilla)
+                                .Where(e => e.Estado == 'T').OrderBy(e => e.Nombre).ToListAsync()
+                            select new cEmpleado
+                            {
+                                IdNumero = e.IdNumero,
+                                IdPlanilla = e.IdPlanilla,
+                                Nombre = e.Nombre,
+                                Tarjeta = e.Tarjeta,
+                                Identificacion = e.Identificacion,
+                                IdGrupo = e.IdGrupo,
+                                IdDepartamento = e.IdDepartamento,
+                                IdHorario = e.IdHorario,
+                                Estado = e.Estado,
+                                IdAgrupamiento = e.IdAgrupamiento,
+                                foto = e.foto,
+                                IdCCosto = e.IdCCosto,
+                                exporta = e.exporta,
+                                ubicacion = e.ubicacion,
+                                rubro1 = e.rubro1,
+                                rubro2 = e.rubro2,
+                                rubro3 = e.rubro3,
+                                rubro4 = e.rubro4,
+                                rubro5 = e.rubro5,
+                                rubro6 = e.rubro6,
+                                rubro7 = e.rubro7,
+                                rubro8 = e.rubro8,
+                                rubro9 = e.rubro9,
+                                rubro10 = e.rubro10,
+                                rubro11 = e.rubro11,
+                                rubro12 = e.rubro12,
+                                rubro13 = e.rubro13,
+                                rubro14 = e.rubro14,
+                                rubro15 = e.rubro15,
+                                rubro16 = e.rubro16,
+                                rubro17 = e.rubro17,
+                                rubro18 = e.rubro18,
+                                rubro19 = e.rubro19,
+                                rubro20 = e.rubro20,
+                                rubro21 = e.rubro21,
+                                rubro22 = e.rubro22,
+                                rubro23 = e.rubro23,
+                                rubro24 = e.rubro24,
+                                rubro25 = e.rubro25,
+                                Fecha_Ingreso = e.Fecha_Ingreso,
+                                Email = e.Email,
+                                Tipo_Marca = e.Tipo_Marca,
+                                inicio_rol = e.inicio_rol,
+                                web_pass = e.web_pass,
+                                id_transfo_conc = e.id_transfo_conc,
+                                widioma = e.widioma,
+                                global_clave = e.global_clave,
+                                def_fase = e.def_fase,
+                                def_py = e.def_py,
+                                def_cc = e.def_cc,
+                                Fecha_Salida = e.Fecha_Salida,
+                                global_code = e.global_code,
+                                fecha_act_code = e.fecha_act_code,
+                                Departamento = e.Departamento == null ? null :
+                                               new cDepartamento
+                                               {
+                                                   IDDEPART = e.Departamento.IDDEPART,
+                                                   DESCRIPCION = e.Departamento.DESCRIPCION,
+                                               },
+                                CentroCosto = e.CentroCosto == null ? null :
+                                               new cCentroCosto
+                                               {
+                                                   IdCCosto = e.CentroCosto.IdCCosto,
+                                                   Descripcion = e.CentroCosto.Descripcion,
+                                                   Distribuye = e.CentroCosto.Distribuye,
+                                               },
+                                Ph_Planilla = e.Ph_Planilla == null ? null :
+                                               new cPh_Planilla
+                                               {
+                                                   idplanilla = e.Ph_Planilla.idplanilla,
+                                                   planilla = e.Ph_Planilla.planilla,
+                                                   nom_conector = e.Ph_Planilla.nom_conector,
+                                                   tipo_planilla = e.Ph_Planilla.tipo_planilla,
+                                                   c_ext = e.Ph_Planilla.c_ext,
+                                                   c_inci = e.Ph_Planilla.c_inci,
+                                                   c_adic = e.Ph_Planilla.c_adic,
+                                                   m_desc = e.Ph_Planilla.m_desc,
+                                                   proyecta = e.Ph_Planilla.proyecta,
+                                                   dia_inicio = e.Ph_Planilla.dia_inicio,
+                                                   auto_proceso = e.Ph_Planilla.auto_proceso,
+                                                   tipo_dist = e.Ph_Planilla.tipo_dist,
+                                                   est_nomina = e.Ph_Planilla.est_nomina,
+                                                   ext_per_ant = e.Ph_Planilla.ext_per_ant,
+                                                   ext_det = e.Ph_Planilla.ext_det,
+                                                   agrup_salida = e.Ph_Planilla.agrup_salida,
+                                                   tipo_adic = e.Ph_Planilla.tipo_adic,
+                                                   nivel_aprob_ext = e.Ph_Planilla.nivel_aprob_ext,
+                                               },
+
+                            }).ToList();
+
+
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message); throw;
+            }
+            return empleado;
+        }
+        //Creado por: Marlon Loria Solano
+        //Fecha: 2022-10-30
+        /// <summary>
+        /// GetEmpleadoTotal: Método para obtener la lista total de empleados 
+        /// </summary>
+        /// <returns>Lista de cEmpleados</returns>
+        public async Task<List<cEmpleado>> GetEmpleadoTotal()
+        {
+            List<cEmpleado> empleado = new();
+            try
+            {
+                empleado = (from e in await _context.Empleados
+                                    .Include(e => e.Departamento)
+                                    .Include(e => e.CentroCosto)
+                                    .Include(e => e.Ph_Planilla)
+                                    .OrderBy(e => e.Nombre).ToListAsync()
+                            select new cEmpleado
+                            {
+                                IdNumero = e.IdNumero,
+                                IdPlanilla = e.IdPlanilla,
+                                Nombre = e.Nombre,
+                                Tarjeta = e.Tarjeta,
+                                Identificacion = e.Identificacion,
+                                IdGrupo = e.IdGrupo,
+                                IdDepartamento = e.IdDepartamento,
+                                IdHorario = e.IdHorario,
+                                Estado = e.Estado,
+                                IdAgrupamiento = e.IdAgrupamiento,
+                                foto = e.foto,
+                                IdCCosto = e.IdCCosto,
+                                exporta = e.exporta,
+                                ubicacion = e.ubicacion,
+                                rubro1 = e.rubro1,
+                                rubro2 = e.rubro2,
+                                rubro3 = e.rubro3,
+                                rubro4 = e.rubro4,
+                                rubro5 = e.rubro5,
+                                rubro6 = e.rubro6,
+                                rubro7 = e.rubro7,
+                                rubro8 = e.rubro8,
+                                rubro9 = e.rubro9,
+                                rubro10 = e.rubro10,
+                                rubro11 = e.rubro11,
+                                rubro12 = e.rubro12,
+                                rubro13 = e.rubro13,
+                                rubro14 = e.rubro14,
+                                rubro15 = e.rubro15,
+                                rubro16 = e.rubro16,
+                                rubro17 = e.rubro17,
+                                rubro18 = e.rubro18,
+                                rubro19 = e.rubro19,
+                                rubro20 = e.rubro20,
+                                rubro21 = e.rubro21,
+                                rubro22 = e.rubro22,
+                                rubro23 = e.rubro23,
+                                rubro24 = e.rubro24,
+                                rubro25 = e.rubro25,
+                                Fecha_Ingreso = e.Fecha_Ingreso,
+                                Email = e.Email,
+                                Tipo_Marca = e.Tipo_Marca,
+                                inicio_rol = e.inicio_rol,
+                                web_pass = e.web_pass,
+                                id_transfo_conc = e.id_transfo_conc,
+                                widioma = e.widioma,
+                                global_clave = e.global_clave,
+                                def_fase = e.def_fase,
+                                def_py = e.def_py,
+                                def_cc = e.def_cc,
+                                Fecha_Salida = e.Fecha_Salida,
+                                global_code = e.global_code,
+                                fecha_act_code = e.fecha_act_code,
+                                Departamento = e.Departamento == null ? null :
+                                               new cDepartamento
+                                               {
+                                                   IDDEPART = e.Departamento.IDDEPART,
+                                                   DESCRIPCION = e.Departamento.DESCRIPCION,
+                                               },
+                                CentroCosto = e.CentroCosto == null ? null :
+                                               new cCentroCosto
+                                               {
+                                                   IdCCosto = e.CentroCosto.IdCCosto,
+                                                   Descripcion = e.CentroCosto.Descripcion,
+                                                   Distribuye = e.CentroCosto.Distribuye,
+                                               },
+                                Ph_Planilla = e.Ph_Planilla == null ? null :
+                                               new cPh_Planilla
+                                               {
+                                                   idplanilla = e.Ph_Planilla.idplanilla,
+                                                   planilla = e.Ph_Planilla.planilla,
+                                                   nom_conector = e.Ph_Planilla.nom_conector,
+                                                   tipo_planilla = e.Ph_Planilla.tipo_planilla,
+                                                   c_ext = e.Ph_Planilla.c_ext,
+                                                   c_inci = e.Ph_Planilla.c_inci,
+                                                   c_adic = e.Ph_Planilla.c_adic,
+                                                   m_desc = e.Ph_Planilla.m_desc,
+                                                   proyecta = e.Ph_Planilla.proyecta,
+                                                   dia_inicio = e.Ph_Planilla.dia_inicio,
+                                                   auto_proceso = e.Ph_Planilla.auto_proceso,
+                                                   tipo_dist = e.Ph_Planilla.tipo_dist,
+                                                   est_nomina = e.Ph_Planilla.est_nomina,
+                                                   ext_per_ant = e.Ph_Planilla.ext_per_ant,
+                                                   ext_det = e.Ph_Planilla.ext_det,
+                                                   agrup_salida = e.Ph_Planilla.agrup_salida,
+                                                   tipo_adic = e.Ph_Planilla.tipo_adic,
+                                                   nivel_aprob_ext = e.Ph_Planilla.nivel_aprob_ext,
+                                               },
+
+                            }).ToList();
+
+
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message); throw;
+            }
+            return empleado;
+        }
+
+        //Creado por: Marlon Loria Solano
+        //Fecha: 2022-10-30
+        /// <summary>
+        /// GetEmpleado: Método para un empleado específico
+        /// </summary>
+        /// <returns>Una instancia de la clase cEmpleado</returns>
+        /// ///<param name="idNumero">idNumero del empleado requerido</param>
+        public async Task<cEmpleado> GetEmpleado(string idNumero)
+        {
+            cEmpleado? empleado = new();
+            try
+            {
+                empleado = (from e in await _context.Empleados
+                                    .Include(e => e.Departamento)
+                                    .Include(e => e.CentroCosto)
+                                    .Include(e => e.Ph_Planilla)
+                                .Where(e => e.IdNumero == idNumero).ToListAsync()
+                            select new cEmpleado
+                            {
+                                IdNumero = e.IdNumero,
+                                IdPlanilla = e.IdPlanilla,
+                                Nombre = e.Nombre,
+                                Tarjeta = e.Tarjeta,
+                                Identificacion = e.Identificacion,
+                                IdGrupo = e.IdGrupo,
+                                IdDepartamento = e.IdDepartamento,
+                                IdHorario = e.IdHorario,
+                                Estado = e.Estado,
+                                IdAgrupamiento = e.IdAgrupamiento,
+                                foto = e.foto,
+                                IdCCosto = e.IdCCosto,
+                                exporta = e.exporta,
+                                ubicacion = e.ubicacion,
+                                rubro1 = e.rubro1,
+                                rubro2 = e.rubro2,
+                                rubro3 = e.rubro3,
+                                rubro4 = e.rubro4,
+                                rubro5 = e.rubro5,
+                                rubro6 = e.rubro6,
+                                rubro7 = e.rubro7,
+                                rubro8 = e.rubro8,
+                                rubro9 = e.rubro9,
+                                rubro10 = e.rubro10,
+                                rubro11 = e.rubro11,
+                                rubro12 = e.rubro12,
+                                rubro13 = e.rubro13,
+                                rubro14 = e.rubro14,
+                                rubro15 = e.rubro15,
+                                rubro16 = e.rubro16,
+                                rubro17 = e.rubro17,
+                                rubro18 = e.rubro18,
+                                rubro19 = e.rubro19,
+                                rubro20 = e.rubro20,
+                                rubro21 = e.rubro21,
+                                rubro22 = e.rubro22,
+                                rubro23 = e.rubro23,
+                                rubro24 = e.rubro24,
+                                rubro25 = e.rubro25,
+                                Fecha_Ingreso = e.Fecha_Ingreso,
+                                Email = e.Email,
+                                Tipo_Marca = e.Tipo_Marca,
+                                inicio_rol = e.inicio_rol,
+                                web_pass = e.web_pass,
+                                id_transfo_conc = e.id_transfo_conc,
+                                widioma = e.widioma,
+                                global_clave = e.global_clave,
+                                def_fase = e.def_fase,
+                                def_py = e.def_py,
+                                def_cc = e.def_cc,
+                                Fecha_Salida = e.Fecha_Salida,
+                                global_code = e.global_code,
+                                fecha_act_code = e.fecha_act_code,
+                                Departamento = e.Departamento == null ? null :
+                                               new cDepartamento
+                                               {
+                                                   IDDEPART = e.Departamento.IDDEPART,
+                                                   DESCRIPCION = e.Departamento.DESCRIPCION,
+                                               },
+                                CentroCosto = e.CentroCosto == null ? null :
+                                               new cCentroCosto
+                                               {
+                                                   IdCCosto = e.CentroCosto.IdCCosto,
+                                                   Descripcion = e.CentroCosto.Descripcion,
+                                                   Distribuye = e.CentroCosto.Distribuye,
+                                               },
+                                Ph_Planilla = e.Ph_Planilla == null ? null :
+                                                   new cPh_Planilla
+                                                   {
+                                                       idplanilla = e.Ph_Planilla.idplanilla,
+                                                       planilla = e.Ph_Planilla.planilla,
+                                                       nom_conector = e.Ph_Planilla.nom_conector,
+                                                       tipo_planilla = e.Ph_Planilla.tipo_planilla,
+                                                       c_ext = e.Ph_Planilla.c_ext,
+                                                       c_inci = e.Ph_Planilla.c_inci,
+                                                       c_adic = e.Ph_Planilla.c_adic,
+                                                       m_desc = e.Ph_Planilla.m_desc,
+                                                       proyecta = e.Ph_Planilla.proyecta,
+                                                       dia_inicio = e.Ph_Planilla.dia_inicio,
+                                                       auto_proceso = e.Ph_Planilla.auto_proceso,
+                                                       tipo_dist = e.Ph_Planilla.tipo_dist,
+                                                       est_nomina = e.Ph_Planilla.est_nomina,
+                                                       ext_per_ant = e.Ph_Planilla.ext_per_ant,
+                                                       ext_det = e.Ph_Planilla.ext_det,
+                                                       agrup_salida = e.Ph_Planilla.agrup_salida,
+                                                       tipo_adic = e.Ph_Planilla.tipo_adic,
+                                                       nivel_aprob_ext = e.Ph_Planilla.nivel_aprob_ext,
+                                                   },
+
+                            }).FirstOrDefault();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message); throw;
+            }
+            return empleado;
+        }
+
+        //Obtener Empleado por IdNumero
+        public async Task<cEmpleado> GetEmpleadoByEmail(string email)
+        {
+            cEmpleado? empleado = new();
+
+            try
+            {
+                empleado = await _context.Empleados.FirstOrDefaultAsync(e => e.Email == email && e.Estado == 'T');
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message); throw;
+            }
+            return empleado;
+        }
+
+        //Creado por: Marlon Loria Solano
+        //Fecha: 2022-10-30
+        //Obtener lista de Empleados
+        public async Task<List<cEmpleado>> GetEmpleadoFiltrado(string idnumero, string nombre, string iddepartamento)
+        {
+            List<cEmpleado> empleado = new();
+
+            if (idnumero == "all")
+                idnumero = "";
+            if (nombre == "all")
+                nombre = "";
+            if (iddepartamento == "all")
+                iddepartamento = "";
+
+            try
+            {
+                if (idnumero != "" && nombre != "" && iddepartamento != "")
+                {
+                    empleado = await _context.Empleados
+                    .Where(e => e.IdNumero!.Contains(idnumero)
+                           && e.Estado == 'T'
+                           && e.Nombre!.ToLower().Contains(nombre.ToLower())
+                           && e.IdDepartamento!.ToLower().Contains(iddepartamento.ToLower()))
+                    .ToListAsync();
+                }
+                else
+                {
+                    if (idnumero == "" && nombre == "" && iddepartamento == "")
+                    {
+                        empleado = await _context.Empleados.Where(e => e.Estado == 'T')
+                                            .ToListAsync();
+                    }
+                    else
+                    {
+                        if (idnumero != "")
+                        {
+                            empleado = await _context.Empleados
+                             .Where(e => e.Estado == 'T' && e.IdNumero!.Contains(idnumero))
+                             .ToListAsync();
+
+                        }
+                        else
+                        {
+                            if (nombre != "")
+                            {
+                                empleado = await _context.Empleados
+                                 .Where(e => e.Estado == 'T' && e.Nombre!.ToLower().Contains(nombre.ToLower()))
+                                 .ToListAsync();
+
+                            }
+                            else
+                            {
+                                if (iddepartamento != "")
+                                {
+                                    empleado = await _context.Empleados
+                                     .Where(e => e.Estado == 'T' && e.IdDepartamento!.ToLower().Contains(iddepartamento))
+                                     .ToListAsync();
+
+                                }
+                            }
+                        }
+
+                        if (idnumero != "")
+                        {
+                            if (nombre != "")
+                            {
+                                empleado = empleado
+                                 .Where(e => e.Nombre!.ToLower().Contains(nombre.ToLower()))
+                                 .ToList();
+
+                            }
+                            else
+                            {
+                                if (iddepartamento != "")
+                                {
+                                    empleado = empleado
+                                            .Where(e => e.IdDepartamento!.ToLower().Contains(iddepartamento.ToLower()))
+                                            .ToList();
+                                }
+
+                            }
+                        }
+                        else
+                        {
+                            if (nombre != "")
+                            {
+                                empleado = empleado
+                                 .Where(e => e.IdDepartamento!.ToLower().Contains(iddepartamento.ToLower()))
+                                 .ToList();
+
+                            }
+                            else
+                            {
+                                if (iddepartamento != "")
+                                {
+                                    empleado = empleado
+                                            .Where(e => e.IdDepartamento!.ToLower().Contains(iddepartamento.ToLower()))
+                                            .ToList();
+                                }
+                                else
+                                {
+                                    empleado = await _context.Empleados.Where(e => e.Estado == 'T')
+                                    .ToListAsync();
+                                }
+
+                            }
+                        }
+
+                    }
+                }
+
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message); throw;
+            }
+            return empleado;
+        }
+
+        //Creado por: Marlon Loria Solano
+        //Fecha: 2022-10-30
+        //Sincronizar Empleados
+        //Parametro: Recibe una instancia de Empleado, se verifica si existe en cuyo caso
+        //actualiza el registro, de lo contrario lo crea.
+        public async Task<EventResponse> Sincronizar_Empleado(IEnumerable<cEmpleado> empleados)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+                DateTime fechaIngreso;
+                string idPlanillaAnt;
+                foreach (var empleado in empleados)
+                {
+                    if (empleado.Fecha_Ingreso is null)
+                        fechaIngreso = DateTime.Now;
+                    else
+                        fechaIngreso = (DateTime)DateTime.Parse(empleado.Fecha_Ingreso.ToString());
+
+
+                    cEmpleado? emp = await _context.Empleados
+                                    .Where(e => e.IdNumero == empleado.IdNumero)
+                                    .FirstOrDefaultAsync();
+                    //si el empleado existe se actualiza registro
+                    //de lo contrario se agrega el registro
+                    if (emp is not null)
+                    {
+                        //si estado nuevo es inactivo
+                        if (empleado.Estado == 'F')
+                            //si no viene la fecha de salida se asigna fecha del dia que se inactiva
+                            if (empleado.Fecha_Salida is null)
+                                emp.Fecha_Salida = DateTime.Now;
+                            else
+                                emp.Fecha_Salida = empleado.Fecha_Salida;
+                        else
+                            emp.Fecha_Salida = empleado.Fecha_Salida;
+
+                        idPlanillaAnt = emp.IdPlanilla;
+                        emp.Estado = empleado.Estado;
+                        emp.Nombre = empleado.Nombre;
+                        emp.IdDepartamento = empleado.IdDepartamento;
+                        emp.IdCCosto = empleado.IdCCosto;
+                        emp.IdPlanilla = empleado.IdPlanilla;
+                        emp.Fecha_Ingreso = fechaIngreso;
+
+                        emp.IdGrupo = (empleado.IdGrupo != null && empleado.IdGrupo != 0) ? empleado.IdGrupo : emp.IdGrupo;
+                        emp.IdHorario = (empleado.IdHorario != null && empleado.IdHorario != 0) ? empleado.IdHorario : emp.IdHorario;
+                        emp.Tipo_Marca = (empleado.Tipo_Marca != null && empleado.Tipo_Marca != "") ? empleado.Tipo_Marca : emp.Tipo_Marca;
+                        emp.IdAgrupamiento = (empleado.IdAgrupamiento != null && empleado.IdAgrupamiento != 0) ? empleado.IdAgrupamiento : emp.IdAgrupamiento;
+                        emp.Email = empleado.Email ?? emp.Email;
+                        emp.Tarjeta = empleado.Tarjeta ?? emp.Tarjeta;
+                        emp.exporta = (empleado.exporta != null) ? empleado.exporta : emp.exporta;
+                        emp.id_transfo_conc = (empleado.id_transfo_conc != null && empleado.id_transfo_conc != 0) ? empleado.id_transfo_conc : emp.id_transfo_conc;
+
+                        _context.Empleados.Update(emp);
+                        await _context.SaveChangesAsync();
+
+                        if (idPlanillaAnt != empleado.IdPlanilla)
+                        {
+                            await EjecutaPostCambioPlanilla(empleado.IdNumero, idPlanillaAnt, empleado.IdPlanilla);
+                        }
+                    }
+                    else
+                    {
+                        empleado.Fecha_Ingreso = fechaIngreso;
+                        empleado.Fecha_Salida = null;
+                        empleado.IdGrupo = (empleado.IdGrupo == null || empleado.IdGrupo == 0) ? 1 : empleado.IdGrupo;
+                        empleado.IdHorario = (empleado.IdHorario == null || empleado.IdHorario == 0) ? 1 : empleado.IdHorario;
+                        empleado.Tipo_Marca = (empleado.Tipo_Marca == null || empleado.Tipo_Marca == "") ? "H" : empleado.Tipo_Marca;
+                        empleado.IdAgrupamiento = (empleado.IdAgrupamiento == null) ? 0 : empleado.IdAgrupamiento;
+                        empleado.Email = empleado.Email ?? "";
+                        empleado.Tarjeta = empleado.Tarjeta ?? "";
+                        empleado.exporta = empleado.exporta ?? 'T';
+
+                        empleado.Departamento = null;
+                        empleado.CentroCosto = null;
+                        empleado.Ph_Planilla = null;
+
+
+
+                        _context.Add(empleado);
+                        await _context.SaveChangesAsync();
+                    }
+                }
+
+
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo realizar la sincronización de Empleados. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo realizar la sincronización de Empleados. Detalle de Error: " + e.InnerException.Message;
+            }
+
+            return respuesta;
+
+        }
+
+        /// <summary>
+        /// Elimina_Empleado:  Metodo borrado de datos de la tabla Empleado
+        /// </summary>
+        /// <param name="idnumero"></param>
+        /// <returns>EventResponse</returns>
+        public async Task<EventResponse> Elimina_Empleado(string idnumero)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+
+                cEmpleado? model = await _context.Empleados
+                    .FirstOrDefaultAsync(e => e.IdNumero == idnumero);
+
+                if (model is not null)
+                {
+                    _context.Empleados.Remove(model);
+                }
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo eliminar el Empleado. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo eliminar el Empleado. Detalle de Error: " + e.InnerException.Message;
+
+            }
+            return respuesta;
+        }
+
+        //Creado por: Marlon Loria Solano
+        //Fecha: 2022-10-30
+        //Obtener lista de Turnos
+        public async Task<List<cTurno>> GetTurno()
+        {
+            List<cTurno> turno = new();
+            try
+            {
+                turno = await _context.Ph_Turnos.ToListAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message); throw;
+            }
+            return turno;
+        }
+
+        //Creado por: Marlon Loria Solano
+        //Fecha: 2022-10-30
+        //Obtener un Turno especifico
+        //Parametros: codigo=Codigo de incidencia a buscar
+        public async Task<cTurno> GetTurno(int idTurno)
+        {
+            cTurno? turno = new();
+            try
+            {
+                turno = await _context.Ph_Turnos.FirstOrDefaultAsync(e => e.IdTurno == idTurno);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message); throw;
+            }
+            return turno;
+        }
+
+        /// <summary>
+        /// Sincronizar_Turno: metodo para sincronizar los Turnos 
+        /// </summary>
+        /// <param name="phTurno"></param>
+        /// <returns>una instancia EventResponse con el resultado de la operacion</returns>
+        public async Task<EventResponse> Sincronizar_Turno(IEnumerable<cTurno> phTurno)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+                foreach (var item in phTurno)
+                {
+                    cTurno? objetoBuscar = await _context.Ph_Turnos
+                                    .FirstOrDefaultAsync(e => e.IdTurno == item.IdTurno);
+                    //si el Turno existe se actualiza descripción
+                    //de lo contrario se agrega el registro*
+                    if (objetoBuscar is not null)
+                    {
+                        /* Datos de relleno */
+                        // objetoBuscar.IdTurno = item.IdTurno;
+                        // objetoBuscar.Descripcion = item.Descripcion;
+
+                        /* Datops listos para cuando se modifique el metodo correctamente */
+
+                        objetoBuscar.IdTurno = item.IdTurno;
+                        objetoBuscar.Descripcion = item.Descripcion;
+                        objetoBuscar.HEntra = item.HEntra;
+                        objetoBuscar.HSale = item.HSale;
+                        objetoBuscar.tar_apl = item.tar_apl;
+                        objetoBuscar.ant_apl = item.ant_apl;
+                        objetoBuscar.des_1_in = item.des_1_in;
+                        objetoBuscar.des_1_out = item.des_1_out;
+                        objetoBuscar.des_2_in = item.des_2_in;
+                        objetoBuscar.des_2_out = item.des_2_out;
+                        objetoBuscar.des_3_in = item.des_3_in;
+                        objetoBuscar.des_3_out = item.des_3_out;
+                        objetoBuscar.apl_des_1 = item.apl_des_1;
+                        objetoBuscar.apl_des_2 = item.apl_des_2;
+                        objetoBuscar.apl_des_3 = item.apl_des_3;
+                        objetoBuscar.des_1_tiem = item.des_1_tiem;
+                        objetoBuscar.des_2_tiem = item.des_2_tiem;
+                        objetoBuscar.des_3_tiem = item.des_3_tiem;
+                        objetoBuscar.marca_des_1 = item.marca_des_1;
+                        objetoBuscar.marca_des_2 = item.marca_des_2;
+                        objetoBuscar.marca_des_3 = item.marca_des_3;
+                        objetoBuscar.tar_tiem = item.tar_tiem;
+                        objetoBuscar.ant_tiem = item.ant_tiem;
+                        objetoBuscar.con_1 = item.con_1;
+                        objetoBuscar.con_2 = item.con_2;
+                        objetoBuscar.con_3 = item.con_3;
+                        objetoBuscar.con_4 = item.con_4;
+                        objetoBuscar.con_5 = item.con_5;
+                        objetoBuscar.con_6 = item.con_6;
+                        objetoBuscar.cant_con_1 = item.cant_con_1;
+                        objetoBuscar.cant_con_2 = item.cant_con_2;
+                        objetoBuscar.cant_con_3 = item.cant_con_3;
+                        objetoBuscar.cant_con_4 = item.cant_con_4;
+                        objetoBuscar.cant_con_5 = item.cant_con_5;
+                        objetoBuscar.cant_con_6 = item.cant_con_6;
+                        objetoBuscar.min_con_1 = item.min_con_1;
+                        objetoBuscar.min_con_2 = item.min_con_2;
+                        objetoBuscar.min_con_3 = item.min_con_3;
+                        objetoBuscar.min_con_4 = item.min_con_4;
+                        objetoBuscar.min_con_5 = item.min_con_5;
+                        objetoBuscar.min_con_6 = item.min_con_6;
+                        objetoBuscar.Tipo = item.Tipo;
+                        objetoBuscar.Tipo_Jor = item.Tipo_Jor;
+                        objetoBuscar.fuerza_calc = item.fuerza_calc;
+                        objetoBuscar.idagrupamiento = item.idagrupamiento;
+                        objetoBuscar.apl_trans1 = item.apl_trans1;
+                        objetoBuscar.id_trans1 = item.id_trans1;
+                        objetoBuscar.apl_trans2 = item.apl_trans2;
+                        objetoBuscar.id_trans2 = item.id_trans2;
+                        objetoBuscar.apl_trans3 = item.apl_trans3;
+                        objetoBuscar.id_trans3 = item.id_trans3;
+                        objetoBuscar.apl_trans4 = item.apl_trans4;
+                        objetoBuscar.id_trans4 = item.id_trans4;
+                        objetoBuscar.apl_trans5 = item.apl_trans5;
+                        objetoBuscar.id_trans5 = item.id_trans5;
+                        objetoBuscar.apl_trans6 = item.apl_trans6;
+                        objetoBuscar.id_trans6 = item.id_trans6;
+                        objetoBuscar.apl_ben1 = item.apl_ben1;
+                        objetoBuscar.id_ben1 = item.id_ben1;
+                        objetoBuscar.apl_ben2 = item.apl_ben2;
+                        objetoBuscar.id_ben2 = item.id_ben2;
+                        objetoBuscar.apl_ben3 = item.apl_ben3;
+                        objetoBuscar.id_ben3 = item.id_ben3;
+                        objetoBuscar.apl_ben4 = item.apl_ben4;
+                        objetoBuscar.id_ben4 = item.id_ben4;
+                        objetoBuscar.apl_ben5 = item.apl_ben5;
+                        objetoBuscar.id_ben5 = item.id_ben5;
+                        objetoBuscar.apl_ben6 = item.apl_ben6;
+                        objetoBuscar.id_ben6 = item.id_ben6;
+                        objetoBuscar.conc_ben1 = item.conc_ben1;
+                        objetoBuscar.conc_ben2 = item.conc_ben2;
+                        objetoBuscar.conc_ben3 = item.conc_ben3;
+                        objetoBuscar.conc_ben4 = item.conc_ben4;
+                        objetoBuscar.conc_ben5 = item.conc_ben5;
+                        objetoBuscar.conc_ben6 = item.conc_ben6;
+                        objetoBuscar.apl_trans_post = item.apl_trans_post;
+                        objetoBuscar.id_trans_post = item.id_trans_post;
+                        objetoBuscar.apl_redond_entrada = item.apl_redond_entrada;
+                        objetoBuscar.cant_redond_entrada = item.cant_redond_entrada;
+                        objetoBuscar.auto_pan = item.auto_pan;
+
+                        _context.Ph_Turnos.Update(objetoBuscar);
+                    }
+                    else
+                    {
+                        _context.Add(item);
+                    }
+                }
+
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo realizar la sincronización del PhTurno. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo realizar la sincronización del PhTurno. Detalle de Error: " + e.InnerException.Message;
+            }
+            return respuesta;
+        }
+
+        /// <summary>
+        /// Elimina_Turno:  Metodo borrado de datos de la tabla Ph_Turnos
+        /// </summary>
+        /// <param name="idturno"></param>
+        /// <returns>EventResponse</returns>
+        public async Task<EventResponse> Elimina_Turno(int idturno)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+
+                cTurno? model = await _context.Ph_Turnos
+                    .FirstOrDefaultAsync(e => e.IdTurno == idturno);
+
+                if (model is not null)
+                {
+                    _context.Ph_Turnos.Remove(model);
+                }
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo eliminar el PhTurno. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo eliminar el PhTurno. Detalle de Error: " + e.InnerException.Message;
+            }
+            return respuesta;
+        }
+
+        //Creado por: María José Sánchez
+        //Fecha: 2023-11-08
+        //Obtener lista de Horarios
+        public async Task<List<cPh_Horarios>> GetHorarios()
+        {
+            List<cPh_Horarios> horarios = new();
+            try
+            {
+                horarios = (from e in await _context.Ph_Horarios
+                                .Include(e => e.Ph_HorarioTurno)
+                            .ToListAsync()
+                            select new cPh_Horarios
+                            {
+                                IDHORARIO = e.IDHORARIO,
+                                DESCRIPCION = e.DESCRIPCION,
+                                Ph_HorarioTurno = e.Ph_HorarioTurno == null ? null :
+                                                (from ht in e.Ph_HorarioTurno
+                                                 select new cPh_HorarioTurno
+                                                 {
+                                                     IDHORARIO = ht.IDHORARIO,
+                                                     ID_DIA = ht.ID_DIA,
+                                                     T_1 = ht.T_1,
+                                                     T_2 = ht.T_2,
+                                                     T_3 = ht.T_3,
+                                                     T_4 = ht.T_4,
+                                                     T_5 = ht.T_5,
+                                                 }).ToList()
+                            }
+                            ).ToList();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message); throw;
+            }
+            return horarios;
+        }
+
+        //Creado por: María José Sánchez
+        //Fecha: 2023-11-08
+        //Obtener un Horario especifico
+        //Parametros: idHorario=Id de horarios a buscar
+        public async Task<cPh_Horarios> GetHorarios(int IDHORARIO)
+        {
+            cPh_Horarios? horarios = new();
+            try
+            {
+                horarios = await _context.Ph_Horarios.FirstOrDefaultAsync(e => e.IDHORARIO == IDHORARIO);
+
+                horarios = (from e in await _context.Ph_Horarios
+                                .Include(e => e.Ph_HorarioTurno)
+                                .Where(e => e.IDHORARIO == IDHORARIO)
+                                .ToListAsync()
+                            select new cPh_Horarios
+                            {
+                                IDHORARIO = e.IDHORARIO,
+                                DESCRIPCION = e.DESCRIPCION,
+                                Ph_HorarioTurno = e.Ph_HorarioTurno == null ? null :
+                                                (from ht in e.Ph_HorarioTurno
+                                                 select new cPh_HorarioTurno
+                                                 {
+                                                     IDHORARIO = ht.IDHORARIO,
+                                                     ID_DIA = ht.ID_DIA,
+                                                     T_1 = ht.T_1,
+                                                     T_2 = ht.T_2,
+                                                     T_3 = ht.T_3,
+                                                     T_4 = ht.T_4,
+                                                     T_5 = ht.T_5,
+                                                 }).ToList()
+                            }
+                            ).FirstOrDefault();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message); throw;
+            }
+            return horarios;
+        }
+
+        //Creado por: María José Sánchez
+        //Fecha: 2023-11-08
+        //Sincronizar Horarios
+        //Parametro: Recibe una instancia de horarios, se verifica si existe en cuyo caso
+        //actualiza el registro, de lo contrario lo crea.
+        public async Task<EventResponse> Sincronizar_Horarios(IEnumerable<cPh_Horarios> horarios)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+                IEnumerable<cPh_HorarioTurno> phHorarioTurnoList = null;
+
+                await _context.Database.BeginTransactionAsync();
+
+                foreach (var horario in horarios)
+                {
+                    phHorarioTurnoList = horario.Ph_HorarioTurno;
+
+                    cPh_Horarios? hora = await _context.Ph_Horarios
+                                                        .FirstOrDefaultAsync(e => e.IDHORARIO == horario.IDHORARIO);
+                    //si el horario existe se actualiza descripción
+                    //de lo contrario se agrega el registro
+                    if (hora is not null)
+                    {
+                        hora.DESCRIPCION = horario.DESCRIPCION;
+                        _context.Ph_Horarios.Update(hora);
+                    }
+                    else
+                    {
+                        horario.Ph_HorarioTurno = null;
+                        _context.Add(horario);
+                    }
+                    await _context.SaveChangesAsync();
+
+                    if (phHorarioTurnoList is not null)
+                    {
+                        var resp = await Sincronizar_HorarioTurno(phHorarioTurnoList);
+                        if (resp.Id != "0")
+                        {
+                            respuesta.Id = "1";
+                            respuesta.Respuesta = "Error";
+                            respuesta.Descripcion = resp.Descripcion;
+                            await _context.Database.RollbackTransactionAsync();
+                            return respuesta;
+                        }
+                    }
+
+                }
+                await _context.Database.CommitTransactionAsync();
+
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo realizar la sincronización de Horarios. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo realizar la sincronización de Horarios. Detalle de Error: " + e.InnerException.Message;
+
+                await _context.Database.RollbackTransactionAsync();
+            }
+
+            return respuesta;
+
+        }
+        /// <summary>
+        /// Elimina_PhHorarios:  Metodo boorado de datos de la tabla PhHorarios
+        /// </summary>
+        /// <param name="IDHORARIO"></param>
+        /// <returns>EventResponse</returns>
+        public async Task<EventResponse> Elimina_Horarios(string IDHORARIO)
+        {
+            EventResponse respuesta = new EventResponse();
+            try
+            {
+
+                cPh_Horarios? model = await _context.Ph_Horarios
+                    .FirstOrDefaultAsync(e => e.IDHORARIO == int.Parse(IDHORARIO));
+
+                if (model is not null)
+                {
+                    _context.Ph_Horarios.Remove(model);
+                }
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo eliminar el Horario. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo eliminar el Horario. Detalle de Error: " + e.InnerException.Message;
+
+            }
+            return respuesta;
+        }
+
+        //Creado por: María José Sánchez
+        //Fecha: 2023-11-08
+        //Obtener lista de Horarios
+        public async Task<List<cPh_HorarioTurno>> GetHorario_Turno()
+        {
+            List<cPh_HorarioTurno> horario_turno = new();
+            try
+            {
+                horario_turno = await _context.Ph_Horario_Turnos.ToListAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message); throw;
+            }
+            return horario_turno;
+        }
+
+        //Creado por: María José Sánchez
+        //Fecha: 2023-11-08
+        //Obtener un Horario Turno especifico
+        //Parametros: IDHORARIO= Id de horario turno a buscar
+        public async Task<cPh_HorarioTurno> GetHorario_Turno(int IDHORARIO)
+        {
+            cPh_HorarioTurno? horario_turno = new();
+            try
+            {
+                horario_turno = await _context.Ph_Horario_Turnos.FirstOrDefaultAsync(e => e.IDHORARIO == IDHORARIO);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message); throw;
+            }
+            return horario_turno;
+        }
+
+        //Creado por: María José Sánchez
+        //Fecha: 2023-11-08
+        //Sincronizar Horario Turno
+        //Parametro: Recibe una instancia de HorarioTurno, se verifica si existe en cuyo caso
+        //actualiza el registro, de lo contrario lo crea.
+        public async Task<EventResponse> Sincronizar_HorarioTurno(IEnumerable<cPh_HorarioTurno> horario_turno)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+                foreach (var horario in horario_turno)
+                {
+                    cPh_HorarioTurno? hora = await _context.Ph_Horario_Turnos
+                                                        .FirstOrDefaultAsync(e => e.IDHORARIO == horario.IDHORARIO && e.ID_DIA == horario.ID_DIA);
+                    //si el horario existe se actualiza descripción
+                    //de lo contrario se agrega el registro
+                    if (hora is not null)
+                    {
+                        hora.IDHORARIO = horario.IDHORARIO;
+                        hora.ID_DIA = horario.ID_DIA;
+                        hora.T_1 = horario.T_1;
+                        hora.T_2 = horario.T_2;
+                        hora.T_3 = horario.T_3;
+                        hora.T_4 = horario.T_4;
+                        hora.T_5 = horario.T_5;
+
+
+                        _context.Ph_Horario_Turnos.Update(hora);
+                    }
+                    else
+                    {
+                        _context.Add(horario);
+                    }
+                }
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo realizar la sincronización de Horarios Turnos. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo realizar la sincronización de Horarios Turnos. Detalle de Error: " + e.InnerException.Message;
+
+            }
+
+            return respuesta;
+
+        }
+
+        /// <summary>
+        /// Elimina_Ph_Horario_Turno:  Metodo borrado de datos de la tabla Ph_Horario_Turno
+        /// </summary>
+        /// <param name="IDHORARIO"></param>
+        /// <returns>EventResponse</returns>
+        public async Task<EventResponse> Elimina_Horario_Turno(string IDHORARIO)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+
+                cPh_HorarioTurno? model = await _context.Ph_Horario_Turnos
+                    .FirstOrDefaultAsync(e => e.IDHORARIO == int.Parse(IDHORARIO));
+
+                if (model is not null)
+                {
+                    _context.Ph_Horario_Turnos.Remove(model);
+                }
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo eliminar el Horario Turno. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo eliminar el Horario Turno. Detalle de Error: " + e.InnerException.Message;
+
+            }
+            return respuesta;
+        }
+
+        //Creado por: Allan Prieto
+        //Fecha: 2023-13-12
+        /// <summary>
+        /// GetPhRol: Obtener lista de registros de la tabla PH_ROLES
+        /// </summary>
+        /// <returns>Lista de cPh_Rol </returns>
+        /// 
+        public async Task<List<cPh_Rol>> GetPhRol()
+        {
+            List<cPh_Rol> roles = new();
+            try
+            {
+                roles = await _context.Ph_Roles.ToListAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message); throw;
+            }
+            return roles;
+        }
+
+        //Creado por: Allan Prieto
+        //Fecha: 2023-12-27
+        //Obtener un Rol especifico
+        //Parametros: idrol=id a buscar
+        public async Task<cPh_Rol> GetPhRol(int idrol)
+        {
+            cPh_Rol? roles = new();
+            //cPh_Rol? roles = new cPh_Rol();
+            try
+            {
+                roles = await (from r in _context.Ph_Roles
+                               where r.IDROL == idrol
+                               select new cPh_Rol
+                               {
+                                   IDROL = r.IDROL,
+                                   DESCRIPCION = r.DESCRIPCION,
+                                   Turno = (from rt in _context.Ph_Roles_Turnos
+                                            join t in _context.Ph_Turnos on rt.IDTURNO equals t.IdTurno
+                                            where rt.IDROL == idrol
+                                            select new cTurno
+                                            {
+                                                IdTurno = t.IdTurno,
+                                                Descripcion = t.Descripcion,
+                                                idRegistro = rt.IDREGISTRO
+                                            }).ToList()
+                               }).FirstOrDefaultAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message); throw;
+            }
+            return roles;
+        }
+
+        /// <summary>
+        /// Sincronizar_PhRol: metodo para sincronizar los Roles 
+        /// </summary>
+        /// <param name="phRoles"></param>
+        /// <returns>una instancia EventResponse con el resultado de la operacion</returns>
+        public async Task<EventResponse> Sincronizar_PhRol(IEnumerable<cPh_Rol> phRoles)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+                foreach (var item in phRoles)
+                {
+                    cPh_Rol? objetoBuscar = await _context.Ph_Roles
+                                    .FirstOrDefaultAsync(e => e.IDROL == item.IDROL);
+                    //si el rol existe se actualiza descripción
+                    //de lo contrario se agrega el registro*
+                    if (objetoBuscar is not null)
+                    {
+                        objetoBuscar.IDROL = item.IDROL;
+                        objetoBuscar.DESCRIPCION = item.DESCRIPCION;
+
+                        _context.Ph_Roles.Update(objetoBuscar);
+                    }
+                    else
+                    {
+                        _context.Add(item);
+                    }
+                }
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo realizar la sincronización del Rol. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo realizar la sincronización del Rol. Detalle de Error: " + e.InnerException.Message;
+            }
+            return respuesta;
+        }
+
+        /// <summary>
+        /// Elimina_PhRol:  Metodo borrado de datos de la tabla Ph_Roles
+        /// </summary>
+        /// <param name="idrol"></param>
+        /// <returns>EventResponse</returns>
+        public async Task<EventResponse> Elimina_PhRol(int idrol)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+                cPh_Rol? model = await _context.Ph_Roles
+                    .FirstOrDefaultAsync(e => e.IDROL == idrol);
+
+                if (model is not null)
+                {
+                    _context.Ph_Roles.Remove(model);
+                }
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo eliminar el Rol. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo eliminar el Rol. Detalle de Error: " + e.InnerException.Message;
+            }
+            return respuesta;
+        }
+
+        //Creado por: Marlon Loria Solano
+        //Fecha: 2022-10-30
+        //Obtener lista de Incidencias
+
+        public async Task<List<cIncidencia>> GetIncidencia()
+        {
+
+
+            List<cIncidencia> incidencia = new();
+            try
+            {
+                incidencia = await _context.Incidencias
+                        .ToListAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message); throw;
+            }
+            return incidencia;
+        }
+
+        //Creado por: Marlon Loria Solano
+        //Fecha: 2022-10-30
+        //Obtener una Incidencia especifica
+        //Parametros: codigo=Codigo de incidencia a buscar
+        public async Task<cIncidencia> GetIncidencia(int id)
+        {
+            cIncidencia? incidencia = new();
+            try
+            {
+                incidencia = await _context.Incidencias.FirstOrDefaultAsync(e => e.Id == id);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message); throw;
+            }
+            return incidencia;
+        }
+        //Creado por: Marlon Loria Solano
+        //Fecha: 2022-10-30
+        //Sincronizar Incidencia
+        //Parametro: Recibe una instancia de Incidencia, se verifica si existe en cuyo caso
+        //actualiza el registro, de lo contrario lo crea.
+        public async Task<EventResponse> Sincronizar_Incidencia(IEnumerable<cIncidencia> incidencias)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+                foreach (var incidencia in incidencias)
+                {
+                    cIncidencia? incident = await _context.Incidencias
+                                    .Where(e => e.Id == incidencia.Id)
+                                    .FirstOrDefaultAsync();
+
+                    if (incident is not null)
+                    {
+                        //incident.Id = incidencia.Id;
+                        incident.Descripcion = incidencia.Descripcion;
+                        incident.Codigo = incidencia.Codigo;
+                        incident.nom_conector = incidencia.nom_conector;
+                        incident.id_pago = incidencia.id_pago;
+                        incident.tipo = incidencia.tipo;
+                        incident.ed_tiempo = incidencia.ed_tiempo;
+                        incident.requiere_accper = incidencia.requiere_accper;
+
+                        _context.Incidencias.Update(incident);
+                    }
+                    else
+                    {
+                        incidencia.Id = 0;
+                        _context.Add(incidencia);
+                    }
+                }
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo realizar la sincronización de Incidencias. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo realizar la sincronización de Incidencias. Detalle de Error: " + e.InnerException.Message;
+
+            }
+
+            return respuesta;
+
+        }
+
+        //Creado por: Allan Prieto
+        //Fecha: 2023-12-27
+        //Obtener lista de Marcas Resumen
+        /// <summary>
+        /// Elimina_Incidencia:  Metodo borrado de datos de la tabla Incidencias
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns>EventResponse</returns>
+        public async Task<EventResponse> Elimina_Incidencia(int id)
+        {
+            EventResponse respuesta = new EventResponse();
+            try
+            {
+                cIncidencia? model = await _context.Incidencias
+                    .FirstOrDefaultAsync(e => e.Id == id);
+
+                if (model is not null)
+                {
+                    _context.Incidencias.Remove(model);
+                }
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo eliminar la Incidencia. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo eliminar la Incidencia. Detalle de Error: " + e.InnerException.Message;
+            }
+            return respuesta;
+        }
+
 
 
         #endregion
@@ -706,7 +2091,7 @@ namespace GeoTimeConnectWebApi.Data
         /// </summary>
         /// <param name="parametros">Ejecuta el Web Service</param>
         /// <returns>EventResponse con resultado del proceso</returns>
-        public async Task<EventResponse> EjecutaInitPeriodo(IEnumerable<cInit_Periodo> parametros)
+        public async Task<EventResponse> Init_Periodo(IEnumerable<cInit_Periodo> parametros)
         {
             EventResponse respuesta = new EventResponse();
 
@@ -745,6 +2130,85 @@ namespace GeoTimeConnectWebApi.Data
             }
             return respuesta;
 
+        }
+        public async Task<EventResponse> Sincronizo_erp(IEnumerable<cSincronizo_erp> parametros)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+                foreach (var item in parametros)
+                {
+                    sincronizo_erpRequest sincronizoErp = new sincronizo_erpRequest
+                    {
+                        comp = item.IdComp,
+                        plan = item.IdPlanilla,
+                    };
+
+                    EndpointConfiguration endpointConfiguration = new();
+                    GeoTimeServiceReference.ServiceSoapClient geoWebService = new(endpointConfiguration);
+
+                    var result = await geoWebService.sincronizo_erpAsync(sincronizoErp);
+                    if (result.sincronizo_erpResult == "")
+                    {
+                        respuesta.Id = "0";
+                        respuesta.Respuesta = "Ok";
+                        respuesta.Descripcion = $"Respuesta: {result.sincronizo_erpResult}";
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo realizar la Sincronización de ERP. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo realizar la Sincronización de ERP. Detalle de Error: " + e.InnerException.Message;
+            }
+            return respuesta;
+        }
+        public async Task<EventResponse> Sincronizo_Acciones(IEnumerable<cSincronizo_Acciones> parametros)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+                foreach (var item in parametros)
+                {
+                    sincronizo_accionesRequest sincronizoAcciones = new sincronizo_accionesRequest
+                    {
+                        comp = item.IdComp,
+                        plan = item.IdPlanilla,
+                        inicio = item.inicio,
+                        fin = item.fin,
+                        sesion = item.sesion
+                    };
+
+                    EndpointConfiguration endpointConfiguration = new();
+                    GeoTimeServiceReference.ServiceSoapClient geoWebService = new(endpointConfiguration);
+
+                    var result = await geoWebService.sincronizo_accionesAsync(sincronizoAcciones);
+                    if (result.sincronizo_accionesResult == "")
+                    {
+                        respuesta.Id = "0";
+                        respuesta.Respuesta = "Ok";
+                        respuesta.Descripcion = $"Respuesta: {result.sincronizo_accionesResult}";
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo realizar la Sincronización de Acciones. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo realizar la Sincronización de Acciones. Detalle de Error: " + e.InnerException.Message;
+            }
+            return respuesta;
         }
 
 
@@ -1521,673 +2985,8 @@ namespace GeoTimeConnectWebApi.Data
             return respuesta;
         }
 
+
         
-
-        //Creado por: Marlon Loria Solano
-        //Fecha: 2022-10-30
-        /// <summary>
-        /// GetEmpleado: Método para obtener una lista de empleados 
-        /// </summary>
-        /// <returns>Lista de cEmpleados</returns>
-        public async Task<List<cEmpleado>> GetEmpleado()
-        {
-            List<cEmpleado> empleado = new();
-            try
-            {
-                empleado = (from e in await _context.Empleados
-                                    .Include(e => e.Departamento)
-                                    .Include(e => e.CentroCosto)
-                                    .Include(e => e.Ph_Planilla)
-                                .Where(e => e.Estado == 'T').ToListAsync()
-                                select new cEmpleado
-                                {
-                                    IdNumero = e.IdNumero,
-                                    IdPlanilla = e.IdPlanilla,
-                                    Nombre = e.Nombre,
-                                    Tarjeta = e.Tarjeta,
-                                    Identificacion = e.Identificacion,
-                                    IdGrupo = e.IdGrupo,
-                                    IdDepartamento = e.IdDepartamento,
-                                    IdHorario = e.IdHorario,
-                                    Estado = e.Estado,
-                                    IdAgrupamiento = e.IdAgrupamiento,
-                                    foto = e.foto,
-                                    IdCCosto = e.IdCCosto,
-                                    exporta = e.exporta,
-                                    ubicacion = e.ubicacion,
-                                    rubro1 = e.rubro1,
-                                    rubro2 = e.rubro2,
-                                    rubro3 = e.rubro3,
-                                    rubro4 = e.rubro4,
-                                    rubro5 = e.rubro5,
-                                    rubro6 = e.rubro6,
-                                    rubro7 = e.rubro7,
-                                    rubro8 = e.rubro8,
-                                    rubro9 = e.rubro9,
-                                    rubro10 = e.rubro10,
-                                    rubro11 = e.rubro11,
-                                    rubro12 = e.rubro12,
-                                    rubro13 = e.rubro13,
-                                    rubro14 = e.rubro14,
-                                    rubro15 = e.rubro15,
-                                    rubro16 = e.rubro16,
-                                    rubro17 = e.rubro17,
-                                    rubro18 = e.rubro18,
-                                    rubro19 = e.rubro19,
-                                    rubro20 = e.rubro20,
-                                    rubro21 = e.rubro21,
-                                    rubro22 = e.rubro22,
-                                    rubro23 = e.rubro23,
-                                    rubro24 = e.rubro24,
-                                    rubro25 = e.rubro25,
-                                    Fecha_Ingreso = e.Fecha_Ingreso,
-                                    Email = e.Email,
-                                    Tipo_Marca = e.Tipo_Marca,
-                                    inicio_rol = e.inicio_rol,
-                                    web_pass = e.web_pass,
-                                    id_transfo_conc = e.id_transfo_conc,
-                                    widioma = e.widioma,
-                                    global_clave = e.global_clave,
-                                    def_fase = e.def_fase,
-                                    def_py = e.def_py,
-                                    def_cc = e.def_cc,
-                                    Fecha_Salida = e.Fecha_Salida,
-                                    global_code = e.global_code,
-                                    fecha_act_code = e.fecha_act_code,
-                                    Departamento = e.Departamento==null?null:
-                                                   new cDepartamento
-                                                   {
-                                                       IDDEPART = e.Departamento.IDDEPART,
-                                                       DESCRIPCION = e.Departamento.DESCRIPCION,
-                                                   },
-                                    CentroCosto = e.CentroCosto == null ? null :
-                                                   new cCentroCosto
-                                                   {
-                                                       IdCCosto = e.CentroCosto.IdCCosto,
-                                                       Descripcion = e.CentroCosto.Descripcion,
-                                                       Distribuye = e.CentroCosto.Distribuye,                                                       
-                                                   },
-                                    Ph_Planilla = e.Ph_Planilla == null ? null :
-                                                   new cPh_Planilla
-                                                   {
-                                                       idplanilla = e.Ph_Planilla.idplanilla,
-                                                       planilla = e.Ph_Planilla.planilla,
-                                                       nom_conector = e.Ph_Planilla.nom_conector,
-                                                       tipo_planilla = e.Ph_Planilla.tipo_planilla,
-                                                       c_ext = e.Ph_Planilla.c_ext,
-                                                       c_inci = e.Ph_Planilla.c_inci,
-                                                       c_adic = e.Ph_Planilla.c_adic,
-                                                       m_desc = e.Ph_Planilla.m_desc,
-                                                       proyecta = e.Ph_Planilla.proyecta,
-                                                       dia_inicio = e.Ph_Planilla.dia_inicio,
-                                                       auto_proceso = e.Ph_Planilla.auto_proceso,
-                                                       tipo_dist = e.Ph_Planilla.tipo_dist,
-                                                       est_nomina = e.Ph_Planilla.est_nomina,
-                                                       ext_per_ant = e.Ph_Planilla.ext_per_ant,
-                                                       ext_det = e.Ph_Planilla.ext_det,
-                                                       agrup_salida = e.Ph_Planilla.agrup_salida,
-                                                       tipo_adic = e.Ph_Planilla.tipo_adic,
-                                                       nivel_aprob_ext = e.Ph_Planilla.nivel_aprob_ext,
-                                                   },
-
-                                }).ToList();
-
-     
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.Message); throw;
-            }
-            return empleado;
-        }
-
-        //Creado por: Marlon Loria Solano
-        //Fecha: 2022-10-30
-        /// <summary>
-        /// GetEmpleadoTotal: Método para obtener la lista total de empleados 
-        /// </summary>
-        /// <returns>Lista de cEmpleados</returns>
-        public async Task<List<cEmpleado>> GetEmpleadoTotal()
-        {
-            List<cEmpleado> empleado = new();
-            try
-            {
-                empleado = (from e in await _context.Empleados
-                                    .Include(e => e.Departamento)
-                                    .Include(e => e.CentroCosto)
-                                    .Include(e => e.Ph_Planilla)
-                                    .ToListAsync()
-                            select new cEmpleado
-                            {
-                                IdNumero = e.IdNumero,
-                                IdPlanilla = e.IdPlanilla,
-                                Nombre = e.Nombre,
-                                Tarjeta = e.Tarjeta,
-                                Identificacion = e.Identificacion,
-                                IdGrupo = e.IdGrupo,
-                                IdDepartamento = e.IdDepartamento,
-                                IdHorario = e.IdHorario,
-                                Estado = e.Estado,
-                                IdAgrupamiento = e.IdAgrupamiento,
-                                foto = e.foto,
-                                IdCCosto = e.IdCCosto,
-                                exporta = e.exporta,
-                                ubicacion = e.ubicacion,
-                                rubro1 = e.rubro1,
-                                rubro2 = e.rubro2,
-                                rubro3 = e.rubro3,
-                                rubro4 = e.rubro4,
-                                rubro5 = e.rubro5,
-                                rubro6 = e.rubro6,
-                                rubro7 = e.rubro7,
-                                rubro8 = e.rubro8,
-                                rubro9 = e.rubro9,
-                                rubro10 = e.rubro10,
-                                rubro11 = e.rubro11,
-                                rubro12 = e.rubro12,
-                                rubro13 = e.rubro13,
-                                rubro14 = e.rubro14,
-                                rubro15 = e.rubro15,
-                                rubro16 = e.rubro16,
-                                rubro17 = e.rubro17,
-                                rubro18 = e.rubro18,
-                                rubro19 = e.rubro19,
-                                rubro20 = e.rubro20,
-                                rubro21 = e.rubro21,
-                                rubro22 = e.rubro22,
-                                rubro23 = e.rubro23,
-                                rubro24 = e.rubro24,
-                                rubro25 = e.rubro25,
-                                Fecha_Ingreso = e.Fecha_Ingreso,
-                                Email = e.Email,
-                                Tipo_Marca = e.Tipo_Marca,
-                                inicio_rol = e.inicio_rol,
-                                web_pass = e.web_pass,
-                                id_transfo_conc = e.id_transfo_conc,
-                                widioma = e.widioma,
-                                global_clave = e.global_clave,
-                                def_fase = e.def_fase,
-                                def_py = e.def_py,
-                                def_cc = e.def_cc,
-                                Fecha_Salida = e.Fecha_Salida,
-                                global_code = e.global_code,
-                                fecha_act_code = e.fecha_act_code,
-                                Departamento = e.Departamento == null ? null :
-                                               new cDepartamento
-                                               {
-                                                   IDDEPART = e.Departamento.IDDEPART,
-                                                   DESCRIPCION = e.Departamento.DESCRIPCION,
-                                               },
-                                CentroCosto = e.CentroCosto == null ? null :
-                                               new cCentroCosto
-                                               {
-                                                   IdCCosto = e.CentroCosto.IdCCosto,
-                                                   Descripcion = e.CentroCosto.Descripcion,
-                                                   Distribuye = e.CentroCosto.Distribuye,
-                                               },
-                                Ph_Planilla = e.Ph_Planilla == null ? null :
-                                               new cPh_Planilla
-                                               {
-                                                   idplanilla = e.Ph_Planilla.idplanilla,
-                                                   planilla = e.Ph_Planilla.planilla,
-                                                   nom_conector = e.Ph_Planilla.nom_conector,
-                                                   tipo_planilla = e.Ph_Planilla.tipo_planilla,
-                                                   c_ext = e.Ph_Planilla.c_ext,
-                                                   c_inci = e.Ph_Planilla.c_inci,
-                                                   c_adic = e.Ph_Planilla.c_adic,
-                                                   m_desc = e.Ph_Planilla.m_desc,
-                                                   proyecta = e.Ph_Planilla.proyecta,
-                                                   dia_inicio = e.Ph_Planilla.dia_inicio,
-                                                   auto_proceso = e.Ph_Planilla.auto_proceso,
-                                                   tipo_dist = e.Ph_Planilla.tipo_dist,
-                                                   est_nomina = e.Ph_Planilla.est_nomina,
-                                                   ext_per_ant = e.Ph_Planilla.ext_per_ant,
-                                                   ext_det = e.Ph_Planilla.ext_det,
-                                                   agrup_salida = e.Ph_Planilla.agrup_salida,
-                                                   tipo_adic = e.Ph_Planilla.tipo_adic,
-                                                   nivel_aprob_ext = e.Ph_Planilla.nivel_aprob_ext,
-                                               },
-
-                            }).ToList();
-
-
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.Message); throw;
-            }
-            return empleado;
-        }
-
-        //Creado por: Marlon Loria Solano
-        //Fecha: 2022-10-30
-        /// <summary>
-        /// GetEmpleado: Método para un empleado específico
-        /// </summary>
-        /// <returns>Una instancia de la clase cEmpleado</returns>
-        /// ///<param name="idNumero">idNumero del empleado requerido</param>
-        public async Task<cEmpleado> GetEmpleado(string idNumero)
-        {
-            cEmpleado? empleado = new();
-            try
-            {
-                empleado = (from e in await _context.Empleados
-                                    .Include(e => e.Departamento)
-                                    .Include(e => e.CentroCosto)
-                                    .Include(e => e.Ph_Planilla)
-                                .Where(e => e.IdNumero == idNumero).ToListAsync()
-                            select new cEmpleado
-                            {
-                                IdNumero = e.IdNumero,
-                                IdPlanilla = e.IdPlanilla,
-                                Nombre = e.Nombre,
-                                Tarjeta = e.Tarjeta,
-                                Identificacion = e.Identificacion,
-                                IdGrupo = e.IdGrupo,
-                                IdDepartamento = e.IdDepartamento,
-                                IdHorario = e.IdHorario,
-                                Estado = e.Estado,
-                                IdAgrupamiento = e.IdAgrupamiento,
-                                foto = e.foto,
-                                IdCCosto = e.IdCCosto,
-                                exporta = e.exporta,
-                                ubicacion = e.ubicacion,
-                                rubro1 = e.rubro1,
-                                rubro2 = e.rubro2,
-                                rubro3 = e.rubro3,
-                                rubro4 = e.rubro4,
-                                rubro5 = e.rubro5,
-                                rubro6 = e.rubro6,
-                                rubro7 = e.rubro7,
-                                rubro8 = e.rubro8,
-                                rubro9 = e.rubro9,
-                                rubro10 = e.rubro10,
-                                rubro11 = e.rubro11,
-                                rubro12 = e.rubro12,
-                                rubro13 = e.rubro13,
-                                rubro14 = e.rubro14,
-                                rubro15 = e.rubro15,
-                                rubro16 = e.rubro16,
-                                rubro17 = e.rubro17,
-                                rubro18 = e.rubro18,
-                                rubro19 = e.rubro19,
-                                rubro20 = e.rubro20,
-                                rubro21 = e.rubro21,
-                                rubro22 = e.rubro22,
-                                rubro23 = e.rubro23,
-                                rubro24 = e.rubro24,
-                                rubro25 = e.rubro25,
-                                Fecha_Ingreso = e.Fecha_Ingreso,
-                                Email = e.Email,
-                                Tipo_Marca = e.Tipo_Marca,
-                                inicio_rol = e.inicio_rol,
-                                web_pass = e.web_pass,
-                                id_transfo_conc = e.id_transfo_conc,
-                                widioma = e.widioma,
-                                global_clave = e.global_clave,
-                                def_fase = e.def_fase,
-                                def_py = e.def_py,
-                                def_cc = e.def_cc,
-                                Fecha_Salida = e.Fecha_Salida,
-                                global_code = e.global_code,
-                                fecha_act_code = e.fecha_act_code,
-                                Departamento = e.Departamento == null ? null :
-                                               new cDepartamento
-                                               {
-                                                   IDDEPART = e.Departamento.IDDEPART,
-                                                   DESCRIPCION = e.Departamento.DESCRIPCION,
-                                               },
-                                CentroCosto = e.CentroCosto == null ? null :
-                                               new cCentroCosto
-                                               {
-                                                   IdCCosto = e.CentroCosto.IdCCosto,
-                                                   Descripcion = e.CentroCosto.Descripcion,
-                                                   Distribuye = e.CentroCosto.Distribuye,
-                                               },
-                                Ph_Planilla = e.Ph_Planilla == null ? null :
-                                                   new cPh_Planilla
-                                                   {
-                                                       idplanilla = e.Ph_Planilla.idplanilla,
-                                                       planilla = e.Ph_Planilla.planilla,
-                                                       nom_conector = e.Ph_Planilla.nom_conector,
-                                                       tipo_planilla = e.Ph_Planilla.tipo_planilla,
-                                                       c_ext = e.Ph_Planilla.c_ext,
-                                                       c_inci = e.Ph_Planilla.c_inci,
-                                                       c_adic = e.Ph_Planilla.c_adic,
-                                                       m_desc = e.Ph_Planilla.m_desc,
-                                                       proyecta = e.Ph_Planilla.proyecta,
-                                                       dia_inicio = e.Ph_Planilla.dia_inicio,
-                                                       auto_proceso = e.Ph_Planilla.auto_proceso,
-                                                       tipo_dist = e.Ph_Planilla.tipo_dist,
-                                                       est_nomina = e.Ph_Planilla.est_nomina,
-                                                       ext_per_ant = e.Ph_Planilla.ext_per_ant,
-                                                       ext_det = e.Ph_Planilla.ext_det,
-                                                       agrup_salida = e.Ph_Planilla.agrup_salida,
-                                                       tipo_adic = e.Ph_Planilla.tipo_adic,
-                                                       nivel_aprob_ext = e.Ph_Planilla.nivel_aprob_ext,
-                                                   },
-
-                            }).FirstOrDefault();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.Message); throw;
-            }
-            return empleado;
-        }
-
-        //Obtener Empleado por IdNumero
-        public async Task<cEmpleado> GetEmpleadoByEmail(string email)
-        {
-            cEmpleado? empleado = new();
-
-            try
-            {
-                empleado = await _context.Empleados.FirstOrDefaultAsync(e => e.Email == email && e.Estado == 'T');
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.Message); throw;
-            }
-            return empleado;
-        }
-
-        //Creado por: Marlon Loria Solano
-        //Fecha: 2022-10-30
-        //Obtener lista de Empleados
-        public async Task<List<cEmpleado>> GetEmpleadoFiltrado(string idnumero, string nombre, string iddepartamento)
-        {
-            List<cEmpleado> empleado = new();
-
-            if (idnumero == "all")
-                idnumero = "";
-            if (nombre == "all")
-                nombre = "";
-            if (iddepartamento == "all")
-                iddepartamento = "";
-
-            try
-            {
-                if (idnumero != "" && nombre != "" && iddepartamento != "")
-                {
-                    empleado = await _context.Empleados
-                    .Where(e => e.IdNumero!.Contains(idnumero)
-                           && e.Estado == 'T'
-                           && e.Nombre!.ToLower().Contains(nombre.ToLower())
-                           && e.IdDepartamento!.ToLower().Contains(iddepartamento.ToLower()))
-                    .ToListAsync();
-                }
-                else
-                {
-                    if (idnumero == "" && nombre == "" && iddepartamento == "")
-                    {
-                        empleado = await _context.Empleados.Where(e => e.Estado == 'T')
-                                            .ToListAsync();
-                    }
-                    else
-                    {
-                        if (idnumero != "")
-                        {
-                            empleado = await _context.Empleados
-                             .Where(e => e.Estado == 'T' && e.IdNumero!.Contains(idnumero))
-                             .ToListAsync();
-
-                        }
-                        else
-                        {
-                            if (nombre != "")
-                            {
-                                empleado = await _context.Empleados
-                                 .Where(e => e.Estado == 'T' && e.Nombre!.ToLower().Contains(nombre.ToLower()))
-                                 .ToListAsync();
-
-                            }
-                            else
-                            {
-                                if (iddepartamento != "")
-                                {
-                                    empleado = await _context.Empleados
-                                     .Where(e => e.Estado == 'T' && e.IdDepartamento!.ToLower().Contains(iddepartamento))
-                                     .ToListAsync();
-
-                                }
-                            }
-                        }
-
-                        if (idnumero != "")
-                        {
-                            if (nombre != "")
-                            {
-                                empleado = empleado
-                                 .Where(e => e.Nombre!.ToLower().Contains(nombre.ToLower()))
-                                 .ToList();
-
-                            }
-                            else
-                            {
-                                if (iddepartamento != "")
-                                {
-                                    empleado = empleado
-                                            .Where(e => e.IdDepartamento!.ToLower().Contains(iddepartamento.ToLower()))
-                                            .ToList();
-                                }
-
-                            }
-                        }
-                        else
-                        {
-                            if (nombre != "")
-                            {
-                                empleado = empleado
-                                 .Where(e => e.IdDepartamento!.ToLower().Contains(iddepartamento.ToLower()))
-                                 .ToList();
-
-                            }
-                            else
-                            {
-                                if (iddepartamento != "")
-                                {
-                                    empleado = empleado
-                                            .Where(e => e.IdDepartamento!.ToLower().Contains(iddepartamento.ToLower()))
-                                            .ToList();
-                                }
-                                else
-                                {
-                                    empleado = await _context.Empleados.Where(e => e.Estado == 'T')
-                                    .ToListAsync();
-                                }
-
-                            }
-                        }
-
-                    }
-                }
-
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.Message); throw;
-            }
-            return empleado;
-        }
-
-
-        //Creado por: Marlon Loria Solano
-        //Fecha: 2022-10-30
-        //Sincronizar Empleados
-        //Parametro: Recibe una instancia de Empleado, se verifica si existe en cuyo caso
-        //actualiza el registro, de lo contrario lo crea.
-        public async Task<EventResponse> Sincronizar_Empleado(IEnumerable<cEmpleado> empleados)
-        {
-            EventResponse respuesta = new EventResponse();
-
-            try
-            {
-                DateTime fechaIngreso;
-                string idPlanillaAnt;
-                foreach (var empleado in empleados)
-                {
-                    if (empleado.Fecha_Ingreso is null)
-                        fechaIngreso = DateTime.Now;
-                    else
-                        fechaIngreso = (DateTime)DateTime.Parse(empleado.Fecha_Ingreso.ToString());
-
-
-                    cEmpleado? emp = await _context.Empleados
-                                    .Where(e => e.IdNumero == empleado.IdNumero)
-                                    .FirstOrDefaultAsync();
-                    //si el empleado existe se actualiza registro
-                    //de lo contrario se agrega el registro
-                    if (emp is not null)
-                    {
-                        //si estado nuevo es inactivo
-                        if (empleado.Estado == 'F')
-                            //si no viene la fecha de salida se asigna fecha del dia que se inactiva
-                            if (empleado.Fecha_Salida is null)
-                                emp.Fecha_Salida = DateTime.Now;
-                            else
-                                emp.Fecha_Salida = empleado.Fecha_Salida;
-                        else
-                            emp.Fecha_Salida = empleado.Fecha_Salida;
-
-                        idPlanillaAnt = emp.IdPlanilla;
-                        emp.Estado = empleado.Estado;
-                        emp.Nombre = empleado.Nombre;
-                        emp.IdDepartamento = empleado.IdDepartamento;
-                        emp.IdCCosto = empleado.IdCCosto;
-                        emp.IdPlanilla = empleado.IdPlanilla;
-                        emp.Fecha_Ingreso = fechaIngreso;
-
-                        emp.IdGrupo = (empleado.IdGrupo != null && empleado.IdGrupo != 0) ? empleado.IdGrupo : emp.IdGrupo;
-                        emp.IdHorario = (empleado.IdHorario != null && empleado.IdHorario != 0) ? empleado.IdHorario : emp.IdHorario;
-                        emp.Tipo_Marca = (empleado.Tipo_Marca != null && empleado.Tipo_Marca != "") ? empleado.Tipo_Marca : emp.Tipo_Marca;
-                        emp.IdAgrupamiento = (empleado.IdAgrupamiento != null && empleado.IdAgrupamiento != 0) ? empleado.IdAgrupamiento : emp.IdAgrupamiento;
-                        emp.Email = empleado.Email ?? emp.Email;
-                        emp.Tarjeta = empleado.Tarjeta ?? emp.Tarjeta;
-                        emp.exporta = (empleado.exporta != null) ? empleado.exporta : emp.exporta;  
-                        emp.id_transfo_conc = (empleado.id_transfo_conc != null && empleado.id_transfo_conc != 0) ? empleado.id_transfo_conc : emp.id_transfo_conc;
-
-                        _context.Empleados.Update(emp);
-                        await _context.SaveChangesAsync();
-
-                        if (idPlanillaAnt != empleado.IdPlanilla)
-                        {
-                            await EjecutaPostCambioPlanilla(empleado.IdNumero, idPlanillaAnt, empleado.IdPlanilla);
-                        }
-                    }
-                    else
-                    {
-                        empleado.Fecha_Ingreso = fechaIngreso;
-                        empleado.Fecha_Salida = null;
-                        empleado.IdGrupo = (empleado.IdGrupo==null || empleado.IdGrupo==0)? 1:empleado.IdGrupo;
-                        empleado.IdHorario = (empleado.IdHorario == null || empleado.IdHorario == 0) ? 1 : empleado.IdHorario; 
-                        empleado.Tipo_Marca = (empleado.Tipo_Marca == null || empleado.Tipo_Marca == "") ? "H" : empleado.Tipo_Marca;
-                        empleado.IdAgrupamiento = (empleado.IdAgrupamiento == null) ? 0 : empleado.IdAgrupamiento;
-                        empleado.Email = empleado.Email??"";
-                        empleado.Tarjeta = empleado.Tarjeta ?? "";
-                        empleado.exporta = empleado.exporta ?? 'T';
-
-                        empleado.Departamento = null;
-                        empleado.CentroCosto = null;
-                        empleado.Ph_Planilla = null;
-
-                       
-
-                        _context.Add(empleado);
-                        await _context.SaveChangesAsync();
-                    }
-                }
-
-
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
-                respuesta.Id = "1";
-                respuesta.Respuesta = "Error";
-                if (e.InnerException == null)
-                    respuesta.Descripcion = "No se pudo realizar la sincronización de Empleados. Detalle de Error: " + e.Message;
-                else
-                    respuesta.Descripcion = "No se pudo realizar la sincronización de Empleados. Detalle de Error: " + e.InnerException.Message;
-            }
-
-            return respuesta;
-
-        }
-
-        /// <summary>
-        /// Elimina_Empleado:  Metodo borrado de datos de la tabla Empleado
-        /// </summary>
-        /// <param name="idnumero"></param>
-        /// <returns>EventResponse</returns>
-        public async Task<EventResponse> Elimina_Empleado(string idnumero)
-        {
-            EventResponse respuesta = new EventResponse();
-
-            try
-            {
-
-                cEmpleado? model = await _context.Empleados
-                    .FirstOrDefaultAsync(e => e.IdNumero == idnumero);
-
-                if (model is not null)
-                {
-                    _context.Empleados.Remove(model);
-                }
-                await _context.SaveChangesAsync();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
-                respuesta.Id = "1";
-                respuesta.Respuesta = "Error";
-                if (e.InnerException == null)
-                    respuesta.Descripcion = "No se pudo eliminar el Empleado. Detalle de Error: " + e.Message;
-                else
-                    respuesta.Descripcion = "No se pudo eliminar el Empleado. Detalle de Error: " + e.InnerException.Message;
-
-            }
-            return respuesta;
-        }
-
-        //Creado por: Marlon Loria Solano
-        //Fecha: 2022-10-30
-        //Obtener lista de Incidencias
-
-        public async Task<List<cIncidencia>> GetIncidencia()
-        {
-
-
-            List<cIncidencia> incidencia = new();
-            try
-            {
-                incidencia = await _context.Incidencias
-                        .ToListAsync();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.Message); throw;
-            }
-            return incidencia;
-        }
-
-        //Creado por: Marlon Loria Solano
-        //Fecha: 2022-10-30
-        //Obtener una Incidencia especifica
-        //Parametros: codigo=Codigo de incidencia a buscar
-        public async Task<cIncidencia> GetIncidencia(int id)
-        {
-            cIncidencia? incidencia = new();
-            try
-            {
-                incidencia = await _context.Incidencias.FirstOrDefaultAsync(e => e.Id == id);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.Message); throw;
-            }
-            return incidencia;
-        }
 
         //Creado por: Marlon Loria Solano
         //Fecha: 2022-10-30
@@ -2223,94 +3022,6 @@ namespace GeoTimeConnectWebApi.Data
             return incidencia;
         }
 
-        //Creado por: Marlon Loria Solano
-        //Fecha: 2022-10-30
-        //Sincronizar Incidencia
-        //Parametro: Recibe una instancia de Incidencia, se verifica si existe en cuyo caso
-        //actualiza el registro, de lo contrario lo crea.
-        public async Task<EventResponse> Sincronizar_Incidencia(IEnumerable<cIncidencia> incidencias)
-        {
-            EventResponse respuesta = new EventResponse();
-
-            try
-            {
-                foreach (var incidencia in incidencias)
-                {
-                    cIncidencia? incident = await _context.Incidencias
-                                    .Where(e => e.Id == incidencia.Id)
-                                    .FirstOrDefaultAsync();
-                   
-                    if (incident is not null)
-                    {
-                        //incident.Id = incidencia.Id;
-                        incident.Descripcion = incidencia.Descripcion;
-                        incident.Codigo = incidencia.Codigo;
-                        incident.nom_conector = incidencia.nom_conector;
-                        incident.id_pago = incidencia.id_pago;
-                        incident.tipo = incidencia.tipo;
-                        incident.ed_tiempo = incidencia.ed_tiempo;
-                        incident.requiere_accper = incidencia.requiere_accper;
-
-                        _context.Incidencias.Update(incident);
-                    }
-                    else
-                    {
-                        incidencia.Id = 0;
-                        _context.Add(incidencia);
-                    }
-                }
-                await _context.SaveChangesAsync();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
-                respuesta.Id = "1";
-                respuesta.Respuesta = "Error";
-                if (e.InnerException == null)
-                    respuesta.Descripcion = "No se pudo realizar la sincronización de Incidencias. Detalle de Error: " + e.Message;
-                else
-                    respuesta.Descripcion = "No se pudo realizar la sincronización de Incidencias. Detalle de Error: " + e.InnerException.Message;
-
-            }
-
-            return respuesta;
-
-        }
-
-        //Creado por: Allan Prieto
-        //Fecha: 2023-12-27
-        //Obtener lista de Marcas Resumen
-        /// <summary>
-        /// Elimina_Incidencia:  Metodo borrado de datos de la tabla Incidencias
-        /// </summary>
-        /// <param name="id"></param>
-        /// <returns>EventResponse</returns>
-        public async Task<EventResponse> Elimina_Incidencia(int id)
-        {
-            EventResponse respuesta = new EventResponse();
-            try
-            {
-                cIncidencia? model = await _context.Incidencias
-                    .FirstOrDefaultAsync(e => e.Id == id);
-
-                if (model is not null)
-                {
-                    _context.Incidencias.Remove(model);
-                }
-                await _context.SaveChangesAsync();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
-                respuesta.Id = "1";
-                respuesta.Respuesta = "Error";
-                if (e.InnerException == null)
-                    respuesta.Descripcion = "No se pudo eliminar la Incidencia. Detalle de Error: " + e.Message;
-                else
-                    respuesta.Descripcion = "No se pudo eliminar la Incidencia. Detalle de Error: " + e.InnerException.Message;
-            }
-            return respuesta;
-        }
 
         //Creado por: Marlon Loria Solano
         //Fecha: 2022-10-30
@@ -2350,204 +3061,6 @@ namespace GeoTimeConnectWebApi.Data
             return marcasResumen;
         }
 
-
-        //Creado por: Marlon Loria Solano
-        //Fecha: 2022-10-30
-        //Obtener lista de Turnos
-        public async Task<List<cTurno>> GetTurno()
-        {
-            List<cTurno> turno = new();
-            try
-            {
-                turno = await _context.Ph_Turnos.ToListAsync();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.Message); throw;
-            }
-            return turno;
-        }
-
-        //Creado por: Marlon Loria Solano
-        //Fecha: 2022-10-30
-        //Obtener un Turno especifico
-        //Parametros: codigo=Codigo de incidencia a buscar
-        public async Task<cTurno> GetTurno(int idTurno)
-        {
-            cTurno? turno = new();
-            try
-            {
-                turno = await _context.Ph_Turnos.FirstOrDefaultAsync(e => e.IdTurno == idTurno);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.Message); throw;
-            }
-            return turno;
-        }
-
-        /// <summary>
-        /// Sincronizar_Turno: metodo para sincronizar los Turnos 
-        /// </summary>
-        /// <param name="phTurno"></param>
-        /// <returns>una instancia EventResponse con el resultado de la operacion</returns>
-        public async Task<EventResponse> Sincronizar_Turno(IEnumerable<cTurno> phTurno)
-        {
-            EventResponse respuesta = new EventResponse();
-
-            try
-            {
-                foreach (var item in phTurno)
-                {
-                    cTurno? objetoBuscar = await _context.Ph_Turnos
-                                    .FirstOrDefaultAsync(e => e.IdTurno == item.IdTurno);
-                    //si el Turno existe se actualiza descripción
-                    //de lo contrario se agrega el registro*
-                    if (objetoBuscar is not null)
-                    {
-                        /* Datos de relleno */
-                        // objetoBuscar.IdTurno = item.IdTurno;
-                        // objetoBuscar.Descripcion = item.Descripcion;
-
-                        /* Datops listos para cuando se modifique el metodo correctamente */
-
-                        objetoBuscar.IdTurno = item.IdTurno;
-                        objetoBuscar.Descripcion = item.Descripcion;
-                        objetoBuscar.HEntra = item.HEntra;
-                        objetoBuscar.HSale = item.HSale;
-                        objetoBuscar.tar_apl = item.tar_apl;
-                        objetoBuscar.ant_apl = item.ant_apl;
-                        objetoBuscar.des_1_in = item.des_1_in;
-                        objetoBuscar.des_1_out = item.des_1_out;
-                        objetoBuscar.des_2_in = item.des_2_in;
-                        objetoBuscar.des_2_out = item.des_2_out;
-                        objetoBuscar.des_3_in = item.des_3_in;
-                        objetoBuscar.des_3_out = item.des_3_out;
-                        objetoBuscar.apl_des_1 = item.apl_des_1;
-                        objetoBuscar.apl_des_2 = item.apl_des_2;
-                        objetoBuscar.apl_des_3 = item.apl_des_3;
-                        objetoBuscar.des_1_tiem = item.des_1_tiem;
-                        objetoBuscar.des_2_tiem = item.des_2_tiem;
-                        objetoBuscar.des_3_tiem = item.des_3_tiem;
-                        objetoBuscar.marca_des_1 = item.marca_des_1;
-                        objetoBuscar.marca_des_2 = item.marca_des_2;
-                        objetoBuscar.marca_des_3 = item.marca_des_3;
-                        objetoBuscar.tar_tiem = item.tar_tiem;
-                        objetoBuscar.ant_tiem = item.ant_tiem;
-                        objetoBuscar.con_1 = item.con_1;
-                        objetoBuscar.con_2 = item.con_2;
-                        objetoBuscar.con_3 = item.con_3;
-                        objetoBuscar.con_4 = item.con_4;
-                        objetoBuscar.con_5 = item.con_5;
-                        objetoBuscar.con_6 = item.con_6;
-                        objetoBuscar.cant_con_1 = item.cant_con_1;
-                        objetoBuscar.cant_con_2 = item.cant_con_2;
-                        objetoBuscar.cant_con_3 = item.cant_con_3;
-                        objetoBuscar.cant_con_4 = item.cant_con_4;
-                        objetoBuscar.cant_con_5 = item.cant_con_5;
-                        objetoBuscar.cant_con_6 = item.cant_con_6;
-                        objetoBuscar.min_con_1 = item.min_con_1;
-                        objetoBuscar.min_con_2 = item.min_con_2;
-                        objetoBuscar.min_con_3 = item.min_con_3;
-                        objetoBuscar.min_con_4 = item.min_con_4;
-                        objetoBuscar.min_con_5 = item.min_con_5;
-                        objetoBuscar.min_con_6 = item.min_con_6;
-                        objetoBuscar.Tipo = item.Tipo;
-                        objetoBuscar.Tipo_Jor = item.Tipo_Jor;
-                        objetoBuscar.fuerza_calc = item.fuerza_calc;
-                        objetoBuscar.idagrupamiento = item.idagrupamiento;
-                        objetoBuscar.apl_trans1 = item.apl_trans1;
-                        objetoBuscar.id_trans1 = item.id_trans1;
-                        objetoBuscar.apl_trans2 = item.apl_trans2;
-                        objetoBuscar.id_trans2 = item.id_trans2;
-                        objetoBuscar.apl_trans3 = item.apl_trans3;
-                        objetoBuscar.id_trans3 = item.id_trans3;
-                        objetoBuscar.apl_trans4 = item.apl_trans4;
-                        objetoBuscar.id_trans4 = item.id_trans4;
-                        objetoBuscar.apl_trans5 = item.apl_trans5;
-                        objetoBuscar.id_trans5 = item.id_trans5;
-                        objetoBuscar.apl_trans6 = item.apl_trans6;
-                        objetoBuscar.id_trans6 = item.id_trans6;
-                        objetoBuscar.apl_ben1 = item.apl_ben1;
-                        objetoBuscar.id_ben1 = item.id_ben1;
-                        objetoBuscar.apl_ben2 = item.apl_ben2;
-                        objetoBuscar.id_ben2 = item.id_ben2;
-                        objetoBuscar.apl_ben3 = item.apl_ben3;
-                        objetoBuscar.id_ben3 = item.id_ben3;
-                        objetoBuscar.apl_ben4 = item.apl_ben4;
-                        objetoBuscar.id_ben4 = item.id_ben4;
-                        objetoBuscar.apl_ben5 = item.apl_ben5;
-                        objetoBuscar.id_ben5 = item.id_ben5;
-                        objetoBuscar.apl_ben6 = item.apl_ben6;
-                        objetoBuscar.id_ben6 = item.id_ben6;
-                        objetoBuscar.conc_ben1 = item.conc_ben1;
-                        objetoBuscar.conc_ben2 = item.conc_ben2;
-                        objetoBuscar.conc_ben3 = item.conc_ben3;
-                        objetoBuscar.conc_ben4 = item.conc_ben4;
-                        objetoBuscar.conc_ben5 = item.conc_ben5;
-                        objetoBuscar.conc_ben6 = item.conc_ben6;
-                        objetoBuscar.apl_trans_post = item.apl_trans_post;
-                        objetoBuscar.id_trans_post = item.id_trans_post;
-                        objetoBuscar.apl_redond_entrada = item.apl_redond_entrada;
-                        objetoBuscar.cant_redond_entrada = item.cant_redond_entrada;
-                        objetoBuscar.auto_pan = item.auto_pan;
-
-                        _context.Ph_Turnos.Update(objetoBuscar);
-                    }
-                    else
-                    {
-                        _context.Add(item);
-                    }
-                }
-
-                await _context.SaveChangesAsync();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
-                respuesta.Id = "1";
-                respuesta.Respuesta = "Error";
-                if (e.InnerException == null)
-                    respuesta.Descripcion = "No se pudo realizar la sincronización del PhTurno. Detalle de Error: " + e.Message;
-                else
-                    respuesta.Descripcion = "No se pudo realizar la sincronización del PhTurno. Detalle de Error: " + e.InnerException.Message;
-            }
-            return respuesta;
-        }
-
-        /// <summary>
-        /// Elimina_Turno:  Metodo borrado de datos de la tabla Ph_Turnos
-        /// </summary>
-        /// <param name="idturno"></param>
-        /// <returns>EventResponse</returns>
-        public async Task<EventResponse> Elimina_Turno(int idturno)
-        {
-            EventResponse respuesta = new EventResponse();
-
-            try
-            {
-
-                cTurno? model = await _context.Ph_Turnos
-                    .FirstOrDefaultAsync(e => e.IdTurno == idturno);
-
-                if (model is not null)
-                {
-                    _context.Ph_Turnos.Remove(model);
-                }
-                await _context.SaveChangesAsync();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
-                respuesta.Id = "1";
-                respuesta.Respuesta = "Error";
-                if (e.InnerException == null)
-                    respuesta.Descripcion = "No se pudo eliminar el PhTurno. Detalle de Error: " + e.Message;
-                else
-                    respuesta.Descripcion = "No se pudo eliminar el PhTurno. Detalle de Error: " + e.InnerException.Message;
-            }
-            return respuesta;
-        }
 
         //Creado por: Marlon Loria Solano
         //Fecha: 2022-10-30
@@ -4661,307 +5174,7 @@ namespace GeoTimeConnectWebApi.Data
             return respuesta;
         }
 
-        //Creado por: María José Sánchez
-        //Fecha: 2023-11-08
-        //Obtener lista de Horarios
-        public async Task<List<cPh_Horarios>> GetHorarios()
-        {
-            List<cPh_Horarios> horarios = new();
-            try
-            {
-                horarios = (from e in await _context.Ph_Horarios
-                                .Include(e=>e.Ph_HorarioTurno)
-                            .ToListAsync()
-                            select new cPh_Horarios
-                            {
-                                IDHORARIO = e.IDHORARIO,
-                                DESCRIPCION = e.DESCRIPCION,
-                                Ph_HorarioTurno = e.Ph_HorarioTurno==null?null:
-                                                ( from ht in e.Ph_HorarioTurno
-                                                  select new cPh_HorarioTurno
-                                                  {
-                                                      IDHORARIO = ht.IDHORARIO,
-                                                      ID_DIA = ht.ID_DIA,
-                                                      T_1 = ht.T_1,
-                                                      T_2 = ht.T_2,
-                                                      T_3 = ht.T_3,
-                                                      T_4 = ht.T_4,
-                                                      T_5 = ht.T_5,
-                                                  }).ToList()}
-                            ).ToList();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.Message); throw;
-            }
-            return horarios;
-        }
-
-        //Creado por: María José Sánchez
-        //Fecha: 2023-11-08
-        //Obtener un Horario especifico
-        //Parametros: idHorario=Id de horarios a buscar
-        public async Task<cPh_Horarios> GetHorarios(int IDHORARIO)
-        {
-            cPh_Horarios? horarios = new();
-            try
-            {
-                horarios = await _context.Ph_Horarios.FirstOrDefaultAsync(e => e.IDHORARIO == IDHORARIO);
-
-                horarios = (from e in await _context.Ph_Horarios
-                                .Include(e => e.Ph_HorarioTurno)
-                                .Where(e => e.IDHORARIO == IDHORARIO)
-                                .ToListAsync()
-                            select new cPh_Horarios
-                            {
-                                IDHORARIO = e.IDHORARIO,
-                                DESCRIPCION = e.DESCRIPCION,
-                                Ph_HorarioTurno = e.Ph_HorarioTurno == null ? null :
-                                                (from ht in e.Ph_HorarioTurno
-                                                 select new cPh_HorarioTurno
-                                                 {
-                                                     IDHORARIO = ht.IDHORARIO,
-                                                     ID_DIA = ht.ID_DIA,
-                                                     T_1 = ht.T_1,
-                                                     T_2 = ht.T_2,
-                                                     T_3 = ht.T_3,
-                                                     T_4 = ht.T_4,
-                                                     T_5 = ht.T_5,
-                                                 }).ToList()
-                            }
-                            ).FirstOrDefault();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.Message); throw;
-            }
-            return horarios;
-        }
-
-        //Creado por: María José Sánchez
-        //Fecha: 2023-11-08
-        //Sincronizar Horarios
-        //Parametro: Recibe una instancia de horarios, se verifica si existe en cuyo caso
-        //actualiza el registro, de lo contrario lo crea.
-        public async Task<EventResponse> Sincronizar_Horarios(IEnumerable<cPh_Horarios> horarios)
-        {
-            EventResponse respuesta = new EventResponse();
-
-            try
-            {
-                IEnumerable<cPh_HorarioTurno> phHorarioTurnoList = null;
-
-                await _context.Database.BeginTransactionAsync();
-
-                foreach (var horario in horarios)
-                {
-                    phHorarioTurnoList = horario.Ph_HorarioTurno;
-
-                    cPh_Horarios? hora = await _context.Ph_Horarios
-                                                        .FirstOrDefaultAsync(e => e.IDHORARIO == horario.IDHORARIO);
-                    //si el horario existe se actualiza descripción
-                    //de lo contrario se agrega el registro
-                    if (hora is not null)
-                    {
-                        hora.DESCRIPCION = horario.DESCRIPCION;
-                        _context.Ph_Horarios.Update(hora);
-                    }
-                    else
-                    {
-                        horario.Ph_HorarioTurno = null;
-                        _context.Add(horario);
-                    }
-                    await _context.SaveChangesAsync();
-
-                    if (phHorarioTurnoList is not null)
-                    {
-                        var resp=await Sincronizar_HorarioTurno(phHorarioTurnoList);
-                        if (resp.Id != "0")
-                        {
-                            respuesta.Id = "1";
-                            respuesta.Respuesta = "Error";
-                            respuesta.Descripcion = resp.Descripcion;
-                            await _context.Database.RollbackTransactionAsync();
-                            return respuesta;
-                        }
-                    }
-
-                }
-                await _context.Database.CommitTransactionAsync();
-
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
-                respuesta.Id = "1";
-                respuesta.Respuesta = "Error";
-                if (e.InnerException == null)
-                    respuesta.Descripcion = "No se pudo realizar la sincronización de Horarios. Detalle de Error: " + e.Message;
-                else
-                    respuesta.Descripcion = "No se pudo realizar la sincronización de Horarios. Detalle de Error: " + e.InnerException.Message;
-
-                await _context.Database.RollbackTransactionAsync();
-            }
-  
-            return respuesta;
-
-        }
-        /// <summary>
-        /// Elimina_PhHorarios:  Metodo boorado de datos de la tabla PhHorarios
-        /// </summary>
-        /// <param name="IDHORARIO"></param>
-        /// <returns>EventResponse</returns>
-        public async Task<EventResponse> Elimina_Horarios(string IDHORARIO)
-        {
-            EventResponse respuesta = new EventResponse();
-            try
-            {
-
-                cPh_Horarios? model = await _context.Ph_Horarios
-                    .FirstOrDefaultAsync(e => e.IDHORARIO == int.Parse(IDHORARIO));
-
-                if (model is not null)
-                {
-                    _context.Ph_Horarios.Remove(model);
-                }
-                await _context.SaveChangesAsync();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
-                respuesta.Id = "1";
-                respuesta.Respuesta = "Error";
-                if (e.InnerException == null)
-                    respuesta.Descripcion = "No se pudo eliminar el Horario. Detalle de Error: " + e.Message;
-                else
-                    respuesta.Descripcion = "No se pudo eliminar el Horario. Detalle de Error: " + e.InnerException.Message;
-
-            }
-            return respuesta;
-        }
-
-        //Creado por: María José Sánchez
-        //Fecha: 2023-11-08
-        //Obtener lista de Horarios
-        public async Task<List<cPh_HorarioTurno>> GetHorario_Turno()
-        {
-            List<cPh_HorarioTurno> horario_turno = new();
-            try
-            {
-                horario_turno = await _context.Ph_Horario_Turnos.ToListAsync();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.Message); throw;
-            }
-            return horario_turno;
-        }
-
-        //Creado por: María José Sánchez
-        //Fecha: 2023-11-08
-        //Obtener un Horario Turno especifico
-        //Parametros: IDHORARIO= Id de horario turno a buscar
-        public async Task<cPh_HorarioTurno> GetHorario_Turno(int IDHORARIO)
-        {
-            cPh_HorarioTurno? horario_turno = new();
-            try
-            {
-                horario_turno = await _context.Ph_Horario_Turnos.FirstOrDefaultAsync(e => e.IDHORARIO == IDHORARIO);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.Message); throw;
-            }
-            return horario_turno;
-        }
-
-        //Creado por: María José Sánchez
-        //Fecha: 2023-11-08
-        //Sincronizar Horario Turno
-        //Parametro: Recibe una instancia de HorarioTurno, se verifica si existe en cuyo caso
-        //actualiza el registro, de lo contrario lo crea.
-        public async Task<EventResponse> Sincronizar_HorarioTurno(IEnumerable<cPh_HorarioTurno> horario_turno)
-        {
-            EventResponse respuesta = new EventResponse();
-
-            try
-            {
-                foreach (var horario in horario_turno)
-                {
-                    cPh_HorarioTurno? hora = await _context.Ph_Horario_Turnos
-                                                        .FirstOrDefaultAsync(e => e.IDHORARIO == horario.IDHORARIO && e.ID_DIA == horario.ID_DIA);
-                    //si el horario existe se actualiza descripción
-                    //de lo contrario se agrega el registro
-                    if (hora is not null)
-                    {
-                        hora.IDHORARIO = horario.IDHORARIO;
-                        hora.ID_DIA = horario.ID_DIA;
-                        hora.T_1 = horario.T_1;
-                        hora.T_2 = horario.T_2;
-                        hora.T_3 = horario.T_3;
-                        hora.T_4 = horario.T_4;
-                        hora.T_5 = horario.T_5;
-
-
-                        _context.Ph_Horario_Turnos.Update(hora);
-                    }
-                    else
-                    {
-                        _context.Add(horario);
-                    }
-                }
-                await _context.SaveChangesAsync();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
-                respuesta.Id = "1";
-                respuesta.Respuesta = "Error";
-                if (e.InnerException == null)
-                    respuesta.Descripcion = "No se pudo realizar la sincronización de Horarios Turnos. Detalle de Error: " + e.Message;
-                else
-                    respuesta.Descripcion = "No se pudo realizar la sincronización de Horarios Turnos. Detalle de Error: " + e.InnerException.Message;
-
-            }
-
-            return respuesta;
-
-        }
-
-        /// <summary>
-        /// Elimina_Ph_Horario_Turno:  Metodo borrado de datos de la tabla Ph_Horario_Turno
-        /// </summary>
-        /// <param name="IDHORARIO"></param>
-        /// <returns>EventResponse</returns>
-        public async Task<EventResponse> Elimina_Horario_Turno(string IDHORARIO)
-        {
-            EventResponse respuesta = new EventResponse();
-
-            try
-            {
-
-                cPh_HorarioTurno? model = await _context.Ph_Horario_Turnos
-                    .FirstOrDefaultAsync(e => e.IDHORARIO == int.Parse(IDHORARIO));
-
-                if (model is not null)
-                {
-                    _context.Ph_Horario_Turnos.Remove(model);
-                }
-                await _context.SaveChangesAsync();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
-                respuesta.Id = "1";
-                respuesta.Respuesta = "Error";
-                if (e.InnerException == null)
-                    respuesta.Descripcion = "No se pudo eliminar el Horario Turno. Detalle de Error: " + e.Message;
-                else
-                    respuesta.Descripcion = "No se pudo eliminar el Horario Turno. Detalle de Error: " + e.InnerException.Message;
-
-            }
-            return respuesta;
-        }
+        
 
         //Creado por: Allan Prieto
         //Fecha: 2023-12-12
@@ -4984,137 +5197,7 @@ namespace GeoTimeConnectWebApi.Data
             return transformaciones;
         }
 
-        //Creado por: Allan Prieto
-        //Fecha: 2023-13-12
-        /// <summary>
-        /// GetPhRol: Obtener lista de registros de la tabla PH_ROLES
-        /// </summary>
-        /// <returns>Lista de cPh_Rol </returns>
-        /// 
-        public async Task<List<cPh_Rol>> GetPhRol()
-        {
-            List<cPh_Rol> roles = new();
-            try
-            {
-                roles = await _context.Ph_Roles.ToListAsync();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.Message); throw;
-            }
-            return roles;
-        }
-
-        //Creado por: Allan Prieto
-        //Fecha: 2023-12-27
-        //Obtener un Rol especifico
-        //Parametros: idrol=id a buscar
-        public async Task<cPh_Rol> GetPhRol(int idrol)
-        {
-            cPh_Rol? roles = new();
-            //cPh_Rol? roles = new cPh_Rol();
-            try
-            {
-                roles = await (from r in _context.Ph_Roles
-                             where r.IDROL == idrol
-                             select new cPh_Rol
-                             {
-                                 IDROL = r.IDROL,
-                                 DESCRIPCION = r.DESCRIPCION,
-                                 Turno = (from rt in _context.Ph_Roles_Turnos
-                                           join t in _context.Ph_Turnos on rt.IDTURNO equals t.IdTurno
-                                           where rt.IDROL == idrol
-                                           select new cTurno
-                                           {
-                                               IdTurno = t.IdTurno,
-                                               Descripcion = t.Descripcion,
-                                               idRegistro = rt.IDREGISTRO
-                                           }).ToList()
-                             }).FirstOrDefaultAsync();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.Message); throw;
-            }
-            return roles;
-        }
-
-        /// <summary>
-        /// Sincronizar_PhRol: metodo para sincronizar los Roles 
-        /// </summary>
-        /// <param name="phRoles"></param>
-        /// <returns>una instancia EventResponse con el resultado de la operacion</returns>
-        public async Task<EventResponse> Sincronizar_PhRol(IEnumerable<cPh_Rol> phRoles)
-        {
-            EventResponse respuesta = new EventResponse();
-
-            try
-            {
-                foreach (var item in phRoles)
-                {
-                    cPh_Rol? objetoBuscar = await _context.Ph_Roles
-                                    .FirstOrDefaultAsync(e => e.IDROL == item.IDROL);
-                    //si el rol existe se actualiza descripción
-                    //de lo contrario se agrega el registro*
-                    if (objetoBuscar is not null)
-                    {
-                        objetoBuscar.IDROL = item.IDROL;
-                        objetoBuscar.DESCRIPCION = item.DESCRIPCION;
-
-                        _context.Ph_Roles.Update(objetoBuscar);
-                    }
-                    else
-                    {
-                        _context.Add(item);
-                    }
-                }
-                await _context.SaveChangesAsync();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
-                respuesta.Id = "1";
-                respuesta.Respuesta = "Error";
-                if (e.InnerException == null)
-                    respuesta.Descripcion = "No se pudo realizar la sincronización del Rol. Detalle de Error: " + e.Message;
-                else
-                    respuesta.Descripcion = "No se pudo realizar la sincronización del Rol. Detalle de Error: " + e.InnerException.Message;
-            }
-            return respuesta;
-        }
-
-        /// <summary>
-        /// Elimina_PhRol:  Metodo borrado de datos de la tabla Ph_Roles
-        /// </summary>
-        /// <param name="idrol"></param>
-        /// <returns>EventResponse</returns>
-        public async Task<EventResponse> Elimina_PhRol(int idrol)
-        {
-            EventResponse respuesta = new EventResponse();
-
-            try
-            {
-                cPh_Rol? model = await _context.Ph_Roles
-                    .FirstOrDefaultAsync(e => e.IDROL == idrol);
-
-                if (model is not null)
-                {
-                    _context.Ph_Roles.Remove(model);
-                }
-                await _context.SaveChangesAsync();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
-                respuesta.Id = "1";
-                respuesta.Respuesta = "Error";
-                if (e.InnerException == null)
-                    respuesta.Descripcion = "No se pudo eliminar el Rol. Detalle de Error: " + e.Message;
-                else
-                    respuesta.Descripcion = "No se pudo eliminar el Rol. Detalle de Error: " + e.InnerException.Message;
-            }
-            return respuesta;
-        }
+        
 
         //Creado por: Allan Prieto  // No se ocupa 
         //Fecha: 2023-12-27

@@ -16,19 +16,19 @@ namespace GeoTimeConnectWebApi.Controllers
     [ApiController]
     [Route("[controller]")]
     [Authorize]
-    public class WSInitPeriodoController : Controller
+    public class WSincronizoErpController : Controller
     {
         private readonly IGeoTimeConnectService _repoGT;
-        public WSInitPeriodoController(IGeoTimeConnectService repoGT)
+        public WSincronizoErpController(IGeoTimeConnectService repoGT)
         {
 
             _repoGT = repoGT;
         }
 
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody] IEnumerable<cInit_Periodo> parametros)
+        public async Task<IActionResult> Post([FromBody] IEnumerable<cSincronizo_erp> parametros)
         {
-            EventResponse respuesta = await _repoGT.Init_Periodo(parametros);
+            EventResponse respuesta = await _repoGT.Sincronizo_erp(parametros);
 
             if (respuesta.Id != "0")
                 return BadRequest(respuesta);
