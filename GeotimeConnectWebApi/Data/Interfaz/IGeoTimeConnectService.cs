@@ -12,7 +12,18 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         /* Metodos SQL */
         #region SQLMetodes
         public Task<IEnumerable<cPh_Login>> GetPhLogin();
+        /// <summary>
+        /// GetPhLogin: Método para obtener un usuario de ph_login segun su cuenta de correo
+        /// </summary>
+        /// <returns>Una instancia de la clase cPhLogin</returns>
+        /// ///<param name="id">Id del usuario requerido</param>
         public Task<cPh_Login> GetPhLogin(string id);
+        /// <summary>
+        /// GetPhLoginByUsuario: Método para obtener un ph_login por nombre de usuario
+        /// </summary>
+        /// <returns>Una instancia de la clase cPhLogin</returns>
+        /// ///<param name="id">Id del usuario requerido</param>
+        public Task<cPh_Login> GetPhLoginByUsuario(string id);
         public Task<List<cPh_Compania>> GetPhCompania();
         public Task<cPh_Compania> GetPhCompania(string idcomp);
 

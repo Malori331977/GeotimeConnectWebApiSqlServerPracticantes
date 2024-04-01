@@ -27,5 +27,6 @@
         public char? OMITE_LIC { get; set; }
         public char ACTIVO { get; set; }
         public string? GLOBAL_CLAVE { get; set; }
+        public string? ROLUSUARIO { get; set;}
     }
 }

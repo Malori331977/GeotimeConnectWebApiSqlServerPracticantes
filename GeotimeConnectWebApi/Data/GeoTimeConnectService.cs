@@ -66,7 +66,7 @@ namespace GeoTimeConnectWebApi.Data
             _context = SchemaChangeDbContext.GetSchemaChangeDbContext(schema, bdname);
         }
 
-        #region SQLMetodes
+        #region SQLMetodos
 
         //Creado por: Allan Prieto 
         //Fecha: 2024-3-26
@@ -86,10 +86,11 @@ namespace GeoTimeConnectWebApi.Data
             return phlogin;
         }
 
-        //Creado por: Marlon Loria Solano
-        //Fecha: 2022-10-30
-        //Obtener datos de phlogin de una cuenta de usuario
-        //Parametros: id=email de empleado a buscar
+        /// <summary>
+        /// GetPhLogin: Método para obtener un usuario de ph_login segun su cuenta de correo
+        /// </summary>
+        /// <returns>Una instancia de la clase cPhLogin</returns>
+        /// ///<param name="id">Id del usuario requerido</param>
         public async Task<cPh_Login> GetPhLogin(string id)
         {
             cPh_Login? phlogin = new();
@@ -97,6 +98,26 @@ namespace GeoTimeConnectWebApi.Data
             try
             {
                 phlogin = await _context.PH_LOGIN.FirstOrDefaultAsync(e => e.EMAIL.ToUpper() == id.ToUpper());
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message); throw;
+            }
+            return phlogin;
+        }
+
+        /// <summary>
+        /// GetPhLoginByUsuario: Método para obtener un ph_login por nombre de usuario
+        /// </summary>
+        /// <returns>Una instancia de la clase cPhLogin</returns>
+        /// ///<param name="id">Id del usuario requerido</param>
+        public async Task<cPh_Login> GetPhLoginByUsuario(string id)
+        {
+            cPh_Login? phlogin = new();
+
+            try
+            {
+                phlogin = await _context.PH_LOGIN.FirstOrDefaultAsync(e => e.usuario.ToUpper() == id.ToUpper());
             }
             catch (Exception e)
             {
@@ -1997,270 +2018,6 @@ namespace GeoTimeConnectWebApi.Data
             return respuesta;
         }
 
-
-
-        #endregion
-
-        #region SPMetodos
-        //Creado por: Marlon Loria Solano
-        //Fecha: 2022-01-02
-        /// <summary>
-        /// /Obtener lista de Compañias asociadas al usuario
-        /// </summary>
-        /// <returns>Lista de Compania de Usuario </returns>
-        public async Task<List<cPh_CompaniaUsuario>> GetPhCompaniaUsuario(string idnumero)
-        {
-            List<cPh_CompaniaUsuario> companiasUsuario = new();
-            DataTable table;
-
-            try
-            {
-                // Build a config object, using env vars and JSON providers.
-                IConfiguration config = new ConfigurationBuilder()
-                    .AddJsonFile("appsettings.json")
-                    .AddEnvironmentVariables()
-                    .Build();
-
-                string schemaAdmin = config.GetConnectionString("SchemaAdmin");
-
-                using (var connection = _context.Database.GetDbConnection())
-                {
-                    await connection.OpenAsync();
-                    using (var command = connection.CreateCommand())
-                    {
-                        command.CommandText = $"{schemaAdmin}.VerificaCompaniaUsuarioWeb @IdNumero='{idnumero}'";
-                        System.Data.Common.DbDataReader result = command.ExecuteReader();
-
-                        table = new DataTable();
-                        table.Load(result);
-
-                        foreach (DataRow dr in table.Rows)
-                        {
-                            cPh_CompaniaUsuario usrComp = new cPh_CompaniaUsuario
-                            {
-                                idcomp = dr.ItemArray[0].ToString(),
-                                compania = dr.ItemArray[1].ToString(),
-                                nom_conector = dr.ItemArray[2].ToString(),
-                                idnumero = dr.ItemArray[3].ToString(),
-                            };
-                            companiasUsuario.Add(usrComp);
-                        }
-
-                        // Close the reader
-                        result.Close();
-
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.Message);
-                throw;
-            }
-            return companiasUsuario;
-        }
-        public async Task EjecutaPostCambioPlanilla(string idnumero, string oldPlanilla, string newPlanilla)
-        {
-            try
-            {
-                using (var connection = _context.Database.GetDbConnection())
-                {
-                    await connection.OpenAsync();
-                    using (var command = connection.CreateCommand())
-                    {
-                        command.CommandText = _schema + $".DM_POST_CAMBIOPLANILLA @idnumero='{idnumero}', @OLDPLANILLA='{oldPlanilla}',@NEWPLANILLA='{newPlanilla}'";
-                        await command.ExecuteNonQueryAsync();
-                    }
-                }
-            }
-            catch (Exception)
-            {
-                throw;
-            }
-
-        }
-
-
-        #endregion
-
-        #region WSMetodos
-        public async Task<EventResponse> Sincronizo_erp(IEnumerable<cSincronizo_erp> parametros)
-        {
-            EventResponse respuesta = new EventResponse();
-
-            try
-            {
-                foreach (var item in parametros)
-                {
-                    sincronizo_erpRequest sincronizoErp = new sincronizo_erpRequest
-                    {
-                        comp = item.IdComp,
-                        plan = item.IdPlanilla,
-                    };
-
-                    EndpointConfiguration endpointConfiguration = new();
-                    GeoTimeServiceReference.ServiceSoapClient geoWebService = new(endpointConfiguration);
-
-                    var result = await geoWebService.sincronizo_erpAsync(sincronizoErp);
-                    if (result.sincronizo_erpResult == "")
-                    {
-                        respuesta.Id = "0";
-                        respuesta.Respuesta = "Ok";
-                        respuesta.Descripcion = $"Respuesta: {result.sincronizo_erpResult}";
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
-                respuesta.Id = "1";
-                respuesta.Respuesta = "Error";
-                if (e.InnerException == null)
-                    respuesta.Descripcion = "No se pudo realizar la Sincronización de ERP. Detalle de Error: " + e.Message;
-                else
-                    respuesta.Descripcion = "No se pudo realizar la Sincronización de ERP. Detalle de Error: " + e.InnerException.Message;
-            }
-            return respuesta;
-        }
-        public async Task<EventResponse> Sincronizo_Acciones(IEnumerable<cSincronizo_Acciones> parametros)
-        {
-            EventResponse respuesta = new EventResponse();
-
-            try
-            {
-                foreach (var item in parametros)
-                {
-                    sincronizo_accionesRequest sincronizoAcciones = new sincronizo_accionesRequest
-                    {
-                        comp = item.IdComp,
-                        plan = item.IdPlanilla,
-                        inicio = item.inicio,
-                        fin = item.fin,
-                        sesion = item.sesion
-                    };
-
-                    EndpointConfiguration endpointConfiguration = new();
-                    GeoTimeServiceReference.ServiceSoapClient geoWebService = new(endpointConfiguration);
-
-                    var result = await geoWebService.sincronizo_accionesAsync(sincronizoAcciones);
-                    if (result.sincronizo_accionesResult == "")
-                    {
-                        respuesta.Id = "0";
-                        respuesta.Respuesta = "Ok";
-                        respuesta.Descripcion = $"Respuesta: {result.sincronizo_accionesResult}";
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
-                respuesta.Id = "1";
-                respuesta.Respuesta = "Error";
-                if (e.InnerException == null)
-                    respuesta.Descripcion = "No se pudo realizar la Sincronización de Acciones. Detalle de Error: " + e.Message;
-                else
-                    respuesta.Descripcion = "No se pudo realizar la Sincronización de Acciones. Detalle de Error: " + e.InnerException.Message;
-            }
-            return respuesta;
-        }
-        //Creado por: Allan Prieto Badilla
-        //Fecha: 2024-03-12
-        /// <summary>
-        /// EjecutaInitPeriodo: Ejecuta WS de Init_Periodo
-        /// </summary>
-        /// <param name="parametros">Ejecuta el Web Service</param>
-        /// <returns>EventResponse con resultado del proceso</returns>
-        public async Task<EventResponse> Init_Periodo(IEnumerable<cInit_Periodo> parametros)
-        {
-            EventResponse respuesta = new EventResponse();
-
-            try
-            {
-                foreach (var item in parametros)
-                {
-                    init_periodoRequest initPeriodo = new init_periodoRequest
-                    {
-                        comp = item.IdComp,
-                        periodo = item.IdPeriodo,
-                        plan = item.IdPlanilla,
-                    };
-
-                    EndpointConfiguration endpointConfiguration = new();
-                    GeoTimeServiceReference.ServiceSoapClient geoWebService = new(endpointConfiguration);
-
-                    var result = await geoWebService.init_periodoAsync(initPeriodo);
-                    if (result.init_periodoResult != "")
-                    {
-                        respuesta.Id = "0";
-                        respuesta.Respuesta = "Ok";
-                        respuesta.Descripcion = $"Respuesta: {result.init_periodoResult}";
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
-                respuesta.Id = "1";
-                respuesta.Respuesta = "Error";
-                if (e.InnerException == null)
-                    respuesta.Descripcion = "No se pudo realizar la Activación del Periodo. Detalle de Error: " + e.Message;
-                else
-                    respuesta.Descripcion = "No se pudo realizar la Activación del Periodo. Detalle de Error: " + e.InnerException.Message;
-            }
-            return respuesta;
-
-        }
-        public async Task<EventResponse> Cal_Periodo_Planilla(IEnumerable<cCal_Periodo_Planilla> parametros)
-        {
-            EventResponse respuesta = new EventResponse();
-
-            try
-            {
-                foreach (var item in parametros)
-                {
-                    calculo_periodo_planillaRequest CalculoPariodoP = new calculo_periodo_planillaRequest
-                    {
-                        comp = item.IdComp,
-                        periodo = item.IdPeriodo,
-                        plan = item.IdPlanilla,
-                        inicio = item.Inicio,
-                        fin = item.Fin,
-                        grupo = item.Grupo,
-                        sesion = item.Sesion,
-                        idpais = item.IdPais,
-                    };
-
-                    EndpointConfiguration endpointConfiguration = new();
-                    GeoTimeServiceReference.ServiceSoapClient geoWebService = new(endpointConfiguration);
-
-                    var result = await geoWebService.calculo_periodo_planillaAsync(CalculoPariodoP);
-                    if (result.calculo_periodo_planillaResult != "")
-                    {
-                        respuesta.Id = "0";
-                        respuesta.Respuesta = "Ok";
-                        respuesta.Descripcion = $"Respuesta: {result.calculo_periodo_planillaResult}";
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
-                respuesta.Id = "1";
-                respuesta.Respuesta = "Error";
-                if (e.InnerException == null)
-                    respuesta.Descripcion = "No se pudo realizar el Calculo Periodo Planilla. Detalle de Error: " + e.Message;
-                else
-                    respuesta.Descripcion = "No se pudo realizar el Calculo Periodo Planilla. Detalle de Error: " + e.InnerException.Message;
-            }
-            return respuesta;
-
-        }
-
-
-
-        #endregion
-
-
         //Creado por: Marlon Loria Solano
         //Fecha: 2022-10-30
         //Obtener un registro de Acción de Personal
@@ -3032,7 +2789,7 @@ namespace GeoTimeConnectWebApi.Data
         }
 
 
-        
+
 
         //Creado por: Marlon Loria Solano
         //Fecha: 2022-10-30
@@ -3181,7 +2938,7 @@ namespace GeoTimeConnectWebApi.Data
             try
             {
                 DateTime fechaDia = DateTime.Parse($"{fecha.Substring(0, 4)}-{fecha.Substring(4, 2)}-{fecha.Substring(6, 2)}");
-                marca = await _context.Marcas.Where(e => e.idnumero == idnumero 
+                marca = await _context.Marcas.Where(e => e.idnumero == idnumero
                                                  && e.fecha == fechaDia).ToListAsync();
             }
             catch (Exception e)
@@ -3678,7 +3435,7 @@ namespace GeoTimeConnectWebApi.Data
 
         }
 
-        
+
 
         //Creado por: Marlon Loria Solano
         //Fecha: 2023-06-07
@@ -3869,7 +3626,7 @@ namespace GeoTimeConnectWebApi.Data
 
         }
 
-       
+
 
         //Creado por: Marlon Loria Solano
         //Fecha: 2023-08-10
@@ -4584,8 +4341,6 @@ namespace GeoTimeConnectWebApi.Data
         }
 
 
-        
-
         //Creado por: Marlon Loria Solano
         //Fecha: 2023-09-01
         /// <summary>
@@ -4869,7 +4624,7 @@ namespace GeoTimeConnectWebApi.Data
 
             try
             {
-                
+
                 portalOpcion = (from e in await _context.Portal_Opciones.Where(e => e.ID == id)
                                 .Include(e => e.cPortal_Menu)
                                 .ToListAsync()
@@ -5220,7 +4975,6 @@ namespace GeoTimeConnectWebApi.Data
             return respuesta;
         }
 
-        
 
         //Creado por: Allan Prieto
         //Fecha: 2023-12-12
@@ -5243,7 +4997,7 @@ namespace GeoTimeConnectWebApi.Data
             return transformaciones;
         }
 
-        
+
 
         //Creado por: Allan Prieto  // No se ocupa 
         //Fecha: 2023-12-27
@@ -5797,23 +5551,23 @@ namespace GeoTimeConnectWebApi.Data
                 portalMenu = (from e in await _context.Portal_Menu
                                 .Include(e => e.cPortal_Opcion)
                             .ToListAsync()
-                            select new cPortal_Menu
-                            {
-                                ID = e.ID,
-                                MENUTEXT = e.MENUTEXT,
-                                ICONID = e.ICONID,
-                                cPortal_Opcion = e.cPortal_Opcion == null ? null :
-                                                (from po in e.cPortal_Opcion
-                                                 select new cPortal_Opcion
-                                                 {
-                                                     PARENTID = po.PARENTID,
-                                                     ID = po.ID,
-                                                     MENUTEXT = po.MENUTEXT,
-                                                     ICONID = po.ICONID,
-                                                     PRINCIPAL = po.PRINCIPAL,
-                                                     HREF = po.HREF,
-                                                 }).ToList()
-                            }
+                              select new cPortal_Menu
+                              {
+                                  ID = e.ID,
+                                  MENUTEXT = e.MENUTEXT,
+                                  ICONID = e.ICONID,
+                                  cPortal_Opcion = e.cPortal_Opcion == null ? null :
+                                                  (from po in e.cPortal_Opcion
+                                                   select new cPortal_Opcion
+                                                   {
+                                                       PARENTID = po.PARENTID,
+                                                       ID = po.ID,
+                                                       MENUTEXT = po.MENUTEXT,
+                                                       ICONID = po.ICONID,
+                                                       PRINCIPAL = po.PRINCIPAL,
+                                                       HREF = po.HREF,
+                                                   }).ToList()
+                              }
                             ).ToList();
 
             }
@@ -5932,22 +5686,22 @@ namespace GeoTimeConnectWebApi.Data
                 portalRol = (from e in await _context.Portal_Rol
                                 .Include(e => e.cPortal_RolDet)
                             .ToListAsync()
-                              select new cPortal_Rol
-                              {
-                                  ID = e.ID,
-                                  DESCRIPCION = e.DESCRIPCION,
-                                  ROLDEFAULT = e.ROLDEFAULT,
-                                  HABILITADO = e.HABILITADO,
-                                  cPortal_RolDet = e.cPortal_RolDet == null ? null :
-                                                  (from po in e.cPortal_RolDet
-                                                   select new cPortal_RolDet
-                                                   {
-                                                       PORTALROLID = po.PORTALROLID,
-                                                       PORTALMENUID = po.PORTALMENUID,
-                                                       PORTALOPCIONID = po.PORTALOPCIONID,
-                                                       HABILITADO = po.HABILITADO,
-                                                   }).ToList()
-                              }
+                             select new cPortal_Rol
+                             {
+                                 ID = e.ID,
+                                 DESCRIPCION = e.DESCRIPCION,
+                                 ROLDEFAULT = e.ROLDEFAULT,
+                                 HABILITADO = e.HABILITADO,
+                                 cPortal_RolDet = e.cPortal_RolDet == null ? null :
+                                                 (from po in e.cPortal_RolDet
+                                                  select new cPortal_RolDet
+                                                  {
+                                                      PORTALROLID = po.PORTALROLID,
+                                                      PORTALMENUID = po.PORTALMENUID,
+                                                      PORTALOPCIONID = po.PORTALOPCIONID,
+                                                      HABILITADO = po.HABILITADO,
+                                                  }).ToList()
+                             }
                             ).ToList();
 
             }
@@ -5970,7 +5724,7 @@ namespace GeoTimeConnectWebApi.Data
             try
             {
 
-                portalRol = (from e in await _context.Portal_Rol.Where(e=>e.ID==id)
+                portalRol = (from e in await _context.Portal_Rol.Where(e => e.ID == id)
                                 .Include(e => e.cPortal_RolDet)
                             .ToListAsync()
                              select new cPortal_Rol
@@ -6035,11 +5789,11 @@ namespace GeoTimeConnectWebApi.Data
                     }
                     await _context.SaveChangesAsync();
 
-                    foreach(var roldet in rolesDet)
+                    foreach (var roldet in rolesDet)
                     {
                         cPortal_RolDet? portalroldetBuscar = await _context.Portal_RolDet
-                                    .Where(e => e.PORTALROLID == roldet.PORTALROLID 
-                                             && e.PORTALMENUID==roldet.PORTALMENUID
+                                    .Where(e => e.PORTALROLID == roldet.PORTALROLID
+                                             && e.PORTALMENUID == roldet.PORTALMENUID
                                              && e.PORTALOPCIONID == roldet.PORTALOPCIONID)
                                     .FirstOrDefaultAsync();
                         //si la opcion existe se actualiza 
@@ -6479,7 +6233,7 @@ namespace GeoTimeConnectWebApi.Data
                         {
                             _context.Portal_Empleado.Remove(empleado);
                         }
-                        
+
                     }
                     await _context.SaveChangesAsync();
                 }
@@ -6554,7 +6308,7 @@ namespace GeoTimeConnectWebApi.Data
             {
                 DateTime fechaDoc = DateTime.Parse($"{fecha.Substring(0, 4)}-{fecha.Substring(4, 2)}-{fecha.Substring(6, 2)}");
                 model = await _context.Portal_DocsMarcas
-                                .Where(e=>e.FECHA== fechaDoc && e.IDNUMERO==idnumero)
+                                .Where(e => e.FECHA == fechaDoc && e.IDNUMERO == idnumero)
                                 .ToListAsync();
             }
             catch (Exception e)
@@ -6571,7 +6325,7 @@ namespace GeoTimeConnectWebApi.Data
         /// </summary>
         /// <param name="idregistro">id del registro</param>
         /// <returns>Un documento especifico de Portal DocsMarcas</returns>
-        public async Task<cPortal_DocMarca> GetPortalDocMarca(long idregistro )
+        public async Task<cPortal_DocMarca> GetPortalDocMarca(long idregistro)
         {
             cPortal_DocMarca? model = new();
             try
@@ -6596,12 +6350,12 @@ namespace GeoTimeConnectWebApi.Data
 
             try
             {
-                
+
                 foreach (var item in portalDocsMarcas)
                 {
                     item.IDREGISTRO = 0;
                     _context.Add(item);
-                    
+
                 }
                 await _context.SaveChangesAsync();
             }
@@ -6620,6 +6374,293 @@ namespace GeoTimeConnectWebApi.Data
             return respuesta;
 
         }
+
+
+
+
+        #endregion
+
+        #region SPMetodos
+        //Creado por: Marlon Loria Solano
+        //Fecha: 2022-01-02
+        /// <summary>
+        /// /Obtener lista de Compañias asociadas al usuario
+        /// </summary>
+        /// <returns>Lista de Compania de Usuario </returns>
+        public async Task<List<cPh_CompaniaUsuario>> GetPhCompaniaUsuario(string idnumero)
+        {
+            List<cPh_CompaniaUsuario> companiasUsuario = new();
+            DataTable table;
+
+            try
+            {
+                // Build a config object, using env vars and JSON providers.
+                IConfiguration config = new ConfigurationBuilder()
+                    .AddJsonFile("appsettings.json")
+                    .AddEnvironmentVariables()
+                    .Build();
+
+                string schemaAdmin = config.GetConnectionString("SchemaAdmin");
+
+                using (var connection = _context.Database.GetDbConnection())
+                {
+                    await connection.OpenAsync();
+                    using (var command = connection.CreateCommand())
+                    {
+                        command.CommandText = $"{schemaAdmin}.VerificaCompaniaUsuarioWeb @IdNumero='{idnumero}'";
+                        System.Data.Common.DbDataReader result = command.ExecuteReader();
+
+                        table = new DataTable();
+                        table.Load(result);
+
+                        foreach (DataRow dr in table.Rows)
+                        {
+                            cPh_CompaniaUsuario usrComp = new cPh_CompaniaUsuario
+                            {
+                                idcomp = dr.ItemArray[0].ToString(),
+                                compania = dr.ItemArray[1].ToString(),
+                                nom_conector = dr.ItemArray[2].ToString(),
+                                idnumero = dr.ItemArray[3].ToString(),
+                            };
+                            companiasUsuario.Add(usrComp);
+                        }
+
+                        // Close the reader
+                        result.Close();
+
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                throw;
+            }
+            return companiasUsuario;
+        }
+        public async Task EjecutaPostCambioPlanilla(string idnumero, string oldPlanilla, string newPlanilla)
+        {
+            try
+            {
+                using (var connection = _context.Database.GetDbConnection())
+                {
+                    await connection.OpenAsync();
+                    using (var command = connection.CreateCommand())
+                    {
+                        command.CommandText = _schema + $".DM_POST_CAMBIOPLANILLA @idnumero='{idnumero}', @OLDPLANILLA='{oldPlanilla}',@NEWPLANILLA='{newPlanilla}'";
+                        await command.ExecuteNonQueryAsync();
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+
+        }
+
+
+        #endregion
+
+        #region WSMetodos
+        public async Task<EventResponse> Sincronizo_erp(IEnumerable<cSincronizo_erp> parametros)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+                foreach (var item in parametros)
+                {
+                    sincronizo_erpRequest sincronizoErp = new sincronizo_erpRequest
+                    {
+                        comp = item.IdComp,
+                        plan = item.IdPlanilla,
+                    };
+
+                    EndpointConfiguration endpointConfiguration = new();
+                    GeoTimeServiceReference.ServiceSoapClient geoWebService = new(endpointConfiguration);
+
+                    var result = await geoWebService.sincronizo_erpAsync(sincronizoErp);
+                    if (result.sincronizo_erpResult == "")
+                    {
+                        respuesta.Id = "0";
+                        respuesta.Respuesta = "Ok";
+                        respuesta.Descripcion = $"Respuesta: {result.sincronizo_erpResult}";
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo realizar la Sincronización de ERP. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo realizar la Sincronización de ERP. Detalle de Error: " + e.InnerException.Message;
+            }
+            return respuesta;
+        }
+        public async Task<EventResponse> Sincronizo_Acciones(IEnumerable<cSincronizo_Acciones> parametros)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+                var phloginAdmin = await _context.PH_LOGIN.FirstOrDefaultAsync(e => e.usuario.ToUpper() == "Admin");
+                if (phloginAdmin is not null)
+                {
+                    phloginAdmin.ultimo_login = DateTime.Now;
+                    phloginAdmin.ultimo_estado = DateTime.Now;
+                    phloginAdmin.idsesion = 1;
+                    _context.PH_LOGIN.Update(phloginAdmin);
+                    await _context.SaveChangesAsync();
+
+                }
+
+                foreach (var item in parametros)
+                {
+                    sincronizo_accionesRequest sincronizoAcciones = new sincronizo_accionesRequest
+                    {
+                        comp = item.IdComp,
+                        plan = item.IdPlanilla,
+                        inicio = item.inicio,
+                        fin = item.fin,
+                        sesion = phloginAdmin.idsesion.ToString(),
+                    };
+
+                    EndpointConfiguration endpointConfiguration = new();
+                    GeoTimeServiceReference.ServiceSoapClient geoWebService = new(endpointConfiguration);
+
+                    var result = await geoWebService.sincronizo_accionesAsync(sincronizoAcciones);
+                    if (result.sincronizo_accionesResult == "")
+                    {
+                        respuesta.Id = "0";
+                        respuesta.Respuesta = "Ok";
+                        respuesta.Descripcion = $"Respuesta: {result.sincronizo_accionesResult}";
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo realizar la Sincronización de Acciones. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo realizar la Sincronización de Acciones. Detalle de Error: " + e.InnerException.Message;
+            }
+            return respuesta;
+        }
+        //Creado por: Allan Prieto Badilla
+        //Fecha: 2024-03-12
+        /// <summary>
+        /// EjecutaInitPeriodo: Ejecuta WS de Init_Periodo
+        /// </summary>
+        /// <param name="parametros">Ejecuta el Web Service</param>
+        /// <returns>EventResponse con resultado del proceso</returns>
+        public async Task<EventResponse> Init_Periodo(IEnumerable<cInit_Periodo> parametros)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+                foreach (var item in parametros)
+                {
+                    init_periodoRequest initPeriodo = new init_periodoRequest
+                    {
+                        comp = item.IdComp,
+                        periodo = item.IdPeriodo,
+                        plan = item.IdPlanilla,
+                    };
+
+                    EndpointConfiguration endpointConfiguration = new();
+                    GeoTimeServiceReference.ServiceSoapClient geoWebService = new(endpointConfiguration);
+
+                    var result = await geoWebService.init_periodoAsync(initPeriodo);
+                    if (result.init_periodoResult != "")
+                    {
+                        respuesta.Id = "0";
+                        respuesta.Respuesta = "Ok";
+                        respuesta.Descripcion = $"Respuesta: {result.init_periodoResult}";
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo realizar la Activación del Periodo. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo realizar la Activación del Periodo. Detalle de Error: " + e.InnerException.Message;
+            }
+            return respuesta;
+
+        }
+        public async Task<EventResponse> Cal_Periodo_Planilla(IEnumerable<cCal_Periodo_Planilla> parametros)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+                var phloginAdmin = await _context.PH_LOGIN.FirstOrDefaultAsync(e => e.usuario.ToUpper() == "Admin");
+                if (phloginAdmin is not null)
+                {
+                    phloginAdmin.ultimo_login = DateTime.Now;
+                    phloginAdmin.ultimo_estado = DateTime.Now;
+                    phloginAdmin.idsesion = 1;
+                    _context.PH_LOGIN.Update(phloginAdmin);
+                    await _context.SaveChangesAsync();
+
+                }
+
+                foreach (var item in parametros)
+                {
+                    calculo_periodo_planillaRequest CalculoPariodoP = new calculo_periodo_planillaRequest
+                    {
+                        comp = item.IdComp,
+                        periodo = item.IdPeriodo,
+                        plan = item.IdPlanilla,
+                        inicio = item.Inicio,
+                        fin = item.Fin,
+                        grupo = item.Grupo,
+                        sesion = (int)phloginAdmin.idsesion,
+                        idpais = item.IdPais,
+                    };
+
+                    EndpointConfiguration endpointConfiguration = new();
+                    GeoTimeServiceReference.ServiceSoapClient geoWebService = new(endpointConfiguration);
+
+                    var result = await geoWebService.calculo_periodo_planillaAsync(CalculoPariodoP);
+                    if (result.calculo_periodo_planillaResult != "")
+                    {
+                        respuesta.Id = "0";
+                        respuesta.Respuesta = "Ok";
+                        respuesta.Descripcion = $"Respuesta: {result.calculo_periodo_planillaResult}";
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo realizar el Calculo Periodo Planilla. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo realizar el Calculo Periodo Planilla. Detalle de Error: " + e.InnerException.Message;
+            }
+            return respuesta;
+
+        }
+
+
+
+        #endregion
+
 
         
 
