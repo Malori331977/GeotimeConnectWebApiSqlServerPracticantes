@@ -2511,68 +2511,7 @@ namespace GeoTimeConnectWebApi.Data
 
         }
 
-        public async Task EjecutaAplicaAccionPersonal(long idregistro)
-        {
-            try
-            {
-                using (var connection = _context.Database.GetDbConnection())
-                {
-                    await connection.OpenAsync();
-                    using (var command = connection.CreateCommand())
-                    {
-                        command.CommandText = _schema + ".aplico_accpersonal @IDREGISTRO=" + idregistro;
-                        System.Data.Common.DbDataReader result = command.ExecuteReader();
-                    }
-                }
-            }
-            catch (Exception)
-            {
-                throw;
-            }
-        }
-
-        /* Metodo para Activar el periodo */
-        //Creado por: Allan Prieto 
-        //Fecha: 2024-2-5
-        // Ejecutar el procedimiento almacenado apertura periodo
-        public async Task<EventResponse> ActivarPeriodoPAAsync(cActivarPeriodo parametros)
-        {
-            EventResponse respuesta = new EventResponse();
-            try
-            {
-                using (var connection = _context.Database.GetDbConnection())
-                {
-                    await connection.OpenAsync();
-
-                    using (var command = connection.CreateCommand())
-                    {
-                        command.CommandText = _schema + ".apertura_periodo";
-                        command.CommandType = CommandType.StoredProcedure;
-
-                        /* Parametros necesarios */
-                        command.Parameters.Add(new SqlParameter("@IDPLANILLA", SqlDbType.VarChar) { Value = parametros.IdPlanilla });
-                        command.Parameters.Add(new SqlParameter("@GRUPO", SqlDbType.Int) { Value = parametros.Grupo });
-                        command.Parameters.Add(new SqlParameter("@PERIODO", SqlDbType.VarChar) { Value = parametros.Periodo });
-                        command.Parameters.Add(new SqlParameter("@INICIO", SqlDbType.DateTime) { Value = parametros.Inicio });
-                        command.Parameters.Add(new SqlParameter("@FIN", SqlDbType.DateTime) { Value = parametros.Fin });
-                        command.Parameters.Add(new SqlParameter("@USUARIO", SqlDbType.Int) { Value = parametros.Usuario });
-
-                        await command.ExecuteNonQueryAsync();
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.InnerException);
-                respuesta.Id = "1";
-                respuesta.Respuesta = "Error";
-                if (e.InnerException == null)
-                    respuesta.Descripcion = "Problemas al Activar El periodo. Detalle de Error: " + e.Message;
-                else
-                    respuesta.Descripcion = "Problemas al Activar El periodo. Detalle de Error: " + e.InnerException.Message;
-            }
-            return respuesta;
-        }
+        
 
         //Creado por: Marlon Loria Solano
         //Fecha: 2022-10-30
@@ -4038,33 +3977,6 @@ namespace GeoTimeConnectWebApi.Data
             }
 
             return respuesta;
-
-        }
-
-        //Creado por: Marlon Loria Solano
-        //Fecha: 2023-08-10
-        /// <summary>
-        /// EjecutaInMarcasWeb: Método que ejecuta procedimiento almacenado IN_MARCAS_WEB, necesario para completar el registro de marca en Geotime
-        /// </summary>
-        /// <param name="idnumero">idnumero del empleado que realiza la marca</param>
-        public async Task EjecutaInMarcasWeb(string idnumero)
-        {
-            try
-            {
-                using (var connection = _context.Database.GetDbConnection())
-                {
-                    await connection.OpenAsync();
-                    using (var command = connection.CreateCommand())
-                    {
-                        command.CommandText = _schema + $".IN_MARCAS_WEB @idnumero='{idnumero}'";
-                        await command.ExecuteNonQueryAsync();
-                    }
-                }
-            }
-            catch (Exception)
-            {
-                throw;
-            }
 
         }
 
@@ -6487,6 +6399,7 @@ namespace GeoTimeConnectWebApi.Data
             }
             return companiasUsuario;
         }
+
         public async Task EjecutaPostCambioPlanilla(string idnumero, string oldPlanilla, string newPlanilla)
         {
             try
@@ -6497,6 +6410,135 @@ namespace GeoTimeConnectWebApi.Data
                     using (var command = connection.CreateCommand())
                     {
                         command.CommandText = _schema + $".DM_POST_CAMBIOPLANILLA @idnumero='{idnumero}', @OLDPLANILLA='{oldPlanilla}',@NEWPLANILLA='{newPlanilla}'";
+                        await command.ExecuteNonQueryAsync();
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+
+        }
+
+        /* Metodo para Activar el periodo */
+        //Creado por: Allan Prieto 
+        //Fecha: 2024-2-5
+        // Ejecutar el procedimiento almacenado apertura periodo
+        public async Task<EventResponse> ActivarPeriodoPAAsync(cActivarPeriodo parametros)
+        {
+            EventResponse respuesta = new EventResponse();
+            try
+            {
+                using (var connection = _context.Database.GetDbConnection())
+                {
+                    await connection.OpenAsync();
+
+                    using (var command = connection.CreateCommand())
+                    {
+                        command.CommandText = _schema + ".apertura_periodo";
+                        command.CommandType = CommandType.StoredProcedure;
+
+                        /* Parametros necesarios */
+                        command.Parameters.Add(new SqlParameter("@IDPLANILLA", SqlDbType.VarChar) { Value = parametros.IdPlanilla });
+                        command.Parameters.Add(new SqlParameter("@GRUPO", SqlDbType.Int) { Value = parametros.Grupo });
+                        command.Parameters.Add(new SqlParameter("@PERIODO", SqlDbType.VarChar) { Value = parametros.Periodo });
+                        command.Parameters.Add(new SqlParameter("@INICIO", SqlDbType.DateTime) { Value = parametros.Inicio });
+                        command.Parameters.Add(new SqlParameter("@FIN", SqlDbType.DateTime) { Value = parametros.Fin });
+                        command.Parameters.Add(new SqlParameter("@USUARIO", SqlDbType.Int) { Value = parametros.Usuario });
+
+                        await command.ExecuteNonQueryAsync();
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.InnerException);
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "Problemas al Abrir el periodo. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "Problemas al Abrir el periodo. Detalle de Error: " + e.InnerException.Message;
+            }
+            return respuesta;
+        }
+        public async Task<EventResponse> CierroPeriodo(cCierroPeriodo parametros)
+        {
+            EventResponse respuesta = new EventResponse();
+            try
+            {
+                using (var connection = _context.Database.GetDbConnection())
+                {
+                    await connection.OpenAsync();
+
+                    using (var command = connection.CreateCommand())
+                    {
+                        command.CommandText = _schema + ".cierro_periodo";
+                        command.CommandType = CommandType.StoredProcedure;
+
+                        /* Parametros necesarios */
+                        command.Parameters.Add(new SqlParameter("@IDPLANILLA", SqlDbType.VarChar) { Value = parametros.IdPlanilla });
+                        command.Parameters.Add(new SqlParameter("@GRUPO", SqlDbType.Int) { Value = parametros.Grupo });
+                        command.Parameters.Add(new SqlParameter("@PERIODO", SqlDbType.VarChar) { Value = parametros.Periodo });
+                        command.Parameters.Add(new SqlParameter("@INICIO", SqlDbType.DateTime) { Value = parametros.Inicio });
+                        command.Parameters.Add(new SqlParameter("@FIN", SqlDbType.DateTime) { Value = parametros.Fin });
+                        command.Parameters.Add(new SqlParameter("@USUARIO", SqlDbType.Int) { Value = parametros.Usuario });
+                        command.Parameters.Add(new SqlParameter("@EST_M", SqlDbType.Char) { Value = parametros.Est_M });
+
+                        await command.ExecuteNonQueryAsync();
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.InnerException);
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "Problemas al Cerrar el periodo. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "Problemas al Cerrar el periodo. Detalle de Error: " + e.InnerException.Message;
+            }
+            return respuesta;
+        }
+
+        public async Task EjecutaAplicaAccionPersonal(long idregistro)
+        {
+            try
+            {
+                using (var connection = _context.Database.GetDbConnection())
+                {
+                    await connection.OpenAsync();
+                    using (var command = connection.CreateCommand())
+                    {
+                        command.CommandText = _schema + ".aplico_accpersonal @IDREGISTRO=" + idregistro;
+                        System.Data.Common.DbDataReader result = command.ExecuteReader();
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        //Creado por: Marlon Loria Solano
+        //Fecha: 2023-08-10
+        /// <summary>
+        /// EjecutaInMarcasWeb: Método que ejecuta procedimiento almacenado IN_MARCAS_WEB, necesario para completar el registro de marca en Geotime
+        /// </summary>
+        /// <param name="idnumero">idnumero del empleado que realiza la marca</param>
+        public async Task EjecutaInMarcasWeb(string idnumero)
+        {
+            try
+            {
+                using (var connection = _context.Database.GetDbConnection())
+                {
+                    await connection.OpenAsync();
+                    using (var command = connection.CreateCommand())
+                    {
+                        command.CommandText = _schema + $".IN_MARCAS_WEB @idnumero='{idnumero}'";
                         await command.ExecuteNonQueryAsync();
                     }
                 }
