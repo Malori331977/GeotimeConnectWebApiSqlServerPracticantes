@@ -3343,6 +3343,92 @@ namespace GeoTimeConnectWebApi.Data
 
         }
 
+        //Creado por: Allan Prieto Badilla
+        //Fecha: 2024-04-02
+        //Obtener lista de Marcas_Mov_hORARIOS
+        public async Task<List<cMarcaMovHorario>> GetMarcaMovHorario()
+        {
+            List<cMarcaMovHorario> marcaMovHorario = new();
+            try
+            {
+                marcaMovHorario = await _context.Marcas_Mov_Horarios.ToListAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message); throw;
+            }
+            return marcaMovHorario;
+        }
+
+        //Creado por: Allan Prieto Badilla
+        //Fecha: 2024-04-02
+        //Obtener un registro de Marcas_Mov_Horarios especifico
+        //Parametros: idregistro=consecutivo de registro
+        public async Task<cMarcaMovHorario> GetMarcaMovHorario(int idregistro)
+        {
+            cMarcaMovHorario? marcaMovHorario = new();
+            try
+            {
+                marcaMovHorario = await _context.Marcas_Mov_Horarios.FirstOrDefaultAsync(e => e.IDREGISTRO == idregistro);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message); throw;
+            }
+            return marcaMovHorario;
+        }
+
+        //Creado por: Allan Prieto Badilla
+        //Fecha: 2024-04-02
+        //Sincronizar Marcas_MOv_Turnos
+        //Parametro: Recibe una instancia de MarcaMovHorario, se verifica si existe en cuyo caso
+        //actualiza el registro, de lo contrario lo crea.
+        public async Task<EventResponse> Sincronizar_MarcasMovHorario(IEnumerable<cMarcaMovHorario> marcasMovHorarios)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+                foreach (var item in marcasMovHorarios)
+                {
+                    cMarcaMovHorario? marcaMovHorario = await _context.Marcas_Mov_Horarios
+                                    .Where(e => e.IDNUMERO == item.IDNUMERO && e.FECHA == item.FECHA)
+                                    .FirstOrDefaultAsync();
+                    //si el centro de costo existe se actualiza descripción
+                    //de lo contrario se agrega el registro
+                    if (marcaMovHorario is not null)
+                    {
+                        marcaMovHorario.IDHORARIO = item.IDHORARIO;
+                        marcaMovHorario.IDPLANILLA = item.IDPLANILLA;
+                        marcaMovHorario.HORA = "00:00";
+                        _context.Marcas_Mov_Horarios.Update(marcaMovHorario);
+                    }
+                    else
+                    {
+                        item.HORA = "00:00";
+                        item.IDREGISTRO = 0;
+                        _context.Add(item);
+                    }
+                }
+
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo realizar la sincronización de Marcas_Mov_Horario. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo realizar la sincronización de Marcas_Mov_Horario. Detalle de Error: " + e.InnerException.Message;
+
+            }
+
+            return respuesta;
+
+        }
+
         //Creado por: Marlon Loria Solano
         //Fecha: 2023-05-24
         //Sincronizar Marcas_Resumen
