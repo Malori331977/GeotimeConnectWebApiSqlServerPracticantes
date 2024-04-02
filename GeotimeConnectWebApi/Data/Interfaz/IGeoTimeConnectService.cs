@@ -287,7 +287,11 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         /// <param name="idgrupo">grupo de empleado</param>
         public Task<List<cMarcaMovTurno>> GetMarcaMovTurnoByGrupo(string fechaPeriodo, string idgrupo);
         public Task<EventResponse> Sincronizar_MarcasMovTurnos(IEnumerable<cMarcaMovTurno> marcasMovTurnos);
-        
+
+        public Task<List<cMarcaMovHorario>> GetMarcaMovHorario();
+        public Task<cMarcaMovHorario> GetMarcaMovHorario(int idregistro);
+        public Task<EventResponse> Sincronizar_MarcasMovHorario(IEnumerable<cMarcaMovHorario> marcasMovHorarios);
+
 
         /// <summary>
         /// getPeriodo: Método para obtener una lista de Periodos 
