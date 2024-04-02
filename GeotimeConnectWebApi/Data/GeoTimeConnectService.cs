@@ -376,6 +376,36 @@ namespace GeoTimeConnectWebApi.Data
             return respuesta;
         }
 
+        //Creado por: Allan Prieto Badilla
+        //Fecha: 2024-04-02
+        //Obtener un tipo de planilla especifico
+        public async Task<List<cPh_Planilla>> GetPhPlanillaByUsuario(string idUsuario)
+        {
+            List<cPh_Planilla>? planilla = new();
+            try
+            {
+                var usuario = await _context.Ph_Usuarios.FirstOrDefaultAsync(u => u.IDUSUARIO.ToString() == idUsuario);
+                if (usuario == null)
+                {
+                    // Si el usuario no existe, retornar una lista vacía
+                    return new List<cPh_Planilla>();
+                }
+
+                var ids = usuario.PLANILLAS.Split(',').SelectMany(s => s.Split('°')).Where(s => !string.IsNullOrWhiteSpace(s)).ToList();
+
+                planilla = await _context.Ph_Planilla
+                .Where(p => ids.Contains(p.idplanilla))
+                .ToListAsync();
+                
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message); throw;
+            }
+
+            return planilla;
+        }
+
         //Creado por: Allan Prieto
         //Fecha: 2023-12-8
         /// <summary>
@@ -3373,8 +3403,6 @@ namespace GeoTimeConnectWebApi.Data
             return respuesta;
 
         }
-
-
 
         //Creado por: Marlon Loria Solano
         //Fecha: 2023-06-07
@@ -6463,6 +6491,7 @@ namespace GeoTimeConnectWebApi.Data
             }
             return respuesta;
         }
+
         public async Task<EventResponse> CierroPeriodo(cCierroPeriodo parametros)
         {
             EventResponse respuesta = new EventResponse();
@@ -6617,6 +6646,8 @@ namespace GeoTimeConnectWebApi.Data
                         plan = item.IdPlanilla,
                         inicio = item.inicio,
                         fin = item.fin,
+                        //inicio = fechaInicial.ToString("yyyy-MM-dd"),
+                        //fin = fechaFinal.ToString("yyyy-MM-dd"),
                         sesion = phloginAdmin.idsesion.ToString(),
                     };
 
@@ -6717,6 +6748,8 @@ namespace GeoTimeConnectWebApi.Data
                         plan = item.IdPlanilla,
                         inicio = item.Inicio,
                         fin = item.Fin,
+                        //inicio = fechaInicial.ToString("yyyy-MM-dd"),
+                        //fin = fechaFinal.ToString("yyyy-MM-dd"),
                         grupo = item.Grupo,
                         sesion = (int)phloginAdmin.idsesion,
                         idpais = item.IdPais,
