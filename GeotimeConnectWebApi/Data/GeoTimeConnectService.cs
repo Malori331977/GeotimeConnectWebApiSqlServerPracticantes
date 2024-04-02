@@ -3479,6 +3479,36 @@ namespace GeoTimeConnectWebApi.Data
         }
 
         /// <summary>
+        /// GetPeriodoVigenteUsuario: Método para obtener lista de periodos vigentes para un usuario  
+        /// </summary>
+        /// <returns>Una lista de cPh_Periodos vigentes</returns>
+        /// <param name="fecha">Fecha del periodo</param>
+        /// <param name="idusuario">id de usuario</param>
+        public async Task<IEnumerable<cPh_Periodos>> GetPeriodoVigenteUsuario(int idusuario, string fechaPeriodo)
+        {
+            List<cPh_Periodos>? periodo = new();
+            try
+            {
+                DateTime fechaMov = DateTime.Parse($"{fechaPeriodo.Substring(0, 4)}-{fechaPeriodo.Substring(4, 2)}-{fechaPeriodo.Substring(6, 2)}");
+                var phLogin = await _context.Ph_Usuarios.FirstOrDefaultAsync(e=>e.IDUSUARIO==idusuario);
+                var planillas = phLogin.PLANILLAS.Split("°");
+
+                periodo = await (from a in _context.Ph_Periodos
+                                 join b in _context.Ph_Planilla.Where(e=> planillas.Contains(e.idplanilla)) 
+                                    on a.tipo_planilla equals b.tipo_planilla    
+                                 where fechaMov >= a.inicio && fechaMov <= a.fin
+                                 select a).ToListAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message); throw;
+            }
+            return periodo;
+
+
+        }
+
+        /// <summary>
         /// GetPeriodoVigenteEmpleado: Método para obtener el periodo vigenta para un empleado  
         /// </summary>
         /// <returns>Un item de cPh_Periodos</returns>
@@ -4452,6 +4482,25 @@ namespace GeoTimeConnectWebApi.Data
             return marcasDistribuciones;
         }
 
+        /// <summary>
+        /// GetPhUsuarioById: Obtener datos de usuario por su ID 
+        /// </summary>
+        /// <param name="id">id numero del empleado</param>
+        /// <returns>Instancia de phusuario con los datos del usuario </returns>
+        public async Task<cPh_Usuario> GetPhUsuarioById(int id)
+        {
+            cPh_Usuario? phUsuario = new();
+
+            try
+            {
+                phUsuario = await _context.Ph_Usuarios.FirstOrDefaultAsync(e => e.IDUSUARIO == id);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message); throw;
+            }
+            return phUsuario;
+        }
 
 
         /// <summary>

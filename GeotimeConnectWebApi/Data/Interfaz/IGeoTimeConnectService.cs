@@ -315,6 +315,14 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         /// <param name="idnumero">Número de empleado</param>
         public Task<cPh_Periodos> GetPeriodoVigenteEmpleado(string idnumero, string fechaPeriodo);
 
+        /// <summary>
+        /// GetPeriodoVigenteUsuario: Método para obtener lista de periodos vigentes para un usuario  
+        /// </summary>
+        /// <returns>Una lista de cPh_Periodos vigentes</returns>
+        /// <param name="fecha">Fecha del periodo</param>
+        /// <param name="idusuario">id de usuario</param>
+        public Task<IEnumerable<cPh_Periodos>> GetPeriodoVigenteUsuario(int idusuario, string fechaPeriodo);
+
         public Task<EventResponse> Sincronizar_Periodo(IEnumerable<cPh_Periodos> periodos);
         public Task<EventResponse> Elimina_Periodo(string id);
 
@@ -503,6 +511,13 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         /// <returns>Lista de Marcas Incidencias</returns>
 
         public Task<List<cMarcaIncidencia>> GetMarcaIncidencia(string idnumero, string idplanilla, DateTime fechaInicio, DateTime fechaFinal);
+
+        /// <summary>
+        /// GetPhUsuarioById: Obtener datos de usuario por su ID 
+        /// </summary>
+        /// <param name="id">id numero del empleado</param>
+        /// <returns>Instancia de phusuario con los datos del usuario </returns>
+        public Task<cPh_Usuario> GetPhUsuarioById(int id);
 
         /// <summary>
         /// GetPhUsuario: Obtener datos de usuario 
