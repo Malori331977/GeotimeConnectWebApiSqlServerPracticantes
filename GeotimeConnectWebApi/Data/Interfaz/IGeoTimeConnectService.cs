@@ -7,7 +7,7 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
 {
     public interface IGeoTimeConnectService
     {
-        public Task<EventResponse> ActivarPeriodoPAAsync(cActivarPeriodo parametros);
+        
 
         /* Metodos SQL */
         #region SQLMetodes
@@ -188,6 +188,8 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         /// </summary>
         /// <returns>Lista de Companias de Usuario </returns>
         public Task<List<cPh_CompaniaUsuario>> GetPhCompaniaUsuario(string idnumero);
+        public Task<EventResponse> ActivarPeriodoPAAsync(cActivarPeriodo parametros);
+        public Task<EventResponse> CierroPeriodo(cCierroPeriodo parametros);
 
 
         #endregion
