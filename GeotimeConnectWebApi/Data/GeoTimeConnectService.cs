@@ -3077,16 +3077,18 @@ namespace GeoTimeConnectWebApi.Data
                     emp.global_clave = pass;
 
                     _context.Empleados.Update(emp);
+                    await _context.SaveChangesAsync();
 
                     var phlogin = await _context.PH_LOGIN.FirstOrDefaultAsync(e => e.EMAIL.ToLower() == emp.Email.ToLower());
                     if (phlogin is not null)
                     {
                         phlogin.GLOBAL_CLAVE = pass;
                         _context.PH_LOGIN.Update(phlogin);
+                        await _context.SaveChangesAsync();
                     }
 
 
-                    await _context.SaveChangesAsync();
+                    
                 }
                 else
                 {
