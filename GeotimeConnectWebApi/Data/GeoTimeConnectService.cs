@@ -2615,6 +2615,7 @@ namespace GeoTimeConnectWebApi.Data
                     {
                         ceco.Descripcion = centroCosto.Descripcion;
                         ceco.Distribuye = centroCosto.Distribuye;
+                        ceco.Alias_CCosto = centroCosto.Alias_CCosto;
 
                         _context.Ph_CCostos.Update(ceco);
                     }
@@ -3094,13 +3095,18 @@ namespace GeoTimeConnectWebApi.Data
                     _context.Empleados.Update(emp);
                     await _context.SaveChangesAsync();
 
-                    var phlogin = await _context.PH_LOGIN.FirstOrDefaultAsync(e => e.EMAIL.ToLower() == emp.Email.ToLower());
-                    if (phlogin is not null)
+                    if (emp.Email is not null)
                     {
-                        phlogin.GLOBAL_CLAVE = pass;
-                        _context.PH_LOGIN.Update(phlogin);
-                        await _context.SaveChangesAsync();
+                        var phlogin = await _context.PH_LOGIN.FirstOrDefaultAsync(e => e.EMAIL.ToLower() == emp.Email.ToLower());
+                        if (phlogin is not null)
+                        {
+                            phlogin.GLOBAL_CLAVE = pass;
+                            _context.PH_LOGIN.Update(phlogin);
+                            await _context.SaveChangesAsync();
+                        }
                     }
+
+                    
 
 
                     
