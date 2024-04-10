@@ -3097,7 +3097,8 @@ namespace GeoTimeConnectWebApi.Data
 
                     if (emp.Email is not null)
                     {
-                        var phlogin = await _context.PH_LOGIN.FirstOrDefaultAsync(e => e.EMAIL.ToLower() == emp.Email.ToLower());
+                        var phlogin = await _context.PH_LOGIN.FirstOrDefaultAsync(e=>(e.EMAIL==null?"": e.EMAIL).ToLower()== emp.Email.ToLower());
+
                         if (phlogin is not null)
                         {
                             phlogin.GLOBAL_CLAVE = pass;
