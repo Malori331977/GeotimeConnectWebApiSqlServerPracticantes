@@ -94,6 +94,7 @@ namespace GeoTimeConnectWebApi.Data
         public DbSet<cPh_Opciones> Ph_Opciones { get; set; }
         public DbSet<cPortal_Empleado> Portal_Empleado { get; set; }
         public DbSet<cPortal_DocMarca> Portal_DocsMarcas { get; set; }
+        public DbSet<cPh_Ccosto> Ph_Ccostros { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder builder)
@@ -180,6 +181,8 @@ namespace GeoTimeConnectWebApi.Data
                 .HasKey(e => new { e.IDTURNO, e.IDTIEMPO });
             builder.Entity<cPh_Opciones>().ToTable("PH_OPCIONES", Schema)
                 .HasKey(e => new { e.IDOPCION});
+            builder.Entity<cPh_Ccosto>().ToTable("PH_CCOSTOS", Schema)
+                .HasKey(e => new { e.IDCCOSTO });
             #endregion
 
             #region Objetos Seguridad y de Portal 
