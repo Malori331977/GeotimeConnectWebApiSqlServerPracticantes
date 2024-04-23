@@ -1311,7 +1311,100 @@ namespace GeoTimeConnectWebApi.Data
             List<cTurno> turno = new();
             try
             {
-                turno = await _context.Ph_Turnos.ToListAsync();
+                turno = (from e in await _context.Ph_Turnos
+                            .Include(e=>e.PaletaColor)
+                            .ToListAsync()
+                            select new cTurno {
+                                IdTurno = e.IdTurno,
+                                Descripcion = e.Descripcion,
+                                HEntra = e.HEntra,
+                                HSale = e.HSale,
+                                tar_apl = e.tar_apl,
+                                ant_apl = e.ant_apl,
+                                des_1_in = e.des_1_in,
+                                des_1_out = e.des_1_out,
+                                des_2_in = e.des_2_in,
+                                des_2_out = e.des_2_out,
+                                des_3_in = e.des_3_in,
+                                des_3_out = e.des_3_out,
+                                apl_des_1 = e.apl_des_1,
+                                apl_des_2 = e.apl_des_2,
+                                apl_des_3 = e.apl_des_3,
+                                des_1_tiem = e.des_1_tiem,
+                                des_2_tiem = e.des_2_tiem,
+                                des_3_tiem = e.des_3_tiem,
+                                marca_des_1 = e.marca_des_1,
+                                marca_des_2 = e.marca_des_2,
+                                marca_des_3 = e.marca_des_3,
+                                tar_tiem = e.tar_tiem,
+                                ant_tiem = e.ant_tiem,
+                                con_1 = e.con_1,
+                                con_2 = e.con_2,
+                                con_3 = e.con_3,
+                                con_4 = e.con_4,
+                                con_5 = e.con_5,
+                                con_6 = e.con_6,
+                                cant_con_1 = e.cant_con_1,
+                                cant_con_2 = e.cant_con_2,
+                                cant_con_3 = e.cant_con_3,
+                                cant_con_4 = e.cant_con_4,
+                                cant_con_5 = e.cant_con_5,
+                                cant_con_6 = e.cant_con_6,
+                                min_con_1 = e.min_con_1,
+                                min_con_2 = e.min_con_2,
+                                min_con_3 = e.min_con_3,
+                                min_con_4 = e.min_con_4,
+                                min_con_5 = e.min_con_5,
+                                min_con_6 = e.min_con_6,
+                                Tipo = e.Tipo,
+                                Tipo_Jor = e.Tipo_Jor,
+                                fuerza_calc = e.fuerza_calc,
+                                idagrupamiento = e.idagrupamiento,
+                                apl_trans1 = e.apl_trans1,
+                                id_trans1 = e.id_trans1,
+                                apl_trans2 = e.apl_trans2,
+                                id_trans2 = e.id_trans2,
+                                apl_trans3 = e.apl_trans3,
+                                id_trans3 = e.id_trans3,
+                                apl_trans4 = e.apl_trans4,
+                                id_trans4 = e.id_trans4,
+                                apl_trans5 = e.apl_trans5,
+                                id_trans5 = e.id_trans5,
+                                apl_trans6 = e.apl_trans6,
+                                id_trans6 = e.id_trans6,
+                                apl_ben1 = e.apl_ben1,
+                                id_ben1 = e.id_ben1,
+                                apl_ben2 = e.apl_ben2,
+                                id_ben2 = e.id_ben2,
+                                apl_ben3 = e.apl_ben3,
+                                id_ben3 = e.id_ben3,
+                                apl_ben4 = e.apl_ben4,
+                                id_ben4 = e.id_ben4,
+                                apl_ben5 = e.apl_ben5,
+                                id_ben5 = e.id_ben5,
+                                apl_ben6 = e.apl_ben6,
+                                id_ben6 = e.id_ben6,
+                                conc_ben1 = e.conc_ben1,
+                                conc_ben2 = e.conc_ben2,
+                                conc_ben3 = e.conc_ben3,
+                                conc_ben4 = e.conc_ben4,
+                                conc_ben5 = e.conc_ben5,
+                                conc_ben6 = e.conc_ben6,
+                                apl_trans_post = e.apl_trans_post,
+                                id_trans_post = e.id_trans_post,
+                                apl_redond_entrada = e.apl_redond_entrada,
+                                cant_redond_entrada = e.cant_redond_entrada,
+                                auto_pan = e.auto_pan,
+                                ColorId = e.ColorId,
+                                PaletaColor = e.PaletaColor is null?null:
+                                new cPaletaColor
+                                {
+                                    COLORID = e.PaletaColor.COLORID,
+                                    DESCRIPCION = e.PaletaColor.DESCRIPCION,
+                                    COLORFONDO = e.PaletaColor.COLORFONDO,
+                                    COLORFUENTE = e.PaletaColor.COLORFUENTE,                                       
+                                }
+                            }).ToList();
             }
             catch (Exception e)
             {
@@ -1329,7 +1422,102 @@ namespace GeoTimeConnectWebApi.Data
             cTurno? turno = new();
             try
             {
-                turno = await _context.Ph_Turnos.FirstOrDefaultAsync(e => e.IdTurno == idTurno);
+                turno = turno = (from e in await _context.Ph_Turnos
+                            .Include(e => e.PaletaColor)
+                            .Where(e=>e.IdTurno== idTurno)
+                            .ToListAsync()
+                                 select new cTurno
+                                 {
+                                     IdTurno = e.IdTurno,
+                                     Descripcion = e.Descripcion,
+                                     HEntra = e.HEntra,
+                                     HSale = e.HSale,
+                                     tar_apl = e.tar_apl,
+                                     ant_apl = e.ant_apl,
+                                     des_1_in = e.des_1_in,
+                                     des_1_out = e.des_1_out,
+                                     des_2_in = e.des_2_in,
+                                     des_2_out = e.des_2_out,
+                                     des_3_in = e.des_3_in,
+                                     des_3_out = e.des_3_out,
+                                     apl_des_1 = e.apl_des_1,
+                                     apl_des_2 = e.apl_des_2,
+                                     apl_des_3 = e.apl_des_3,
+                                     des_1_tiem = e.des_1_tiem,
+                                     des_2_tiem = e.des_2_tiem,
+                                     des_3_tiem = e.des_3_tiem,
+                                     marca_des_1 = e.marca_des_1,
+                                     marca_des_2 = e.marca_des_2,
+                                     marca_des_3 = e.marca_des_3,
+                                     tar_tiem = e.tar_tiem,
+                                     ant_tiem = e.ant_tiem,
+                                     con_1 = e.con_1,
+                                     con_2 = e.con_2,
+                                     con_3 = e.con_3,
+                                     con_4 = e.con_4,
+                                     con_5 = e.con_5,
+                                     con_6 = e.con_6,
+                                     cant_con_1 = e.cant_con_1,
+                                     cant_con_2 = e.cant_con_2,
+                                     cant_con_3 = e.cant_con_3,
+                                     cant_con_4 = e.cant_con_4,
+                                     cant_con_5 = e.cant_con_5,
+                                     cant_con_6 = e.cant_con_6,
+                                     min_con_1 = e.min_con_1,
+                                     min_con_2 = e.min_con_2,
+                                     min_con_3 = e.min_con_3,
+                                     min_con_4 = e.min_con_4,
+                                     min_con_5 = e.min_con_5,
+                                     min_con_6 = e.min_con_6,
+                                     Tipo = e.Tipo,
+                                     Tipo_Jor = e.Tipo_Jor,
+                                     fuerza_calc = e.fuerza_calc,
+                                     idagrupamiento = e.idagrupamiento,
+                                     apl_trans1 = e.apl_trans1,
+                                     id_trans1 = e.id_trans1,
+                                     apl_trans2 = e.apl_trans2,
+                                     id_trans2 = e.id_trans2,
+                                     apl_trans3 = e.apl_trans3,
+                                     id_trans3 = e.id_trans3,
+                                     apl_trans4 = e.apl_trans4,
+                                     id_trans4 = e.id_trans4,
+                                     apl_trans5 = e.apl_trans5,
+                                     id_trans5 = e.id_trans5,
+                                     apl_trans6 = e.apl_trans6,
+                                     id_trans6 = e.id_trans6,
+                                     apl_ben1 = e.apl_ben1,
+                                     id_ben1 = e.id_ben1,
+                                     apl_ben2 = e.apl_ben2,
+                                     id_ben2 = e.id_ben2,
+                                     apl_ben3 = e.apl_ben3,
+                                     id_ben3 = e.id_ben3,
+                                     apl_ben4 = e.apl_ben4,
+                                     id_ben4 = e.id_ben4,
+                                     apl_ben5 = e.apl_ben5,
+                                     id_ben5 = e.id_ben5,
+                                     apl_ben6 = e.apl_ben6,
+                                     id_ben6 = e.id_ben6,
+                                     conc_ben1 = e.conc_ben1,
+                                     conc_ben2 = e.conc_ben2,
+                                     conc_ben3 = e.conc_ben3,
+                                     conc_ben4 = e.conc_ben4,
+                                     conc_ben5 = e.conc_ben5,
+                                     conc_ben6 = e.conc_ben6,
+                                     apl_trans_post = e.apl_trans_post,
+                                     id_trans_post = e.id_trans_post,
+                                     apl_redond_entrada = e.apl_redond_entrada,
+                                     cant_redond_entrada = e.cant_redond_entrada,
+                                     auto_pan = e.auto_pan,
+                                     ColorId = e.ColorId,
+                                     PaletaColor = e.PaletaColor is null ? null :
+                                     new cPaletaColor
+                                     {
+                                         COLORID = e.PaletaColor.COLORID,
+                                         DESCRIPCION = e.PaletaColor.DESCRIPCION,
+                                         COLORFONDO = e.PaletaColor.COLORFONDO,
+                                         COLORFUENTE = e.PaletaColor.COLORFUENTE,
+                                     }
+                                 }).FirstOrDefault();
             }
             catch (Exception e)
             {
@@ -1448,6 +1636,7 @@ namespace GeoTimeConnectWebApi.Data
                     }
                     else
                     {
+                        item.PaletaColor = null;
                         _context.Add(item);
                     }
                 }
@@ -6474,7 +6663,127 @@ namespace GeoTimeConnectWebApi.Data
 
         }
 
+        /// <summary>
+        /// GetPaletaColor: obtiene lista de colores de la paleta
+        /// </summary>
+        /// <returns>lista de colores de la paleta</returns>
+        public async Task<List<cPaletaColor>> GetPaletaColor()
+        {
+            List<cPaletaColor> colores = new();
+            try
+            {
+                colores = await _context.PaletaColores.ToListAsync();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"GeoTimeConnectService.GetPaletaColor: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+                throw;
+            }
+            return colores;
+        }
+        /// <summary>
+        /// GetPaletaColor: obtiene un registro de la paleta de colores
+        /// </summary>
+        /// <param name="colorId">id de color a recuperar</param>
+        /// <returns></returns>
+        public async Task<cPaletaColor> GetPaletaColor(int colorId)
+        {
+            cPaletaColor? compania = new();
+            try
+            {
+                compania = await _context.PaletaColores.FirstOrDefaultAsync(e => e.COLORID == colorId);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"GeoTimeConnectService.GetPaletaColor: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+                throw;
+            }
+            return compania;
+        }
+        /// <summary>
+        /// Sincronizar_PaletaColor: metodo para sincronizar lista de colores en la Paleta de Colores 
+        /// </summary>
+        /// <param name="colores"></param>
+        /// <returns>una instancia EventResponse con el resultado de la operacion</returns>
+        public async Task<EventResponse> Sincronizar_PaletaColor(IEnumerable<cPaletaColor> colores)
+        {
+            EventResponse respuesta = new EventResponse();
 
+            try
+            {
+                foreach (var item in colores)
+                {
+                    cPaletaColor? objetoBuscar = await _context.PaletaColores
+                                    .FirstOrDefaultAsync(e => e.COLORID == item.COLORID);
+                    //si el color existe se actualiza descripción
+                    //de lo contrario se agrega el registro
+                    if (objetoBuscar is not null)
+                    {
+                        objetoBuscar.DESCRIPCION = item.DESCRIPCION;
+                        objetoBuscar.COLORFONDO = item.COLORFONDO;
+                        objetoBuscar.COLORFUENTE = item.COLORFUENTE;                       
+
+                        _context.PaletaColores.Update(objetoBuscar);
+                    }
+                    else
+                    {
+                        item.COLORID = 0;
+                        _context.Add(item);
+                    }
+                }
+
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo realizar la sincronización del color en la Paleta de Colores. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo realizar la sincronización del color en la Paleta de Colores. Detalle de Error: " + e.InnerException.Message;
+
+                _logger.LogError($"GeoTimeConnectService.Sincronizar_PhCompania: {respuesta.Descripcion}", DateTime.UtcNow.ToLongTimeString());
+
+
+            }
+
+            return respuesta;
+
+        }
+        /// <summary>
+        /// Elimina_PaletaColor:  Metodo borrado de datos de la tabla PaletaColores
+        /// </summary>
+        /// <param name="colorId"></param>
+        /// <returns>EventResponse</returns>
+        public async Task<EventResponse> Elimina_PaletaColor(int colorId)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+                cPaletaColor? model = await _context.PaletaColores
+                    .FirstOrDefaultAsync(e => e.COLORID == colorId);
+
+                if (model is not null)
+                {
+                    _context.PaletaColores.Remove(model);
+                    await _context.SaveChangesAsync();
+                }
+                
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"{(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo eliminar el Color. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo eliminar el Color. Detalle de Error: " + e.InnerException.Message;
+            }
+            return respuesta;
+        }
 
 
         #endregion

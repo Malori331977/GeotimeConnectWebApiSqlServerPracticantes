@@ -94,6 +94,7 @@ namespace GeoTimeConnectWebApi.Data
         public DbSet<cPh_Opciones> Ph_Opciones { get; set; }
         public DbSet<cPortal_Empleado> Portal_Empleado { get; set; }
         public DbSet<cPortal_DocMarca> Portal_DocsMarcas { get; set; }
+        public DbSet<cPaletaColor> PaletaColores { get; set; }
 
 
 
@@ -181,6 +182,8 @@ namespace GeoTimeConnectWebApi.Data
                 .HasKey(e => new { e.IDTURNO, e.IDTIEMPO });
             builder.Entity<cPh_Opciones>().ToTable("PH_OPCIONES", Schema)
                 .HasKey(e => new { e.IDOPCION});
+            builder.Entity<cPaletaColor>().ToTable("PALETACOLORES", Schema)
+               .HasKey(e => new { e.COLORID });
 
             #endregion
 
@@ -246,6 +249,12 @@ namespace GeoTimeConnectWebApi.Data
                 .HasOne(e => e.cPortal_Rol)
                 .WithMany(d => d.cPortal_RolDet)
                 .HasForeignKey(e => new { e.PORTALROLID });
+
+            builder.Entity<cTurno>()
+                .ToTable("PH_TURNOS", Schema)
+                .HasOne(e => e.PaletaColor)
+                .WithMany(d => d.Turno)
+                .HasForeignKey(e => new { e.ColorId });
 
             #endregion
 

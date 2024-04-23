@@ -10,11 +10,6 @@ namespace GeoTimeConnectWebApi.Models
         public string? HSale { get; set; }
         public string? Tipo { get; set; }
         public string? Tipo_Jor { get; set; }
-
-        //public int idturno { get; set; }
-        //public string descripcion { get; set; }
-        //public string hentra { get; set; }
-        //public string hsale { get; set; }
         public char? tar_apl { get; set; }
         public char? ant_apl { get; set; }
         public string? des_1_in { get; set; }
@@ -91,9 +86,11 @@ namespace GeoTimeConnectWebApi.Models
         public char? apl_redond_entrada { get; set; }
         public string? cant_redond_entrada { get; set; }
         public char? auto_pan { get; set; }
+        public int? ColorId { get; set; }
 
         //public IEnumerable<cPh_RolTurno>? RolTurno { get; set; }
         public IEnumerable<cPh_Rol>? Rol { get; set; }
+        public cPaletaColor? PaletaColor { get; set; }
 
         /* Para poder enviar el ideregistro de la tabla Ph_Rol_Turno */
         [NotMapped]

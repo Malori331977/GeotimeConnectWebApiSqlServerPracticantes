@@ -178,6 +178,29 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         /// <returns>EventResponse</returns>
         public Task<EventResponse> Elimina_Incidencia(int id);
 
+        /// <summary>
+        /// GetPaletaColor: obtiene lista de colores de la paleta
+        /// </summary>
+        /// <returns>lista de colores de la paleta</returns>
+        public Task<List<cPaletaColor>> GetPaletaColor();
+        /// <summary>
+        /// GetPaletaColor: obtiene un registro de la paleta de colores
+        /// </summary>
+        /// <param name="colorId">id de color a recuperar</param>
+        /// <returns></returns>
+        public Task<cPaletaColor> GetPaletaColor(int colorId);
+        /// <summary>
+        /// Sincronizar_PaletaColor: metodo para sincronizar lista de colores en la Paleta de Colores 
+        /// </summary>
+        /// <param name="colores"></param>
+        /// <returns>una instancia EventResponse con el resultado de la operacion</returns>
+        public Task<EventResponse> Sincronizar_PaletaColor(IEnumerable<cPaletaColor> colores);
+        /// <summary>
+        /// Elimina_PaletaColor:  Metodo borrado de datos de la tabla PaletaColores
+        /// </summary>
+        /// <param name="colorId"></param>
+        /// <returns>EventResponse</returns>
+        public Task<EventResponse> Elimina_PaletaColor(int colorId);
 
 
         #endregion
