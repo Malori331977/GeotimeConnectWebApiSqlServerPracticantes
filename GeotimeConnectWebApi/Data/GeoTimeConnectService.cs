@@ -1711,6 +1711,7 @@ namespace GeoTimeConnectWebApi.Data
                         objetoBuscar.apl_redond_entrada = item.apl_redond_entrada;
                         objetoBuscar.cant_redond_entrada = item.cant_redond_entrada;
                         objetoBuscar.auto_pan = item.auto_pan;
+                        objetoBuscar.ColorId = item.ColorId;
 
                         _context.Ph_Turnos.Update(objetoBuscar);
                     }
