@@ -62,6 +62,12 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         /// <returns>Lista de cEmpleados</returns>
         public Task<List<cEmpleado>> GetEmpleado();
 
+        /// <summary>
+        /// GetEmpleado: Método para obtener una lista de empleados para programadores en procesos
+        /// </summary>
+        /// <returns>Lista de cEmpleados</returns>
+        public Task<List<cEmpleado>> GetEmpleadoProgramador(string idplanilla, string grupos);
+
         //Creado por: Marlon Loria Solano
         //Fecha: 2022-10-30
         /// <summary>

@@ -913,6 +913,86 @@ namespace GeoTimeConnectWebApi.Data
             return empleado;
         }
 
+        //Creado por: Allan Prieto Badilla
+        //Fecha: 2024-4-30
+        /// <summary>
+        /// GetEmpleado: Método para obtener una lista de empleados 
+        /// </summary>
+        /// <returns>Lista de cEmpleados</returns>
+        public async Task<List<cEmpleado>> GetEmpleadoProgramador(string idplanilla, string grupos)
+        {
+            List<cEmpleado> empleado = new();
+            try
+            {
+                string[] ListGrupos = grupos.Split(',');
+                List<int> ListGruposInt = ListGrupos.Select(int.Parse).ToList();
+
+                empleado = (from e in await _context.Empleados
+                            .Where(e => e.IdPlanilla == idplanilla && ListGruposInt.Contains(e.IdGrupo??1) && e.Estado == 'T').OrderBy(e => e.Nombre).ToListAsync()
+                            select new cEmpleado
+                            {
+                                IdNumero = e.IdNumero,
+                                IdPlanilla = e.IdPlanilla,
+                                Nombre = e.Nombre,
+                                //Tarjeta = e.Tarjeta,
+                                //Identificacion = e.Identificacion,
+                                IdGrupo = e.IdGrupo,
+                                //IdDepartamento = e.IdDepartamento,
+                                //IdHorario = e.IdHorario,
+                                Estado = e.Estado,
+                                //IdAgrupamiento = e.IdAgrupamiento,
+                                //foto = e.foto,
+                                //IdCCosto = e.IdCCosto,
+                                //exporta = e.exporta,
+                                //ubicacion = e.ubicacion,
+                                //rubro1 = e.rubro1,
+                                //rubro2 = e.rubro2,
+                                //rubro3 = e.rubro3,
+                                //rubro4 = e.rubro4,
+                                //rubro5 = e.rubro5,
+                                //rubro6 = e.rubro6,
+                                //rubro7 = e.rubro7,
+                                //rubro8 = e.rubro8,
+                                //rubro9 = e.rubro9,
+                                //rubro10 = e.rubro10,
+                                //rubro11 = e.rubro11,
+                                //rubro12 = e.rubro12,
+                                //rubro13 = e.rubro13,
+                                //rubro14 = e.rubro14,
+                                //rubro15 = e.rubro15,
+                                //rubro16 = e.rubro16,
+                                //rubro17 = e.rubro17,
+                                //rubro18 = e.rubro18,
+                                //rubro19 = e.rubro19,
+                                //rubro20 = e.rubro20,
+                                //rubro21 = e.rubro21,
+                                //rubro22 = e.rubro22,
+                                //rubro23 = e.rubro23,
+                                //rubro24 = e.rubro24,
+                                //rubro25 = e.rubro25,
+                                //Fecha_Ingreso = e.Fecha_Ingreso,
+                                //Email = e.Email,
+                                //Tipo_Marca = e.Tipo_Marca,
+                                //inicio_rol = e.inicio_rol,
+                                //web_pass = e.web_pass,
+                                //id_transfo_conc = e.id_transfo_conc,
+                                //widioma = e.widioma,
+                                //global_clave = e.global_clave,
+                                //def_fase = e.def_fase,
+                                //def_py = e.def_py,
+                                //def_cc = e.def_cc,
+                                //Fecha_Salida = e.Fecha_Salida,
+                                //global_code = e.global_code,
+                                //fecha_act_code = e.fecha_act_code,
+                            }).ToList();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"GeoTimeConnectService.GetEmpleado: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+            }
+            return empleado;
+        }
+
         //Creado por: Marlon Loria Solano
         //Fecha: 2022-10-30
         /// <summary>
