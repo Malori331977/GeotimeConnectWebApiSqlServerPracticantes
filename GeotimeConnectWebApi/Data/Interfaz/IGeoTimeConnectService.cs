@@ -56,6 +56,7 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         public Task<cPh_Grupo> GetGrupo(int idgrupo);
         public Task<EventResponse> Sincronizar_Grupo(IEnumerable<cPh_Grupo> PhGrupos);
         public Task<EventResponse> Elimina_Grupo(int idgrupo);
+        public Task<List<cPh_Grupo>> GetPhGrupoByUsuario(string idUsuario);
         /// <summary>
         /// GetEmpleado: Método para obtener una lista de empleados 
         /// </summary>

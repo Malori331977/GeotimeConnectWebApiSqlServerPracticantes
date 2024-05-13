@@ -678,6 +678,37 @@ namespace GeoTimeConnectWebApi.Data
             return respuesta;
         }
 
+        //Creado por: Allan Prieto Badilla
+        //Fecha: 2024-05-12
+        //Obtener un tipo de planilla especifico
+        public async Task<List<cPh_Grupo>> GetPhGrupoByUsuario(string idUsuario)
+        {
+            List<cPh_Grupo>? grupo = new();
+            try
+            {
+                var usuario = await _context.Ph_Usuarios.FirstOrDefaultAsync(u => u.IDUSUARIO.ToString() == idUsuario);
+                if (usuario == null)
+                {
+                    // Si el usuario no existe, retornar una lista vacía
+                    return new List<cPh_Grupo>();
+                }
+
+                var ids = usuario.GRUPOS.Split(',').Where(s => !string.IsNullOrWhiteSpace(s)).ToList();
+
+                grupo = await _context.Ph_Grupos
+                .Where(p => ids.Contains((p.idgrupo).ToString()))
+                .ToListAsync();
+
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"GeoTimeConnectService.GetPhGrupoByUsuario: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+                throw;
+            }
+
+            return grupo;
+        }
+
         //Creado por: Marlon Loria Solano
         //Fecha: 2022-10-30
         /// <summary>
