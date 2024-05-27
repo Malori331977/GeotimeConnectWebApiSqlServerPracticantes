@@ -209,6 +209,30 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         /// <returns>EventResponse</returns>
         public Task<EventResponse> Elimina_PaletaColor(int colorId);
 
+        /// <summary>
+        /// GetNivel: obtiene lista de niveles
+        /// </summary>
+        /// <returns>lista de Niveles</returns>
+        public Task<List<cPh_Nivel>> GetNivel();
+        /// <summary>
+        /// GetNivel: obtiene un registro de la nivel
+        /// </summary>
+        /// <param name="IdNivel">id de nivel</param>
+        /// <returns></returns>
+        public Task<cPh_Nivel> GetNivel(int IdNivel);
+        /// <summary>
+        /// Sincronizar_Nivel: metodo para sincronizar lista de Niveles
+        /// </summary>
+        /// <param name="niveles"></param>
+        /// <returns>una instancia EventResponse con el resultado de la operacion</returns>
+        public Task<EventResponse> Sincronizar_Nivel(IEnumerable<cPh_Nivel> niveles);
+        /// <summary>
+        /// Elimina_Nivel:  Metodo borrado de datos de la tabla Ph_Niveles
+        /// </summary>
+        /// <param name="IdNivel"></param>
+        /// <returns>EventResponse</returns>
+        public Task<EventResponse> Elimina_Nivel(int IdNivel);
+
 
         #endregion
 

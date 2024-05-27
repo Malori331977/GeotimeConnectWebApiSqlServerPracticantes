@@ -6897,6 +6897,122 @@ namespace GeoTimeConnectWebApi.Data
             return respuesta;
         }
 
+        /// <summary>
+        /// GetNivel: obtiene lista de Niveles
+        /// </summary>
+        /// <returns>lista de niveles</returns>
+        public async Task<List<cPh_Nivel>> GetNivel()
+        {
+            List<cPh_Nivel> niveles = new();
+            try
+            {
+                niveles = await _context.Ph_Niveles.ToListAsync();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"GeoTimeConnectService.GetNivel: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+                throw;
+            }
+            return niveles;
+        }
+        /// <summary>
+        /// GetNivel: obtiene un registro de niveles
+        /// </summary>
+        /// <param name="IdNivel">id de color a recuperar</param>
+        /// <returns></returns>
+        public async Task<cPh_Nivel> GetNivel(int IdNivel)
+        {
+            cPh_Nivel? nivel = new();
+            try
+            {
+                nivel = await _context.Ph_Niveles.FirstOrDefaultAsync(e => e.IDNIVEL == IdNivel);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"GeoTimeConnectService.GetNivel: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+                throw;
+            }
+            return nivel;
+        }
+        /// <summary>
+        /// Sincronizar_Nivel: metodo para sincronizar lista de niveles
+        /// </summary>
+        /// <param name="niveles"></param>
+        /// <returns>una instancia EventResponse con el resultado de los nivveles</returns>
+        public async Task<EventResponse> Sincronizar_Nivel(IEnumerable<cPh_Nivel> niveles)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+                foreach (var item in niveles)
+                {
+                    cPh_Nivel? objetoBuscar = await _context.Ph_Niveles
+                                    .FirstOrDefaultAsync(e => e.IDNIVEL == item.IDNIVEL);
+                    //si el color existe se actualiza descripción
+                    //de lo contrario se agrega el registro
+                    if (objetoBuscar is not null)
+                    {
+                        objetoBuscar.DESCRIPCION = item.DESCRIPCION;
+                        objetoBuscar.VARIABLES = item.VARIABLES;
+
+                        _context.Ph_Niveles.Update(objetoBuscar);
+                    }
+                    else
+                    {
+                        //item.COLORID = 0;
+                        _context.Add(item);
+                    }
+                }
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo realizar la sincronización del Nivel. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo realizar la sincronización del Nivel. Detalle de Error: " + e.InnerException.Message;
+
+                _logger.LogError($"GeoTimeConnectService.Sincronizar_Nivel: {respuesta.Descripcion}", DateTime.UtcNow.ToLongTimeString());
+            }
+            return respuesta;
+        }
+        /// <summary>
+        /// Elimina_Nivel:  Metodo borrado de datos de la tabla Ph_Niveles
+        /// </summary>
+        /// <param name="IdNivel"></param>
+        /// <returns>EventResponse</returns>
+        public async Task<EventResponse> Elimina_Nivel(int IdNivel)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+                cPh_Nivel? model = await _context.Ph_Niveles
+                    .FirstOrDefaultAsync(e => e.IDNIVEL == IdNivel);
+
+                if (model is not null)
+                {
+                    _context.Ph_Niveles.Remove(model);
+                    await _context.SaveChangesAsync();
+                }
+
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"{(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo eliminar el Nivel. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo eliminar el Nivel. Detalle de Error: " + e.InnerException.Message;
+            }
+            return respuesta;
+        }
+
 
         #endregion
 

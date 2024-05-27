@@ -95,6 +95,7 @@ namespace GeoTimeConnectWebApi.Data
         public DbSet<cPortal_Empleado> Portal_Empleado { get; set; }
         public DbSet<cPortal_DocMarca> Portal_DocsMarcas { get; set; }
         public DbSet<cPaletaColor> PaletaColores { get; set; }
+        public DbSet<cPh_Nivel> Ph_Niveles { get; set; }
 
 
 
@@ -103,6 +104,7 @@ namespace GeoTimeConnectWebApi.Data
             builder.HasDefaultSchema(schemaAdmin);
 
             #region Objetos del CTAADMIN
+
             builder.Entity<cPh_Login>().ToTable("PH_LOGIN", schemaAdmin)
                .HasKey(e => new { e.idusuario });
             builder.Entity<cPh_Compania>().ToTable("PH_COMPANIAS", schemaAdmin)
@@ -184,6 +186,8 @@ namespace GeoTimeConnectWebApi.Data
                 .HasKey(e => new { e.IDOPCION});
             builder.Entity<cPaletaColor>().ToTable("PALETACOLORES", Schema)
                .HasKey(e => new { e.COLORID });
+            builder.Entity<cPh_Nivel>().ToTable("PH_NIVELES", Schema)
+               .HasKey(e => new { e.IDNIVEL });
 
             #endregion
 
