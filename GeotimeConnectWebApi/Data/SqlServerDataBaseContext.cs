@@ -96,6 +96,7 @@ namespace GeoTimeConnectWebApi.Data
         public DbSet<cPortal_DocMarca> Portal_DocsMarcas { get; set; }
         public DbSet<cPaletaColor> PaletaColores { get; set; }
         public DbSet<cPh_Nivel> Ph_Niveles { get; set; }
+        public DbSet<cMarcaDistribucionConcepto> Marcas_Distribuciones_Conceptos { get; set; }
 
 
 
@@ -188,6 +189,8 @@ namespace GeoTimeConnectWebApi.Data
                .HasKey(e => new { e.COLORID });
             builder.Entity<cPh_Nivel>().ToTable("PH_NIVELES", Schema)
                .HasKey(e => new { e.IDNIVEL });
+            builder.Entity<cMarcaDistribucionConcepto>().ToTable("MARCAS_DISTRIBUCIONES_CONCEPTOS", Schema)
+               .HasKey(e => new { e.IDREGISTRO });
 
             #endregion
 
