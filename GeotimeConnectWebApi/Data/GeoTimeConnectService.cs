@@ -7013,6 +7013,115 @@ namespace GeoTimeConnectWebApi.Data
             return respuesta;
         }
 
+        //Creado por: Allan Prieto Badilla
+        //Fecha: 2024-05-27
+        //Obtener lista de Marcas_Distribuciones_Conceptos
+        public async Task<List<cMarcaDistribucionConcepto>> GetMarcaDtnConcepto()
+        {
+            List<cMarcaDistribucionConcepto> marcaDC = new();
+            try
+            {
+                marcaDC = await _context.Marcas_Distribuciones_Conceptos.ToListAsync();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"GeoTimeConnectService.GetMarcaDtnConcepto: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+            }
+            return marcaDC;
+        }
+
+        //Creado por: Allan Prieto Badilla
+        //Fecha: 2024-05-27
+        //Obtener lista de Marcas_Distribuciones_Conceptos
+        //Parametros: idregistro=consecutivo de registro
+        public async Task<cMarcaDistribucionConcepto> GetMarcaDtnConcepto(int idregistro)
+        {
+            cMarcaDistribucionConcepto? marcaDC = new();
+            try
+            {
+                marcaDC = await _context.Marcas_Distribuciones_Conceptos.FirstOrDefaultAsync(e => e.IDREGISTRO == idregistro);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"GeoTimeConnectService.GetMarcaDtnConcepto: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+            }
+            return marcaDC;
+        }
+
+        //Creado por: Allan Prieto Badilla
+        //Fecha: 2024-05-27
+        //Obtener lista de Marcas_Distribuciones_Conceptos
+        //Parametros: idregistro=consecutivo de registro
+        public async Task<cMarcaDistribucionConcepto> GetMarcaDtnConcepto(string idnumero, string fecha, string idplanilla)
+        {
+            cMarcaDistribucionConcepto? item = new();
+            try
+            {
+                DateTime fechaMov = DateTime.Parse($"{fecha.Substring(0, 4)}-{fecha.Substring(4, 2)}-{fecha.Substring(6, 2)}");
+                item = await _context.Marcas_Distribuciones_Conceptos.FirstOrDefaultAsync(e => e.IDNUMERO == idnumero && e.FECHA == fechaMov && e.IDPLANILLA == idplanilla);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"GeoTimeConnectService.GetMarcaDtnConcepto: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+            }
+            return item;
+        }
+
+
+        //Creado por: Allan Prieto Badilla
+        //Fecha: 2024-05-27
+        //Sincronizar Marcas_Distribuciones_Conceptos
+        //Parametro: Recibe una instancia de Marcas_Distribuciones_Conceptos, se verifica si existe en cuyo caso
+        //actualiza el registro, de lo contrario lo crea.
+        public async Task<EventResponse> Sincronizar_MarcaDtnConcepto(IEnumerable<cMarcaDistribucionConcepto> marcasDtnConcepto)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+                foreach (var item in marcasDtnConcepto)
+                {
+                    cMarcaDistribucionConcepto? marcaDC = await _context.Marcas_Distribuciones_Conceptos
+                                    .Where(e => e.IDNUMERO == item.IDNUMERO && e.FECHA == item.FECHA && e.IDPLANILLA == item.IDPLANILLA)
+                                    .FirstOrDefaultAsync();
+                    //si el centro de costo existe se actualiza descripción
+                    //de lo contrario se agrega el registro
+                    if (marcaDC is not null)
+                    {
+                        marcaDC.IDREGISTRO = 0;
+                        marcaDC.IDCCOSTO = item.IDCCOSTO;
+                        marcaDC.INICIO = item.INICIO;
+                        marcaDC.FIN = item.FIN;
+                        //marcaDC.CANTIDAD = 0;
+                        marcaDC.IDDIST = 0;
+                        marcaDC.ESTADO = 'A';
+                        _context.Marcas_Distribuciones_Conceptos.Update(marcaDC);
+                    }
+                    else
+                    {
+                        item.IDREGISTRO = 0;
+                        item.IDDIST = 0;
+                        //item.CANTIDAD = 0;
+                        item.ESTADO = 'A';
+                        _context.Add(item);
+                    }
+                }
+
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"{(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo realizar la sincronización de Sincronizar_MarcaDtnConcepto. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo realizar la sincronización de Sincronizar_MarcaDtnConcepto. Detalle de Error: " + e.InnerException.Message;
+            }
+            return respuesta;
+        }
+
 
         #endregion
 

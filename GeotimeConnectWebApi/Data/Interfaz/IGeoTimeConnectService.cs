@@ -233,6 +233,11 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         /// <returns>EventResponse</returns>
         public Task<EventResponse> Elimina_Nivel(int IdNivel);
 
+        public Task<List<cMarcaDistribucionConcepto>> GetMarcaDtnConcepto();
+        public Task<cMarcaDistribucionConcepto> GetMarcaDtnConcepto(int idregistro);
+        public Task<cMarcaDistribucionConcepto> GetMarcaDtnConcepto(string idnumero, string fecha, string idturno);
+        public Task<EventResponse> Sincronizar_MarcaDtnConcepto(IEnumerable<cMarcaDistribucionConcepto> marcasDtnConcepto);
+
 
         #endregion
 
