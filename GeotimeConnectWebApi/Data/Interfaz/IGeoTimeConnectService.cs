@@ -798,7 +798,7 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         /// </summary>
         /// <returns>Una instancia de la Clase EventResponse, con el resultado del proceso</returns>
         /// <param name="ph_Opciones">Lista de registros de la clase cPh_Opciones</param>
-        public Task<EventResponse> Sincronizar_PhOpciones(cPh_Opciones ph_Opciones);
+        public Task<EventResponse> Sincronizar_PhOpciones(IEnumerable<cPh_Opciones> ph_Opciones);
 
         /// <summary>
         /// GetPortalEmpleado: Lista de empleados con acceso al portal de marcas web

@@ -29,7 +29,7 @@ namespace GeoTimeConnectWebApi.Controllers
    
 
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody] cPh_Opciones ph_Opciones)
+        public async Task<IActionResult> Post([FromBody] IEnumerable<cPh_Opciones> ph_Opciones)
         {
             EventResponse respuesta = await _repoGT.Sincronizar_PhOpciones(ph_Opciones);
 
