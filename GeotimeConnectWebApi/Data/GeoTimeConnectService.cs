@@ -303,14 +303,12 @@ namespace GeoTimeConnectWebApi.Data
         public async Task<EventResponse> Sincronizar_PhPlanilla(IEnumerable<cPh_Planilla> PhPlanillas)
         {
             EventResponse respuesta = new EventResponse();
-
             try
             {
                 foreach (var item in PhPlanillas)
                 {
                     cPh_Planilla? pla = await _context.Ph_Planilla
                                                         .FirstOrDefaultAsync(e => e.idplanilla == item.idplanilla);
-
                     if (pla is not null)
                     {
                         pla.planilla = item.planilla;
@@ -6518,38 +6516,41 @@ namespace GeoTimeConnectWebApi.Data
         //Sincronizar Opciones del Sisstema
         //Parametro: Recibe una instancia de cPh_Opciones
         //actualiza el registro, de lo contrario lo crea.
-        public async Task<EventResponse> Sincronizar_PhOpciones(cPh_Opciones item)
+        public async Task<EventResponse> Sincronizar_PhOpciones(IEnumerable<cPh_Opciones> phopciones)
         {
             EventResponse respuesta = new EventResponse();
 
             try
             {
-                cPh_Opciones? parametroBuscado = await _context.Ph_Opciones.FirstOrDefaultAsync();
-
-                if (parametroBuscado is not null)
+                foreach(var item in phopciones)
                 {
-                    parametroBuscado.IDOPCION = item.IDOPCION;
-                    parametroBuscado.POST_EMP = item.POST_EMP;
-                    parametroBuscado.POST_SINC = item.POST_SINC;
-                    parametroBuscado.NUM_ALM = item.NUM_ALM;
-                    parametroBuscado.UTILIZA_DESC = item.UTILIZA_DESC;
-                    parametroBuscado.DESC_ABIERT = item.DESC_ABIERT;
-                    //parametroBuscado.VER_DB = item.VER_DB; /* Dato no es necesario actualizarlo
-                    parametroBuscado.CORTE_DIURNO = item.CORTE_DIURNO;
-                    parametroBuscado.CORTE_NOCTURNO = item.CORTE_NOCTURNO;
-                    parametroBuscado.USA_ALERTA_EXD = item.USA_ALERTA_EXD;
-                    parametroBuscado.ALERTA_EXTRAS_DIARIAS = item.ALERTA_EXTRAS_DIARIAS;
-                    parametroBuscado.COLOR_FONDO_ALERTD = item.COLOR_FONDO_ALERTD;
-                    parametroBuscado.COLOR_FUENTE_ALERTD = item.COLOR_FUENTE_ALERTD;
-                    parametroBuscado.DIST_TADIC = item.DIST_TADIC;
-                    parametroBuscado.DIST_LIC_USR = item.DIST_LIC_USR;
-                    parametroBuscado.DIST_LIC_EMP = item.DIST_LIC_EMP;
-                    parametroBuscado.TIPO_DIST = item.TIPO_DIST;
-                    parametroBuscado.ACC_BLOC_PT = item.ACC_BLOC_PT;
+                    cPh_Opciones? parametroBuscado = await _context.Ph_Opciones
+                                                            .FirstOrDefaultAsync();
 
-                    _context.Ph_Opciones.Update(parametroBuscado);
+                    if (parametroBuscado is not null)
+                    {
+                        parametroBuscado.IDOPCION = item.IDOPCION;
+                        parametroBuscado.POST_EMP = item.POST_EMP;
+                        parametroBuscado.POST_SINC = item.POST_SINC;
+                        parametroBuscado.NUM_ALM = item.NUM_ALM;
+                        parametroBuscado.UTILIZA_DESC = item.UTILIZA_DESC;
+                        parametroBuscado.DESC_ABIERT = item.DESC_ABIERT;
+                        //parametroBuscado.VER_DB = item.VER_DB; /* Dato no es necesario actualizarlo
+                        parametroBuscado.CORTE_DIURNO = item.CORTE_DIURNO;
+                        parametroBuscado.CORTE_NOCTURNO = item.CORTE_NOCTURNO;
+                        parametroBuscado.USA_ALERTA_EXD = item.USA_ALERTA_EXD;
+                        parametroBuscado.ALERTA_EXTRAS_DIARIAS = item.ALERTA_EXTRAS_DIARIAS;
+                        parametroBuscado.COLOR_FONDO_ALERTD = item.COLOR_FONDO_ALERTD;
+                        parametroBuscado.COLOR_FUENTE_ALERTD = item.COLOR_FUENTE_ALERTD;
+                        parametroBuscado.DIST_TADIC = item.DIST_TADIC;
+                        parametroBuscado.DIST_LIC_USR = item.DIST_LIC_USR;
+                        parametroBuscado.DIST_LIC_EMP = item.DIST_LIC_EMP;
+                        parametroBuscado.TIPO_DIST = item.TIPO_DIST;
+                        parametroBuscado.ACC_BLOC_PT = item.ACC_BLOC_PT;
+
+                        _context.Ph_Opciones.Update(parametroBuscado);
+                    }
                 }
-
                 await _context.SaveChangesAsync();
             }
             catch (Exception e)
