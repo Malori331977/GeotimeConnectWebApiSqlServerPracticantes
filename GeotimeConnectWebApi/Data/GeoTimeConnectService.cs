@@ -7379,7 +7379,7 @@ namespace GeoTimeConnectWebApi.Data
         /// <returns>Lista de marcas del periodo</returns>
         public async Task<IEnumerable<cMarcaPeriodo>> GetMarcasPeriodo(string IdsGrupos, string IdPlanilla, string FechaInicio, string FechaFin, string idnumero)
         {
-            List<cMarcaPeriodo> marcasPeriodo = new(); 
+            List<cMarcaPeriodo>? marcasPeriodo = new(); 
             try
             {
                 using (var connection = _context.Database.GetDbConnection())
@@ -7388,30 +7388,26 @@ namespace GeoTimeConnectWebApi.Data
                     using (var command = connection.CreateCommand())
                     {
                         command.CommandText = _schema + $".consultar_marcas_periodo @IdsGrupos='{IdsGrupos}', @IdPlanilla='{IdPlanilla}', @FechaInicio='{FechaInicio}', @FechaFin='{FechaFin}', @idnumero='{idnumero}'";
-                        System.Data.Common.DbDataReader result = command.ExecuteReader();
 
-                        while (result.Read())
-                        {
-                            var m = result.GetString(result.GetOrdinal("idnumero"));
-
-                            var marcaPeriodo = new cMarcaPeriodo
-                            {
-                                idnumero = result.GetString(result.GetOrdinal("idnumero")),
-                                nombre = result.GetString(result.GetOrdinal("nombre")),
-                                fecha_entra = result.GetDateTime(result.GetOrdinal("fecha_entra")),
-                                hora_entra = result.GetString(result.GetOrdinal("hora_entra")),
-                                hora_sale = result.GetString(result.GetOrdinal("hora_sale")),
-                                idturno = result.GetInt32(result.GetOrdinal("idturno")),
-                                ordinario = result.GetDecimal(result.GetOrdinal("ordinario")),
-                                extras = result.GetDecimal(result.GetOrdinal("extras")),
-                                suma_extras = result.GetDecimal(result.GetOrdinal("suma_extras")),
-                                suma_dobles = result.GetDecimal(result.GetOrdinal("suma_dobles")),
-                                suma_otros = result.GetDecimal(result.GetOrdinal("suma_otros")),
-                                incidencias = result.GetString(result.GetOrdinal("incidencias")),
-                                estado = result.GetString(result.GetOrdinal("estado")),
-                            };
-                            marcasPeriodo.Add(marcaPeriodo);
-                        }
+                        using (var reader = command.ExecuteReader())
+                            return reader.Cast<IDataRecord>()
+                                .Select(r => new cMarcaPeriodo
+                                {
+                                    idnumero = r.GetString(r.GetOrdinal("idnumero")),
+                                    nombre = r.GetString(r.GetOrdinal("nombre")),
+                                    fecha_entra = r.GetDateTime(r.GetOrdinal("fecha_entra")),
+                                    hora_entra = r.GetString(r.GetOrdinal("hora_entra")),
+                                    hora_sale = r.GetString(r.GetOrdinal("hora_sale")),
+                                    idturno = r.GetInt32(r.GetOrdinal("idturno")),
+                                    ordinario = r.GetDecimal(r.GetOrdinal("ordinario")),
+                                    extras = r.GetDecimal(r.GetOrdinal("extras")),
+                                    suma_extras = r.GetDecimal(r.GetOrdinal("suma_extras")),
+                                    suma_dobles = r.GetDecimal(r.GetOrdinal("suma_dobles")),
+                                    suma_otros = r.GetDecimal(r.GetOrdinal("suma_otros")),
+                                    incidencias = r.GetString(r.GetOrdinal("incidencias")),
+                                    estado = r.GetString(r.GetOrdinal("estado")),
+                                }).ToList();
+            
                     }
                 }
             }
@@ -7419,8 +7415,9 @@ namespace GeoTimeConnectWebApi.Data
             {
                 _logger.LogError($"GeoTimeConnectService.ConsultarMarcasPeriodo: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
                 throw;
+                
             }
-            return marcasPeriodo;
+            
         }
 
 
