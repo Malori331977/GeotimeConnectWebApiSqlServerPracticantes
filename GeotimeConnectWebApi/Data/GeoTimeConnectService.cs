@@ -20,6 +20,7 @@ using Microsoft.Data.SqlClient;
 using GeoTimeServiceReference;
 using static GeoTimeServiceReference.ServiceSoapClient;
 using Microsoft.Extensions.Logging;
+using System.Data.Common;
 
 namespace GeoTimeConnectWebApi.Data
 {
@@ -7365,6 +7366,61 @@ namespace GeoTimeConnectWebApi.Data
                 throw;
             }
 
+        }
+
+        /// <summary>
+        /// ConsultarMarcasPeriodo:  Proceso paradeterminar marcas del periodo que se deben visualizar en el sistema
+        /// </summary>
+        /// <param name="IdsGrupos">Listado de grupos separados por coma , que por los que se debe filtrar la informacion</param>
+        /// <param name="IdPlanilla">id de planilla por el que se debe filtrar la informacion</param>
+        /// <param name="FechaInicio">fecha de inicio del reporte</param>
+        /// <param name="FechaFin">fecha final del reporte</param>
+        /// <param name="idnumero">id del empleado que se desea obtener, si se envia un -1 trae todos los empleados</param>
+        /// <returns>Lista de marcas del periodo</returns>
+        public async Task<IEnumerable<cMarcaPeriodo>> GetMarcasPeriodo(string IdsGrupos, string IdPlanilla, string FechaInicio, string FechaFin, string idnumero)
+        {
+            List<cMarcaPeriodo> marcasPeriodo = new(); 
+            try
+            {
+                using (var connection = _context.Database.GetDbConnection())
+                {
+                    await connection.OpenAsync();
+                    using (var command = connection.CreateCommand())
+                    {
+                        command.CommandText = _schema + $".consultar_marcas_periodo @IdsGrupos='{IdsGrupos}', @IdPlanilla='{IdPlanilla}', @FechaInicio='{FechaInicio}', @FechaFin='{FechaFin}', @idnumero='{idnumero}'";
+                        System.Data.Common.DbDataReader result = command.ExecuteReader();
+
+                        while (result.Read())
+                        {
+                            var m = result.GetString(result.GetOrdinal("idnumero"));
+
+                            var marcaPeriodo = new cMarcaPeriodo
+                            {
+                                idnumero = result.GetString(result.GetOrdinal("idnumero")),
+                                nombre = result.GetString(result.GetOrdinal("nombre")),
+                                fecha_entra = result.GetDateTime(result.GetOrdinal("fecha_entra")),
+                                hora_entra = result.GetString(result.GetOrdinal("hora_entra")),
+                                hora_sale = result.GetString(result.GetOrdinal("hora_sale")),
+                                idturno = result.GetInt32(result.GetOrdinal("idturno")),
+                                ordinario = result.GetDecimal(result.GetOrdinal("ordinario")),
+                                extras = result.GetDecimal(result.GetOrdinal("extras")),
+                                suma_extras = result.GetDecimal(result.GetOrdinal("suma_extras")),
+                                suma_dobles = result.GetDecimal(result.GetOrdinal("suma_dobles")),
+                                suma_otros = result.GetDecimal(result.GetOrdinal("suma_otros")),
+                                incidencias = result.GetString(result.GetOrdinal("incidencias")),
+                                estado = result.GetString(result.GetOrdinal("estado")),
+                            };
+                            marcasPeriodo.Add(marcaPeriodo);
+                        }
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"GeoTimeConnectService.ConsultarMarcasPeriodo: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+                throw;
+            }
+            return marcasPeriodo;
         }
 
 

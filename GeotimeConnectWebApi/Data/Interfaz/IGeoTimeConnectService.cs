@@ -852,6 +852,18 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         /// <returns>Instancia de EventResponse con el resultado de la operación</returns>
         public Task<EventResponse> Sincronizar_PortalDocMarca(IEnumerable<cPortal_DocMarca> portalDocsMarcas);
 
-        
+        /// <summary>
+        /// ConsultarMarcasPeriodo:  Proceso paradeterminar marcas del periodo que se deben visualizar en el sistema
+        /// </summary>
+        /// <param name="IdsGrupos">Listado de grupos separados por coma , que por los que se debe filtrar la informacion</param>
+        /// <param name="IdPlanilla">id de planilla por el que se debe filtrar la informacion</param>
+        /// <param name="FechaInicio">fecha de inicio del reporte</param>
+        /// <param name="FechaFin">fecha final del reporte</param>
+        /// <param name="idnumero">id del empleado que se desea obtener, si se envia un -1 trae todos los empleados</param>
+        /// <returns>Lista de marcas del periodo</returns>
+        public Task<IEnumerable<cMarcaPeriodo>> GetMarcasPeriodo(string IdsGrupos, string IdPlanilla, string FechaInicio, string FechaFin, string idnumero);
+
+
+
     }
 }
