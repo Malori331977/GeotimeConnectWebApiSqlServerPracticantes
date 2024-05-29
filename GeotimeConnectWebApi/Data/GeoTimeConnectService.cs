@@ -4749,6 +4749,34 @@ namespace GeoTimeConnectWebApi.Data
             return marcaIncidencia;
         }
 
+        //Creado por: Allan Prieto Badilla
+        //Fecha: 2024-05-28
+        /// <summary>
+        /// GetMarcaIncidenciaProgramador: Obtener las Marcas Incidencias para un empleado, planilla y un periodo especifico
+        /// </summary>
+        /// <param name="idnumero">numero de empleado a buscar</param>
+        /// <param name="fecha">fecha para determinar periodo</param>
+        /// <param name="idplanilla">id de planilla</param>
+        /// <returns>Lista de Marcas Incidencias</returns>
+        public async Task<List<cMarcaIncidencia>> GetMarcaIncidenciaProgramador(string idnumero, string fecha, string idplanilla)
+        {
+            List<cMarcaIncidencia>? marcaIncidencia = new();
+            try
+            {
+                DateTime fechaMov = DateTime.Parse($"{fecha.Substring(0, 4)}-{fecha.Substring(4, 2)}-{fecha.Substring(6, 2)}");
+
+                marcaIncidencia = await _context.Marcas_Incidencias.Where(e => e.IDNUMERO == idnumero
+                                                        && e.FECHA == fechaMov
+                                                        && e.IDPLANILLA == idplanilla
+                                                        && e.ESTADO == 'A').ToListAsync();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"GeoTimeConnectService.GetMarcaIncidencia: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+            }
+            return marcaIncidencia;
+        }
+
         //Creado por: Marlon Loria Solano
         //Fecha: 2023-09-01
         /// <summary>

@@ -561,6 +561,15 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         public Task<List<cMarcaIncidencia>> GetMarcaIncidencia(string idnumero, string fecha, string idplanilla);
 
         /// <summary>
+        /// GetMarcaIncidenciaProgramador: Obtener las Marcas Incidencias para un empleado, planilla y un periodo especifico
+        /// </summary>
+        /// <param name="idnumero">numero de empleado a buscar</param>
+        /// <param name="fecha">fecha para determinar periodo</param>
+        /// <param name="idplanilla">id de planilla</param>
+        /// <returns>Lista de Marcas Incidencias</returns>
+        public Task<List<cMarcaIncidencia>> GetMarcaIncidenciaProgramador(string idnumero, string fecha, string idplanilla);
+
+        /// <summary>
         /// GetMarcaIncidencia: Obtener una Marca Incidencia especifica segun el id indicado en el parámetro
         /// </summary>
         /// <param name="id">numero de marca incidencia</param>
