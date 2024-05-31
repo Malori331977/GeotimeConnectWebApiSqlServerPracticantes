@@ -15,5 +15,7 @@
         public decimal suma_dobles { get; set; }
         public decimal suma_otros { get; set; }        
         public string estado { get; set; }
+        public string mtardia { get; set; }
+        public string manticipo { get; set; }
     }
 }
