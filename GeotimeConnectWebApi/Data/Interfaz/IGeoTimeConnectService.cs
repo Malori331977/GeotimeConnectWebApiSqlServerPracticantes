@@ -315,6 +315,9 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         /// <returns>Lista de Marcas del dia</returns>
         public Task<List<cMarca>> GetMarcasDiaria(string idnumero, string fecha);
         public Task<EventResponse> Sincronizar_Marca(IEnumerable<cMarca> marcas);
+
+        /* Trea una marca para valdar la hora marcada en el programador Turno */
+        public Task<cMarca> GetMarcaProgramador(string idnumero, string idplanilla, string fecha);
         public Task<EventResponse> ValidarClaveEmpleado(cLogin login);
 
         /// <summary>
