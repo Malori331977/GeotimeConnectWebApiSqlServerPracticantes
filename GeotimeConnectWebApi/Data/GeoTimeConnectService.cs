@@ -7491,6 +7491,8 @@ namespace GeoTimeConnectWebApi.Data
                                     suma_otros = r.GetDecimal(r.GetOrdinal("suma_otros")),
                                     turno = r.GetString(r.GetOrdinal("turno")),
                                     estado = r.GetString(r.GetOrdinal("estado")),
+                                    mtardia = r.GetString(r.GetOrdinal("mtardia")),
+                                    manticipo = r.GetString(r.GetOrdinal("manticipo")),
                                 }).ToList();
             
                     }
