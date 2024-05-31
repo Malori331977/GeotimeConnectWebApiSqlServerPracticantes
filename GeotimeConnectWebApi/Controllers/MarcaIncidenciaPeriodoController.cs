@@ -16,21 +16,15 @@ namespace GeoTimeConnectWebApi.Controllers
     [ApiController]
     [Route("[controller]")]
     [Authorize]
-    public class MarcaIncidenciaController : Controller
+    public class MarcaIncidenciaPeriodoController : Controller
     {
         private readonly IGeoTimeConnectService _repoGT;
-        public MarcaIncidenciaController(IGeoTimeConnectService repoGT)
+        public MarcaIncidenciaPeriodoController(IGeoTimeConnectService repoGT)
         {
             _repoGT = repoGT;
         }
 
-        [HttpGet("{id}")]
-        public async Task<cMarcaIncidencia> Get(long id) => await _repoGT.GetMarcaIncidencia(id);
-
-        [HttpGet("{idnumero}/{fecha}/{idplanilla}")]
-        public async Task<IEnumerable<cMarcaIncidencia>> Get(string idnumero, string fecha, string idplanilla) => await _repoGT.GetMarcaIncidencia(idnumero,fecha,idplanilla);
-
-       
-
+        [HttpGet("{idplanilla}/{fechaInicio}/{fechaFin}")]
+        public async Task<IEnumerable<cMarcaIncidencia>> Get(string idplanilla, string fechaInicio, string fechaFinal) => await _repoGT.GetMarcaIncidenciaPeriodo(idplanilla, fechaInicio, fechaFinal);
     }
 }
