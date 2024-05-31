@@ -3268,6 +3268,26 @@ namespace GeoTimeConnectWebApi.Data
 
         }
 
+        //Creado por: Allan Prieto Badilla
+        //Fecha: 2024-05-30
+        //Obtener una marca en concreto
+        public async Task<cMarca> GetMarcaProgramador(string idnumero, string idplanilla, string fecha)
+        {
+            cMarca? marcas = new();
+            try
+            {
+                DateTime fechaParse = DateTime.Parse($"{fecha.Substring(0, 4)}-{fecha.Substring(4, 2)}-{fecha.Substring(6, 2)}");
+                marcas = await _context.Marcas.FirstOrDefaultAsync(e => e.idnumero == idnumero
+                                                       && e.idplanilla == idplanilla
+                                                       && e.fecha == fechaParse && e.tipo == 1);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"GeoTimeConnectService.GetMarcaProgramador: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+            }
+            return marcas;
+        }
+
         //Creado por: Marlon Loria Solano
         //Fecha: 2022-10-30
         //Validar Clave de Usuario
