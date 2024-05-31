@@ -24,7 +24,7 @@ namespace GeoTimeConnectWebApi.Controllers
             _repoGT = repoGT;
         }
 
-        [HttpGet("{idplanilla}/{fechaInicio}/{fechaFin}")]
+        [HttpGet("{idplanilla}/{fechaInicio}/{fechaFinal}")]
         public async Task<IEnumerable<cMarcaIncidencia>> Get(string idplanilla, string fechaInicio, string fechaFinal) => await _repoGT.GetMarcaIncidenciaPeriodo(idplanilla, fechaInicio, fechaFinal);
     }
 }

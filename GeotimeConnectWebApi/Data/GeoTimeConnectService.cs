@@ -4878,7 +4878,7 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetMarcaIncidencia: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+                _logger.LogError($"GeoTimeConnectService.GetMarcaIncidenciaPeriodo: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
             }
             return marcaIncidencia;
         }
