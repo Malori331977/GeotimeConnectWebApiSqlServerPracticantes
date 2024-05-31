@@ -4277,6 +4277,42 @@ namespace GeoTimeConnectWebApi.Data
             return marcaExtraApb;
         }
 
+
+        /// <summary>
+        ///  GetMarcaExtraApb: Método para obtener una lista de Horas Extras en un rango de fechas para empleados de los grupos indicados en los parametros 
+        /// </summary>
+        /// <param name="idsgrupos"></param>
+        /// <param name="idplanilla"></param>
+        /// <param name="fechaInicio"></param>
+        /// <param name="fechaFinal"></param>
+        /// <returns>Lista de marcas por horas extras del periodo</returns>
+        public async Task<List<cMarcaExtraApb>> GetMarcaExtraApb(string idsgrupos, string idplanilla, string fechaInicio, string fechaFinal, char estado)
+        {
+
+            List<cMarcaExtraApb> marcaExtraApb = new();
+            try
+            {
+                var grupos = idsgrupos.Split(",");
+
+                DateTime fechaInicioExt = DateTime.Parse($"{fechaInicio.Substring(0, 4)}-{fechaInicio.Substring(4, 2)}-{fechaInicio.Substring(6, 2)}");
+                DateTime fechaFinExt = DateTime.Parse($"{fechaFinal.Substring(0, 4)}-{fechaFinal.Substring(4, 2)}-{fechaFinal.Substring(6, 2)}");
+
+                marcaExtraApb = await (from m in _context.Marcas_Extras_Apb.Where(e => e.idplanilla == idplanilla && e.fecha>= fechaInicioExt && e.fecha<=fechaFinExt && e.aprob_nivel1==estado)
+                                            join c in _context.Empleados on new { idnumero = m.idnumero, cidplanilla = m.idplanilla } equals new { idnumero = c.IdNumero, cidplanilla = c.IdPlanilla }
+                                            where grupos.Contains(c.IdGrupo.ToString()) && m.estado == 'A'
+                                         select m).ToListAsync();
+                            
+
+
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"GeoTimeConnectService.GetMarcaExtraApb: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+            }
+            return marcaExtraApb;
+        }
+
+
         //Creado por: Marlon Loria Solano
         //Fecha: 2023-08-10
         /// <summary>
@@ -7382,12 +7418,15 @@ namespace GeoTimeConnectWebApi.Data
             List<cMarcaPeriodo>? marcasPeriodo = new(); 
             try
             {
+                string fechaInicioExt = $"{FechaInicio.Substring(0, 4)}-{FechaInicio.Substring(4, 2)}-{FechaInicio.Substring(6, 2)}";
+                string fechaFinExt = $"{FechaFin.Substring(0, 4)}-{FechaFin.Substring(4, 2)}-{FechaFin.Substring(6, 2)}";
+
                 using (var connection = _context.Database.GetDbConnection())
                 {
                     await connection.OpenAsync();
                     using (var command = connection.CreateCommand())
                     {
-                        command.CommandText = _schema + $".consultar_marcas_periodo @IdsGrupos='{IdsGrupos}', @IdPlanilla='{IdPlanilla}', @FechaInicio='{FechaInicio}', @FechaFin='{FechaFin}', @idnumero='{idnumero}'";
+                        command.CommandText = _schema + $".consultar_marcas_periodo @IdsGrupos='{IdsGrupos}', @IdPlanilla='{IdPlanilla}', @FechaInicio='{fechaInicioExt}', @FechaFin='{fechaFinExt}', @idnumero='{idnumero}'";
 
                         using (var reader = command.ExecuteReader())
                             return reader.Cast<IDataRecord>()
@@ -7404,7 +7443,7 @@ namespace GeoTimeConnectWebApi.Data
                                     suma_extras = r.GetDecimal(r.GetOrdinal("suma_extras")),
                                     suma_dobles = r.GetDecimal(r.GetOrdinal("suma_dobles")),
                                     suma_otros = r.GetDecimal(r.GetOrdinal("suma_otros")),
-                                    incidencias = r.GetString(r.GetOrdinal("incidencias")),
+                                    turno = r.GetString(r.GetOrdinal("turno")),
                                     estado = r.GetString(r.GetOrdinal("estado")),
                                 }).ToList();
             
