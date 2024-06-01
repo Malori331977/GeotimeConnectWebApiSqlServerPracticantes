@@ -332,6 +332,7 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         public Task<List<cMarcaMovTurno>> GetMarcaMovTurno();
         public Task<cMarcaMovTurno> GetMarcaMovTurno(int idregistro);
         public Task<cMarcaMovTurno> GetMarcaMovTurno(string idnumero, string fecha, int idturno);
+        public Task<List<cMarcaMovTurno>> GetMarcaMovTurno(string idplanilla, string estado, string fechaInicio, string fechaFinal);
 
         /// <summary>
         /// GetMarcaMovTurno: Método para obtener una lista de Marcas Mov Turnos por empleado 

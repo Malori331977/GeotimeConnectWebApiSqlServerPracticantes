@@ -34,6 +34,9 @@ namespace GeoTimeConnectWebApi.Controllers
         [HttpGet("{idnumero}/{fecha}/{idturno}")]
         public async Task<cMarcaMovTurno> Get(string idnumero, string fecha, int idturno) => await _repoGT.GetMarcaMovTurno(idnumero, fecha, idturno);
 
+        [HttpGet("{idplanilla}/{estado}/{fechaInicio}/{fechaFinal}")]
+        public async Task<IEnumerable<cMarcaMovTurno>> Get(string idplanilla, string estado, string fechaInicio, string fechaFinal) => await _repoGT.GetMarcaMovTurno(idplanilla, estado, fechaInicio, fechaFinal);
+
         [HttpGet("{idnumero}/{fechaPeriodo}")]
         public async Task<IEnumerable<cMarcaMovTurno>> Get(string idnumero, string fechaPeriodo) => await _repoGT.GetMarcaMovTurno(idnumero,fechaPeriodo);
 

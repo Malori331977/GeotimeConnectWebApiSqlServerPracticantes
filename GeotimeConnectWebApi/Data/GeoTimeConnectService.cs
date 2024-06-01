@@ -3558,6 +3558,31 @@ namespace GeoTimeConnectWebApi.Data
             return marcaMovTurno;
         }
 
+        //Creado por: Allan Prieto
+        //Fecha: 2024-05-31
+        //Obtener un registro de Marcas_Mov_Turnos especifico
+        //Parametros: idregistro=consecutivo de registro
+        public async Task<List<cMarcaMovTurno>> GetMarcaMovTurno(string idplanilla, string estado, string fechaInicio, string fechaFinal)
+        {
+            List<cMarcaMovTurno> marcaMovTurno = new();
+            try
+            {
+                DateTime fechaMovInicio = DateTime.Parse($"{fechaInicio.Substring(0, 4)}-{fechaInicio.Substring(4, 2)}-{fechaInicio.Substring(6, 2)}");
+                DateTime fechaMovFinal = DateTime.Parse($"{fechaFinal.Substring(0, 4)}-{fechaFinal.Substring(4, 2)}-{fechaFinal.Substring(6, 2)}");
+
+                marcaMovTurno = await _context.Marcas_Mov_Turnos
+                                  .Where(e => e.idplanilla == idplanilla &&
+                                              e.estado.ToString() == estado &&
+                                              e.fecha >= fechaMovInicio &&
+                                              e.fecha <= fechaMovFinal).ToListAsync();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"GeoTimeConnectService.GetMarcaMovTurno: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+            }
+            return marcaMovTurno;
+        }
+
         /// <summary>
         /// GetMarcaMovTurno: Método para obtener una lista de Marcas Mov Turnos por empleado 
         /// </summary>
