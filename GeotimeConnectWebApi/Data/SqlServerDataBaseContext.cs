@@ -162,7 +162,7 @@ namespace GeoTimeConnectWebApi.Data
             builder.Entity<cMarcaIncidencia>().ToTable("MARCAS_INCIDENCIAS", Schema)
                 .HasKey(e => new { e.INDICE });
             builder.Entity<cMarcaDistribucion>().ToTable("MARCAS_DISTRIBUCIONES", Schema)
-                .HasNoKey();
+               .HasKey(e => new { e.IDREGISTRO });
             builder.Entity<cPh_Usuario>().ToTable("PH_USUARIO", Schema)
                .HasKey(e => new { e.IDUSUARIO });
             builder.Entity<cPh_Formulacion>().ToTable("PH_FORMULACION", Schema)
@@ -274,6 +274,13 @@ namespace GeoTimeConnectWebApi.Data
               .HasOne(e => e.cIncidenciaJust)
               .WithMany(d => d.cMarcaIncidenciasJust)
               .HasForeignKey(e => new { e.INCIDENCIA_JUST });
+
+
+            builder.Entity<cMarcaDistribucion>()
+             .ToTable("MARCAS_DISTRIBUCIONES", Schema)
+             .HasOne(e => e.cConcepto)
+             .WithMany(d => d.cMarcaDistribucion)
+             .HasForeignKey(e => new { e.IDCONCEPTO });
 
             #endregion
 

@@ -3018,6 +3018,7 @@ namespace GeoTimeConnectWebApi.Data
                     }
                     else
                     {
+                        concepto.cMarcaDistribucion = null;
                         _context.Add(concepto);
                     }
                 }
@@ -5093,6 +5094,124 @@ namespace GeoTimeConnectWebApi.Data
                 _logger.LogError($"GeoTimeConnectService.GetMarcaDistribucion: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
             }
             return marcasDistribuciones;
+        }
+
+        /// <summary>
+        /// GetMarcaDistribucion: Obtener las Marcas distribuciones para un tipo planilla, un empleado y un rango de fechas especifico
+        /// </summary>
+        /// <param name="idplanilla"></param>
+        /// <param name="fechaInicio"></param>
+        /// <param name="fechaFinal"></param>
+        /// <param name="idnumero"></param>
+        /// <returns>Lista de marcas distribuciones</returns>
+        public async Task<List<cMarcaDistribucion>> GetMarcaDistribucion(string idplanilla, string fechaInicio, string fechaFinal, string idnumero)
+        {
+            List<cMarcaDistribucion>? marcaDistribucion = new();
+            try
+            {
+                DateTime fechaInicioExt = DateTime.Parse($"{fechaInicio.Substring(0, 4)}-{fechaInicio.Substring(4, 2)}-{fechaInicio.Substring(6, 2)}");
+                DateTime fechaFinExt = DateTime.Parse($"{fechaFinal.Substring(0, 4)}-{fechaFinal.Substring(4, 2)}-{fechaFinal.Substring(6, 2)}");
+
+                marcaDistribucion = await (from e in _context.Marcas_Distribuciones
+                                                    .Include(e => e.cConcepto)
+                                        .Where(e => e.FECHA >= fechaInicioExt
+                                                && e.FECHA <= fechaFinExt
+                                                && e.IDNUMERO == idnumero
+                                                && e.IDPLANILLA == idplanilla)
+                                         select new cMarcaDistribucion
+                                         {
+                                             IDREGISTRO = e.IDREGISTRO,
+                                             IDPLANILLA = e.IDPLANILLA,
+                                             IDNUMERO = e.IDNUMERO,
+                                             FECHA = e.FECHA,
+                                             IDCONCEPTO = e.IDCONCEPTO,
+                                             NOMINAEQ = e.NOMINAEQ,
+                                             CANTIDAD = e.CANTIDAD,
+                                             IDCCOSTO = e.IDCCOSTO,
+                                             PROYECTO = e.PROYECTO,
+                                             FASE = e.FASE,
+                                             CONCEPTO = e.CONCEPTO,
+                                             TIPO = e.TIPO,
+                                             ESTADO = e.ESTADO,
+                                             ENTRADA = e.ENTRADA,
+                                             cConcepto = e.cConcepto == null ? null :
+                                                           new cConcepto
+                                                           {
+                                                               id = e.cConcepto.id,
+                                                               Concepto = e.cConcepto.Concepto,
+                                                               Descripcion = e.cConcepto.Descripcion,
+                                                               tipo_j = e.cConcepto.tipo_j,
+                                                               tipo_h = e.cConcepto.tipo_h,
+                                                               columnar = e.cConcepto.columnar,
+                                                               nominaeq = e.cConcepto.nominaeq,
+                                                               factor = e.cConcepto.factor,
+                                                               tolerancia = e.cConcepto.tolerancia,
+                                                               ordinario = e.cConcepto.ordinario,
+                                                               autorizado = e.cConcepto.autorizado,
+                                                               transferir = e.cConcepto.transferir,
+                                                               adicional = e.cConcepto.adicional,
+                                                               tipo_ext_alm = e.cConcepto.tipo_ext_alm,
+                                                               muestra_resumen = e.cConcepto.muestra_resumen,
+                                                           },
+
+                                         }).ToListAsync();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"GeoTimeConnectService.GetMarcaDistribucion: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+            }
+            return marcaDistribucion;
+        }
+
+        /// <summary>
+        /// GetMarcasDistribucionResumen:  Proceso para determinar resumen de marcas distribucion para el periodo que se deben visualizar en el sistema
+        /// </summary>
+        /// <param name="IdPlanilla">id de planilla por el que se debe filtrar la informacion</param>
+        /// <param name="FechaInicio">fecha de inicio del reporte</param>
+        /// <param name="FechaFin">fecha final del reporte</param>
+        /// <param name="idnumero">id del empleado que se desea obtener, si se envia un -1 trae todos los empleados</param>
+        /// <returns>Lista de marcas distribucion del periodo</returns>
+        public async Task<IEnumerable<cMarcaDistribucion>> GetMarcaDistribucionResumen(string IdPlanilla, string FechaInicio, string FechaFin, string idnumero)
+        {
+            List<cMarcaDistribucion>? marcasPeriodo = new();
+            try
+            {
+                string fechaInicioExt = $"{FechaInicio.Substring(0, 4)}-{FechaInicio.Substring(4, 2)}-{FechaInicio.Substring(6, 2)}";
+                string fechaFinExt = $"{FechaFin.Substring(0, 4)}-{FechaFin.Substring(4, 2)}-{FechaFin.Substring(6, 2)}";
+
+                using (var connection = _context.Database.GetDbConnection())
+                {
+                    await connection.OpenAsync();
+                    using (var command = connection.CreateCommand())
+                    {
+                        command.CommandText = _schema + $".DM_CONSULTAR_MARCAS_DISTRIBUCION @IdPlanilla='{IdPlanilla}', @FechaInicio='{fechaInicioExt}', @FechaFin='{fechaFinExt}', @idnumero='{idnumero}'";
+
+                        using (var reader = command.ExecuteReader())
+                            return reader.Cast<IDataRecord>()
+                                .Select(r => new cMarcaDistribucion
+                                {
+                                    IDPLANILLA = r.GetString(r.GetOrdinal("IDPLANILLA")),
+                                    IDNUMERO = r.GetString(r.GetOrdinal("IDNUMERO")),
+                                    IDCONCEPTO = r.GetInt32(r.GetOrdinal("IDCONCEPTO")),
+                                    CANTIDAD = r.GetDecimal(r.GetOrdinal("CANTIDAD")),
+                                    IDCCOSTO = r.GetString(r.GetOrdinal("IDCCOSTO")),
+                                    cConcepto = new cConcepto
+                                    {
+                                        id = r.GetInt32(r.GetOrdinal("IDCONCEPTO")),
+                                        Descripcion = r.GetString(r.GetOrdinal("DESCRIPCION")),
+                                    },
+                                }).ToList();
+
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"GeoTimeConnectService.ConsultarMarcasPeriodo: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+                throw;
+
+            }
+
         }
 
         /// <summary>
@@ -7625,7 +7744,7 @@ namespace GeoTimeConnectWebApi.Data
                     await connection.OpenAsync();
                     using (var command = connection.CreateCommand())
                     {
-                        command.CommandText = _schema + $".consultar_marcas_periodo @IdsGrupos='{IdsGrupos}', @IdPlanilla='{IdPlanilla}', @FechaInicio='{fechaInicioExt}', @FechaFin='{fechaFinExt}', @idnumero='{idnumero}'";
+                        command.CommandText = _schema + $".DM_CONSULTAR_MARCAS_PERIODO @IdsGrupos='{IdsGrupos}', @IdPlanilla='{IdPlanilla}', @FechaInicio='{fechaInicioExt}', @FechaFin='{fechaFinExt}', @idnumero='{idnumero}'";
 
                         using (var reader = command.ExecuteReader())
                             return reader.Cast<IDataRecord>()

@@ -897,6 +897,27 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         public Task<IEnumerable<cMarcaPeriodo>> GetMarcasPeriodo(string IdsGrupos, string IdPlanilla, string FechaInicio, string FechaFin, string idnumero);
 
 
+        /// <summary>
+        /// GetMarcaDistribucion: Obtener las Marcas distribuciones para un tipo planilla, un empleado y un rango de fechas especifico
+        /// </summary>
+        /// <param name="idplanilla"></param>
+        /// <param name="fechaInicio"></param>
+        /// <param name="fechaFinal"></param>
+        /// <param name="idnumero"></param>
+        /// <returns>Lista de marcas distribuciones</returns>
+        public Task<List<cMarcaDistribucion>> GetMarcaDistribucion(string idplanilla, string fechaInicio, string fechaFinal, string idnumero);
+
+        /// <summary>
+        /// GetMarcasDistribucionResumen:  Proceso para determinar resumen de marcas distribucion para el periodo que se deben visualizar en el sistema
+        /// </summary>
+        /// <param name="IdPlanilla">id de planilla por el que se debe filtrar la informacion</param>
+        /// <param name="FechaInicio">fecha de inicio del reporte</param>
+        /// <param name="FechaFin">fecha final del reporte</param>
+        /// <param name="idnumero">id del empleado que se desea obtener, si se envia un -1 trae todos los empleados</param>
+        /// <returns>Lista de marcas distribucion del periodo</returns>
+        public Task<IEnumerable<cMarcaDistribucion>> GetMarcaDistribucionResumen(string IdPlanilla, string FechaInicio, string FechaFin, string idnumero);
+
+
 
     }
 }

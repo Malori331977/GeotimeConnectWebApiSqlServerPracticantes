@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
+using GeoTimeConnectWebApi.Models;
 
 namespace GeotimeConnectWebApi.Models
 {
@@ -23,5 +24,8 @@ namespace GeotimeConnectWebApi.Models
 		public char? tipo_ext_alm { get; set; }
 		public char? muestra_resumen { get; set; }
 
-	}
+		public IEnumerable<cMarcaDistribucion>? cMarcaDistribucion { get; set; }
+
+
+    }
 }
