@@ -4897,9 +4897,137 @@ namespace GeoTimeConnectWebApi.Data
                 DateTime fechaInicioExt = DateTime.Parse($"{fechaInicio.Substring(0, 4)}-{fechaInicio.Substring(4, 2)}-{fechaInicio.Substring(6, 2)}");
                 DateTime fechaFinExt = DateTime.Parse($"{fechaFinal.Substring(0, 4)}-{fechaFinal.Substring(4, 2)}-{fechaFinal.Substring(6, 2)}");
 
-                marcaIncidencia = await _context.Marcas_Incidencias.Where(e => e.FECHA >= fechaInicioExt
-                                                        && e.FECHA <= fechaFinExt
-                                                        && e.IDPLANILLA == idplanilla).ToListAsync();
+                marcaIncidencia = await (from e in _context.Marcas_Incidencias
+                                                   .Include(e => e.cIncidencia)
+                                                   .Include(e => e.cIncidenciaJust)
+                                       .Where(e => e.FECHA >= fechaInicioExt
+                                               && e.FECHA <= fechaFinExt
+                                               && e.IDPLANILLA == idplanilla)
+                                         select new cMarcaIncidencia
+                                         {
+                                             INDICE = e.INDICE,
+                                             IDPLANILLA = e.IDPLANILLA,
+                                             IDNUMERO = e.IDNUMERO,
+                                             FECHA = e.FECHA,
+                                             IDINCIDENCIA = e.IDINCIDENCIA,
+                                             IDREGISTRO = e.IDREGISTRO,
+                                             HENTRA = e.HENTRA,
+                                             HSALE = e.HSALE,
+                                             EST_P = e.EST_P,
+                                             COMENTARIO = e.COMENTARIO,
+                                             INCIDENCIA_JUST = e.INCIDENCIA_JUST,
+                                             ESTADO = e.ESTADO,
+                                             C_TIEMPO = e.C_TIEMPO,
+                                             USUARIO = e.USUARIO,
+                                             FECHA_JUST = e.FECHA_JUST,
+                                             IDACC = e.IDACC,
+                                             cIncidencia = e.cIncidencia == null ? null :
+                                                           new cIncidencia
+                                                           {
+                                                               Id = e.cIncidencia.Id,
+                                                               Codigo = e.cIncidencia.Codigo,
+                                                               Descripcion = e.cIncidencia.Descripcion,
+                                                               id_pago = e.cIncidencia.id_pago,
+                                                               nom_conector = e.cIncidencia.nom_conector,
+                                                               tipo = e.cIncidencia.tipo,
+                                                               ed_tiempo = e.cIncidencia.ed_tiempo,
+                                                               requiere_accper = e.cIncidencia.requiere_accper,
+                                                               marca_web = e.cIncidencia.marca_web,
+                                                           },
+                                             cIncidenciaJust = e.cIncidenciaJust == null ? null :
+                                                           new cIncidencia
+                                                           {
+                                                               Id = e.cIncidenciaJust.Id,
+                                                               Codigo = e.cIncidenciaJust.Codigo,
+                                                               Descripcion = e.cIncidenciaJust.Descripcion,
+                                                               id_pago = e.cIncidenciaJust.id_pago,
+                                                               nom_conector = e.cIncidenciaJust.nom_conector,
+                                                               tipo = e.cIncidenciaJust.tipo,
+                                                               ed_tiempo = e.cIncidenciaJust.ed_tiempo,
+                                                               requiere_accper = e.cIncidenciaJust.requiere_accper,
+                                                               marca_web = e.cIncidenciaJust.marca_web,
+                                                           },
+
+
+                                         }).ToListAsync();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"GeoTimeConnectService.GetMarcaIncidenciaPeriodo: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+            }
+            return marcaIncidencia;
+        }
+
+        /// <summary>
+        /// GetMarcaIncidenciaPeriodo: Obtener las Marcas Incidencias para un tipo planilla y un rango de fechas especifico
+        /// </summary>
+        /// <param name="idplanilla"></param>
+        /// <param name="fechaInicio"></param>
+        /// <param name="fechaFinal"></param>
+        /// <param name="idnumero"></param>
+        /// <returns>Lista de incidencias del periodo</returns>
+        public async Task<List<cMarcaIncidencia>> GetMarcaIncidenciaPeriodo(string idplanilla, string fechaInicio, string fechaFinal, string idnumero)
+        {
+            List<cMarcaIncidencia>? marcaIncidencia = new();
+            try
+            {
+                DateTime fechaInicioExt = DateTime.Parse($"{fechaInicio.Substring(0, 4)}-{fechaInicio.Substring(4, 2)}-{fechaInicio.Substring(6, 2)}");
+                DateTime fechaFinExt = DateTime.Parse($"{fechaFinal.Substring(0, 4)}-{fechaFinal.Substring(4, 2)}-{fechaFinal.Substring(6, 2)}");
+
+                marcaIncidencia = await (from e in _context.Marcas_Incidencias
+                                                    .Include(e => e.cIncidencia)
+                                                    .Include(e => e.cIncidenciaJust)
+                                        .Where(e => e.FECHA >= fechaInicioExt
+                                                && e.FECHA <= fechaFinExt
+                                                && e.IDNUMERO == idnumero
+                                                && e.IDPLANILLA == idplanilla)
+                                        select new cMarcaIncidencia
+                                        {
+                                            INDICE = e.INDICE,
+                                            IDPLANILLA = e.IDPLANILLA,
+                                            IDNUMERO = e.IDNUMERO,
+                                            FECHA = e.FECHA,
+                                            IDINCIDENCIA = e.IDINCIDENCIA,
+                                            IDREGISTRO = e.IDREGISTRO,
+                                            HENTRA = e.HENTRA,
+                                            HSALE = e.HSALE,
+                                            EST_P = e.EST_P,
+                                            COMENTARIO = e.COMENTARIO,
+                                            INCIDENCIA_JUST = e.INCIDENCIA_JUST,
+                                            ESTADO = e.ESTADO,
+                                            C_TIEMPO = e.C_TIEMPO,
+                                            USUARIO = e.USUARIO,
+                                            FECHA_JUST = e.FECHA_JUST,
+                                            IDACC = e.IDACC,
+                                            cIncidencia = e.cIncidencia == null?null:
+                                                          new cIncidencia
+                                                          {
+                                                              Id = e.cIncidencia.Id,
+                                                              Codigo = e.cIncidencia.Codigo,
+                                                              Descripcion = e.cIncidencia.Descripcion,
+                                                              id_pago = e.cIncidencia.id_pago,
+                                                              nom_conector = e.cIncidencia.nom_conector,
+                                                              tipo = e.cIncidencia.tipo,
+                                                              ed_tiempo = e.cIncidencia.ed_tiempo,
+                                                              requiere_accper = e.cIncidencia.requiere_accper,
+                                                              marca_web = e.cIncidencia.marca_web,
+                                                          },
+                                            cIncidenciaJust = e.cIncidenciaJust == null ? null :
+                                                          new cIncidencia
+                                                          {
+                                                              Id = e.cIncidenciaJust.Id,
+                                                              Codigo = e.cIncidenciaJust.Codigo,
+                                                              Descripcion = e.cIncidenciaJust.Descripcion,
+                                                              id_pago = e.cIncidenciaJust.id_pago,
+                                                              nom_conector = e.cIncidenciaJust.nom_conector,
+                                                              tipo = e.cIncidenciaJust.tipo,
+                                                              ed_tiempo = e.cIncidenciaJust.ed_tiempo,
+                                                              requiere_accper = e.cIncidenciaJust.requiere_accper,
+                                                              marca_web = e.cIncidenciaJust.marca_web,
+                                                          },
+
+
+                                        }).ToListAsync();
             }
             catch (Exception e)
             {

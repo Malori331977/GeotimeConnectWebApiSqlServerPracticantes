@@ -263,6 +263,18 @@ namespace GeoTimeConnectWebApi.Data
                 .WithMany(d => d.Turno)
                 .HasForeignKey(e => new { e.ColorId });
 
+            builder.Entity<cMarcaIncidencia>()
+               .ToTable("MARCAS_INCIDENCIAS", Schema)
+               .HasOne(e => e.cIncidencia)
+               .WithMany(d => d.cMarcaIncidencias)
+               .HasForeignKey(e => new { e.IDINCIDENCIA });
+
+            builder.Entity<cMarcaIncidencia>()
+              .ToTable("MARCAS_INCIDENCIAS", Schema)
+              .HasOne(e => e.cIncidenciaJust)
+              .WithMany(d => d.cMarcaIncidenciasJust)
+              .HasForeignKey(e => new { e.INCIDENCIA_JUST });
+
             #endregion
 
         }

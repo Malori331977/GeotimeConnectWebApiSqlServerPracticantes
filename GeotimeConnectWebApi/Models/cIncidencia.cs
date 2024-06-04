@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
+using GeoTimeConnectWebApi.Models;
 
 namespace GeotimeConnectWebApi.Models
 {
@@ -18,6 +19,10 @@ namespace GeotimeConnectWebApi.Models
         public int? id_pago { get; set; }
         public int? tipo { get; set; }
         public char? ed_tiempo { get; set; }
+        public char? marca_web { get; set; }
+
+        public IEnumerable<cMarcaIncidencia>? cMarcaIncidencias { get; set; }
+        public IEnumerable<cMarcaIncidencia>? cMarcaIncidenciasJust { get; set; }
 
 
     }
