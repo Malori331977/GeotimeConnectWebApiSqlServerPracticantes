@@ -1,4 +1,6 @@
-﻿namespace GeoTimeConnectWebApi.Models
+﻿using GeotimeConnectWebApi.Models;
+
+namespace GeoTimeConnectWebApi.Models
 {
     public class cMarcaIncidencia
     {
@@ -18,5 +20,8 @@
         public string? USUARIO { get; set; }
         public DateTime? FECHA_JUST { get; set; }
         public long? IDACC { get; set; }
+
+        public cIncidencia? cIncidencia { get; set; }
+        public cIncidencia? cIncidenciaJust { get; set; }
     }
 }
