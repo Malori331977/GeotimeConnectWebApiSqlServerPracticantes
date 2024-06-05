@@ -3018,6 +3018,7 @@ namespace GeoTimeConnectWebApi.Data
                     }
                     else
                     {
+                        concepto.cMarcaResumen = null;
                         concepto.cMarcaDistribucion = null;
                         _context.Add(concepto);
                     }
@@ -3146,6 +3147,67 @@ namespace GeoTimeConnectWebApi.Data
             catch (Exception e)
             {
                 _logger.LogError($"GeoTimeConnectService.GetMarcasResumen: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+            }
+            return marcasResumen;
+        }
+
+        /// <summary>
+        /// GetMarcaResumen:  Proceso para determinar resumen de marcas resumen para el periodo que se deben visualizar en el sistema
+        /// </summary>
+        /// <param name="IdPlanilla">id de planilla por el que se debe filtrar la informacion</param>
+        /// <param name="idperiodo">periodo del reporte</param>
+        /// <param name="idnumero">id del empleado que se desea obtener, si se envia un -1 trae todos los empleados</param>
+        /// <returns>Lista de marcas resumen del periodo</returns>
+        public async Task<IEnumerable<cMarcaResumen>> GetMarcasResumen(string IdPeriodo, string IdPlanilla, string idnumero)
+        {
+            List<cMarcaResumen>? marcasResumen = new();
+            try
+            {
+                marcasResumen = await (from e in _context.Marcas_Resumen
+                                                   .Include(e => e.cConcepto)
+                                       .Where(e => e.IdPeriodo == IdPeriodo
+                                               && e.IdNumero == idnumero
+                                               && e.IdPlanilla == IdPlanilla)
+                                           select new cMarcaResumen
+                                           {
+                                               IdPlanilla = e.IdPlanilla,
+                                               IdNumero = e.IdNumero,
+                                               IdConcepto = e.IdConcepto,
+                                               NominaEq = e.NominaEq,
+                                               Cantidad = e.Cantidad,
+                                               Monto = e.Monto,
+                                               IdCCosto = e.IdCCosto,
+                                               Proyecto = e.Proyecto,
+                                               Fase = e.Fase,
+                                               IdPeriodo = e.IdPeriodo,
+                                               cConcepto = e.cConcepto == null ? null :
+                                                             new cConcepto
+                                                             {
+                                                                 id = e.cConcepto.id,
+                                                                 Concepto = e.cConcepto.Concepto,
+                                                                 Descripcion = e.cConcepto.Descripcion,
+                                                                 tipo_j = e.cConcepto.tipo_j,
+                                                                 tipo_h = e.cConcepto.tipo_h,
+                                                                 columnar = e.cConcepto.columnar,
+                                                                 nominaeq = e.cConcepto.nominaeq,
+                                                                 factor = e.cConcepto.factor,
+                                                                 tolerancia = e.cConcepto.tolerancia,
+                                                                 ordinario = e.cConcepto.ordinario,
+                                                                 autorizado = e.cConcepto.autorizado,
+                                                                 transferir = e.cConcepto.transferir,
+                                                                 adicional = e.cConcepto.adicional,
+                                                                 tipo_ext_alm = e.cConcepto.tipo_ext_alm,
+                                                                 muestra_resumen = e.cConcepto.muestra_resumen,
+                                                             },
+
+                                           }).ToListAsync();
+
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"GeoTimeConnectService.GetMarcaResumen: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+                throw;
+
             }
             return marcasResumen;
         }
@@ -3835,6 +3897,7 @@ namespace GeoTimeConnectWebApi.Data
                     }
                     else
                     {
+                        item.cConcepto = null;
                         item.IdPlanilla = empleado.IdPlanilla;
                         item.IdCCosto = empleado.IdCCosto;
                         item.NominaEq = concepto!.nominaeq;
@@ -5163,56 +5226,7 @@ namespace GeoTimeConnectWebApi.Data
             return marcaDistribucion;
         }
 
-        /// <summary>
-        /// GetMarcasDistribucionResumen:  Proceso para determinar resumen de marcas distribucion para el periodo que se deben visualizar en el sistema
-        /// </summary>
-        /// <param name="IdPlanilla">id de planilla por el que se debe filtrar la informacion</param>
-        /// <param name="FechaInicio">fecha de inicio del reporte</param>
-        /// <param name="FechaFin">fecha final del reporte</param>
-        /// <param name="idnumero">id del empleado que se desea obtener, si se envia un -1 trae todos los empleados</param>
-        /// <returns>Lista de marcas distribucion del periodo</returns>
-        public async Task<IEnumerable<cMarcaDistribucion>> GetMarcaDistribucionResumen(string IdPlanilla, string FechaInicio, string FechaFin, string idnumero)
-        {
-            List<cMarcaDistribucion>? marcasPeriodo = new();
-            try
-            {
-                string fechaInicioExt = $"{FechaInicio.Substring(0, 4)}-{FechaInicio.Substring(4, 2)}-{FechaInicio.Substring(6, 2)}";
-                string fechaFinExt = $"{FechaFin.Substring(0, 4)}-{FechaFin.Substring(4, 2)}-{FechaFin.Substring(6, 2)}";
-
-                using (var connection = _context.Database.GetDbConnection())
-                {
-                    await connection.OpenAsync();
-                    using (var command = connection.CreateCommand())
-                    {
-                        command.CommandText = _schema + $".DM_CONSULTAR_MARCAS_DISTRIBUCION @IdPlanilla='{IdPlanilla}', @FechaInicio='{fechaInicioExt}', @FechaFin='{fechaFinExt}', @idnumero='{idnumero}'";
-
-                        using (var reader = command.ExecuteReader())
-                            return reader.Cast<IDataRecord>()
-                                .Select(r => new cMarcaDistribucion
-                                {
-                                    IDPLANILLA = r.GetString(r.GetOrdinal("IDPLANILLA")),
-                                    IDNUMERO = r.GetString(r.GetOrdinal("IDNUMERO")),
-                                    IDCONCEPTO = r.GetInt32(r.GetOrdinal("IDCONCEPTO")),
-                                    CANTIDAD = r.GetDecimal(r.GetOrdinal("CANTIDAD")),
-                                    IDCCOSTO = r.GetString(r.GetOrdinal("IDCCOSTO")),
-                                    cConcepto = new cConcepto
-                                    {
-                                        id = r.GetInt32(r.GetOrdinal("IDCONCEPTO")),
-                                        Descripcion = r.GetString(r.GetOrdinal("DESCRIPCION")),
-                                    },
-                                }).ToList();
-
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                _logger.LogError($"GeoTimeConnectService.ConsultarMarcasPeriodo: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
-                throw;
-
-            }
-
-        }
+       
 
         /// <summary>
         /// GetPhUsuarioById: Obtener datos de usuario por su ID 
@@ -7451,6 +7465,36 @@ namespace GeoTimeConnectWebApi.Data
             return item;
         }
 
+        //Marlon Loria 04-06-2024
+        /// <summary>
+        /// GetMarcaDtnConcepto: Obtener lista de Marcas_Distribuciones_Conceptos
+        /// </summary>
+        /// <param name="idnumero"></param>
+        /// <param name="fecha"></param>
+        /// <param name="idplanilla"></param>
+        /// <returns>lista de Marcas_Distribuciones_Conceptos</returns>
+        public async Task<IEnumerable<cMarcaDistribucionConcepto>> GetMarcaDtnConcepto(string idplanilla, string fechaInicio, string fechaFinal, string idnumero)
+        {
+            List<cMarcaDistribucionConcepto>? modelo = new();
+            try
+            {
+                DateTime fechaInicioExt = DateTime.Parse($"{fechaInicio.Substring(0, 4)}-{fechaInicio.Substring(4, 2)}-{fechaInicio.Substring(6, 2)}");
+                DateTime fechaFinExt = DateTime.Parse($"{fechaFinal.Substring(0, 4)}-{fechaFinal.Substring(4, 2)}-{fechaFinal.Substring(6, 2)}");
+
+                modelo = await _context.Marcas_Distribuciones_Conceptos
+                              .Where(e => e.IDNUMERO == idnumero 
+                                    && e.FECHA >= fechaInicioExt 
+                                    && e.FECHA <= fechaFinExt 
+                                    && e.IDPLANILLA == idplanilla)
+                              .ToListAsync();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"GeoTimeConnectService.GetMarcaDtnConcepto: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+            }
+            return modelo;
+        }
+
 
         //Creado por: Allan Prieto Badilla
         //Fecha: 2024-05-27
@@ -7502,6 +7546,40 @@ namespace GeoTimeConnectWebApi.Data
                     respuesta.Descripcion = "No se pudo realizar la sincronización de Sincronizar_MarcaDtnConcepto. Detalle de Error: " + e.Message;
                 else
                     respuesta.Descripcion = "No se pudo realizar la sincronización de Sincronizar_MarcaDtnConcepto. Detalle de Error: " + e.InnerException.Message;
+            }
+            return respuesta;
+        }
+
+        /// <summary>
+        /// Elimina_MarcaDtnConcepto:  Metodo borrado de datos de la tabla Marcas Distribucion Conceptos
+        /// </summary>
+        /// <param name="idregistro"></param>
+        /// <returns>EventResponse</returns>
+        public async Task<EventResponse> Elimina_MarcaDtnConcepto(long idregistro)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+                cMarcaDistribucionConcepto? model = await _context.Marcas_Distribuciones_Conceptos
+                    .FirstOrDefaultAsync(e => e.IDREGISTRO == idregistro);
+
+                if (model is not null)
+                {
+                    _context.Marcas_Distribuciones_Conceptos.Remove(model);
+                    await _context.SaveChangesAsync();
+                }
+            }
+                
+            catch (Exception e)
+            {
+                _logger.LogError($"{(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo eliminar el registro de Marcas Distribuciones. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo eliminar el registro de Marcas Distribuciones. Detalle de Error: " + e.InnerException.Message;
             }
             return respuesta;
         }
@@ -7777,6 +7855,82 @@ namespace GeoTimeConnectWebApi.Data
                 
             }
             
+        }
+
+        /// <summary>
+        /// AutorizarExtrasPeriodo: proceso para autorizar extras del periodo de un empleado.
+        /// </summary>
+        /// <param name="parametros"></param>
+        /// <returns></returns>
+        public async Task<EventResponse> AutorizarExtrasPeriodo(cExtraAprobacion parametros)
+        {
+            EventResponse respuesta = new EventResponse();
+            try
+            {
+                string fechaInicioExt = $"{parametros.Inicio.Substring(0, 4)}-{parametros.Inicio.Substring(4, 2)}-{parametros.Inicio.Substring(6, 2)}";
+                string fechaFinExt = $"{parametros.Fin.Substring(0, 4)}-{parametros.Fin.Substring(4, 2)}-{parametros.Fin.Substring(6, 2)}";
+
+                using (var connection = _context.Database.GetDbConnection())
+                {
+                    await connection.OpenAsync();
+
+                    using (var command = connection.CreateCommand())
+                    {
+                        command.CommandText = _schema + $".apruebo_extra_periodo @PLANILLA='{parametros.IdPlanilla}', @IDNUMERO='{parametros.IdNumero}', @COMENTARIO='{parametros.Comentario}', @INICIO='{fechaInicioExt}',@FIN='{fechaFinExt}',@USUARIO='{parametros.Usuario}'";
+                        System.Data.Common.DbDataReader result = command.ExecuteReader();
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"{(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo realizar la Sincronización de ERP. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo realizar la Sincronización de ERP. Detalle de Error: " + e.InnerException.Message;
+
+            }
+            return respuesta;
+        }
+
+        /// <summary>
+        /// AutorizarExtras: proceso para autorizar un registro de extras
+        /// </summary>
+        /// <param name="parametros"></param>
+        /// <returns></returns>
+        public async Task<EventResponse> AutorizarExtras(cExtraAprobacion parametros)
+        {
+            EventResponse respuesta = new EventResponse();
+            try
+            {
+                string fechaInicioExt = $"{parametros.Inicio.Substring(0, 4)}-{parametros.Inicio.Substring(4, 2)}-{parametros.Inicio.Substring(6, 2)}";
+                string fechaFinExt = $"{parametros.Fin.Substring(0, 4)}-{parametros.Fin.Substring(4, 2)}-{parametros.Fin.Substring(6, 2)}";
+
+                using (var connection = _context.Database.GetDbConnection())
+                {
+                    await connection.OpenAsync();
+
+                    using (var command = connection.CreateCommand())
+                    {
+                        command.CommandText = _schema + $".apruebo_extra_periodo @CANTIDAD='{parametros.Cantidad}', @COMENTARIO='{parametros.Comentario}',@USUARIO='{parametros.Usuario}', @IDREGISTRO={parametros.IdRegistro},@IDCCOSTO='{parametros.IdCCosto}'";
+                        System.Data.Common.DbDataReader result = command.ExecuteReader();
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"{(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo realizar la Sincronización de ERP. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo realizar la Sincronización de ERP. Detalle de Error: " + e.InnerException.Message;
+
+            }
+            return respuesta;
         }
 
 

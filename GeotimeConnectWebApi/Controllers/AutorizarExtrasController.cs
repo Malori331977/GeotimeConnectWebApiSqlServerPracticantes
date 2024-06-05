@@ -8,26 +8,34 @@ using GeoTimeConnectWebApi.Data.Interfaz;
 using GeoTimeConnectWebApi.Models;
 using GeoTimeConnectWebApi.Models.Utils;
 using System.Text.Json;
-using GeotimeConnectWebApi.Models;
+using GeoTimeConnectWebApi.Models.Request;
 using GeoTimeConnectWebApi.Models.Response;
+using GeotimeConnectWebApi.Models;
 
 namespace GeoTimeConnectWebApi.Controllers
 {
     [ApiController]
     [Route("[controller]")]
     [Authorize]
-    public class MarcaDistribucionResumenController : Controller
+    public class AutorizarExtrasController : Controller
     {
         private readonly IGeoTimeConnectService _repoGT;
-        public MarcaDistribucionResumenController(IGeoTimeConnectService repoGT)
+        public AutorizarExtrasController(IGeoTimeConnectService repoGT)
         {
+
             _repoGT = repoGT;
         }
 
+        [HttpPost]
+        public async Task<IActionResult> Post([FromBody] cExtraAprobacion parametros)
+        {
+            EventResponse respuesta = await _repoGT.AutorizarExtras(parametros);
 
-        [HttpGet("{idPlanilla}/{fechaInicio}/{fechaFin}/{idnumero}")]
-        public async Task<IEnumerable<cMarcaDistribucion>> Get(string idPlanilla, string fechaInicio, string fechaFin, string idnumero) => await _repoGT.GetMarcaDistribucionResumen(idPlanilla, fechaInicio, fechaFin, idnumero);
+            if (respuesta.Id != "0")
+                return BadRequest(respuesta);
 
+            return Ok(respuesta);
+        }
 
     }
 }

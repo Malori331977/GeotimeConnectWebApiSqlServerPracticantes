@@ -23,7 +23,10 @@ namespace GeoTimeConnectWebApi.Controllers
         [HttpGet("{idplanilla}/{idperiodo}")]
         public async Task<IEnumerable<cMarcaResumen>> Get(string idplanilla, string idperiodo) => await _repoGT.GetMarcasResumen(idplanilla, idperiodo);
 
-		[HttpPost]
+        [HttpGet("{idperiodo}/{idPlanilla}/{idnumero}")]
+        public async Task<IEnumerable<cMarcaResumen>> Get(string idperiodo, string idPlanilla, string idnumero) => await _repoGT.GetMarcasResumen(idperiodo,idPlanilla,idnumero);
+
+        [HttpPost]
 		public async Task<IActionResult> Post([FromBody] IEnumerable<cMarcaResumen> marcasResumen)
 		{
 			EventResponse respuesta = await _repoGT.Sincronizar_MarcasResumen(marcasResumen);

@@ -236,8 +236,24 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         public Task<List<cMarcaDistribucionConcepto>> GetMarcaDtnConcepto();
         public Task<cMarcaDistribucionConcepto> GetMarcaDtnConcepto(int idregistro);
         public Task<cMarcaDistribucionConcepto> GetMarcaDtnConcepto(string idnumero, string fecha, string idturno);
+
+        /// <summary>
+        /// GetMarcaDtnConcepto: Obtener lista de Marcas_Distribuciones_Conceptos
+        /// </summary>
+        /// <param name="idnumero"></param>
+        /// <param name="fecha"></param>
+        /// <param name="idplanilla"></param>
+        /// <returns>lista de Marcas_Distribuciones_Conceptos</returns>
+        public Task<IEnumerable<cMarcaDistribucionConcepto>> GetMarcaDtnConcepto(string idplanilla, string fechaInicio, string fechaFinal, string idnumero);
+
         public Task<EventResponse> Sincronizar_MarcaDtnConcepto(IEnumerable<cMarcaDistribucionConcepto> marcasDtnConcepto);
 
+        /// <summary>
+        /// Elimina_MarcaDtnConcepto:  Metodo borrado de datos de la tabla Marcas Distribucion Conceptos
+        /// </summary>
+        /// <param name="idregistro"></param>
+        /// <returns>EventResponse</returns>
+        public Task<EventResponse> Elimina_MarcaDtnConcepto(long idregistro);
 
         #endregion
 
@@ -293,7 +309,16 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         
 
         public Task<List<cMarcaResumen>> GetMarcasResumen(string idPlanilla, string idPeriodo);
-		public Task<EventResponse> Sincronizar_MarcasResumen(IEnumerable<cMarcaResumen> marcasResumen);
+
+        /// <summary>
+        /// GetMarcasResumen:  Proceso para determinar resumen de marcas para el periodo que se deben visualizar en el sistema
+        /// </summary>
+        /// <param name="IdPlanilla">id de planilla por el que se debe filtrar la informacion</param>
+        /// <param name="idperiodo">periodo del reporte</param>
+        /// <param name="idnumero">id del empleado que se desea obtener, si se envia un -1 trae todos los empleados</param>
+        /// <returns>Lista de marcas resumen del periodo</returns>
+        public Task<IEnumerable<cMarcaResumen>> GetMarcasResumen(string IdPeriodo, string IdPlanilla, string idnumero);
+        public Task<EventResponse> Sincronizar_MarcasResumen(IEnumerable<cMarcaResumen> marcasResumen);
 
 
         public Task<List<cMarca>> GetMarcas();
@@ -907,16 +932,20 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         /// <returns>Lista de marcas distribuciones</returns>
         public Task<List<cMarcaDistribucion>> GetMarcaDistribucion(string idplanilla, string fechaInicio, string fechaFinal, string idnumero);
 
-        /// <summary>
-        /// GetMarcasDistribucionResumen:  Proceso para determinar resumen de marcas distribucion para el periodo que se deben visualizar en el sistema
-        /// </summary>
-        /// <param name="IdPlanilla">id de planilla por el que se debe filtrar la informacion</param>
-        /// <param name="FechaInicio">fecha de inicio del reporte</param>
-        /// <param name="FechaFin">fecha final del reporte</param>
-        /// <param name="idnumero">id del empleado que se desea obtener, si se envia un -1 trae todos los empleados</param>
-        /// <returns>Lista de marcas distribucion del periodo</returns>
-        public Task<IEnumerable<cMarcaDistribucion>> GetMarcaDistribucionResumen(string IdPlanilla, string FechaInicio, string FechaFin, string idnumero);
 
+        /// <summary>
+        /// AutorizarExtrasPeriodo: proceso para autorizar extras del periodo de un empleado.
+        /// </summary>
+        /// <param name="parametros"></param>
+        /// <returns></returns>
+        public Task<EventResponse> AutorizarExtrasPeriodo(cExtraAprobacion parametros);
+
+        /// <summary>
+        /// AutorizarExtras: proceso para autorizar un registro de extras
+        /// </summary>
+        /// <param name="parametros"></param>
+        /// <returns></returns>
+        public Task<EventResponse> AutorizarExtras(cExtraAprobacion parametros);
 
 
     }

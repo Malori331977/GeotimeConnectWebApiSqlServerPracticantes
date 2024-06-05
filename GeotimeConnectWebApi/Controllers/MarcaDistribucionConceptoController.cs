@@ -34,6 +34,9 @@ namespace GeoTimeConnectWebApi.Controllers
         [HttpGet("{idnumero}/{fecha}/{idplanilla}")]
         public async Task<cMarcaDistribucionConcepto> Get(string idnumero, string fecha, string idplanilla) => await _repoGT.GetMarcaDtnConcepto(idnumero, fecha, idplanilla);
 
+        [HttpGet("{idPlanilla}/{fechaInicio}/{fechaFin}/{idnumero}")]
+        public async Task<IEnumerable<cMarcaDistribucionConcepto>> Get(string idPlanilla, string fechaInicio, string fechaFin, string idnumero) => await _repoGT.GetMarcaDtnConcepto(idPlanilla, fechaInicio, fechaFin, idnumero);
+
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] IEnumerable<cMarcaDistribucionConcepto> marcaDC)
         {
@@ -44,6 +47,18 @@ namespace GeoTimeConnectWebApi.Controllers
 
             return Ok(respuesta);
         }
+
+        [HttpDelete("{idregistro}")]
+        public async Task<IActionResult> Delete(long idregistro)
+        {
+            EventResponse respuesta = await _repoGT.Elimina_MarcaDtnConcepto(idregistro);
+
+            if (respuesta.Id != "0")
+                return BadRequest(respuesta);
+
+            return Ok(respuesta);
+        }
+
 
     }
 }
