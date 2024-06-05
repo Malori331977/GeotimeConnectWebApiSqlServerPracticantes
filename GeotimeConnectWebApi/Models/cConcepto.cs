@@ -25,6 +25,7 @@ namespace GeotimeConnectWebApi.Models
 		public char? muestra_resumen { get; set; }
 
 		public IEnumerable<cMarcaDistribucion>? cMarcaDistribucion { get; set; }
+        public IEnumerable<cMarcaResumen>? cMarcaResumen { get; set; }
 
 
     }

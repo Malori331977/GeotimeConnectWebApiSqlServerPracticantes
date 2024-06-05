@@ -14,6 +14,8 @@ namespace GeoTimeConnectWebApi.Models
         public string? Proyecto { get; set; }
         public string? Fase { get; set; }
         public string? IdPeriodo { get; set; }
+
+        public cConcepto? cConcepto { get; set; }   
     }
 }
 

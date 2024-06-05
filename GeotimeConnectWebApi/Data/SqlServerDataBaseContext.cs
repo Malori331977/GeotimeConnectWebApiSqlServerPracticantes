@@ -282,6 +282,12 @@ namespace GeoTimeConnectWebApi.Data
              .WithMany(d => d.cMarcaDistribucion)
              .HasForeignKey(e => new { e.IDCONCEPTO });
 
+            builder.Entity<cMarcaResumen>()
+            .ToTable("MARCAS_RESUMEN", Schema)
+            .HasOne(e => e.cConcepto)
+            .WithMany(d => d.cMarcaResumen)
+            .HasForeignKey(e => new { e.IdConcepto });
+
             #endregion
 
         }
