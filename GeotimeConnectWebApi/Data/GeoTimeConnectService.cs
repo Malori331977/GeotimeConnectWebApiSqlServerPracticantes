@@ -7822,7 +7822,7 @@ namespace GeoTimeConnectWebApi.Data
                     await connection.OpenAsync();
                     using (var command = connection.CreateCommand())
                     {
-                        command.CommandText = _schema + $".DM_CONSULTAR_MARCAS_PERIODO @IdsGrupos='{IdsGrupos}', @IdPlanilla='{IdPlanilla}', @FechaInicio='{fechaInicioExt}', @FechaFin='{fechaFinExt}', @idnumero='{idnumero}'";
+                        command.CommandText = _schema + $".DM_CONSULTAR_MARCAS_PERIODO @IdsGrupos='{IdsGrupos}', @IdPlanilla='{IdPlanilla}', @FechaInicio='{fechaInicioExt}', @FechaFin='{fechaFinExt}', @idnumero='{idnumero}',@IdComp='{_schema}'";
 
                         using (var reader = command.ExecuteReader())
                             return reader.Cast<IDataRecord>()
@@ -7905,16 +7905,13 @@ namespace GeoTimeConnectWebApi.Data
             EventResponse respuesta = new EventResponse();
             try
             {
-                string fechaInicioExt = $"{parametros.Inicio.Substring(0, 4)}-{parametros.Inicio.Substring(4, 2)}-{parametros.Inicio.Substring(6, 2)}";
-                string fechaFinExt = $"{parametros.Fin.Substring(0, 4)}-{parametros.Fin.Substring(4, 2)}-{parametros.Fin.Substring(6, 2)}";
-
                 using (var connection = _context.Database.GetDbConnection())
                 {
                     await connection.OpenAsync();
 
                     using (var command = connection.CreateCommand())
                     {
-                        command.CommandText = _schema + $".apruebo_extra_periodo @CANTIDAD='{parametros.Cantidad}', @COMENTARIO='{parametros.Comentario}',@USUARIO='{parametros.Usuario}', @IDREGISTRO={parametros.IdRegistro},@IDCCOSTO='{parametros.IdCCosto}'";
+                        command.CommandText = _schema + $".apruebo_extra @CANTIDAD='{parametros.Cantidad}',@COMENTARIO='{parametros.Comentario}',@USUARIO='{parametros.Usuario}', @IDREGISTRO={parametros.IdRegistro},@IDCCOSTO='{parametros.IdCCosto}'";
                         System.Data.Common.DbDataReader result = command.ExecuteReader();
                     }
                 }
