@@ -5,6 +5,7 @@
         public string idnumero { get; set; }
         public string nombre { get; set; }
         public DateTime fecha_entra { get; set; }
+        public DateTime fecha_sale { get; set; }        
         public string hora_entra { get; set; }
         public string hora_sale { get; set; }
         public int idturno { get; set; }
@@ -17,5 +18,7 @@
         public string estado { get; set; }
         public string mtardia { get; set; }
         public string manticipo { get; set; }
+        public long? reg_sale { get; set; }
+        public long idregistro { get; set; }
     }
 }
