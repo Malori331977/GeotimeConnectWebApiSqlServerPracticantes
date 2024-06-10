@@ -947,6 +947,11 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         /// <returns></returns>
         public Task<EventResponse> AutorizarExtras(cExtraAprobacion parametros);
 
-
+        /// <summary>
+        /// EditarMarca: ejecuta procedimiento almacenado para la actualizacion de Marcas
+        /// </summary>
+        /// <param name="marcas"></param>
+        /// <returns>Devuelve una instancia de eventresponse con el resultado de la operacion</returns>
+        public Task<EventResponse> EditarMarca(cMarcaEditParam marcasEdit);
     }
 }

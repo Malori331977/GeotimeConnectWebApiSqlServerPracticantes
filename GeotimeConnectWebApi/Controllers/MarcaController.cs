@@ -44,5 +44,16 @@ namespace GeoTimeConnectWebApi.Controllers
             return Ok(respuesta);
         }
 
+        [HttpPut]
+        public async Task<IActionResult> Put([FromBody] cMarcaEditParam marca)
+        {
+            EventResponse respuesta = await _repoGT.EditarMarca(marca);
+
+            if (respuesta.Id != "0")
+                return BadRequest(respuesta);
+
+            return Ok(respuesta);
+        }
+
     }
 }

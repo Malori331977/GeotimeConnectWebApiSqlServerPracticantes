@@ -4222,6 +4222,42 @@ namespace GeoTimeConnectWebApi.Data
 
         }
 
+        /// <summary>
+        /// EditarMarca: ejecuta procedimiento almacenado para la actualizacion de Marcas
+        /// </summary>
+        /// <param name="marcas"></param>
+        /// <returns>Devuelve una instancia de eventresponse con el resultado de la operacion</returns>
+        public async Task<EventResponse> EditarMarca(cMarcaEditParam marcasEdit)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+                using (var connection = _context.Database.GetDbConnection())
+                {
+                    await connection.OpenAsync();
+                    using (var command = connection.CreateCommand())
+                    {
+                        command.CommandText = $"{_schema}.SALVO_MARCA @fentra='{marcasEdit.fecha_entra.ToString("yyyy-MM-dd")}',@fsale='{marcasEdit.fecha_sale.ToString("yyyy-MM-dd")}',@hentra='{marcasEdit.hora_entra}',@hsale='{marcasEdit.hora_sale}', @turno={marcasEdit.idturno}, @idregistro={marcasEdit.idregistro},@usuario='{marcasEdit.usuario}',@comentario='{marcasEdit.comentario}'";
+                        System.Data.Common.DbDataReader result = command.ExecuteReader();
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"{(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo realizar la actualización de la Marca. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo realizar la actualización de la Marca. Detalle de Error: " + e.InnerException.Message;
+            }
+
+            return respuesta;
+
+        }
+
         //Creado por: Marlon Loria Solano
         //Fecha: 2023-08-10
         /// <summary>
@@ -7831,6 +7867,7 @@ namespace GeoTimeConnectWebApi.Data
                                     idnumero = r.GetString(r.GetOrdinal("idnumero")),
                                     nombre = r.GetString(r.GetOrdinal("nombre")),
                                     fecha_entra = r.GetDateTime(r.GetOrdinal("fecha_entra")),
+                                    fecha_sale = r.GetDateTime(r.GetOrdinal("fecha_sale")),
                                     hora_entra = r.GetString(r.GetOrdinal("hora_entra")),
                                     hora_sale = r.GetString(r.GetOrdinal("hora_sale")),
                                     idturno = r.GetInt32(r.GetOrdinal("idturno")),
@@ -7843,6 +7880,8 @@ namespace GeoTimeConnectWebApi.Data
                                     estado = r.GetString(r.GetOrdinal("estado")),
                                     mtardia = r.GetString(r.GetOrdinal("mtardia")),
                                     manticipo = r.GetString(r.GetOrdinal("manticipo")),
+                                    reg_sale =  r.GetInt64(r.GetOrdinal("reg_sale")),
+                                    idregistro = r.GetInt64(r.GetOrdinal("idregistro")),
                                 }).ToList();
             
                     }
