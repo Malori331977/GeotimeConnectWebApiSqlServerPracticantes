@@ -7552,21 +7552,24 @@ namespace GeoTimeConnectWebApi.Data
                     //de lo contrario se agrega el registro
                     if (marcaDC is not null)
                     {
-                        marcaDC.IDREGISTRO = 0;
                         marcaDC.IDCCOSTO = item.IDCCOSTO;
                         marcaDC.INICIO = item.INICIO;
                         marcaDC.FIN = item.FIN;
-                        //marcaDC.CANTIDAD = 0;
-                        marcaDC.IDDIST = 0;
                         marcaDC.ESTADO = 'A';
                         _context.Marcas_Distribuciones_Conceptos.Update(marcaDC);
                     }
                     else
                     {
                         item.IDREGISTRO = 0;
-                        item.IDDIST = 0;
-                        //item.CANTIDAD = 0;
+                        item.PROYECTO = null;
+                        item.FASE = null;
+                        item.CANTIDAD = null;
                         item.ESTADO = 'A';
+                        item.IDDIST = 0;
+                        item.LON_REG = null;
+                        item.LAT_REG = null; 
+                        item.COMENTARIO = null;
+                        
                         _context.Add(item);
                     }
                 }
