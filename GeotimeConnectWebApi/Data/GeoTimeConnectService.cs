@@ -1810,7 +1810,8 @@ namespace GeoTimeConnectWebApi.Data
             try
             {
                 horarios = (from e in await _context.Ph_Horarios
-                                .Include(e => e.Ph_HorarioTurno)
+                            .Include(e => e.Ph_HorarioTurno)
+                            .Include(e => e.PaletaColor)
                             .ToListAsync()
                             select new cPh_Horarios
                             {
@@ -1860,6 +1861,7 @@ namespace GeoTimeConnectWebApi.Data
 
                 horarios = (from e in await _context.Ph_Horarios
                                 .Include(e => e.Ph_HorarioTurno)
+                                .Include(e => e.PaletaColor)
                                 .Where(e => e.IDHORARIO == IDHORARIO)
                                 .ToListAsync()
                             select new cPh_Horarios
