@@ -1827,7 +1827,16 @@ namespace GeoTimeConnectWebApi.Data
                                                      T_3 = ht.T_3,
                                                      T_4 = ht.T_4,
                                                      T_5 = ht.T_5,
-                                                 }).ToList()
+                                                 }).ToList(),
+                                ColorId = e.ColorId,
+                                PaletaColor = e.PaletaColor is null ? null :
+                                new cPaletaColor
+                                {
+                                    COLORID = e.PaletaColor.COLORID,
+                                    DESCRIPCION = e.PaletaColor.DESCRIPCION,
+                                    COLORFONDO = e.PaletaColor.COLORFONDO,
+                                    COLORFUENTE = e.PaletaColor.COLORFUENTE,
+                                }
                             }
                             ).ToList();
             }
@@ -1868,7 +1877,16 @@ namespace GeoTimeConnectWebApi.Data
                                                      T_3 = ht.T_3,
                                                      T_4 = ht.T_4,
                                                      T_5 = ht.T_5,
-                                                 }).ToList()
+                                                 }).ToList(),
+                                ColorId = e.ColorId,
+                                PaletaColor = e.PaletaColor is null ? null :
+                                     new cPaletaColor
+                                     {
+                                         COLORID = e.PaletaColor.COLORID,
+                                         DESCRIPCION = e.PaletaColor.DESCRIPCION,
+                                         COLORFONDO = e.PaletaColor.COLORFONDO,
+                                         COLORFUENTE = e.PaletaColor.COLORFUENTE,
+                                     }
                             }
                             ).FirstOrDefault();
             }
@@ -1905,11 +1923,13 @@ namespace GeoTimeConnectWebApi.Data
                     if (hora is not null)
                     {
                         hora.DESCRIPCION = horario.DESCRIPCION;
+                        hora.ColorId = horario.ColorId;
                         _context.Ph_Horarios.Update(hora);
                     }
                     else
                     {
                         horario.Ph_HorarioTurno = null;
+                        horario.PaletaColor = null;
                         _context.Add(horario);
                     }
                     await _context.SaveChangesAsync();
