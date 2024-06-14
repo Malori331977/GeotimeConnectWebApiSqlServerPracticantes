@@ -263,6 +263,12 @@ namespace GeoTimeConnectWebApi.Data
                 .WithMany(d => d.Turno)
                 .HasForeignKey(e => new { e.ColorId });
 
+            builder.Entity<cPh_Horarios>()
+                .ToTable("PH_HORARIOS", Schema)
+                .HasOne(e => e.PaletaColor)
+                .WithMany(d => d.Horario)
+                .HasForeignKey(e => new { e.ColorId });
+
             builder.Entity<cMarcaIncidencia>()
                .ToTable("MARCAS_INCIDENCIAS", Schema)
                .HasOne(e => e.cIncidencia)
