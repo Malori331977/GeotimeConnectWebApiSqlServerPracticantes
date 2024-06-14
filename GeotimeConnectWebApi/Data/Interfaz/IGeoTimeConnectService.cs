@@ -1,6 +1,7 @@
 ﻿using GeotimeConnectWebApi.Models;
 using GeoTimeConnectWebApi.Models;
 using GeoTimeConnectWebApi.Models.Response;
+using GeoTimeServiceReference;
 using Microsoft.EntityFrameworkCore;
 
 namespace GeoTimeConnectWebApi.Data.Interfaz
@@ -266,6 +267,13 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         public Task<List<cPh_CompaniaUsuario>> GetPhCompaniaUsuario(string idnumero);
         public Task<EventResponse> ActivarPeriodoPAAsync(cActivarPeriodo parametros);
         public Task<EventResponse> CierroPeriodo(cCierroPeriodo parametros);
+
+        /// <summary>
+        /// EjecutaCalculoPlanillaEmpleado:  ejecuta calculo de planilla para el empleado indicado en el parametro
+        /// </summary>
+        /// <param name="calculo_periodo_param"></param>
+        /// <returns>Intancia de eventresponse con el resultado de la ejecucion del proceso</returns>
+        public Task<EventResponse> EjecutaCalculoPlanillaEmpleado(calculo_periodo_empleadoRequest calculo_periodo_param);
 
 
         #endregion

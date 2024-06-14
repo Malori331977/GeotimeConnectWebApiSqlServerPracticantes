@@ -1811,7 +1811,6 @@ namespace GeoTimeConnectWebApi.Data
             {
                 horarios = (from e in await _context.Ph_Horarios
                             .Include(e => e.Ph_HorarioTurno)
-                            .Include(e => e.PaletaColor)
                             .ToListAsync()
                             select new cPh_Horarios
                             {
@@ -1829,15 +1828,7 @@ namespace GeoTimeConnectWebApi.Data
                                                      T_4 = ht.T_4,
                                                      T_5 = ht.T_5,
                                                  }).ToList(),
-                                ColorId = e.ColorId,
-                                PaletaColor = e.PaletaColor is null ? null :
-                                new cPaletaColor
-                                {
-                                    COLORID = e.PaletaColor.COLORID,
-                                    DESCRIPCION = e.PaletaColor.DESCRIPCION,
-                                    COLORFONDO = e.PaletaColor.COLORFONDO,
-                                    COLORFUENTE = e.PaletaColor.COLORFUENTE,
-                                }
+        
                             }
                             ).ToList();
             }
@@ -1861,7 +1852,6 @@ namespace GeoTimeConnectWebApi.Data
 
                 horarios = (from e in await _context.Ph_Horarios
                                 .Include(e => e.Ph_HorarioTurno)
-                                .Include(e => e.PaletaColor)
                                 .Where(e => e.IDHORARIO == IDHORARIO)
                                 .ToListAsync()
                             select new cPh_Horarios
@@ -1880,15 +1870,6 @@ namespace GeoTimeConnectWebApi.Data
                                                      T_4 = ht.T_4,
                                                      T_5 = ht.T_5,
                                                  }).ToList(),
-                                ColorId = e.ColorId,
-                                PaletaColor = e.PaletaColor is null ? null :
-                                     new cPaletaColor
-                                     {
-                                         COLORID = e.PaletaColor.COLORID,
-                                         DESCRIPCION = e.PaletaColor.DESCRIPCION,
-                                         COLORFONDO = e.PaletaColor.COLORFONDO,
-                                         COLORFUENTE = e.PaletaColor.COLORFUENTE,
-                                     }
                             }
                             ).FirstOrDefault();
             }
@@ -1925,13 +1906,11 @@ namespace GeoTimeConnectWebApi.Data
                     if (hora is not null)
                     {
                         hora.DESCRIPCION = horario.DESCRIPCION;
-                        hora.ColorId = horario.ColorId;
                         _context.Ph_Horarios.Update(hora);
                     }
                     else
                     {
                         horario.Ph_HorarioTurno = null;
-                        horario.PaletaColor = null;
                         _context.Add(horario);
                     }
                     await _context.SaveChangesAsync();
@@ -6839,6 +6818,75 @@ namespace GeoTimeConnectWebApi.Data
                     //inicializadas en cero.
 
                     //var resp = await InicializaMarcaProceso(marcasProcesoInicializada);
+                }
+
+
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"{(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo realizar el Calculo de Planilla. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo realizar el Calculo de Planilla. Detalle de Error: " + e.InnerException.Message;
+
+            }
+
+            return respuesta;
+
+        }
+
+
+        /// <summary>
+        /// EjecutaCalculoPlanillaEmpleado:  ejecuta calculo de planilla para el empleado indicado en el parametro
+        /// </summary>
+        /// <param name="calculo_periodo_param"></param>
+        /// <returns>Intancia de eventresponse con el resultado de la ejecucion del proceso</returns>
+        public async Task<EventResponse> EjecutaCalculoPlanillaEmpleado(calculo_periodo_empleadoRequest calculo_periodo_param)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+                var compania = await _context.PH_COMPANIAS.FirstOrDefaultAsync(e=>e.IDCOMP==calculo_periodo_param.comp);
+                string fechaInicioExt = $"{calculo_periodo_param.inicio.Substring(0, 4)}-{calculo_periodo_param.inicio.Substring(4, 2)}-{calculo_periodo_param.inicio.Substring(6, 2)}";
+                string fechaFinExt = $"{calculo_periodo_param.fin.Substring(0, 4)}-{calculo_periodo_param.fin.Substring(4, 2)}-{calculo_periodo_param.fin.Substring(6, 2)}";
+
+
+                var phloginAdmin = await _context.PH_LOGIN.FirstOrDefaultAsync(e => e.usuario.ToUpper() == "Admin");
+                if (phloginAdmin is not null)
+                {
+                    phloginAdmin.ultimo_login = DateTime.Now;
+                    phloginAdmin.ultimo_estado = DateTime.Now;
+                    phloginAdmin.idsesion = 1;
+                    _context.PH_LOGIN.Update(phloginAdmin);
+                    await _context.SaveChangesAsync();
+
+                }
+
+                calculo_periodo_empleadoRequest calculoPlanilla = new calculo_periodo_empleadoRequest
+                {
+                    comp = compania!.IDCOMP,
+                    idpais = compania.PAIS!,
+                    plan = calculo_periodo_param.plan,
+                    sesion = (int)phloginAdmin!.idsesion!,
+                    empleado = calculo_periodo_param.empleado,
+                    periodo = calculo_periodo_param.periodo,
+                    inicio = fechaInicioExt,
+                    fin = fechaFinExt,
+                };
+
+                EndpointConfiguration endpointConfiguration = new();
+                GeoTimeServiceReference.ServiceSoapClient geoWebService = new(endpointConfiguration);
+
+                var result = await geoWebService.calculo_periodo_empleadoAsync(calculoPlanilla);
+                if (result.calculo_periodo_empleadoResult != "")
+                {
+                    respuesta.Id = "1";
+                    respuesta.Respuesta = "Error";
+                    respuesta.Descripcion = $"Error al Ejecutar Calculo de Nómina para Empleado Id=: {calculo_periodo_param.empleado}: {result.calculo_periodo_empleadoResult}";
                 }
 
 
