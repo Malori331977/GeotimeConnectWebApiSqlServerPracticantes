@@ -576,6 +576,17 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
 
         public Task<List<cMarcaAudit>> GetMarcasAudit(string idnumero, string fecha, string idplanilla);
 
+
+        /// <summary>
+        /// GetMarcasAudit: obtiene las modificaciones a las marcas realizadas en el sistema
+        /// </summary>
+        /// <param name="idnumero"></param>
+        /// <param name="fechaInicio"></param>
+        /// <param name="fechaFinal"></param>
+        /// <param name="idplanilla"></param>
+        /// <returns></returns>
+        public Task<List<cMarcaAudit>> GetMarcasAudit(string idnumero, string fechaInicio, string fechaFinal, string idplanilla);
+
         // <summary>
         /// GetMarcasAudit: Obtener las Marcas Descansos para un empleado, planilla y un periodo especifico
         /// </summary>

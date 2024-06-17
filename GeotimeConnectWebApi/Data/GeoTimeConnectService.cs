@@ -4873,6 +4873,35 @@ namespace GeoTimeConnectWebApi.Data
             return marca;
         }
 
+        /// <summary>
+        /// GetMarcasAudit: obtiene las modificaciones a las marcas realizadas en el sistema
+        /// </summary>
+        /// <param name="idnumero"></param>
+        /// <param name="fechaInicio"></param>
+        /// <param name="fechaFinal"></param>
+        /// <param name="idplanilla"></param>
+        /// <returns></returns>
+        public async Task<List<cMarcaAudit>> GetMarcasAudit(string idnumero, string fechaInicio, string fechaFinal, string idplanilla)
+        {
+            List<cMarcaAudit>? marca = new();
+            try
+            {
+                DateTime fechaInicioExt = DateTime.Parse($"{fechaInicio.Substring(0, 4)}-{fechaInicio.Substring(4, 2)}-{fechaInicio.Substring(6, 2)}");
+                DateTime fechaFinExt = DateTime.Parse($"{fechaFinal.Substring(0, 4)}-{fechaFinal.Substring(4, 2)}-{fechaFinal.Substring(6, 2)}");
+
+                marca = await _context.Marcas_Audit.Where(e => e.IDNUMERO == idnumero
+                                                        && e.FECHA >= fechaInicioExt
+                                                        && e.FECHA <= fechaFinExt
+                                                        && e.IDPLANILLA == idplanilla).ToListAsync();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"GeoTimeConnectService.GetMarcasAudit: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+            }
+            return marca;
+        }
+
+
         //Creado por: Marlon Loria Solano
         //Fecha: 2023-08-25
         /// <summary>
@@ -4970,6 +4999,7 @@ namespace GeoTimeConnectWebApi.Data
             List<cMarcaIncidencia>? marcaIncidencia = new();
             try
             {
+
                 marcaIncidencia = await _context.Marcas_Incidencias.Where(e => e.IDNUMERO == idnumero
                                                         && e.FECHA >= fechaInicio
                                                         && e.FECHA <= fechaFinal
