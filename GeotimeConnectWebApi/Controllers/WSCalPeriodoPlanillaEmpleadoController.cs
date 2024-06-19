@@ -11,6 +11,7 @@ using System.Text.Json;
 using GeotimeConnectWebApi.Models;
 using GeoTimeConnectWebApi.Models.Response;
 using GeoTimeServiceReference;
+using static GeoTimeConnectWebApi.Models.CalculoPeriodoParam;
 
 namespace GeoTimeConnectWebApi.Controllers
 {
@@ -27,7 +28,7 @@ namespace GeoTimeConnectWebApi.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody] calculo_periodo_empleadoRequest parametros)
+        public async Task<IActionResult> Post([FromBody] cCalculoPeriodoParam parametros)
         {
             EventResponse respuesta = await _repoGT.EjecutaCalculoPlanillaEmpleado(parametros);
 
