@@ -3,6 +3,7 @@ using GeoTimeConnectWebApi.Models;
 using GeoTimeConnectWebApi.Models.Response;
 using GeoTimeServiceReference;
 using Microsoft.EntityFrameworkCore;
+using static GeoTimeConnectWebApi.Models.CalculoPeriodoParam;
 
 namespace GeoTimeConnectWebApi.Data.Interfaz
 {
@@ -273,7 +274,7 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         /// </summary>
         /// <param name="calculo_periodo_param"></param>
         /// <returns>Intancia de eventresponse con el resultado de la ejecucion del proceso</returns>
-        public Task<EventResponse> EjecutaCalculoPlanillaEmpleado(calculo_periodo_empleadoRequest calculo_periodo_param);
+        public Task<EventResponse> EjecutaCalculoPlanillaEmpleado(cCalculoPeriodoParam calculo_periodo_param);
 
 
         #endregion
@@ -677,6 +678,13 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         /// <param name="idnumero">id numero del empleado</param>
         /// <returns>Instancia de phusuario con los datos del usuario </returns>
         public Task<cPh_Usuario> GetPhUsuario(string idnumero);
+
+        /// <summary>
+        /// PutPhUsuario: utilizado para actualizar variables globales del usuario para los filtros
+        /// </summary>
+        /// <param name="usuario"></param>
+        /// <returns></returns>
+        public Task<EventResponse> PutPhUsuario(cPh_Usuario usuario);
 
         /// <summary>
         /// GetPhSistema: Obtener datos de Sistema 

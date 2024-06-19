@@ -21,6 +21,7 @@ using GeoTimeServiceReference;
 using static GeoTimeServiceReference.ServiceSoapClient;
 using Microsoft.Extensions.Logging;
 using System.Data.Common;
+using static GeoTimeConnectWebApi.Models.CalculoPeriodoParam;
 
 namespace GeoTimeConnectWebApi.Data
 {
@@ -102,7 +103,7 @@ namespace GeoTimeConnectWebApi.Data
 
             try
             {
-                phlogin = await _context.PH_LOGIN.FirstOrDefaultAsync(e => e.EMAIL.ToUpper() == id.ToUpper());
+                phlogin = await _context.PH_LOGIN.FirstOrDefaultAsync(e => e.EMAIL!.ToUpper() == id.ToUpper());
             }
             catch (Exception e)
             {
@@ -2608,7 +2609,7 @@ namespace GeoTimeConnectWebApi.Data
         //Creado por: Marlon Loria Solano
         //Fecha: 2022-10-30
         //Sincronizar acciones de personal
-        //Parametro: Recibe una instancia de centro de costo, se verifica si existe en cuyo caso
+        //Parametro: Recibe una instancia de cAccionPersonal, se verifica si existe en cuyo caso
         //actualiza el registro, de lo contrario lo crea.
         public async Task<EventResponse> Sincronizar_AccionPersonal(IEnumerable<cAccionPersonal> accionPersonal)
         {
@@ -2622,10 +2623,9 @@ namespace GeoTimeConnectWebApi.Data
                     _context.Add(accion);
                     await _context.SaveChangesAsync();
 
-                    var ultimaAccion = await _context.Acciones_Personal.FirstOrDefaultAsync(e => e.SolicitudId == accion.SolicitudId);
+                    var ultimaAccion = await _context.Acciones_Personal.MaxAsync(e => e.IdRegistro);
 
-                    if (ultimaAccion is not null)
-                        await EjecutaAplicaAccionPersonal(ultimaAccion.IdRegistro);
+                    await EjecutaAplicaAccionPersonal(ultimaAccion);
 
                 }
             }
@@ -4243,6 +4243,7 @@ namespace GeoTimeConnectWebApi.Data
                         System.Data.Common.DbDataReader result = command.ExecuteReader();
                     }
                 }
+
             }
             catch (Exception e)
             {
@@ -4887,11 +4888,11 @@ namespace GeoTimeConnectWebApi.Data
             try
             {
                 DateTime fechaInicioExt = DateTime.Parse($"{fechaInicio.Substring(0, 4)}-{fechaInicio.Substring(4, 2)}-{fechaInicio.Substring(6, 2)}");
-                DateTime fechaFinExt = DateTime.Parse($"{fechaFinal.Substring(0, 4)}-{fechaFinal.Substring(4, 2)}-{fechaFinal.Substring(6, 2)}");
+                DateTime fechaFinExt = DateTime.Parse($"{fechaFinal.Substring(0, 4)}-{fechaFinal.Substring(4, 2)}-{fechaFinal.Substring(6, 2)}T23:59:59.999");
 
                 marca = await _context.Marcas_Audit.Where(e => e.IDNUMERO == idnumero
-                                                        && e.FECHA >= fechaInicioExt
-                                                        && e.FECHA <= fechaFinExt
+                                                        && e.FECHA_ORIG >= fechaInicioExt
+                                                        && e.FECHA_ORIG <= fechaFinExt
                                                         && e.IDPLANILLA == idplanilla).ToListAsync();
             }
             catch (Exception e)
@@ -5337,6 +5338,46 @@ namespace GeoTimeConnectWebApi.Data
                 _logger.LogError($"GeoTimeConnectService.GetPhUsuario: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
             }
             return phUsuario;
+        }
+
+        /// <summary>
+        /// PutPhUsuario: utilizado para actualizar variables globales del usuario para los filtros
+        /// </summary>
+        /// <param name="usuario"></param>
+        /// <returns></returns>
+        public async Task<EventResponse> PutPhUsuario(cPh_Usuario usuario)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+
+                cPh_Usuario? usuarioBuscar = await _context.Ph_Usuarios.FirstOrDefaultAsync(e => e.IDUSUARIO == usuario.IDUSUARIO);
+
+                if (usuarioBuscar is not null)
+                {
+                    usuarioBuscar.FPERIODO = usuario.FPERIODO;
+                    usuarioBuscar.FPLANILLA = usuario.FPLANILLA;
+
+                    _context.Ph_Usuarios.Update(usuarioBuscar);
+                }
+                
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"{(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo realizar la actualización del usuario. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo realizar la actualización del usuario. Detalle de Error: " + e.InnerException.Message;
+
+            }
+
+            return respuesta;
+
         }
 
         /// <summary>
@@ -6874,7 +6915,7 @@ namespace GeoTimeConnectWebApi.Data
         /// </summary>
         /// <param name="calculo_periodo_param"></param>
         /// <returns>Intancia de eventresponse con el resultado de la ejecucion del proceso</returns>
-        public async Task<EventResponse> EjecutaCalculoPlanillaEmpleado(calculo_periodo_empleadoRequest calculo_periodo_param)
+        public async Task<EventResponse> EjecutaCalculoPlanillaEmpleado(cCalculoPeriodoParam calculo_periodo_param)
         {
             EventResponse respuesta = new EventResponse();
 
