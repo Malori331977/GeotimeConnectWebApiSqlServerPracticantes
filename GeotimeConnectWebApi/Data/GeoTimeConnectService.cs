@@ -32,6 +32,7 @@ namespace GeoTimeConnectWebApi.Data
         private readonly IHttpContextAccessor _httpContextAccessor;
         private string _schema = "";
         private readonly ILogger<GeoTimeConnectService> _logger;
+        private string error = "";
 
         public GeoTimeConnectService(IHttpContextAccessor httpContextAccessor, ILogger<GeoTimeConnectService> logger)
         {
@@ -70,6 +71,7 @@ namespace GeoTimeConnectWebApi.Data
             }
             _schema = schema;
             _context = SchemaChangeDbContext.GetSchemaChangeDbContext(schema, bdname);
+            error = "";
         }
 
         #region SQLMetodos
@@ -87,7 +89,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetPhLogin: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetPhLogin: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}");
                 throw;
             }
             return phlogin;
@@ -108,7 +111,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetPhLogin: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetPhLogin: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}");
                 throw;
             }
             return phlogin;
@@ -129,7 +133,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetPhLoginByUsuario: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetPhLoginByUsuario: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}");
                 throw;
             }
             return phlogin;
@@ -147,7 +152,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetPhCompania: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetPhCompania: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}");
                 throw;
             }
             return companias;
@@ -166,7 +172,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetPhCompania: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetPhCompania: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}");
                 throw;
             }
             return compania;
@@ -230,7 +237,8 @@ namespace GeoTimeConnectWebApi.Data
                 else
                     respuesta.Descripcion = "No se pudo realizar la sincronización de la compañía. Detalle de Error: " + e.InnerException.Message;
 
-                _logger.LogError($"GeoTimeConnectService.Sincronizar_PhCompania: {respuesta.Descripcion}", DateTime.UtcNow.ToLongTimeString());
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.Sincronizar_PhCompania: {respuesta.Descripcion}");
 
 
             }
@@ -251,7 +259,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetPhPlanilla: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetPhPlanilla: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}");
                 throw;
             }
             return planilla;
@@ -269,7 +278,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetPhPlanilla: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetPhPlanilla: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}");
                 throw;
             }
             return planilla;
@@ -292,7 +302,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetPhPlanilla: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetPhPlanilla: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}");
                 throw;
             }
             return planilla;
@@ -342,7 +353,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"{(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"{error}");
                 respuesta.Id = "1";
                 respuesta.Respuesta = "Error";
                 if (e.InnerException == null)
@@ -378,7 +390,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"{(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"{error}");
                 respuesta.Id = "1";
                 respuesta.Respuesta = "Error";
                 if (e.InnerException == null)
@@ -414,7 +427,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetPhPlanillaByUsuario: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetPhPlanillaByUsuario: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}");
                 throw;
             }
 
@@ -437,7 +451,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetTipo_Planilla: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetTipo_Planilla: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}");
                 throw;
             }
             return planillas;
@@ -455,7 +470,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetDepartamento: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetDepartamento: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
             return departamento;
         }
@@ -473,7 +489,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetDepartamento: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetDepartamento: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
             return departamento;
         }
@@ -510,7 +527,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"{(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"{error}");
                 respuesta.Id = "1";
                 respuesta.Respuesta = "Error";
                 if (e.InnerException == null)
@@ -546,7 +564,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"{(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"{error}");
                 respuesta.Id = "1";
                 respuesta.Respuesta = "Error";
                 if (e.InnerException == null)
@@ -568,7 +587,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetGrupo: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetGrupo: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
             return grupo;
         }
@@ -586,7 +606,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetGrupo: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetGrupo: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
             return grupos;
         }
@@ -630,7 +651,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"{(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"{error}");
                 respuesta.Id = "1";
                 respuesta.Respuesta = "Error";
                 if (e.InnerException == null)
@@ -667,7 +689,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"{(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"{error}");
                 respuesta.Id = "1";
                 respuesta.Respuesta = "Error";
                 if (e.InnerException == null)
@@ -703,7 +726,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetPhGrupoByUsuario: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetPhGrupoByUsuario: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}");
                 throw;
             }
 
@@ -823,7 +847,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetEmpleado: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetEmpleado: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
             return empleado;
         }
@@ -940,7 +965,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetEmpleadoTotal: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetEmpleadoTotal: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
             return empleado;
         }
@@ -1027,9 +1053,9 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
 
-                _logger.LogError($"GeoTimeConnectService.GetEmpleadoProgramador: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}", DateTime.UtcNow.ToLongTimeString()); throw;
+                _logger.LogError($"GeoTimeConnectService.GetEmpleadoProgramador: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
             return empleado;
         }
@@ -1146,7 +1172,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetEmpleado: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetEmpleado: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
             return empleado;
         }
@@ -1162,7 +1189,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetEmpleadoByEmail: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetEmpleadoByEmail: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
             return empleado;
         }
@@ -1281,7 +1309,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetEmpleadoFiltrado: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetEmpleadoFiltrado: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
             return empleado;
         }
@@ -1376,7 +1405,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"{(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"{error}");
                 respuesta.Id = "1";
                 respuesta.Respuesta = "Error";
                 if (e.InnerException == null)
@@ -1412,7 +1442,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"{(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"{error}");
                 respuesta.Id = "1";
                 respuesta.Respuesta = "Error";
                 if (e.InnerException == null)
@@ -1529,7 +1560,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetTurno: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetTurno: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
             return turno;
         }
@@ -1642,7 +1674,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetTurno: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetTurno: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
             return turno;
         }
@@ -1767,7 +1800,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"{(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"{error}");
                 respuesta.Id = "1";
                 respuesta.Respuesta = "Error";
                 if (e.InnerException == null)
@@ -1801,7 +1835,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"{(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"{error}");
                 respuesta.Id = "1";
                 respuesta.Respuesta = "Error";
                 if (e.InnerException == null)
@@ -1845,7 +1880,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetHorarios: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetHorarios: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
             return horarios;
         }
@@ -1886,7 +1922,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetHorarios: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetHorarios: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
             return horarios;
         }
@@ -1945,7 +1982,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"{(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"{error}");
                 respuesta.Id = "1";
                 respuesta.Respuesta = "Error";
                 if (e.InnerException == null)
@@ -1981,7 +2019,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"{(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"{error}");
                 respuesta.Id = "1";
                 respuesta.Respuesta = "Error";
                 if (e.InnerException == null)
@@ -2005,7 +2044,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetHorario_Turno: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetHorario_Turno: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
             return horario_turno;
         }
@@ -2023,7 +2063,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetHorario_Turno: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetHorario_Turno: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
             return horario_turno;
         }
@@ -2067,7 +2108,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"{(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"{error}");
                 respuesta.Id = "1";
                 respuesta.Respuesta = "Error";
                 if (e.InnerException == null)
@@ -2104,7 +2146,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"{(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"{error}");
                 respuesta.Id = "1";
                 respuesta.Respuesta = "Error";
                 if (e.InnerException == null)
@@ -2132,7 +2175,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetPhRol: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetPhRol: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
             return roles;
         }
@@ -2166,7 +2210,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetPhRol: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetPhRol: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
             return roles;
         }
@@ -2204,7 +2249,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"{(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"{error}");
                 respuesta.Id = "1";
                 respuesta.Respuesta = "Error";
                 if (e.InnerException == null)
@@ -2237,7 +2283,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"{(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"{error}");
                 respuesta.Id = "1";
                 respuesta.Respuesta = "Error";
                 if (e.InnerException == null)
@@ -2264,7 +2311,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetIncidencia: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetIncidencia: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
             return incidencia;
         }
@@ -2282,7 +2330,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetIncidencia: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetIncidencia: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
             return incidencia;
         }
@@ -2326,7 +2375,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"{(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"{error}");
                 respuesta.Id = "1";
                 respuesta.Respuesta = "Error";
                 if (e.InnerException == null)
@@ -2364,7 +2414,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"{(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"{error}");
                 respuesta.Id = "1";
                 respuesta.Respuesta = "Error";
                 if (e.InnerException == null)
@@ -2406,7 +2457,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetAccionPersonal: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetAccionPersonal: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
             return accionPersonal;
         }
@@ -2442,7 +2494,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetAccionPersonal: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetAccionPersonal: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
             return accionPersonal;
         }
@@ -2483,7 +2536,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetAccionPersonal: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetAccionPersonal: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
             return accionPersonal;
         }
@@ -2522,7 +2576,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetAccionPersonalPorEstado: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetAccionPersonalPorEstado: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
             return accionPersonal;
         }
@@ -2561,7 +2616,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetAccionPersonalPorEstado: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetAccionPersonalPorEstado: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
             return accionPersonal;
         }
@@ -2611,7 +2667,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetAccionPersonalPorPeriodo: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetAccionPersonalPorPeriodo: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
             return accionPersonal;
         }
@@ -2641,7 +2698,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"{(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"{error}");
                 respuesta.Id = "1";
                 respuesta.Respuesta = "Error";
                 if (e.InnerException == null)
@@ -2696,7 +2754,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"{(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"{error}");
                 respuesta.Id = "1";
                 respuesta.Respuesta = "Error";
                 if (e.InnerException == null)
@@ -2775,7 +2834,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"{(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"{error}");
                 respuesta.Id = "1";
                 respuesta.Respuesta = "Error";
                 if (e.InnerException == null)
@@ -2853,7 +2913,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"{(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"{error}");
                 respuesta.Id = "1";
                 respuesta.Respuesta = "Error";
                 if (e.InnerException == null)
@@ -2881,7 +2942,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetCentroCosto: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetCentroCosto: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
             return centrosCosto;
         }
@@ -2899,7 +2961,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetCentroCosto: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetCentroCosto: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
             return centrosCosto;
         }
@@ -2940,7 +3003,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"{(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"{error}");
                 respuesta.Id = "1";
                 respuesta.Respuesta = "Error";
                 if (e.InnerException == null)
@@ -2966,7 +3030,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetConcepto: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetConcepto: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
             return concepto;
         }
@@ -2984,7 +3049,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetConcepto: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetConcepto: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
             return conceptos;
         }
@@ -3039,7 +3105,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"{(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"{error}");
                 respuesta.Id = "1";
                 respuesta.Respuesta = "Error";
                 if (e.InnerException == null)
@@ -3075,7 +3142,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"{(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"{error}");
                 respuesta.Id = "1";
                 respuesta.Respuesta = "Error";
                 if (e.InnerException == null)
@@ -3102,7 +3170,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetIncidenciaByNomConector: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetIncidenciaByNomConector: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
             return incidencia;
         }
@@ -3118,7 +3187,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetIncidenciaReqAccPer: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetIncidenciaReqAccPer: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
             return incidencia;
         }
@@ -3138,7 +3208,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetMarcasResumen: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetMarcasResumen: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
             return marcasResumen;
         }
@@ -3157,7 +3228,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetMarcasResumen: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetMarcasResumen: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
             return marcasResumen;
         }
@@ -3216,7 +3288,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetMarcaResumen: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetMarcaResumen: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}");
                 throw;
 
             }
@@ -3236,7 +3309,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetMarcas: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetMarcas: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
             return marcas;
         }
@@ -3254,7 +3328,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetMarcas: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetMarcas: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
             return marca;
         }
@@ -3279,7 +3354,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetMarcas: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetMarcas: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
             return marca;
         }
@@ -3302,7 +3378,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetMarcasDiaria: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetMarcasDiaria: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
             return marca;
         }
@@ -3328,7 +3405,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"{(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"{error}");
                 respuesta.Id = "1";
                 respuesta.Respuesta = "Error";
                 if (e.InnerException == null)
@@ -3357,7 +3435,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetMarcaProgramador: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetMarcaProgramador: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
             return marcas;
         }
@@ -3400,7 +3479,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"{(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"{error}");
                 respuesta.Id = "1";
                 respuesta.Respuesta = "Error";
                 if (e.InnerException == null)
@@ -3452,7 +3532,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"{(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"{error}");
                 respuesta.Id = "1";
                 respuesta.Respuesta = "Error";
                 if (e.InnerException == null)
@@ -3517,7 +3598,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"{(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"{error}");
                 respuesta.Id = "1";
                 respuesta.Respuesta = "Error";
                 if (e.InnerException == null)
@@ -3564,7 +3646,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"{(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"{error}");
                 respuesta.Id = "1";
                 respuesta.Respuesta = "Error";
                 if (e.InnerException == null)
@@ -3590,7 +3673,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetMarcaMovTurno: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetMarcaMovTurno: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
             return marcaMovTurno;
         }
@@ -3608,7 +3692,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetMarcaMovTurno: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetMarcaMovTurno: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
             return marcaMovTurno;
         }
@@ -3627,7 +3712,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetMarcaMovTurno: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetMarcaMovTurno: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
             return marcaMovTurno;
         }
@@ -3652,7 +3738,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetMarcaMovTurno: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetMarcaMovTurno: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
             return marcaMovTurno;
         }
@@ -3687,7 +3774,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetMarcaMovTurno: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetMarcaMovTurno: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
             return marcaMovTurno;
         }
@@ -3737,7 +3825,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetMarcaMovTurnoByGrupo: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetMarcaMovTurnoByGrupo: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
             return marcaMovTurno;
         }
@@ -3780,7 +3869,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"{(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"{error}");
                 respuesta.Id = "1";
                 respuesta.Respuesta = "Error";
                 if (e.InnerException == null)
@@ -3806,7 +3896,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetMarcaMovHorario: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetMarcaMovHorario: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
             return marcaMovHorario;
         }
@@ -3824,7 +3915,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetMarcaMovHorario: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetMarcaMovHorario: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
             return marcaMovHorario;
         }
@@ -3866,7 +3958,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"{(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"{error}");
                 respuesta.Id = "1";
                 respuesta.Respuesta = "Error";
                 if (e.InnerException == null)
@@ -3928,7 +4021,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"{(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"{error}");
                 respuesta.Id = "1";
                 respuesta.Respuesta = "Error";
                 if (e.InnerException == null)
@@ -3957,7 +4051,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetPeriodo: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetPeriodo: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
             return periodos;
         }
@@ -3978,7 +4073,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetPeriodo: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetPeriodo: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
             return periodo;
         }
@@ -4006,7 +4102,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetPeriodoVigenteUsuario: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetPeriodoVigenteUsuario: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
             return periodo;
 
@@ -4034,7 +4131,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetPeriodoVigenteEmpleado: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetPeriodoVigenteEmpleado: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
             return periodo;
 
@@ -4061,7 +4159,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetPeriodo: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetPeriodo: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
             return periodos;
         }
@@ -4112,7 +4211,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"{(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"{error}");
                 respuesta.Id = "1";
                 respuesta.Respuesta = "Error";
                 if (e.InnerException == null)
@@ -4147,7 +4247,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"{(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"{error}");
                 respuesta.Id = "1";
                 respuesta.Respuesta = "Error";
                 if (e.InnerException == null)
@@ -4178,7 +4279,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetMarcaIn: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetMarcaIn: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
             return marcaIn;
         }
@@ -4199,7 +4301,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetMarcaIn: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetMarcaIn: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
             return marcaIn;
         }
@@ -4228,7 +4331,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"{(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"{error}");
                 respuesta.Id = "1";
                 respuesta.Respuesta = "Error";
                 if (e.InnerException == null)
@@ -4265,7 +4369,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"{(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"{error}");
                 respuesta.Id = "1";
                 respuesta.Respuesta = "Error";
                 if (e.InnerException == null)
@@ -4293,7 +4398,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetMarcaExtraApb: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetMarcaExtraApb: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
             return marcaExtraApb;
         }
@@ -4335,7 +4441,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetMarcaExtraApb: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetMarcaExtraApb: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
             return marcaExtraApb;
         }
@@ -4349,16 +4456,17 @@ namespace GeoTimeConnectWebApi.Data
         /// <param name="idregistro">Número identificador del registro</param>
         public async Task<cMarcaExtraApb> GetMarcaExtraApb(long idregistro)
         {
-            cMarcaExtraApb marcaExtraApb = new();
+            cMarcaExtraApb? marcaExtraApb = new();
             try
             {
                 marcaExtraApb = await _context.Marcas_Extras_Apb.FirstOrDefaultAsync(e => e.idregistro == idregistro);
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetMarcaExtraApb: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetMarcaExtraApb: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
-            return marcaExtraApb;
+            return marcaExtraApb!;
         }
 
         /// <summary>
@@ -4445,7 +4553,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetMarcaExtraApb: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetMarcaExtraApb: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
             return marcaExtraApb;
         }
@@ -4488,7 +4597,7 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
                 _logger.LogError($"GeoTimeConnectService.GetMarcaExtraApb: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); 
                 throw;
             }
@@ -4551,7 +4660,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"{(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"{error}");
                 respuesta.Id = "1";
                 respuesta.Respuesta = "Error";
                 if (e.InnerException == null)
@@ -4623,7 +4733,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"{(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"{error}");
                 respuesta.Id = "1";
                 respuesta.Respuesta = "Error";
                 if (e.InnerException == null)
@@ -4653,7 +4764,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetProyecto: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetProyecto: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
             return ph_Proyecto;
         }
@@ -4674,7 +4786,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetProyecto: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetProyecto: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
             return ph_Proyecto;
         }
@@ -4715,7 +4828,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"{(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"{error}");
                 respuesta.Id = "1";
                 respuesta.Respuesta = "Error";
                 if (e.InnerException == null)
@@ -4744,7 +4858,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetFaseProyecto: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetFaseProyecto: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
             return phFaseProyecto;
         }
@@ -4766,7 +4881,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetFaseProyecto: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetFaseProyecto: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
             return phFaseProyecto;
         }
@@ -4808,7 +4924,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"{(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"{error}");
                 respuesta.Id = "1";
                 respuesta.Respuesta = "Error";
                 if (e.InnerException == null)
@@ -4851,7 +4968,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetMarcasProceso: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetMarcasProceso: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
             return marca;
         }
@@ -4876,7 +4994,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetMarcasProceso: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetMarcasProceso: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
             return marca;
         }
@@ -4905,7 +5024,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetMarcasAudit: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetMarcasAudit: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
             return marca;
         }
@@ -4933,7 +5053,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetMarcasAudit: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetMarcasAudit: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
             return marca;
         }
@@ -4963,7 +5084,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetMarcasDescansos: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetMarcasDescansos: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
             return marcaDescanso;
         }
@@ -4986,7 +5108,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetMarcaIncidencia: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetMarcaIncidencia: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
             return marcaIncidencia;
         }
@@ -5015,7 +5138,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetMarcaIncidencia: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetMarcaIncidencia: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
             return marcaIncidencia;
         }      
@@ -5045,7 +5169,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetMarcaIncidencia: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetMarcaIncidencia: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
             return marcaIncidencia;
         }
@@ -5121,7 +5246,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetMarcaIncidenciaPeriodo: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetMarcaIncidenciaPeriodo: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
             return marcaIncidencia;
         }
@@ -5199,7 +5325,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetMarcaIncidenciaPeriodo: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetMarcaIncidenciaPeriodo: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
             return marcaIncidencia;
         }
@@ -5227,7 +5354,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetMarcaIncidencia: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetMarcaIncidencia: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
             return marcaIncidencia;
         }
@@ -5258,7 +5386,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetMarcaDistribucion: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetMarcaDistribucion: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
             return marcasDistribuciones;
         }
@@ -5325,7 +5454,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetMarcaDistribucion: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetMarcaDistribucion: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
             return marcaDistribucion;
         }
@@ -5347,7 +5477,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetPhUsuarioById: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetPhUsuarioById: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
             return phUsuario;
         }
@@ -5371,7 +5502,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetPhUsuario: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetPhUsuario: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
             return phUsuario;
         }
@@ -5402,7 +5534,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"{(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"{error}");
                 respuesta.Id = "1";
                 respuesta.Respuesta = "Error";
                 if (e.InnerException == null)
@@ -5430,7 +5563,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetPhSistema: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetPhSistema: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
             return phSistema;
         }
@@ -5457,7 +5591,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetPortalConfig: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetPortalConfig: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
             return portalConfig;
         }
@@ -5499,7 +5634,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"{(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"{error}");
                 respuesta.Id = "1";
                 respuesta.Respuesta = "Error";
                 if (e.InnerException == null)
@@ -5547,7 +5683,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetPortalOpcion: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetPortalOpcion: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
             return portalOpcion;
         }
@@ -5588,7 +5725,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetPortalOpcion: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetPortalOpcion: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
             return portalOpcion;
         }
@@ -5633,7 +5771,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"{(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"{error}");
                 respuesta.Id = "1";
                 respuesta.Respuesta = "Error";
                 if (e.InnerException == null)
@@ -5666,7 +5805,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetPhFormulacion: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetPhFormulacion: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
             return phFormulacion;
         }
@@ -5689,7 +5829,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetPhFormulacion: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetPhFormulacion: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
             return phFormulacion;
         }
@@ -5733,7 +5874,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"{(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"{error}");
                 respuesta.Id = "1";
                 respuesta.Respuesta = "Error";
                 if (e.InnerException == null)
@@ -5768,7 +5910,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"{(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"{error}");
                 respuesta.Id = "1";
                 respuesta.Respuesta = "Error";
                 if (e.InnerException == null)
@@ -5794,7 +5937,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetParametroEmail: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetParametroEmail: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}");
             }
             return parametroEmail;
         }
@@ -5834,7 +5978,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"{(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"{error}");
                 respuesta.Id = "1";
                 respuesta.Respuesta = "Error";
                 if (e.InnerException == null)
@@ -5891,7 +6036,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (System.Net.WebException e)
             {
-                _logger.LogError($"GeoTimeConnectService.EnviarCorreo: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.EnviarCorreo: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}");
                 respuesta.Id = "1";
                 respuesta.Respuesta = "Error";
                 if (e.InnerException == null)
@@ -5931,7 +6077,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetPhTransformacion: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetPhTransformacion: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
             return transformaciones;
         }
@@ -5972,7 +6119,7 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetTipo_Planilla: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+                _logger.LogError($"GeoTimeConnectService.GetTipo_Planilla: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
             return rolturno;
         }
@@ -6011,7 +6158,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"{(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"{error}");
                 respuesta.Id = "1";
                 respuesta.Respuesta = "Error";
                 if (e.InnerException == null)
@@ -6045,7 +6193,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"{(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"{error}");
                 respuesta.Id = "1";
                 respuesta.Respuesta = "Error";
                 if (e.InnerException == null)
@@ -6072,7 +6221,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetTransformacion: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetTransformacion: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
             return transformaciones;
         }
@@ -6093,7 +6243,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetTransformacion: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetTransformacion: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
             return transformacion;
         }
@@ -6159,7 +6310,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"{(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"{error}");
                 respuesta.Id = "1";
                 respuesta.Respuesta = "Error";
                 if (e.InnerException == null)
@@ -6194,7 +6346,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"{(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"{error}");
                 respuesta.Id = "1";
                 respuesta.Respuesta = "Error";
                 if (e.InnerException == null)
@@ -6223,7 +6376,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetTransformacionGlobal: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetTransformacionGlobal: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
             return transformacionesGlobales;
         }
@@ -6244,7 +6398,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetTransformacionGlobal: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetTransformacionGlobal: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
             return transformacionesGlobales;
         }
@@ -6294,7 +6449,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"{(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"{error}");
                 respuesta.Id = "1";
                 respuesta.Respuesta = "Error";
                 if (e.InnerException == null)
@@ -6329,7 +6485,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"{(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"{error}");
                 respuesta.Id = "1";
                 respuesta.Respuesta = "Error";
                 if (e.InnerException == null)
@@ -6358,7 +6515,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetIncidencia_Conf_Pago: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetIncidencia_Conf_Pago: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
             return IncidenciaConfPagos;
         }
@@ -6379,7 +6537,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetIncidencia_Conf_Pago: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetIncidencia_Conf_Pago: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
             return IncidenciaConfPago;
         }
@@ -6429,7 +6588,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"{(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"{error}");
                 respuesta.Id = "1";
                 respuesta.Respuesta = "Error";
                 if (e.InnerException == null)
@@ -6464,7 +6624,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"{(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"{error}");
                 respuesta.Id = "1";
                 respuesta.Respuesta = "Error";
                 if (e.InnerException == null)
@@ -6512,7 +6673,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetPortalMenu: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetPortalMenu: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
             return portalMenu;
         }
@@ -6554,7 +6716,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetPortalMenu: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetPortalMenu: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
             return portalMenu;
         }
@@ -6597,7 +6760,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"{(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"{error}");
                 respuesta.Id = "1";
                 respuesta.Respuesta = "Error";
                 if (e.InnerException == null)
@@ -6646,7 +6810,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetPortalRol: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetPortalRol: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
             return portalRol;
         }
@@ -6687,7 +6852,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetPortalRol: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetPortalRol: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
             return portalRol;
         }
@@ -6755,7 +6921,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"{(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"{error}");
                 respuesta.Id = "1";
                 respuesta.Respuesta = "Error";
                 if (e.InnerException == null)
@@ -6802,7 +6969,7 @@ namespace GeoTimeConnectWebApi.Data
                         fecha_entra = item.fecha,
                         fecha_sale = fechaSalida,
                         hora_entra = horario[0] == "99:99" ? "00:00" : turno.HEntra,
-                        hora_sale = horario[0] == "99:99" ? "00:00" : turno.HSale,
+                        hora_sale = horario[0] == "99:99" ? "00:00" : turno.HSale!,
                         idturno = item.turno,
                         CON_1 = 1,
                         CON_2 = 1,
@@ -6886,12 +7053,12 @@ namespace GeoTimeConnectWebApi.Data
                     var periodo = periodos.FirstOrDefault(e => e.tipo_planilla == planilla.tipo_planilla);
                     calculo_periodo_empleadoRequest calculoPlanilla = new calculo_periodo_empleadoRequest
                     {
-                        comp = compania.IDCOMP,
-                        idpais = compania.PAIS,
-                        plan = planilla.idplanilla,
-                        sesion = (int)phloginAdmin.idsesion,
+                        comp = compania!.IDCOMP,
+                        idpais = compania.PAIS!,
+                        plan = planilla!.idplanilla,
+                        sesion = (int)phloginAdmin.idsesion!,
                         empleado = empleado.idnumero,
-                        periodo = periodo.idperiodo,
+                        periodo = periodo!.idperiodo,
                         //inicio = fechaInicial.ToString("yyyy-MM-dd"),
                         //fin = fechaFinal.ToString("yyyy-MM-dd"),
                         inicio = periodo.inicio.ToString("yyyy-MM-dd"),
@@ -6931,7 +7098,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"{(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"{error}");
                 respuesta.Id = "1";
                 respuesta.Respuesta = "Error";
                 if (e.InnerException == null)
@@ -7000,7 +7168,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"{(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"{error}");
                 respuesta.Id = "1";
                 respuesta.Respuesta = "Error";
                 if (e.InnerException == null)
@@ -7040,7 +7209,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetPhDescansoTurno: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetPhDescansoTurno: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
             return descansoTurno;
         }
@@ -7089,7 +7259,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"{(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"{error}");
                 respuesta.Id = "1";
                 respuesta.Respuesta = "Error";
                 if (e.InnerException == null)
@@ -7112,11 +7283,13 @@ namespace GeoTimeConnectWebApi.Data
 
             try
             {
+               
                 phOpciones = await _context.Ph_Opciones.FirstOrDefaultAsync();
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetPhOpciones: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+                string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetPhOpciones: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
             return phOpciones;
         }
@@ -7165,7 +7338,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"{(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"{error}");
                 respuesta.Id = "1";
                 respuesta.Respuesta = "Error";
                 if (e.InnerException == null)
@@ -7194,7 +7368,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetPortalEmpleado: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetPortalEmpleado: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
             return model;
         }
@@ -7215,7 +7390,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetPortalEmpleado: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetPortalEmpleado: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
             return model;
         }
@@ -7270,7 +7446,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"{(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"{error}");
                 respuesta.Id = "1";
                 respuesta.Respuesta = "Error";
                 if (e.InnerException == null)
@@ -7299,7 +7476,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetPortalDocMarca: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetPortalDocMarca: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
             return model;
         }
@@ -7324,7 +7502,7 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetPortalDocMarca: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+                _logger.LogError($"GeoTimeConnectService.GetPortalDocMarca: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
             return model;
         }
@@ -7345,7 +7523,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetPortalDocMarca: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetPortalDocMarca: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
             return model;
         }
@@ -7372,7 +7551,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"{(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"{error}");
                 respuesta.Id = "1";
                 respuesta.Respuesta = "Error";
                 if (e.InnerException == null)
@@ -7399,7 +7579,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetPaletaColor: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetPaletaColor: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}");
                 throw;
             }
             return colores;
@@ -7418,7 +7599,7 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetPaletaColor: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+                _logger.LogError($"GeoTimeConnectService.GetPaletaColor: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}");
                 throw;
             }
             return compania;
@@ -7465,8 +7646,8 @@ namespace GeoTimeConnectWebApi.Data
                     respuesta.Descripcion = "No se pudo realizar la sincronización del color en la Paleta de Colores. Detalle de Error: " + e.Message;
                 else
                     respuesta.Descripcion = "No se pudo realizar la sincronización del color en la Paleta de Colores. Detalle de Error: " + e.InnerException.Message;
-
-                _logger.LogError($"GeoTimeConnectService.Sincronizar_PhCompania: {respuesta.Descripcion}", DateTime.UtcNow.ToLongTimeString());
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.Sincronizar_PhCompania: {respuesta.Descripcion}");
 
 
             }
@@ -7497,7 +7678,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"{(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"{error}");
                 respuesta.Id = "1";
                 respuesta.Respuesta = "Error";
                 if (e.InnerException == null)
@@ -7521,7 +7703,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetNivel: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetNivel: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}");
                 throw;
             }
             return niveles;
@@ -7540,7 +7723,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetNivel: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetNivel: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}");
                 throw;
             }
             return nivel;
@@ -7586,7 +7770,8 @@ namespace GeoTimeConnectWebApi.Data
                 else
                     respuesta.Descripcion = "No se pudo realizar la sincronización del Nivel. Detalle de Error: " + e.InnerException.Message;
 
-                _logger.LogError($"GeoTimeConnectService.Sincronizar_Nivel: {respuesta.Descripcion}", DateTime.UtcNow.ToLongTimeString());
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.Sincronizar_Nivel: {respuesta.Descripcion}");
             }
             return respuesta;
         }
@@ -7613,7 +7798,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"{(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"{error}");
                 respuesta.Id = "1";
                 respuesta.Respuesta = "Error";
                 if (e.InnerException == null)
@@ -7636,7 +7822,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetMarcaDtnConcepto: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetMarcaDtnConcepto: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
             return marcaDC;
         }
@@ -7654,7 +7841,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetMarcaDtnConcepto: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetMarcaDtnConcepto: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
             return marcaDC;
         }
@@ -7673,7 +7861,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetMarcaDtnConcepto: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetMarcaDtnConcepto: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
             return item;
         }
@@ -7703,7 +7892,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetMarcaDtnConcepto: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetMarcaDtnConcepto: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
             return modelo;
         }
@@ -7755,7 +7945,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"{(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"{error}");
                 respuesta.Id = "1";
                 respuesta.Respuesta = "Error";
                 if (e.InnerException == null)
@@ -7789,7 +7980,8 @@ namespace GeoTimeConnectWebApi.Data
                 
             catch (Exception e)
             {
-                _logger.LogError($"{(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"{error}");
                 respuesta.Id = "1";
                 respuesta.Respuesta = "Error";
                 if (e.InnerException == null)
@@ -7856,7 +8048,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetPhCompaniaUsuario: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetPhCompaniaUsuario: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}");
                 throw;
             }
             return companiasUsuario;
@@ -7878,7 +8071,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.EjecutaPostCambioPlanilla: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.EjecutaPostCambioPlanilla: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}");
                 throw;
             }
 
@@ -7916,7 +8110,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.ActivarPeriodoPAAsync: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.ActivarPeriodoPAAsync: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}");
                 respuesta.Id = "1";
                 respuesta.Respuesta = "Error";
                 if (e.InnerException == null)
@@ -7956,7 +8151,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.CierroPeriodo: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.CierroPeriodo: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}");
                 respuesta.Id = "1";
                 respuesta.Respuesta = "Error";
                 if (e.InnerException == null)
@@ -7983,7 +8179,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.EjecutaAplicaAccionPersonal: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.EjecutaAplicaAccionPersonal: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}");
                 throw;
             }
         }
@@ -8010,7 +8207,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.EjecutaInMarcasWeb: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.EjecutaInMarcasWeb: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}");
                 throw;
             }
 
@@ -8069,7 +8267,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.ConsultarMarcasPeriodo: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.ConsultarMarcasPeriodo: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}");
                 throw;
                 
             }
@@ -8102,7 +8301,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"{(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"{error}");
                 respuesta.Id = "1";
                 respuesta.Respuesta = "Error";
                 if (e.InnerException == null)
@@ -8137,7 +8337,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"{(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"{error}");
                 respuesta.Id = "1";
                 respuesta.Respuesta = "Error";
                 if (e.InnerException == null)
@@ -8181,7 +8382,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"{(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"{error}");
                 respuesta.Id = "1";
                 respuesta.Respuesta = "Error";
                 if (e.InnerException == null)
@@ -8235,7 +8437,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"{(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"{error}");
                 respuesta.Id = "1";
                 respuesta.Respuesta = "Error";
                 if (e.InnerException == null)
@@ -8281,7 +8484,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"{(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"{error}");
                 respuesta.Id = "1";
                 respuesta.Respuesta = "Error";
                 if (e.InnerException == null)
@@ -8339,7 +8543,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
-                _logger.LogError($"{(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString());
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"{error}");
                 respuesta.Id = "1";
                 respuesta.Respuesta = "Error";
                 if (e.InnerException == null)
@@ -8352,11 +8557,88 @@ namespace GeoTimeConnectWebApi.Data
         }
 
 
+        //Creado por: Marlon Loria Solano
+        //Fecha: 2023-05-24
+        /// <summary>
+        /// PutMarcasProceso: Recibe una lista de MarcaMovTurno y a partir de ella realiza la actualizacion del turno en marcas Proceso
+        /// </summary>
+        /// <param name="marcasMovTurnos">lista de MarcaMovTurno</param>
+        /// <returns>EventResponse con resultado del proceso</returns>
+        public async Task<EventResponse> PutMarcasProceso(IEnumerable<cMarcaMovTurno> marcasMovTurnos)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+                cMarcaProceso? marcaProcesoEnCero;
+                List<cMarcaProceso> marcasProcesoInicializada = new();
+
+                foreach (var item in marcasMovTurnos)
+                {
+                    var horario = item.hora.Split("|");
+                    var turno = await _context.Ph_Turnos.FirstOrDefaultAsync(e => e.IdTurno == item.turno);
+                    var fechaSalida = turno.HEntra.CompareTo(turno.HSale) > 0 ? item.fecha.AddDays(1) : item.fecha;
+
+
+                    cMarcaProceso? marcaProceso = new cMarcaProceso
+                    {
+                        idregistro = 0,
+                        idplanilla = item.idplanilla,
+                        idnumero = item.idnumero,
+                        fecha_entra = item.fecha,
+                        fecha_sale = fechaSalida,
+                        hora_entra = horario[0] == "99:99" ? "00:00" : turno.HEntra,
+                        hora_sale = horario[0] == "99:99" ? "00:00" : turno.HSale!,
+                        idturno = item.turno,
+                        CON_1 = 1,
+                        CON_2 = 1,
+                        CON_3 = 1,
+                        CON_4 = 1,
+                        CON_5 = 1,
+                    };
+
+                    var marcasProceso = await _context.Marcas_Proceso
+                                    .Where(e => e.idnumero == item.idnumero
+                                            && e.fecha_entra == item.fecha)
+                                    .ToListAsync();
+
+                    if (marcasProceso.Count()>0)
+                    {
+                        foreach(var mp in marcasProceso)
+                        {
+                            mp.idturno = item.turno;
+                            _context.Marcas_Proceso.Update(mp);
+                        }                        
+                    }
+                    else
+                    {
+                        _context.Add(marcaProceso);
+                    }
+                }
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"{error}");
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo realizar la actualización de Marcas Proceso. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo realizar la actualización de Marcas Proceso. Detalle de Error: " + e.InnerException.Message;
+
+            }
+
+            return respuesta;
+
+        }
+
 
         #endregion
 
 
-        
+
 
     }
 
