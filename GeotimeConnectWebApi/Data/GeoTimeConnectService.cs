@@ -22,6 +22,7 @@ using static GeoTimeServiceReference.ServiceSoapClient;
 using Microsoft.Extensions.Logging;
 using System.Data.Common;
 using static GeoTimeConnectWebApi.Models.CalculoPeriodoParam;
+using Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 
 namespace GeoTimeConnectWebApi.Data
 {
@@ -956,70 +957,79 @@ namespace GeoTimeConnectWebApi.Data
             try
             {
                 string[] ListGrupos = grupos.Split(',');
-                List<int> ListGruposInt = ListGrupos.Select(int.Parse).ToList();
+                List<cPh_Grupo> phgrupos = new List<cPh_Grupo>();
 
-                empleado = (from e in await _context.Empleados
-                            .Where(e => e.IdPlanilla == idplanilla && ListGruposInt.Contains(e.IdGrupo??1) && e.Estado == 'T').OrderBy(e => e.Nombre).ToListAsync()
+                foreach (var valor in ListGrupos)
+                    phgrupos.Add(new cPh_Grupo
+                    {
+                        idgrupo = int.Parse(valor),
+                    });
+                    
+
+                empleado = (from e in await _context.Empleados.Where(e => e.IdPlanilla == idplanilla && e.Estado == 'T').OrderBy(e => e.Nombre).ToListAsync()
+                            join g in phgrupos on e.IdGrupo equals g.idgrupo                            
                             select new cEmpleado
                             {
                                 IdNumero = e.IdNumero,
                                 IdPlanilla = e.IdPlanilla,
                                 Nombre = e.Nombre,
-                                //Tarjeta = e.Tarjeta,
-                                //Identificacion = e.Identificacion,
+                                Tarjeta = e.Tarjeta,
+                                Identificacion = e.Identificacion,
                                 IdGrupo = e.IdGrupo,
-                                //IdDepartamento = e.IdDepartamento,
-                                //IdHorario = e.IdHorario,
+                                IdDepartamento = e.IdDepartamento,
+                                IdHorario = e.IdHorario,
                                 Estado = e.Estado,
-                                //IdAgrupamiento = e.IdAgrupamiento,
-                                //foto = e.foto,
-                                //IdCCosto = e.IdCCosto,
-                                //exporta = e.exporta,
-                                //ubicacion = e.ubicacion,
-                                //rubro1 = e.rubro1,
-                                //rubro2 = e.rubro2,
-                                //rubro3 = e.rubro3,
-                                //rubro4 = e.rubro4,
-                                //rubro5 = e.rubro5,
-                                //rubro6 = e.rubro6,
-                                //rubro7 = e.rubro7,
-                                //rubro8 = e.rubro8,
-                                //rubro9 = e.rubro9,
-                                //rubro10 = e.rubro10,
-                                //rubro11 = e.rubro11,
-                                //rubro12 = e.rubro12,
-                                //rubro13 = e.rubro13,
-                                //rubro14 = e.rubro14,
-                                //rubro15 = e.rubro15,
-                                //rubro16 = e.rubro16,
-                                //rubro17 = e.rubro17,
-                                //rubro18 = e.rubro18,
-                                //rubro19 = e.rubro19,
-                                //rubro20 = e.rubro20,
-                                //rubro21 = e.rubro21,
-                                //rubro22 = e.rubro22,
-                                //rubro23 = e.rubro23,
-                                //rubro24 = e.rubro24,
-                                //rubro25 = e.rubro25,
-                                //Fecha_Ingreso = e.Fecha_Ingreso,
-                                //Email = e.Email,
-                                //Tipo_Marca = e.Tipo_Marca,
-                                //inicio_rol = e.inicio_rol,
-                                //web_pass = e.web_pass,
-                                //id_transfo_conc = e.id_transfo_conc,
-                                //widioma = e.widioma,
-                                //global_clave = e.global_clave,
-                                //def_fase = e.def_fase,
-                                //def_py = e.def_py,
-                                //def_cc = e.def_cc,
-                                //Fecha_Salida = e.Fecha_Salida,
-                                //global_code = e.global_code,
-                                //fecha_act_code = e.fecha_act_code,
+                                IdAgrupamiento = e.IdAgrupamiento,
+                                foto = e.foto,
+                                IdCCosto = e.IdCCosto,
+                                exporta = e.exporta,
+                                ubicacion = e.ubicacion,
+                                rubro1 = e.rubro1,
+                                rubro2 = e.rubro2,
+                                rubro3 = e.rubro3,
+                                rubro4 = e.rubro4,
+                                rubro5 = e.rubro5,
+                                rubro6 = e.rubro6,
+                                rubro7 = e.rubro7,
+                                rubro8 = e.rubro8,
+                                rubro9 = e.rubro9,
+                                rubro10 = e.rubro10,
+                                rubro11 = e.rubro11,
+                                rubro12 = e.rubro12,
+                                rubro13 = e.rubro13,
+                                rubro14 = e.rubro14,
+                                rubro15 = e.rubro15,
+                                rubro16 = e.rubro16,
+                                rubro17 = e.rubro17,
+                                rubro18 = e.rubro18,
+                                rubro19 = e.rubro19,
+                                rubro20 = e.rubro20,
+                                rubro21 = e.rubro21,
+                                rubro22 = e.rubro22,
+                                rubro23 = e.rubro23,
+                                rubro24 = e.rubro24,
+                                rubro25 = e.rubro25,
+                                Fecha_Ingreso = e.Fecha_Ingreso,
+                                Email = e.Email,
+                                Tipo_Marca = e.Tipo_Marca,
+                                inicio_rol = e.inicio_rol,
+                                web_pass = e.web_pass,
+                                id_transfo_conc = e.id_transfo_conc,
+                                widioma = e.widioma,
+                                global_clave = e.global_clave,
+                                def_fase = e.def_fase,
+                                def_py = e.def_py,
+                                def_cc = e.def_cc,
+                                Fecha_Salida = e.Fecha_Salida,
+                                global_code = e.global_code,
+                                fecha_act_code = e.fecha_act_code,
                             }).ToList();
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetEmpleado: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+                string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+
+                _logger.LogError($"GeoTimeConnectService.GetEmpleadoProgramador: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}", DateTime.UtcNow.ToLongTimeString()); throw;
             }
             return empleado;
         }
@@ -3696,19 +3706,27 @@ namespace GeoTimeConnectWebApi.Data
             {
                 var grupos = idgrupo.Split(",");
 
+                List<cPh_Grupo> phgrupos = new List<cPh_Grupo>();
+                foreach (var valor in grupos)
+                    phgrupos.Add(new cPh_Grupo
+                    {
+                        idgrupo = int.Parse(valor),
+                    });
+                
+
                 DateTime fechaMov = DateTime.Parse($"{fechaPeriodo.Substring(0, 4)}-{fechaPeriodo.Substring(4, 2)}-{fechaPeriodo.Substring(6, 2)}");
                 var periodos = await (from a in _context.Ph_Periodos
                                       join b in _context.Ph_Planilla on a.tipo_planilla equals b.tipo_planilla
                                       join c in _context.Empleados on b.idplanilla equals c.IdPlanilla
-                                      where grupos.Contains(c.IdGrupo.ToString())
-                                        && fechaMov >= a.inicio && fechaMov <= a.fin
+                                      join g in phgrupos on c.IdGrupo equals g.idgrupo
+                                      where fechaMov >= a.inicio && fechaMov <= a.fin
                                       select a).Distinct().ToListAsync();
                 foreach (var periodo in periodos)
                 {
                     var marcasperiodo = await (from m in _context.Marcas_Mov_Turnos
                                                join c in _context.Empleados on new { idnumero = m.idnumero, idplanilla = m.idplanilla } equals new { idnumero = c.IdNumero, idplanilla = c.IdPlanilla }
-                                               where grupos.Contains(c.IdGrupo.ToString())
-                                                 && m.fecha >= periodo.inicio
+                                               join g in phgrupos on c.IdGrupo equals g.idgrupo
+                                               where m.fecha >= periodo.inicio
                                                  && m.fecha <= periodo.fin
                                                select m).ToListAsync();
 
@@ -4357,12 +4375,20 @@ namespace GeoTimeConnectWebApi.Data
             {
                 var grupos = idgrupo.Split(",");
 
+                List<cPh_Grupo> phgrupos = new List<cPh_Grupo>();
+                foreach (var valor in grupos)
+                    phgrupos.Add(new cPh_Grupo
+                    {
+                        idgrupo = int.Parse(valor),
+                    });
+                // join g in phgrupos on c.IdGrupo equals g.idgrupo
+
                 DateTime fechaMov = DateTime.Parse($"{fechaPeriodo.Substring(0, 4)}-{fechaPeriodo.Substring(4, 2)}-{fechaPeriodo.Substring(6, 2)}");
                 var periodos = await (from a in _context.Ph_Periodos
                                       join b in _context.Ph_Planilla on a.tipo_planilla equals b.tipo_planilla
                                       join c in _context.Empleados on b.idplanilla equals c.IdPlanilla
-                                      where grupos.Contains(c.IdGrupo.ToString())
-                                        && ((fechaMov >= a.inicio && fechaMov <= a.fin))
+                                      join g in phgrupos on c.IdGrupo equals g.idgrupo
+                                      where ((fechaMov >= a.inicio && fechaMov <= a.fin))
                                       select new
                                       {
                                           idplanilla = b.idplanilla,
@@ -4378,8 +4404,8 @@ namespace GeoTimeConnectWebApi.Data
                         case 1:
                             marcasextrasApb = await (from m in _context.Marcas_Extras_Apb.Where(e => e.idplanilla == periodo.idplanilla)
                                                      join c in _context.Empleados on new { idnumero = m.idnumero, idplanilla = m.idplanilla } equals new { idnumero = c.IdNumero, idplanilla = c.IdPlanilla }
-                                                     where grupos.Contains(c.IdGrupo.ToString())
-                                                       && m.estado == 'A'
+                                                     join g in phgrupos on c.IdGrupo equals g.idgrupo
+                                                     where m.estado == 'A'
                                                        && ((m.aprob_nivel1 == 'F' || m.aprob_nivel1 == null) && m.fecha_aprob_nivel1 == null && m.aprob_nivel1 == null)
                                                        && ((m.fecha >= periodo.inicio && m.fecha <= periodo.fin)
                                                           || (m.fecha >= periodo.inicio && m.fecha > periodo.fin))
@@ -4388,8 +4414,8 @@ namespace GeoTimeConnectWebApi.Data
                         case 2:
                             marcasextrasApb = await (from m in _context.Marcas_Extras_Apb.Where(e => e.idplanilla == periodo.idplanilla)
                                                      join c in _context.Empleados on new { idnumero = m.idnumero, idplanilla = m.idplanilla } equals new { idnumero = c.IdNumero, idplanilla = c.IdPlanilla }
-                                                     where grupos.Contains(c.IdGrupo.ToString())
-                                                       && m.estado == 'A'
+                                                     join g in phgrupos on c.IdGrupo equals g.idgrupo
+                                                     where m.estado == 'A'
                                                        && (((m.aprob_nivel1 == 'F' || m.aprob_nivel1 == null) && m.fecha_aprob_nivel1 == null && m.aprob_nivel1 == null) ||
                                                            ((m.aprob_nivel2 == 'F' || m.aprob_nivel2 == null) && m.fecha_aprob_nivel2 == null && m.aprob_nivel2 == null))
                                                        && ((m.fecha >= periodo.inicio && m.fecha <= periodo.fin)
@@ -4399,8 +4425,8 @@ namespace GeoTimeConnectWebApi.Data
                         case 3:
                             marcasextrasApb = await (from m in _context.Marcas_Extras_Apb.Where(e => e.idplanilla == periodo.idplanilla)
                                                      join c in _context.Empleados on new { idnumero = m.idnumero, idplanilla = m.idplanilla } equals new { idnumero = c.IdNumero, idplanilla = c.IdPlanilla }
-                                                     where grupos.Contains(c.IdGrupo.ToString())
-                                                       && m.estado == 'A'
+                                                     join g in phgrupos on c.IdGrupo equals g.idgrupo
+                                                     where m.estado == 'A'
                                                        && (((m.aprob_nivel1 == 'F' || m.aprob_nivel1 == null) && m.fecha_aprob_nivel1 == null && m.aprob_nivel1 == null) ||
                                                            ((m.aprob_nivel2 == 'F' || m.aprob_nivel2 == null) && m.fecha_aprob_nivel2 == null && m.aprob_nivel2 == null) ||
                                                            ((m.aprob_nivel3 == 'F' || m.aprob_nivel3 == null) && m.fecha_aprob_nivel3 == null && m.aprob_nivel3 == null))
@@ -4441,20 +4467,30 @@ namespace GeoTimeConnectWebApi.Data
             {
                 var grupos = idsgrupos.Split(",");
 
+                List<cPh_Grupo> phgrupos = new List<cPh_Grupo>();
+
+                foreach (var valor in grupos)
+                    phgrupos.Add(new cPh_Grupo
+                    {
+                        idgrupo = int.Parse(valor),
+                    });
+
                 DateTime fechaInicioExt = DateTime.Parse($"{fechaInicio.Substring(0, 4)}-{fechaInicio.Substring(4, 2)}-{fechaInicio.Substring(6, 2)}");
                 DateTime fechaFinExt = DateTime.Parse($"{fechaFinal.Substring(0, 4)}-{fechaFinal.Substring(4, 2)}-{fechaFinal.Substring(6, 2)}");
 
-                marcaExtraApb = await (from m in _context.Marcas_Extras_Apb.Where(e => e.idplanilla == idplanilla && e.fecha>= fechaInicioExt && e.fecha<=fechaFinExt && e.aprob_nivel1==estado)
-                                            join c in _context.Empleados on new { idnumero = m.idnumero, cidplanilla = m.idplanilla } equals new { idnumero = c.IdNumero, cidplanilla = c.IdPlanilla }
-                                            where grupos.Contains(c.IdGrupo.ToString()) && m.estado == 'A'
-                                         select m).ToListAsync();
+                marcaExtraApb = (from m in await _context.Marcas_Extras_Apb.Where(e => e.idplanilla == idplanilla && e.fecha>= fechaInicioExt && e.fecha<=fechaFinExt && e.aprob_nivel1==estado && e.estado == 'A').ToListAsync()
+                                            join c in await _context.Empleados.ToListAsync() on new { idnumero = m.idnumero, cidplanilla = m.idplanilla } equals new { idnumero = c.IdNumero, cidplanilla = c.IdPlanilla }
+                                            join g in phgrupos on c.IdGrupo equals g.idgrupo
+                                         select m).ToList();
                             
 
 
             }
             catch (Exception e)
             {
-                _logger.LogError($"GeoTimeConnectService.GetMarcaExtraApb: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {(e.InnerException is null ? e.Message : e.InnerException.Message)}", DateTime.UtcNow.ToLongTimeString()); throw;
+                string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetMarcaExtraApb: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); 
+                throw;
             }
             return marcaExtraApb;
         }
