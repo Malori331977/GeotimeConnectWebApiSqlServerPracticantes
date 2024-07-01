@@ -32,7 +32,7 @@ namespace GeoTimeConnectWebApi.Data
         private readonly IHttpContextAccessor _httpContextAccessor;
         private string _schema = "";
         private readonly ILogger<GeoTimeConnectService> _logger;
-        private string error = "";
+
 
         public GeoTimeConnectService(IHttpContextAccessor httpContextAccessor, ILogger<GeoTimeConnectService> logger)
         {
@@ -71,7 +71,6 @@ namespace GeoTimeConnectWebApi.Data
             }
             _schema = schema;
             _context = SchemaChangeDbContext.GetSchemaChangeDbContext(schema, bdname);
-            error = "";
         }
 
         #region SQLMetodos
@@ -138,6 +137,45 @@ namespace GeoTimeConnectWebApi.Data
                 throw;
             }
             return phlogin;
+        }
+
+        /// <summary>
+        /// PutPhLogin: metodo para actualizar campos de filtros del ph_login
+        /// </summary>
+        /// <param name="phLogin"></param>
+        /// <returns>Instancia de eventresponse con el resultado de la operación</returns>
+        public async Task<EventResponse> PutPhLogin(cPh_Login phLogin)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+
+                cPh_Login? loginBuscar = await _context.PH_LOGIN.FirstOrDefaultAsync(e => e.idusuario == phLogin.idusuario);
+
+                if (loginBuscar is not null)
+                {
+                    loginBuscar.fcomp = phLogin.fcomp;
+                    _context.PH_LOGIN.Update(loginBuscar);
+                }
+
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"{error}");
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo realizar la actualización del login. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo realizar la actualización del login. Detalle de Error: " + e.InnerException.Message;
+
+            }
+
+            return respuesta;
+
         }
 
         //Creado por: Marlon Loria Solano
@@ -3296,6 +3334,24 @@ namespace GeoTimeConnectWebApi.Data
             return marcasResumen;
         }
 
+        //Creado por: Marlon Loria Solano
+        //Fecha: 2023-11-29
+        //Obtener lista de Marcas Resumen
+        public async Task<List<cMarcaResumen>> GetMarcasResumenXPeriodo(string idPeriodo)
+        {
+            List<cMarcaResumen> marcasResumen = new();
+            try
+            {
+                marcasResumen = await _context.Marcas_Resumen
+                                    .Where(e => e.IdPeriodo == idPeriodo)
+                                    .ToListAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message); throw;
+            }
+            return marcasResumen;
+        }
 
         //Creado por: Marlon Loria Solano
         //Fecha: 2022-10-30
@@ -3877,6 +3933,64 @@ namespace GeoTimeConnectWebApi.Data
                     respuesta.Descripcion = "No se pudo realizar la sincronización de Marcas_Mov_Turno. Detalle de Error: " + e.Message;
                 else
                     respuesta.Descripcion = "No se pudo realizar la sincronización de Marcas_Mov_Turno. Detalle de Error: " + e.InnerException.Message;
+
+            }
+
+            return respuesta;
+
+        }
+
+        /// <summary>
+        /// PutMarcasMovTurnos: actualizar Marcas_MOv_Turnos, Recibe una instancia de MarcaMovTurno, se verifica si existe en cuyo caso actualiza el registro, de lo contrario lo crea.
+        /// </summary>
+        /// <param name="marcaMovTurno"></param>
+        /// <returns>Instancia de eventresponse con el resultado del proceso</returns>
+        public async Task<EventResponse> PutMarcasMovTurnos(cMarcaMovTurno marcasMovTurno)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+
+                cMarcaMovTurno? model = await _context.Marcas_Mov_Turnos
+                                 .Where(e => e.idnumero == marcasMovTurno.idnumero && e.fecha == marcasMovTurno.fecha)
+                                 .FirstOrDefaultAsync();
+                //si la marca existe se actualiza 
+                if (model is not null)
+                {
+                    model.turno = marcasMovTurno.turno;
+                    model.idplanilla = marcasMovTurno.idplanilla;
+                    model.hora = "00:00";
+                    _context.Marcas_Mov_Turnos.Update(model);
+                }
+
+                var turno = await _context.Ph_Turnos.FirstOrDefaultAsync(e => e.IdTurno == marcasMovTurno.turno);
+                var fechaSalida = turno.HEntra.CompareTo(turno.HSale) > 0 ? marcasMovTurno.fecha.AddDays(1) : marcasMovTurno.fecha;
+
+                cMarcaProceso? marcaProceso = await _context.Marcas_Proceso
+                                .Where(e => e.idnumero == marcasMovTurno.idnumero 
+                                         && e.fecha_entra == marcasMovTurno.fecha)
+                                .FirstOrDefaultAsync();
+                //si la marcaProceso existe se actualiza 
+                if (marcaProceso is not null)
+                {
+                    marcaProceso.idturno = marcasMovTurno.turno;
+                    marcaProceso.fecha_sale = fechaSalida;
+                    _context.Marcas_Proceso.Update(marcaProceso);
+                }
+
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"{error}");
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo realizar la actualización de Marcas_Mov_Turno. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo realizar la actualización de Marcas_Mov_Turno. Detalle de Error: " + e.InnerException.Message;
 
             }
 
@@ -6936,6 +7050,7 @@ namespace GeoTimeConnectWebApi.Data
 
         }
 
+
         //Creado por: Marlon Loria Solano
         //Fecha: 2023-05-24
         /// <summary>
@@ -6958,7 +7073,7 @@ namespace GeoTimeConnectWebApi.Data
                 {
                     var horario = item.hora.Split("|");
                     var turno = await _context.Ph_Turnos.FirstOrDefaultAsync(e => e.IdTurno == item.turno);
-                    var fechaSalida = turno.HEntra.CompareTo(turno.HSale) > 0 ? item.fecha.AddDays(1) : item.fecha;
+                    var fechaSalida = turno!.HEntra!.CompareTo(turno.HSale) > 0 ? item.fecha.AddDays(1) : item.fecha;
 
 
                     cMarcaProceso? marcaProceso = new cMarcaProceso
@@ -7006,7 +7121,7 @@ namespace GeoTimeConnectWebApi.Data
                     if (existeMarca is not null)
                     {
                         existeMarca.hora_entra = marcaProceso.hora_entra;
-                        existeMarca.hora_sale = marcaProceso.hora_sale;
+                        existeMarca.hora_sale = marcaProceso.hora_sale!;
                         existeMarca.fecha_sale = marcaProceso.fecha_sale;
 
                         _context.Marcas_Proceso.Update(existeMarca);
@@ -7050,13 +7165,13 @@ namespace GeoTimeConnectWebApi.Data
                 foreach (var empleado in listaEmpleados)
                 {
                     var planilla = phplanillas.FirstOrDefault(e => e.idplanilla == empleado.idplanilla);
-                    var periodo = periodos.FirstOrDefault(e => e.tipo_planilla == planilla.tipo_planilla);
+                    var periodo = periodos.FirstOrDefault(e => e.tipo_planilla == planilla!.tipo_planilla);
                     calculo_periodo_empleadoRequest calculoPlanilla = new calculo_periodo_empleadoRequest
                     {
-                        comp = compania!.IDCOMP,
+                        comp = compania!.IDCOMP!,
                         idpais = compania.PAIS!,
                         plan = planilla!.idplanilla,
-                        sesion = (int)phloginAdmin.idsesion!,
+                        sesion = (int)phloginAdmin!.idsesion!,
                         empleado = empleado.idnumero,
                         periodo = periodo!.idperiodo,
                         //inicio = fechaInicial.ToString("yyyy-MM-dd"),
@@ -7091,21 +7206,66 @@ namespace GeoTimeConnectWebApi.Data
                     //una vez finalizado el proceso de Calculo se debe volver a registrar en Marcas proceso pero con la hora de entrada y salida 
                     //inicializadas en cero.
 
-                    //var resp = await InicializaMarcaProceso(marcasProcesoInicializada);
+                    var resp = await InicializaMarcaProceso(marcasProcesoInicializada);
                 }
 
 
             }
             catch (Exception e)
             {
-               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
-                _logger.LogError($"{error}");
+                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
                 respuesta.Id = "1";
                 respuesta.Respuesta = "Error";
                 if (e.InnerException == null)
                     respuesta.Descripcion = "No se pudo realizar el Calculo de Planilla. Detalle de Error: " + e.Message;
                 else
                     respuesta.Descripcion = "No se pudo realizar el Calculo de Planilla. Detalle de Error: " + e.InnerException.Message;
+
+            }
+
+            return respuesta;
+
+        }
+
+        //Creado por: Marlon Loria Solano
+        //Fecha: 2023-05-24
+        /// <summary>
+        /// InicializaMarcaProceso: Recibe una lista de MarcaMovTurno y a partir de ella inicializa la tabla Marcas Proceso
+        /// </summary>
+        /// <param name="marcasMovTurnos">lista de MarcaMovTurno</param>
+        /// <returns>EventResponse con resultado del proceso</returns>
+        public async Task<EventResponse> InicializaMarcaProceso(IEnumerable<cMarcaProceso> marcasProceso)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+
+                foreach (var item in marcasProceso)
+                {
+
+                    var existeMarca = await _context.Marcas_Proceso
+                                    .Where(e => e.idnumero == item.idnumero
+                                            && e.fecha_entra == item.fecha_entra
+                                            && e.idturno == item.idturno)
+                                    .FirstOrDefaultAsync();
+
+                    if (existeMarca is null)
+                    {
+                        _context.Add(item);
+                    }
+                }
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo realizar la Inicialización de las Marcas del Porceso. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo realizar la Inicialización de las Marcas del Porceso. Detalle de Error: " + e.InnerException.Message;
 
             }
 
@@ -7502,6 +7662,7 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
+                string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
                 _logger.LogError($"GeoTimeConnectService.GetPortalDocMarca: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
             return model;
@@ -7599,6 +7760,7 @@ namespace GeoTimeConnectWebApi.Data
             }
             catch (Exception e)
             {
+                string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
                 _logger.LogError($"GeoTimeConnectService.GetPaletaColor: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}");
                 throw;
             }
@@ -8558,7 +8720,7 @@ namespace GeoTimeConnectWebApi.Data
 
 
         //Creado por: Marlon Loria Solano
-        //Fecha: 2023-05-24
+        //Fecha: 2024-06-28
         /// <summary>
         /// PutMarcasProceso: Recibe una lista de MarcaMovTurno y a partir de ella realiza la actualizacion del turno en marcas Proceso
         /// </summary>
@@ -8570,14 +8732,14 @@ namespace GeoTimeConnectWebApi.Data
 
             try
             {
-                cMarcaProceso? marcaProcesoEnCero;
+
                 List<cMarcaProceso> marcasProcesoInicializada = new();
 
                 foreach (var item in marcasMovTurnos)
                 {
                     var horario = item.hora.Split("|");
                     var turno = await _context.Ph_Turnos.FirstOrDefaultAsync(e => e.IdTurno == item.turno);
-                    var fechaSalida = turno.HEntra.CompareTo(turno.HSale) > 0 ? item.fecha.AddDays(1) : item.fecha;
+                    var fechaSalida = turno!.HEntra!.CompareTo(turno.HSale) > 0 ? item.fecha.AddDays(1) : item.fecha;
 
 
                     cMarcaProceso? marcaProceso = new cMarcaProceso
@@ -8587,8 +8749,8 @@ namespace GeoTimeConnectWebApi.Data
                         idnumero = item.idnumero,
                         fecha_entra = item.fecha,
                         fecha_sale = fechaSalida,
-                        hora_entra = horario[0] == "99:99" ? "00:00" : turno.HEntra,
-                        hora_sale = horario[0] == "99:99" ? "00:00" : turno.HSale!,
+                        hora_entra = "00:00",
+                        hora_sale = "00:00",
                         idturno = item.turno,
                         CON_1 = 1,
                         CON_2 = 1,
@@ -8606,8 +8768,12 @@ namespace GeoTimeConnectWebApi.Data
                     {
                         foreach(var mp in marcasProceso)
                         {
-                            mp.idturno = item.turno;
-                            _context.Marcas_Proceso.Update(mp);
+                            if (mp.idturno != item.turno)
+                            {
+                                mp.idturno = item.turno;
+                                mp.fecha_sale = fechaSalida;
+                                _context.Marcas_Proceso.Update(mp);
+                            }
                         }                        
                     }
                     else
