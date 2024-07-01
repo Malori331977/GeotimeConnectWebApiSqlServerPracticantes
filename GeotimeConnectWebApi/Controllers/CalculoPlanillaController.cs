@@ -10,30 +10,26 @@ using GeoTimeConnectWebApi.Models.Utils;
 using System.Text.Json;
 using GeoTimeConnectWebApi.Models.Request;
 using GeoTimeConnectWebApi.Models.Response;
+using System.Collections.Generic;
 
 namespace GeoTimeConnectWebApi.Controllers
 {
     [ApiController]
     [Route("[controller]")]
     [Authorize]
-    public class PhLoginController : Controller
+    public class CalculoPlanillaController : Controller
     {
         private readonly IGeoTimeConnectService _repoGT;
-        public PhLoginController(IGeoTimeConnectService repoGT)
+        public CalculoPlanillaController(IGeoTimeConnectService repoGT)
         {
+
             _repoGT = repoGT;
         }
 
-        [HttpGet]
-        public async Task<IEnumerable<cPh_Login>> Get() => await _repoGT.GetPhLogin();
-
-        [HttpGet("{id}")]
-        public async Task<cPh_Login> Get(string id) => await _repoGT.GetPhLogin(id);
-
-        [HttpPut]
-        public async Task<IActionResult> Post([FromBody] cPh_Login phLogin)
+        [HttpPost]
+        public async Task<IActionResult> Post([FromBody] IEnumerable<cMarcaMovTurno> marcasMovTurnos)
         {
-            EventResponse respuesta = await _repoGT.PutPhLogin(phLogin);
+            EventResponse respuesta = await _repoGT.EjecutaCalculoPlanilla(marcasMovTurnos);
 
             if (respuesta.Id != "0")
                 return BadRequest(respuesta);

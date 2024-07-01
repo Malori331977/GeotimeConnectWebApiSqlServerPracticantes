@@ -26,6 +26,13 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         /// <returns>Una instancia de la clase cPhLogin</returns>
         /// ///<param name="id">Id del usuario requerido</param>
         public Task<cPh_Login> GetPhLoginByUsuario(string id);
+
+        /// <summary>
+        /// PutPhLogin: metodo para actualizar campos de filtros del ph_login
+        /// </summary>
+        /// <param name="phLogin"></param>
+        /// <returns>Instancia de eventresponse con el resultado de la operación</returns>
+        public Task<EventResponse> PutPhLogin(cPh_Login phLogin);
         public Task<List<cPh_Compania>> GetPhCompania();
         public Task<cPh_Compania> GetPhCompania(string idcomp);
 
@@ -276,6 +283,15 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         /// <returns>Intancia de eventresponse con el resultado de la ejecucion del proceso</returns>
         public Task<EventResponse> EjecutaCalculoPlanillaEmpleado(cCalculoPeriodoParam calculo_periodo_param);
 
+        //Creado por: Marlon Loria Solano
+        //Fecha: 2023-05-24
+        /// <summary>
+        /// EjecutaCalculoPlanilla: Recibe una lista de MarcaMovTurno y a partir de ella realiza el calculo de planilla de forma temporal
+        /// </summary>
+        /// <param name="marcasMovTurnos">lista de MarcaMovTurno</param>
+        /// <returns>EventResponse con resultado del proceso</returns>
+        public Task<EventResponse> EjecutaCalculoPlanilla(IEnumerable<cMarcaMovTurno> marcasMovTurnos);
+
 
         #endregion
 
@@ -314,8 +330,7 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
  
         
         public Task<cIncidencia> GetIncidenciaByNomConector(string nom_conector);
-        public Task<List<cIncidencia>> GetIncidenciaReqAccPer();
-        
+        public Task<List<cIncidencia>> GetIncidenciaReqAccPer();        
 
         public Task<List<cMarcaResumen>> GetMarcasResumen(string idPlanilla, string idPeriodo);
 
@@ -327,6 +342,8 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         /// <param name="idnumero">id del empleado que se desea obtener, si se envia un -1 trae todos los empleados</param>
         /// <returns>Lista de marcas resumen del periodo</returns>
         public Task<IEnumerable<cMarcaResumen>> GetMarcasResumen(string IdPeriodo, string IdPlanilla, string idnumero);
+
+        public Task<List<cMarcaResumen>> GetMarcasResumenXPeriodo(string idPeriodo);
         public Task<EventResponse> Sincronizar_MarcasResumen(IEnumerable<cMarcaResumen> marcasResumen);
 
 
@@ -384,6 +401,20 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         /// <param name="idgrupo">grupo de empleado</param>
         public Task<List<cMarcaMovTurno>> GetMarcaMovTurnoByGrupo(string fechaPeriodo, string idgrupo);
         public Task<EventResponse> Sincronizar_MarcasMovTurnos(IEnumerable<cMarcaMovTurno> marcasMovTurnos);
+
+        /// <summary>
+        /// PutMarcasMovTurnos: actualizar Marcas_MOv_Turnos, Recibe una instancia de MarcaMovTurno, se verifica si existe en cuyo caso actualiza el registro, de lo contrario lo crea.
+        /// </summary>
+        /// <param name="marcaMovTurno"></param>
+        /// <returns>Instancia de eventresponse con el resultado del proceso</returns>
+        public Task<EventResponse> PutMarcasMovTurnos(cMarcaMovTurno marcaMovTurno);
+
+        /// <summary>
+        /// PutMarcasProceso: Recibe una lista de MarcaMovTurno y a partir de ella realiza la actualizacion del turno en marcas Proceso
+        /// </summary>
+        /// <param name="marcasMovTurnos">lista de MarcaMovTurno</param>
+        /// <returns>EventResponse con resultado del proceso</returns>
+        public Task<EventResponse> PutMarcasProceso(IEnumerable<cMarcaMovTurno> marcasMovTurnos);
 
         public Task<List<cMarcaMovHorario>> GetMarcaMovHorario();
         public Task<cMarcaMovHorario> GetMarcaMovHorario(int idregistro);
