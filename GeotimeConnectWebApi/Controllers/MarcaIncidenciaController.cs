@@ -30,7 +30,27 @@ namespace GeoTimeConnectWebApi.Controllers
         [HttpGet("{idnumero}/{fecha}/{idplanilla}")]
         public async Task<IEnumerable<cMarcaIncidencia>> Get(string idnumero, string fecha, string idplanilla) => await _repoGT.GetMarcaIncidencia(idnumero,fecha,idplanilla);
 
-       
+        [HttpPost]
+        public async Task<IActionResult> Post([FromBody] IEnumerable<cMarcaIncidencia> marcaIncidencia)
+        {
+            EventResponse respuesta = await _repoGT.Sincronizar_MarcasIncidencias(marcaIncidencia);
+
+            if (respuesta.Id != "0")
+                return BadRequest(respuesta);
+
+            return Ok(respuesta);
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(string id)
+        {
+            EventResponse respuesta = await _repoGT.Elimina_MarcasIncidencias(id);
+
+            if (respuesta.Id != "0")
+                return BadRequest(respuesta);
+
+            return Ok(respuesta);
+        }
 
     }
 }

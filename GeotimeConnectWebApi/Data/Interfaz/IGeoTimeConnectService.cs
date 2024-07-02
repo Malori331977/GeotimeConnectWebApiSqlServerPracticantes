@@ -1011,5 +1011,20 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         /// <param name="marcas"></param>
         /// <returns>Devuelve una instancia de eventresponse con el resultado de la operacion</returns>
         public Task<EventResponse> EditarMarca(cMarcaEditParam marcasEdit);
+
+        /// <summary>
+        /// Sincronizar_MarcasIncidencias: Método para agregar o actualizar marcas incidencias
+        /// </summary>
+        /// <param name="indice"></param>
+        /// <returns>Instancia de EventResponse con el resultado de la operación</returns>
+
+        public Task<EventResponse> Sincronizar_MarcasIncidencias(IEnumerable<cMarcaIncidencia> marcasIncidencias);
+
+        /// <summary>
+        /// Elimina_MarcasIncidencias: Método para eliminar marcas incidencias
+        /// </summary>
+        /// <param name="indice"></param>
+        /// <returns>Instancia de EventResponse con el resultado de la operación</returns>
+        public Task<EventResponse> Elimina_MarcasIncidencias(string indice);
     }
 }
