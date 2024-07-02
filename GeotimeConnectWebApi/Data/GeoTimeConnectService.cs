@@ -23,6 +23,7 @@ using Microsoft.Extensions.Logging;
 using System.Data.Common;
 using static GeoTimeConnectWebApi.Models.CalculoPeriodoParam;
 using Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
+using System.Numerics;
 
 namespace GeoTimeConnectWebApi.Data
 {
@@ -5474,6 +5475,97 @@ namespace GeoTimeConnectWebApi.Data
             return marcaIncidencia;
         }
 
+        /// <summary>
+        /// Sincronizar_MarcasIncidencias: Método para agregar o actualizar marcas incidencias
+        /// </summary>
+        /// <param name="indice"></param>
+        /// <returns>Instancia de EventResponse con el resultado de la operación</returns>
+
+        public async Task<EventResponse> Sincronizar_MarcasIncidencias(IEnumerable<cMarcaIncidencia> marcasIncidencias)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+                foreach (var item in marcasIncidencias)
+                {
+                    cMarcaIncidencia? marcaIncidencia = await _context.Marcas_Incidencias
+                                    .Where(e => e.INDICE == item.INDICE)
+                                    .FirstOrDefaultAsync();
+                    //si el centro de costo existe se actualiza descripción
+                    //de lo contrario se agrega el registro
+                    if (marcaIncidencia is not null)
+                    {
+                        marcaIncidencia.COMENTARIO = item.COMENTARIO;
+                        if (marcaIncidencia.IDINCIDENCIA != item.IDINCIDENCIA)
+                        {
+                            marcaIncidencia.INCIDENCIA_JUST = marcaIncidencia.IDINCIDENCIA;
+                            marcaIncidencia.FECHA_JUST = DateTime.Now;
+                        }                       
+                        marcaIncidencia.IDINCIDENCIA = item.IDINCIDENCIA;
+
+                        _context.Marcas_Incidencias.Update(marcaIncidencia);
+                    }
+                    else
+                    {
+                        _context.Add(item);
+                    }
+                }
+
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"{error}");
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo realizar la sincronización de Marcas_Mov_Turno. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo realizar la sincronización de Marcas_Mov_Turno. Detalle de Error: " + e.InnerException.Message;
+
+            }
+
+            return respuesta;
+
+        }
+
+        /// <summary>
+        /// Elimina_MarcasIncidencias: Método para eliminar marcas incidencias
+        /// </summary>
+        /// <param name="indice"></param>
+        /// <returns>Instancia de EventResponse con el resultado de la operación</returns>
+        public async Task<EventResponse> Elimina_MarcasIncidencias(string indice)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+                cMarcaIncidencia? model = await _context.Marcas_Incidencias
+                    .FirstOrDefaultAsync(e => e.INDICE == long.Parse(indice));
+
+                if (model is not null)
+                {
+                    _context.Marcas_Incidencias.Remove(model);
+                    await _context.SaveChangesAsync();
+                }
+            }
+
+            catch (Exception e)
+            {
+                string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"{error}");
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo eliminar el registro de Marcas Incidencias. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo eliminar el registro de Marcas Incidencias. Detalle de Error: " + e.InnerException.Message;
+            }
+            return respuesta;
+        }
+
 
         /// <summary>
         /// GetMarcaDistribucion: Lista de Marcas Distribución segun parametros de fecha indicados
@@ -7321,7 +7413,7 @@ namespace GeoTimeConnectWebApi.Data
                 {
                     respuesta.Id = "1";
                     respuesta.Respuesta = "Error";
-                    respuesta.Descripcion = $"Error al Ejecutar Calculo de Nómina para Empleado Id=: {calculo_periodo_param.empleado}: {result.calculo_periodo_empleadoResult}";
+                    respuesta.Descripcion = $"Error al Ejecutar Calculo de Nómina para Empleado: {calculo_periodo_param.empleado} País: {calculo_periodo_param.idpais}, Compania:{calculo_periodo_param.comp} Plan:{calculo_periodo_param.plan}, Periodo: {calculo_periodo_param.periodo}, Inicio: {calculo_periodo_param.inicio} Fin: {calculo_periodo_param.fin}. Detalle de Error: {result.calculo_periodo_empleadoResult}";
                 }
 
 
