@@ -5499,7 +5499,8 @@ namespace GeoTimeConnectWebApi.Data
                         marcaIncidencia.COMENTARIO = item.COMENTARIO;
                         if (marcaIncidencia.IDINCIDENCIA != item.IDINCIDENCIA)
                         {
-                            marcaIncidencia.INCIDENCIA_JUST = marcaIncidencia.IDINCIDENCIA;
+                            if (marcaIncidencia.IDINCIDENCIA <= 7)
+                                marcaIncidencia.INCIDENCIA_JUST = marcaIncidencia.IDINCIDENCIA;
                             marcaIncidencia.FECHA_JUST = DateTime.Now;
                         }                       
                         marcaIncidencia.IDINCIDENCIA = item.IDINCIDENCIA;
