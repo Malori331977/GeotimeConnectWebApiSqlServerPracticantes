@@ -305,7 +305,7 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         /// <returns>Instancia de EventResponse con el resultado de la operación</returns>
         public Task<EventResponse> Init_Periodo(IEnumerable<cInit_Periodo> parametros);
         public Task<EventResponse> Cal_Periodo_Planilla(IEnumerable<cCal_Periodo_Planilla> parametros);
-
+        public Task<IEnumerable<cObtengoConcepto>> Obtener_Conceptos(string compania, string sesion);
 
         #endregion
 
