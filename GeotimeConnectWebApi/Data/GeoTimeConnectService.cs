@@ -24,6 +24,9 @@ using System.Data.Common;
 using static GeoTimeConnectWebApi.Models.CalculoPeriodoParam;
 using Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 using System.Numerics;
+using System.Text.Json.Serialization;
+using System.Text.Json;
+using Microsoft.IdentityModel.Tokens;
 
 namespace GeoTimeConnectWebApi.Data
 {
@@ -148,10 +151,8 @@ namespace GeoTimeConnectWebApi.Data
         public async Task<EventResponse> PutPhLogin(cPh_Login phLogin)
         {
             EventResponse respuesta = new EventResponse();
-
             try
             {
-
                 cPh_Login? loginBuscar = await _context.PH_LOGIN.FirstOrDefaultAsync(e => e.idusuario == phLogin.idusuario);
 
                 if (loginBuscar is not null)
@@ -8703,6 +8704,7 @@ namespace GeoTimeConnectWebApi.Data
             }
             return respuesta;
         }
+
         //Creado por: Allan Prieto Badilla
         //Fecha: 2024-03-12
         /// <summary>
@@ -8811,7 +8813,6 @@ namespace GeoTimeConnectWebApi.Data
 
         }
 
-
         //Creado por: Marlon Loria Solano
         //Fecha: 2024-06-28
         /// <summary>
@@ -8825,7 +8826,6 @@ namespace GeoTimeConnectWebApi.Data
 
             try
             {
-
                 List<cMarcaProceso> marcasProcesoInicializada = new();
 
                 foreach (var item in marcasMovTurnos)
@@ -8833,7 +8833,6 @@ namespace GeoTimeConnectWebApi.Data
                     var horario = item.hora.Split("|");
                     var turno = await _context.Ph_Turnos.FirstOrDefaultAsync(e => e.IdTurno == item.turno);
                     var fechaSalida = turno!.HEntra!.CompareTo(turno.HSale) > 0 ? item.fecha.AddDays(1) : item.fecha;
-
 
                     cMarcaProceso? marcaProceso = new cMarcaProceso
                     {
@@ -8893,6 +8892,38 @@ namespace GeoTimeConnectWebApi.Data
 
         }
 
+        public async Task<IEnumerable<cObtengoConcepto>> Obtener_Conceptos(string compania, string sesion)
+        {
+            List<cObtengoConcepto>? listaConceptos = new();
+
+            try
+            {
+                obtengo_conceptosRequest obtengoConcepto = new obtengo_conceptosRequest
+                {
+                    comp = compania,
+                    sesion = sesion,
+                };
+                
+                EndpointConfiguration endpointConfiguration = new();
+                GeoTimeServiceReference.ServiceSoapClient geoWebService = new(endpointConfiguration);
+
+                var result = await geoWebService.obtengo_conceptosAsync(obtengoConcepto);
+                string resultString = result.obtengo_conceptosResult;
+
+                if (!string.IsNullOrEmpty(resultString))
+                {
+                    // Conversión de la respuesta JSON a la lista de objetos cObtengoConcepto
+                    listaConceptos = JsonSerializer.Deserialize<List<cObtengoConcepto>>(resultString);
+                }
+            }
+            catch (Exception e)
+            {
+                string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.Obtener_Conceptos: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}");
+                throw;
+            }
+            return listaConceptos;
+        }
 
         #endregion
 
