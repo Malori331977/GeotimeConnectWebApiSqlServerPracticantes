@@ -4001,7 +4001,6 @@ namespace GeoTimeConnectWebApi.Data
                         _context.Add(item);
                     }
                 }
-
                 await _context.SaveChangesAsync();
             }
             catch (Exception e)
@@ -4014,11 +4013,8 @@ namespace GeoTimeConnectWebApi.Data
                     respuesta.Descripcion = "No se pudo realizar la sincronización de Marcas_Mov_Turno. Detalle de Error: " + e.Message;
                 else
                     respuesta.Descripcion = "No se pudo realizar la sincronización de Marcas_Mov_Turno. Detalle de Error: " + e.InnerException.Message;
-
             }
-
             return respuesta;
-
         }
 
         /// <summary>
@@ -4116,6 +4112,32 @@ namespace GeoTimeConnectWebApi.Data
             return marcaMovHorario;
         }
 
+        //Creado por: Allan Prieto
+        //Fecha: 2024-07-16
+        //Obtener un registro de cMarcaMovHorario especifico
+        //Parametros: idregistro=consecutivo de registro
+        public async Task<List<cMarcaMovHorario>> GetMarcaMovHorario(string idplanilla, string estado, string fechaInicio, string fechaFinal)
+        {
+            List<cMarcaMovHorario> marcaMovTurno = new();
+            try
+            {
+                DateTime fechaMovInicio = DateTime.Parse($"{fechaInicio.Substring(0, 4)}-{fechaInicio.Substring(4, 2)}-{fechaInicio.Substring(6, 2)}");
+                DateTime fechaMovFinal = DateTime.Parse($"{fechaFinal.Substring(0, 4)}-{fechaFinal.Substring(4, 2)}-{fechaFinal.Substring(6, 2)}");
+
+                marcaMovTurno = await _context.Marcas_Mov_Horarios
+                                  .Where(e => e.IDPLANILLA == idplanilla &&
+                                              e.ESTADO.ToString() == estado &&
+                                              e.FECHA >= fechaMovInicio &&
+                                              e.FECHA <= fechaMovFinal).ToListAsync();
+            }
+            catch (Exception e)
+            {
+                string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetMarcaMovTurno: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
+            }
+            return marcaMovTurno;
+        }
+
         //Creado por: Allan Prieto Badilla
         //Fecha: 2024-04-02
         //Sincronizar Marcas_MOv_Turnos
@@ -4148,7 +4170,6 @@ namespace GeoTimeConnectWebApi.Data
                         _context.Add(item);
                     }
                 }
-
                 await _context.SaveChangesAsync();
             }
             catch (Exception e)
@@ -4161,11 +4182,8 @@ namespace GeoTimeConnectWebApi.Data
                     respuesta.Descripcion = "No se pudo realizar la sincronización de Marcas_Mov_Horario. Detalle de Error: " + e.Message;
                 else
                     respuesta.Descripcion = "No se pudo realizar la sincronización de Marcas_Mov_Horario. Detalle de Error: " + e.InnerException.Message;
-
             }
-
             return respuesta;
-
         }
 
         //Creado por: Marlon Loria Solano
