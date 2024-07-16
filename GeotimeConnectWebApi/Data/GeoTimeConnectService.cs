@@ -180,6 +180,41 @@ namespace GeoTimeConnectWebApi.Data
 
         }
 
+        /// <summary>
+        /// Elimina_PhLogin:  Metodo borrado de datos de la tabla Login
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns>EventResponse</returns>
+        public async Task<EventResponse> Elimina_PhLogin(int id)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+                cPh_Login? model = await _context.PH_LOGIN
+                    .FirstOrDefaultAsync(e => e.idusuario == id);
+
+                if (model is not null)
+                {
+                    _context.PH_LOGIN.Remove(model);
+                }
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"{error}");
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo eliminar el Usuario. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo eliminar el Usuario. Detalle de Error: " + e.InnerException.Message;
+            }
+            return respuesta;
+        }
+
+
         //Creado por: Marlon Loria Solano
         //Fecha: 2022-01-02
         //Obtener lista de Centros de Costo
@@ -2617,6 +2652,50 @@ namespace GeoTimeConnectWebApi.Data
             catch (Exception e)
             {
                string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetAccionPersonalPorEstado: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
+            }
+            return accionPersonal;
+        }
+
+        //Creado por: Allan Prieto Badilla
+        //Fecha: 2024-07-16
+        //Obtener lista de Acciones de Personal
+        public async Task<List<cAccionPersonal>> GetAccionPersonalPorEstado(string IdPlanilla, string FechaInicio, string FechaFin, string estado)
+        {
+            List<cAccionPersonal> accionPersonal = new();
+            try
+            {
+
+                DateTime fechaMovInicio = DateTime.Parse($"{FechaInicio.Substring(0, 4)}-{FechaInicio.Substring(4, 2)}-{FechaInicio.Substring(6, 2)}");
+                DateTime fechaMovFinal = DateTime.Parse($"{FechaFin.Substring(0, 4)}-{FechaFin.Substring(4, 2)}-{FechaFin.Substring(6, 2)}");
+
+                
+                accionPersonal = await (from ap in _context.Acciones_Personal.Where(e => e.IdPlanilla == IdPlanilla && e.Estado.ToString() == estado &&
+                                                                              e.Inicio >= fechaMovInicio &&
+                                                                              e.Fin <= fechaMovFinal)
+                                        join inc in _context.Incidencias on ap.IdIncidencia equals inc.Id
+                                        select new cAccionPersonal
+                                        {
+                                            IdRegistro = ap.IdRegistro,
+                                            IdPlanilla = ap.IdPlanilla,
+                                            IdNumero = ap.IdNumero,
+                                            Inicio = ap.Inicio,
+                                            Fin = ap.Fin,
+                                            IdIncidencia = ap.IdIncidencia,
+                                            Estado = ap.Estado,
+                                            IdAccion = ap.IdAccion,
+                                            Comentario = ap.Comentario,
+                                            Dias = ap.Dias,
+                                            Usuario = ap.Usuario,
+                                            Fecha_Just = ap.Fecha_Just,
+                                            Dias_Apl = ap.Dias_Apl,
+                                            SolicitudId = ap.SolicitudId,
+                                            Nom_Conector = inc.nom_conector
+                                        }).ToListAsync();
+            }
+            catch (Exception e)
+            {
+                string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
                 _logger.LogError($"GeoTimeConnectService.GetAccionPersonalPorEstado: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
             return accionPersonal;

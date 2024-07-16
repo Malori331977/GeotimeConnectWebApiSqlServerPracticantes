@@ -33,6 +33,9 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         /// <param name="phLogin"></param>
         /// <returns>Instancia de eventresponse con el resultado de la operación</returns>
         public Task<EventResponse> PutPhLogin(cPh_Login phLogin);
+
+        public Task<EventResponse> Elimina_PhLogin(int id);
+
         public Task<List<cPh_Compania>> GetPhCompania();
         public Task<cPh_Compania> GetPhCompania(string idcomp);
 
@@ -313,6 +316,7 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         public Task<List<cAccionPersonal>> GetAccionPersonal(string IdPlanilla, DateTime FechaInicio, DateTime FechaFin);
         public Task<List<cAccionPersonal>> GetAccionPersonal(string IdPlanilla, DateTime FechaInicio, DateTime FechaFin, string usuario);
         public Task<List<cAccionPersonal>> GetAccionPersonalPorEstado(string IdPlanilla, string usuario, char estado);
+        public Task<List<cAccionPersonal>> GetAccionPersonalPorEstado(string IdPlanilla, string FechaInicio, string FechaFin, string estado);
         public Task<List<cAccionPersonal>> GetAccionPersonalPorEstado(string IdPlanilla, char estado);
 
         public Task<EventResponse> Sincronizar_AccionPersonal(IEnumerable<cAccionPersonal> accionPersonal);
