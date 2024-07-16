@@ -31,6 +31,10 @@ namespace GeoTimeConnectWebApi.Controllers
         [HttpGet("{idregistro}")]
         public async Task<cMarcaMovHorario> Get(int idregistro) => await _repoGT.GetMarcaMovHorario(idregistro);
 
+        [HttpGet("{idplanilla}/{estado}/{fechaInicio}/{fechaFinal}")]
+        public async Task<IEnumerable<cMarcaMovHorario>> Get(string idplanilla, string estado, string fechaInicio, string fechaFinal) => await _repoGT.GetMarcaMovHorario(idplanilla, estado, fechaInicio, fechaFinal);
+
+
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] IEnumerable<cMarcaMovHorario> marcasMovHorarios)
         {

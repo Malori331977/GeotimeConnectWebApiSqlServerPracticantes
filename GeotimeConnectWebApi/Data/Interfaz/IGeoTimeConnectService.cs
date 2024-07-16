@@ -422,6 +422,7 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
 
         public Task<List<cMarcaMovHorario>> GetMarcaMovHorario();
         public Task<cMarcaMovHorario> GetMarcaMovHorario(int idregistro);
+        public Task<List<cMarcaMovHorario>> GetMarcaMovHorario(string idplanilla, string estado, string fechaInicio, string fechaFinal);
         public Task<EventResponse> Sincronizar_MarcasMovHorario(IEnumerable<cMarcaMovHorario> marcasMovHorarios);
 
 
