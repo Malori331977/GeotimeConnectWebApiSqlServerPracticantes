@@ -31,8 +31,8 @@ namespace GeoTimeConnectWebApi.Controllers
         [HttpGet("{idplanilla}/{usuario}/{estado}")]
         public async Task<IEnumerable<cAccionPersonal>> Get(string idplanilla, string usuario, char estado) => await _repoGT.GetAccionPersonalPorEstado(idplanilla, usuario, estado);
 
-        [HttpGet("{idplanilla}/{fechainicio}/{fechafin}/{estado}")]
-        public async Task<IEnumerable<cAccionPersonal>> Get(string idplanilla, string fechainicio, string fechafin, string estado) => await _repoGT.GetAccionPersonalPorEstado(idplanilla, fechainicio, fechafin, estado);
+        [HttpGet("{idplanilla}/{fechainicio}/{fechafin}/{estado}/{idincidencia}")]
+        public async Task<IEnumerable<cAccionPersonal>> Get(string idplanilla, string fechainicio, string fechafin, char estado, int idincidencia) => await _repoGT.GetAccionPersonalPorEstado(idplanilla, fechainicio, fechafin, estado, idincidencia);
 
     }
 }

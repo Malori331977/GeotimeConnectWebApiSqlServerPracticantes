@@ -23,6 +23,7 @@ namespace GeotimeConnectWebApi.Models
 
         public IEnumerable<cMarcaIncidencia>? cMarcaIncidencias { get; set; }
         public IEnumerable<cMarcaIncidencia>? cMarcaIncidenciasJust { get; set; }
+        public IEnumerable<cAccionPersonal>? cAccionPersonal { get; set; }
 
 
     }

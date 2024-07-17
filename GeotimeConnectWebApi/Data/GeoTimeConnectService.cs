@@ -1468,7 +1468,7 @@ namespace GeoTimeConnectWebApi.Data
                         empleado.Departamento = null;
                         empleado.CentroCosto = null;
                         empleado.Ph_Planilla = null;
-
+                        empleado.cAccionPersonal = null;
 
 
                         _context.Add(empleado);
@@ -2442,6 +2442,7 @@ namespace GeoTimeConnectWebApi.Data
                     }
                     else
                     {
+                        incidencia.cAccionPersonal = null;
                         incidencia.Id = 0;
                         _context.Add(incidencia);
                     }
@@ -2509,8 +2510,9 @@ namespace GeoTimeConnectWebApi.Data
             cAccionPersonal? accionPersonal = new();
             try
             {
-                accionPersonal = await (from ap in _context.Acciones_Personal.Where(e => e.IdRegistro == idregistro)
-                                        join inc in _context.Incidencias on ap.IdIncidencia equals inc.Id
+                accionPersonal = await (from ap in _context.Acciones_Personal
+                                        .Include(e=>e.cIncidencia)
+                                        .Where(e => e.IdRegistro == idregistro)
                                         select new cAccionPersonal
                                         {
                                             IdRegistro = ap.IdRegistro,
@@ -2527,7 +2529,7 @@ namespace GeoTimeConnectWebApi.Data
                                             Fecha_Just = ap.Fecha_Just,
                                             Dias_Apl = ap.Dias_Apl,
                                             SolicitudId = ap.SolicitudId,
-                                            Nom_Conector = inc.nom_conector,
+                                            Nom_Conector = ap.cIncidencia==null?"":ap.cIncidencia.nom_conector,
                                         }).FirstOrDefaultAsync();
             }
             catch (Exception e)
@@ -2535,7 +2537,7 @@ namespace GeoTimeConnectWebApi.Data
                string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
                 _logger.LogError($"GeoTimeConnectService.GetAccionPersonal: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
-            return accionPersonal;
+            return accionPersonal!;
         }
 
         //Creado por: Marlon Loria Solano
@@ -2546,8 +2548,9 @@ namespace GeoTimeConnectWebApi.Data
             List<cAccionPersonal> accionPersonal = new();
             try
             {
-                accionPersonal = await (from ap in _context.Acciones_Personal.Where(e => e.IdPlanilla == IdPlanilla && e.Inicio >= FechaInicio && e.Fin <= FechaFin)
-                                        join inc in _context.Incidencias on ap.IdIncidencia equals inc.Id
+                accionPersonal = await (from ap in _context.Acciones_Personal
+                                        .Include(e => e.cIncidencia)
+                                        .Where(e => e.IdPlanilla == IdPlanilla && e.Inicio >= FechaInicio && e.Fin <= FechaFin)
                                         select new cAccionPersonal
                                         {
                                             IdRegistro = ap.IdRegistro,
@@ -2564,7 +2567,7 @@ namespace GeoTimeConnectWebApi.Data
                                             Fecha_Just = ap.Fecha_Just,
                                             Dias_Apl = ap.Dias_Apl,
                                             SolicitudId = ap.SolicitudId,
-                                            Nom_Conector = inc.nom_conector
+                                            Nom_Conector = ap.cIncidencia == null ? "" : ap.cIncidencia.nom_conector,
                                         }).ToListAsync();
             }
             catch (Exception e)
@@ -2585,11 +2588,12 @@ namespace GeoTimeConnectWebApi.Data
             {
 
 
-                accionPersonal = await (from ap in _context.Acciones_Personal.Where(e => e.IdPlanilla == IdPlanilla
-                                                                              && e.Inicio >= FechaInicio
-                                                                              && e.Fin <= FechaFin
-                                                                              && (e.Usuario == usuario || e.Usuario == (usuario + "\\")))
-                                        join inc in _context.Incidencias on ap.IdIncidencia equals inc.Id
+                accionPersonal = await (from ap in _context.Acciones_Personal
+                                        .Include(e => e.cIncidencia)
+                                        .Where(e => e.IdPlanilla == IdPlanilla
+                                                    && e.Inicio >= FechaInicio
+                                                    && e.Fin <= FechaFin
+                                                    && (e.Usuario == usuario || e.Usuario == (usuario + "\\")))
                                         select new cAccionPersonal
                                         {
                                             IdRegistro = ap.IdRegistro,
@@ -2606,7 +2610,7 @@ namespace GeoTimeConnectWebApi.Data
                                             Fecha_Just = ap.Fecha_Just,
                                             Dias_Apl = ap.Dias_Apl,
                                             SolicitudId = ap.SolicitudId,
-                                            Nom_Conector = inc.nom_conector
+                                            Nom_Conector = ap.cIncidencia == null ? "" : ap.cIncidencia.nom_conector,
                                         }).ToListAsync();
             }
             catch (Exception e)
@@ -2626,10 +2630,11 @@ namespace GeoTimeConnectWebApi.Data
             try
             {
 
-                accionPersonal = await (from ap in _context.Acciones_Personal.Where(e => e.IdPlanilla == IdPlanilla
-                                                                              && e.Estado == estado
-                                                                              && (e.Usuario.Contains(usuario)))
-                                        join inc in _context.Incidencias on ap.IdIncidencia equals inc.Id
+                accionPersonal = await (from ap in _context.Acciones_Personal
+                                        .Include(e => e.cIncidencia)
+                                        .Where(e => e.IdPlanilla == IdPlanilla
+                                        && e.Estado == estado
+                                        && (e.Usuario!.Contains(usuario)))
                                         select new cAccionPersonal
                                         {
                                             IdRegistro = ap.IdRegistro,
@@ -2646,7 +2651,7 @@ namespace GeoTimeConnectWebApi.Data
                                             Fecha_Just = ap.Fecha_Just,
                                             Dias_Apl = ap.Dias_Apl,
                                             SolicitudId = ap.SolicitudId,
-                                            Nom_Conector = inc.nom_conector
+                                            Nom_Conector = ap.cIncidencia == null ? "" : ap.cIncidencia.nom_conector,
                                         }).ToListAsync();
             }
             catch (Exception e)
@@ -2660,7 +2665,7 @@ namespace GeoTimeConnectWebApi.Data
         //Creado por: Allan Prieto Badilla
         //Fecha: 2024-07-16
         //Obtener lista de Acciones de Personal
-        public async Task<List<cAccionPersonal>> GetAccionPersonalPorEstado(string IdPlanilla, string FechaInicio, string FechaFin, string estado)
+        public async Task<List<cAccionPersonal>> GetAccionPersonalPorEstado(string IdPlanilla, string FechaInicio, string FechaFin, char estado, int idincidencia)
         {
             List<cAccionPersonal> accionPersonal = new();
             try
@@ -2670,10 +2675,14 @@ namespace GeoTimeConnectWebApi.Data
                 DateTime fechaMovFinal = DateTime.Parse($"{FechaFin.Substring(0, 4)}-{FechaFin.Substring(4, 2)}-{FechaFin.Substring(6, 2)}");
 
                 
-                accionPersonal = await (from ap in _context.Acciones_Personal.Where(e => e.IdPlanilla == IdPlanilla && e.Estado.ToString() == estado &&
-                                                                              e.Inicio >= fechaMovInicio &&
-                                                                              e.Fin <= fechaMovFinal)
-                                        join inc in _context.Incidencias on ap.IdIncidencia equals inc.Id
+                accionPersonal = await (from ap in _context.Acciones_Personal
+                                        .Include(e => e.cIncidencia)
+                                        .Include(e => e.cEmpleado)
+                                        .Where(e => e.IdPlanilla == IdPlanilla 
+                                            && e.Estado == (estado=='X'?e.Estado: estado) &&
+                                            e.Inicio >= fechaMovInicio &&
+                                            e.Fin <= fechaMovFinal &&
+                                            e.IdIncidencia == (idincidencia == -1 ? e.IdIncidencia : idincidencia))
                                         select new cAccionPersonal
                                         {
                                             IdRegistro = ap.IdRegistro,
@@ -2690,7 +2699,77 @@ namespace GeoTimeConnectWebApi.Data
                                             Fecha_Just = ap.Fecha_Just,
                                             Dias_Apl = ap.Dias_Apl,
                                             SolicitudId = ap.SolicitudId,
-                                            Nom_Conector = inc.nom_conector
+                                            Nom_Conector = ap.cIncidencia == null ? "" : ap.cIncidencia.nom_conector,
+                                            cEmpleado = ap.cEmpleado == null?null:
+                                                new cEmpleado
+                                                {
+                                                    IdNumero = ap.cEmpleado.IdNumero,
+                                                    IdPlanilla = ap.cEmpleado.IdPlanilla,
+                                                    Nombre = ap.cEmpleado.Nombre,
+                                                    Tarjeta = ap.cEmpleado.Tarjeta,
+                                                    Identificacion = ap.cEmpleado.Identificacion,
+                                                    IdGrupo = ap.cEmpleado.IdGrupo,
+                                                    IdDepartamento = ap.cEmpleado.IdDepartamento,
+                                                    IdHorario = ap.cEmpleado.IdHorario,
+                                                    Estado = ap.cEmpleado.Estado,
+                                                    IdAgrupamiento = ap.cEmpleado.IdAgrupamiento,
+                                                    foto = ap.cEmpleado.foto,
+                                                    IdCCosto = ap.cEmpleado.IdCCosto,
+                                                    exporta = ap.cEmpleado.exporta,
+                                                    ubicacion = ap.cEmpleado.ubicacion,
+                                                    rubro1 = ap.cEmpleado.rubro1,
+                                                    rubro2 = ap.cEmpleado.rubro2,
+                                                    rubro3 = ap.cEmpleado.rubro3,
+                                                    rubro4 = ap.cEmpleado.rubro4,
+                                                    rubro5 = ap.cEmpleado.rubro5,
+                                                    rubro6 = ap.cEmpleado.rubro6,
+                                                    rubro7 = ap.cEmpleado.rubro7,
+                                                    rubro8 = ap.cEmpleado.rubro8,
+                                                    rubro9 = ap.cEmpleado.rubro9,
+                                                    rubro10 = ap.cEmpleado.rubro10,
+                                                    rubro11 = ap.cEmpleado.rubro11,
+                                                    rubro12 = ap.cEmpleado.rubro12,
+                                                    rubro13 = ap.cEmpleado.rubro13,
+                                                    rubro14 = ap.cEmpleado.rubro14,
+                                                    rubro15 = ap.cEmpleado.rubro15,
+                                                    rubro16 = ap.cEmpleado.rubro16,
+                                                    rubro17 = ap.cEmpleado.rubro17,
+                                                    rubro18 = ap.cEmpleado.rubro18,
+                                                    rubro19 = ap.cEmpleado.rubro19,
+                                                    rubro20 = ap.cEmpleado.rubro20,
+                                                    rubro21 = ap.cEmpleado.rubro21,
+                                                    rubro22 = ap.cEmpleado.rubro22,
+                                                    rubro23 = ap.cEmpleado.rubro23,
+                                                    rubro24 = ap.cEmpleado.rubro24,
+                                                    rubro25 = ap.cEmpleado.rubro25,
+                                                    Fecha_Ingreso = ap.cEmpleado.Fecha_Ingreso,
+                                                    Email = ap.cEmpleado.Email,
+                                                    Tipo_Marca = ap.cEmpleado.Tipo_Marca,
+                                                    inicio_rol = ap.cEmpleado.inicio_rol,
+                                                    web_pass = ap.cEmpleado.web_pass,
+                                                    id_transfo_conc = ap.cEmpleado.id_transfo_conc,
+                                                    widioma = ap.cEmpleado.widioma,
+                                                    def_cc = ap.cEmpleado.def_cc,
+                                                    def_py = ap.cEmpleado.def_py,
+                                                    def_fase = ap.cEmpleado.def_fase,
+                                                    global_clave = ap.cEmpleado.global_clave,
+                                                    Fecha_Salida = ap.cEmpleado.Fecha_Salida,
+                                                    global_code = ap.cEmpleado.global_code,
+                                                    fecha_act_code = ap.cEmpleado.fecha_act_code,
+                                                },
+                                            cIncidencia = ap.cIncidencia == null ? null :
+                                                new cIncidencia
+                                                {
+                                                    Id = ap.cIncidencia.Id,
+                                                    Codigo = ap.cIncidencia.Codigo,
+                                                    Descripcion = ap.cIncidencia.Descripcion,
+                                                    id_pago = ap.cIncidencia.id_pago,
+                                                    nom_conector = ap.cIncidencia.nom_conector,
+                                                    tipo = ap.cIncidencia.tipo,
+                                                    ed_tiempo = ap.cIncidencia.ed_tiempo,
+                                                    requiere_accper = ap.cIncidencia.requiere_accper,
+                                                    marca_web = ap.cIncidencia.marca_web,
+                                                }
                                         }).ToListAsync();
             }
             catch (Exception e)
@@ -2806,6 +2885,9 @@ namespace GeoTimeConnectWebApi.Data
                 foreach (var accion in accionPersonal)
                 {
                     accion.IdAccion = 0;
+                    accion.cIncidencia = null;
+                    accion.cEmpleado = null;
+
                     _context.Add(accion);
                     await _context.SaveChangesAsync();
 
@@ -2852,6 +2934,8 @@ namespace GeoTimeConnectWebApi.Data
                     {
                         accion.IdAccion = 0;
                         accion.IdPlanilla = planilla.idplanilla;
+                        accion.cIncidencia = null;
+                        accion.cEmpleado = null;
 
                         _context.Add(accion);
                         await _context.SaveChangesAsync();
@@ -2932,6 +3016,9 @@ namespace GeoTimeConnectWebApi.Data
                         else
                         {
                             accion.IdIncidencia = incidencia.Id;
+                            accion.cIncidencia = null;
+                            accion.cEmpleado = null;
+
                             _context.Add(accion);
                             await _context.SaveChangesAsync();
 
@@ -3010,6 +3097,9 @@ namespace GeoTimeConnectWebApi.Data
                     else
                     {
                         accion.IdAccion = 0;
+                        accion.cIncidencia = null;
+                        accion.cEmpleado = null;
+
                         _context.Add(accion);
                         await _context.SaveChangesAsync();
 
