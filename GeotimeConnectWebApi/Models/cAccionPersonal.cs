@@ -1,4 +1,5 @@
 ﻿using GeotimeConnectWebApi.Models;
+using GeoTimeConnectWebApi.Models;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Numerics;
@@ -26,6 +27,11 @@ namespace GeotimeConnectWebApi.Models
 
         [NotMapped]
         public string? Nom_Conector { get; set; }
+
+        public cIncidencia? cIncidencia { get; set;}
+        public cEmpleado? cEmpleado { get; set; }
+
+
 
 
     }

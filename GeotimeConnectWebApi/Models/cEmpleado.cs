@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using GeotimeConnectWebApi.Models;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Runtime.ConstrainedExecution;
 using System.Text.RegularExpressions;
 
@@ -63,6 +64,8 @@ namespace GeoTimeConnectWebApi.Models
         public cDepartamento? Departamento { get; set; }
         public cCentroCosto? CentroCosto { get; set; }
         public cPh_Planilla? Ph_Planilla { get; set; }
+
+        public IEnumerable<cAccionPersonal>? cAccionPersonal { get; set; }
 
 
     }
