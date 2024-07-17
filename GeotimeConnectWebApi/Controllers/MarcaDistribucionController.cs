@@ -25,8 +25,8 @@ namespace GeoTimeConnectWebApi.Controllers
         }
 
 
-        [HttpGet("{idPlanilla}/{fechaInicio}/{fechaFin}/{idnumero}")]
-        public async Task<IEnumerable<cMarcaDistribucion>> Get(string idPlanilla, string fechaInicio, string fechaFin, string idnumero) => await _repoGT.GetMarcaDistribucion(idPlanilla, fechaInicio, fechaFin, idnumero);
+        [HttpGet("{idPlanilla}/{fechaInicio}/{fechaFin}/{idnumero}/{hora}")]
+        public async Task<IEnumerable<cMarcaDistribucion>> Get(string idPlanilla, string fechaInicio, string fechaFin, string idnumero, string hora) => await _repoGT.GetMarcaDistribucion(idPlanilla, fechaInicio, fechaFin, idnumero,hora);
 
        
 

@@ -993,7 +993,7 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         /// <param name="fechaFinal"></param>
         /// <param name="idnumero"></param>
         /// <returns>Lista de marcas distribuciones</returns>
-        public Task<List<cMarcaDistribucion>> GetMarcaDistribucion(string idplanilla, string fechaInicio, string fechaFinal, string idnumero);
+        public Task<List<cMarcaDistribucion>> GetMarcaDistribucion(string idplanilla, string fechaInicio, string fechaFinal, string idnumero, string hora);
 
 
         /// <summary>

@@ -5705,7 +5705,7 @@ namespace GeoTimeConnectWebApi.Data
         /// <param name="fechaFinal"></param>
         /// <param name="idnumero"></param>
         /// <returns>Lista de marcas distribuciones</returns>
-        public async Task<List<cMarcaDistribucion>> GetMarcaDistribucion(string idplanilla, string fechaInicio, string fechaFinal, string idnumero)
+        public async Task<List<cMarcaDistribucion>> GetMarcaDistribucion(string idplanilla, string fechaInicio, string fechaFinal, string idnumero, string hora)
         {
             List<cMarcaDistribucion>? marcaDistribucion = new();
             try
@@ -5718,7 +5718,8 @@ namespace GeoTimeConnectWebApi.Data
                                         .Where(e => e.FECHA >= fechaInicioExt
                                                 && e.FECHA <= fechaFinExt
                                                 && e.IDNUMERO == idnumero
-                                                && e.IDPLANILLA == idplanilla)
+                                                && e.IDPLANILLA == idplanilla
+                                                && e.ENTRADA == hora)
                                          select new cMarcaDistribucion
                                          {
                                              IDREGISTRO = e.IDREGISTRO,
