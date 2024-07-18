@@ -3082,7 +3082,7 @@ namespace GeoTimeConnectWebApi.Data
                         _context.Acciones_Personal.Update(accionbuscar);
                         await _context.SaveChangesAsync();
 
-                        var marcasIncidencias = await GetMarcaIncidencia(accion.IdNumero, accion.IdPlanilla, accion.Inicio, accion.Fin);
+                        var marcasIncidencias = await GetMarcaIncidencia(accion!.IdNumero!, accion!.IdPlanilla!, accion.Inicio, accion.Fin);
 
                         foreach (cMarcaIncidencia item in marcasIncidencias)
                         {
@@ -3137,7 +3137,67 @@ namespace GeoTimeConnectWebApi.Data
 
         }
 
-        
+        //Creado por: Marlon Loria Solano
+        //Fecha: 2024-07-18
+        /// <summary>
+        /// Sincronizar_AccionPersonal_CA: Sincroniza acciones de personal provenientes de Control de Asistencia.  No se deben aplicar
+        /// </summary>
+        /// <param name="accionPersonal">Recibe una lista de Acciones de Personal y las crea en GeoTime</param>
+        /// <returns>EventResponse: con el resultado de la operación</returns>
+        public async Task<EventResponse> Sincronizar_AccionPersonal_CA(IEnumerable<cAccionPersonal> accionPersonal)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+                foreach (var accion in accionPersonal)
+                {
+                    var accionbuscar = await _context.Acciones_Personal.FirstOrDefaultAsync(e => e.IdRegistro == accion.IdRegistro);
+
+                    if (accionbuscar is not null)
+                    {
+                        accionbuscar.IdIncidencia = accion.IdIncidencia;
+                        accionbuscar.Inicio = accion.Inicio;
+                        accionbuscar.Fin = accion.Fin;
+                        accionbuscar.Dias = accion.Dias;
+                        accionbuscar.Dias_Apl = accion.Dias_Apl;
+                        accionbuscar.IdAccion = accion.IdAccion;
+                        accionbuscar.Comentario = accion.Comentario;
+
+                        _context.Acciones_Personal.Update(accionbuscar);
+                        await _context.SaveChangesAsync();
+                    }
+                    else
+                    {
+                        accion.IdAccion = 0;
+                        accion.cIncidencia = null;
+                        accion.cEmpleado = null;
+
+                        _context.Add(accion);
+                        await _context.SaveChangesAsync();
+                    }
+
+
+
+                }
+            }
+            catch (Exception e)
+            {
+                string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"{error}");
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo realizar la sincronización de Accion de Personal. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo realizar la sincronización de Accion de Persona. Detalle de Error: " + e.InnerException.Message;
+
+            }
+
+            return respuesta;
+
+        }
+
 
         //Creado por: Marlon Loria Solano
         //Fecha: 2022-10-30
