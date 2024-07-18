@@ -321,8 +321,34 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
 
         public Task<EventResponse> Sincronizar_AccionPersonal(IEnumerable<cAccionPersonal> accionPersonal);
         public Task<EventResponse> Sincronizar_AccionPersonalNomConector(IEnumerable<cAccionPersonal> accionPersonal);
+
+        //Creado por: Marlon Loria Solano
+        //Fecha: 2024-07-18
+        /// <summary>
+        /// Sincronizar_AccionPersonal_CA: Sincroniza acciones de personal provenientes de Autogestión.
+        /// </summary>
+        /// <param name="accionPersonal">Recibe una lista de Acciones de Personal y las crea en GeoTime</param>
+        /// <returns>EventResponse: con el resultado de la operación</returns>
         public Task<EventResponse> Sincronizar_AccionPersonal_AutoGestion(IEnumerable<cAccionPersonal> accionPersonal);
-        public Task<EventResponse> Sincronizar_AccionPersonal_PreJustificacion(IEnumerable<cAccionPersonal> accionPersonal);        
+
+        //Creado por: Marlon Loria Solano
+        //Fecha: 2024-07-18
+        /// <summary>
+        /// Sincronizar_AccionPersonal_CA: Sincroniza acciones de personal provenientes de Control de Asistencia en Edicion de Marcas.  Se debe crear registro en marcas incidencias.
+        /// </summary>
+        /// <param name="accionPersonal">Recibe una lista de Acciones de Personal y las crea en GeoTime</param>
+        /// <returns>EventResponse: con el resultado de la operación</returns>
+        public Task<EventResponse> Sincronizar_AccionPersonal_PreJustificacion(IEnumerable<cAccionPersonal> accionPersonal);
+
+        //Creado por: Marlon Loria Solano
+        //Fecha: 2024-07-18
+        /// <summary>
+        /// Sincronizar_AccionPersonal_CA: Sincroniza acciones de personal provenientes de Control de Asistencia en Mantenimientos de Acciones.  No se deben aplicar
+        /// </summary>
+        /// <param name="accionPersonal">Recibe una lista de Acciones de Personal y las crea en GeoTime</param>
+        /// <returns>EventResponse: con el resultado de la operación</returns>
+        public Task<EventResponse> Sincronizar_AccionPersonal_CA(IEnumerable<cAccionPersonal> accionPersonal);
+
 
         public Task<List<cCentroCosto>> GetCentroCosto();
         public Task<cCentroCosto> GetCentroCosto(string idCCosto);
