@@ -2665,26 +2665,34 @@ namespace GeoTimeConnectWebApi.Data
         //Creado por: Allan Prieto Badilla
         //Fecha: 2024-07-16
         //Obtener lista de Acciones de Personal
-        public async Task<List<cAccionPersonal>> GetAccionPersonalPorEstado(string IdPlanilla, string FechaInicio, string FechaFin, char estado, int idincidencia)
+        public async Task<List<cAccionPersonal>> GetAccionPersonalPorEstado(string IdPlanilla, string FechaInicio, string FechaFin, char estado, int idincidencia, string idgrupo)
         {
             List<cAccionPersonal> accionPersonal = new();
             try
             {
-
                 DateTime fechaMovInicio = DateTime.Parse($"{FechaInicio.Substring(0, 4)}-{FechaInicio.Substring(4, 2)}-{FechaInicio.Substring(6, 2)}");
                 DateTime fechaMovFinal = DateTime.Parse($"{FechaFin.Substring(0, 4)}-{FechaFin.Substring(4, 2)}-{FechaFin.Substring(6, 2)}");
 
-                
-                accionPersonal = await (from ap in _context.Acciones_Personal
+                string[] ListGrupos = idgrupo?.Split(',');
+                List<int> groupIds = ListGrupos
+                    .Select(int.Parse)
+                    .ToList();
+
+                var accionPersonalConsulta = await _context.Acciones_Personal
                                         .Include(e => e.cIncidencia)
                                         .Include(e => e.cEmpleado)
-                                        .Where(e => e.IdPlanilla == IdPlanilla 
-                                            && e.Estado == (estado=='X'?e.Estado: estado) &&
+                                        .Where(e => e.IdPlanilla == IdPlanilla
+                                            && e.Estado == (estado == 'X' ? e.Estado : estado) &&
                                             e.Inicio >= fechaMovInicio &&
                                             e.Fin <= fechaMovFinal &&
-                                            e.IdIncidencia == (idincidencia == -1 ? e.IdIncidencia : idincidencia))
-                                        select new cAccionPersonal
-                                        {
+                                            e.IdIncidencia == (idincidencia == -1 ? e.IdIncidencia : idincidencia)).ToListAsync();
+
+                var filteredAccionesPersonal = (from ap in accionPersonalConsulta
+                                                join g in groupIds on ap.cEmpleado.IdGrupo equals g
+                                                select ap).ToList();
+
+                accionPersonal = filteredAccionesPersonal.Select(ap => new cAccionPersonal
+                {
                                             IdRegistro = ap.IdRegistro,
                                             IdPlanilla = ap.IdPlanilla,
                                             IdNumero = ap.IdNumero,
@@ -2770,7 +2778,7 @@ namespace GeoTimeConnectWebApi.Data
                                                     requiere_accper = ap.cIncidencia.requiere_accper,
                                                     marca_web = ap.cIncidencia.marca_web,
                                                 }
-                                        }).ToListAsync();
+                                        }).ToList();
             }
             catch (Exception e)
             {
