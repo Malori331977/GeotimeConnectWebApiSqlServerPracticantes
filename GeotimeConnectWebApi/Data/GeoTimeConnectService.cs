@@ -2670,24 +2670,6 @@ namespace GeoTimeConnectWebApi.Data
             List<cAccionPersonal> accionPersonal = new();
             try
             {
-
-                // ***********
-                //var grupos = idsgrupos.Split(",");
-
-                //List<cPh_Grupo> phgrupos = new List<cPh_Grupo>();
-
-                //foreach (var valor in grupos)
-                //    phgrupos.Add(new cPh_Grupo
-                //    {
-                //        idgrupo = int.Parse(valor),
-                //    });
-
-                //marcaExtraApb = (from m in await _context.Marcas_Extras_Apb.Where(e => e.idplanilla == idplanilla && e.fecha >= fechaInicioExt && e.fecha <= fechaFinExt && e.aprob_nivel1 == estado && e.estado == 'A').ToListAsync()
-                //                 join c in await _context.Empleados.ToListAsync() on new { idnumero = m.idnumero, cidplanilla = m.idplanilla } equals new { idnumero = c.IdNumero, cidplanilla = c.IdPlanilla }
-                //                 join g in phgrupos on c.IdGrupo equals g.idgrupo
-                //                 select m).ToList();
-                //*************
-
                 DateTime fechaMovInicio = DateTime.Parse($"{FechaInicio.Substring(0, 4)}-{FechaInicio.Substring(4, 2)}-{FechaInicio.Substring(6, 2)}");
                 DateTime fechaMovFinal = DateTime.Parse($"{FechaFin.Substring(0, 4)}-{FechaFin.Substring(4, 2)}-{FechaFin.Substring(6, 2)}");
 
