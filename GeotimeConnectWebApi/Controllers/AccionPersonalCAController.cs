@@ -35,5 +35,16 @@ namespace GeoTimeConnectWebApi.Controllers
             return Ok(respuesta);
         }
 
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(Int64 id)
+        {
+            EventResponse respuesta = await _repoGT.Elimina_AccionPersonal(id);
+
+            if (respuesta.Id != "0")
+                return BadRequest(respuesta);
+
+            return Ok(respuesta);
+        }
+
     }
 }
