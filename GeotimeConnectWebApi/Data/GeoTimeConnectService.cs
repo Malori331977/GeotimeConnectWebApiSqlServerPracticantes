@@ -651,6 +651,7 @@ namespace GeoTimeConnectWebApi.Data
             return respuesta;
 
         }
+
         //Fecha: 2022-10-30
         //Obtener lista de Conceptos
         public async Task<List<cPh_Grupo>> GetGrupo()
@@ -3206,6 +3207,39 @@ namespace GeoTimeConnectWebApi.Data
 
         }
 
+        /// <summary>
+        /// Elimina_AccionPersonal:  Metodo boorado de datos de la tabla cAccionPersonal
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns>EventResponse</returns>
+        public async Task<EventResponse> Elimina_AccionPersonal(Int64 id)
+        {
+            EventResponse respuesta = new EventResponse();
+            try
+            {
+                cAccionPersonal? model = await _context.Acciones_Personal
+                    .FirstOrDefaultAsync(e => e.IdRegistro == id);
+
+                if (model is not null)
+                {
+                    _context.Acciones_Personal.Remove(model);
+                }
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"{error}");
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo eliminar la Accion de Personal. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo eliminar la Accion de Personal. Detalle de Error: " + e.InnerException.Message;
+            }
+            return respuesta;
+
+        }
 
         //Creado por: Marlon Loria Solano
         //Fecha: 2022-10-30

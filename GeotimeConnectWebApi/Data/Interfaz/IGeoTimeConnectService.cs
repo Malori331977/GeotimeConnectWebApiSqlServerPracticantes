@@ -3,6 +3,7 @@ using GeoTimeConnectWebApi.Models;
 using GeoTimeConnectWebApi.Models.Response;
 using GeoTimeServiceReference;
 using Microsoft.EntityFrameworkCore;
+using System.Numerics;
 using static GeoTimeConnectWebApi.Models.CalculoPeriodoParam;
 
 namespace GeoTimeConnectWebApi.Data.Interfaz
@@ -349,6 +350,7 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         /// <returns>EventResponse: con el resultado de la operación</returns>
         public Task<EventResponse> Sincronizar_AccionPersonal_CA(IEnumerable<cAccionPersonal> accionPersonal);
 
+        public Task<EventResponse> Elimina_AccionPersonal(Int64 id);
 
         public Task<List<cCentroCosto>> GetCentroCosto();
         public Task<cCentroCosto> GetCentroCosto(string idCCosto);
