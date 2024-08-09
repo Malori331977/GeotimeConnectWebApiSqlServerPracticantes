@@ -350,6 +350,15 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         /// <returns>EventResponse: con el resultado de la operación</returns>
         public Task<EventResponse> Sincronizar_AccionPersonal_CA(IEnumerable<cAccionPersonal> accionPersonal);
 
+        //Creado por: Allan Prieto Badilla
+        //Fecha: 2024-08-08
+        /// <summary>
+        /// Sincronizar_AccionPersonal_CAUpdate: Sincroniza acciones de personal provenientes de Control de Asistencia en Mantenimientos de Acciones. Solo cambio de Estado
+        /// </summary>
+        /// <param name="accionPersonal">Recibe una lista de Acciones de Personal y las crea en GeoTime</param>
+        /// <returns>EventResponse: con el resultado de la operación</returns>
+        public Task<EventResponse> Sincronizar_AccionPersonal_CAUpdate(IEnumerable<cAccionPersonal> accionPersonal);
+
         public Task<EventResponse> Elimina_AccionPersonal(Int64 id);
 
         public Task<List<cCentroCosto>> GetCentroCosto();

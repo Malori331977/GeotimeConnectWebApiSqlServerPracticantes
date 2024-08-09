@@ -3185,9 +3185,6 @@ namespace GeoTimeConnectWebApi.Data
                         _context.Add(accion);
                         await _context.SaveChangesAsync();
                     }
-
-
-
                 }
             }
             catch (Exception e)
@@ -3206,6 +3203,50 @@ namespace GeoTimeConnectWebApi.Data
             return respuesta;
 
         }
+
+        //Creado por: Allan Prieto Badilla
+        //Fecha: 2024-08-8
+        /// <summary>
+        /// Sincronizar_AccionPersonal_CAUpdate: Sincroniza acciones de personal provenientes de Control de Asistencia.  No se deben aplicar
+        /// </summary>
+        /// <param name="accionPersonal">Recibe una lista de Acciones de Personal y las crea en GeoTime</param>
+        /// <returns>EventResponse: con el resultado de la operación</returns>
+        public async Task<EventResponse> Sincronizar_AccionPersonal_CAUpdate(IEnumerable<cAccionPersonal> accionPersonal)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+                foreach (var accion in accionPersonal)
+                {
+                    var accionbuscar = await _context.Acciones_Personal.FirstOrDefaultAsync(e => e.IdRegistro == accion.IdRegistro);
+
+                    if (accionbuscar is not null)
+                    {
+                        accionbuscar.Estado = accion.Estado;
+
+                        _context.Acciones_Personal.Update(accionbuscar);
+                        await _context.SaveChangesAsync();
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"{error}");
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo realizar la sincronización de Accion de Personal. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo realizar la sincronización de Accion de Persona. Detalle de Error: " + e.InnerException.Message;
+
+            }
+
+            return respuesta;
+
+        }
+
 
         /// <summary>
         /// Elimina_AccionPersonal:  Metodo boorado de datos de la tabla cAccionPersonal
