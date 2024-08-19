@@ -21,18 +21,18 @@ IConfiguration config = new ConfigurationBuilder()
 //se desencriptan los datos de conexion a las base de datos y se pasa la cadena de conexion con los datos
 //correctos.
 var appSettingsSection = config.GetSection("AppSettings");
-string SQLConnectionString = config.GetConnectionString("SqlServerDataBaseContext");
+string SQLConnectionString = config.GetConnectionString("SqlServerDataBaseContext")!;
 
-string userSQL = Encripta.getDecryptTripleDES(config.GetConnectionString("UserSQL"));
-string passSQL = Encripta.getDecryptTripleDES(config.GetConnectionString("PassSQL"));
+string userSQL = Encripta.getDecryptTripleDES(config.GetConnectionString("UserSQL")!);
+string passSQL = Encripta.getDecryptTripleDES(config.GetConnectionString("PassSQL")!);
 
 //ctadmin=7kRtaIP/ktY=
 //7ah3xu0$oa=TKbHv5rsQ0LqZRYKmhjE3g==
 
 
-string schema = config.GetConnectionString("Schema");
-string basedatos = config.GetConnectionString("DBName");
-string withCors = config.GetConnectionString("WithCors");
+string schema = config.GetConnectionString("Schema")!;
+string basedatos = config.GetConnectionString("DBName")!;
+string withCors = config.GetConnectionString("WithCors")!;
 
 SQLConnectionString = SQLConnectionString.Replace("UsuarioBDSQL", userSQL)
                                          .Replace("PassBDSQL", passSQL)

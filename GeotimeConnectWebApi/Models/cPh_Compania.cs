@@ -22,5 +22,9 @@
         public char? MAIL_TLS { get; set; }
         public string? HORA_CALC { get; set; }
         public char? IN_MARCAS { get; set; }
+
+        public string? APICLIENTID  { get; set; }
+        public string? APIUSER { get; set; }
+        public string? APIPASSWORD { get; set; }
     }
 }

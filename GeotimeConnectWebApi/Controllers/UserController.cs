@@ -17,9 +17,9 @@ namespace GeoTimeConnectWebApi.Controllers
         }
 
         [HttpPost]
-        public IActionResult Autentificar([FromBody] UserRequest model)
+        public async Task<IActionResult> Autentificar([FromBody] UserRequest model)
         {
-            UserResponse respuesta = _repoUser.Auth(model);
+            UserResponse respuesta = await _repoUser.Auth(model);
 
             if (respuesta == null)
                 return BadRequest("Ocurrió un error al autentificar la sesión.");
