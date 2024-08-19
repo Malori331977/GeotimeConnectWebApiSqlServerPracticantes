@@ -7,22 +7,25 @@ using GeoTimeConnectWebApi.Models.Utils;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using LibEncripta;
 
 namespace GeoTimeConnectWebApi.Data
 {
     public class UserService : IUserService
     {
         private readonly AppSettings _appSettings;
+        private readonly IGeoTimeConnectService _repoGT;
 
-        public UserService(IOptions<AppSettings> appSettings)
+        public UserService(IOptions<AppSettings> appSettings, IGeoTimeConnectService repoGT)
         {
             _appSettings = appSettings.Value;
+            _repoGT = repoGT;
         }
-        public UserResponse Auth(UserRequest user)
+        public async Task<UserResponse> Auth(UserRequest user)
         {
             UserResponse respuesta= new UserResponse();
 
-            UserRequest? usuario = UsuariosAutorizados()
+            UserRequest? usuario =  (await UsuariosAutorizados())
                 .Where(e => e.User == user.User && e.ClientId == user.ClientId 
                         && e.Password == user.Password)
                 .FirstOrDefault();
@@ -36,30 +39,49 @@ namespace GeoTimeConnectWebApi.Data
             return respuesta;
 
         }
-        private List<UserRequest> UsuariosAutorizados()
+        private async Task<List<UserRequest>> UsuariosAutorizados()
         {
             List<UserRequest> lista = new List<UserRequest>();
 
-            lista.Add(new UserRequest
-            {
-                User = "GSITCR",
-                Password = "c5bbf3d10de5c6dfdad016e6e948a27d343b5e22f35471324388460c4e14a27c",
-                ClientId = "197ac2e4bd0843c3974725a6544e1089c4a7dcae59087543ba6428c9914c35d9"
-            });
+            var companias = await _repoGT.GetPhCompania();
 
-            lista.Add(new UserRequest
+            foreach (var compania in companias)
             {
-                User = "FARMANOVA",
-                Password = "f0d81b01ad108987352b1cd7c1b9fc9b683635fe6b19598040f250430cbf863a",
-                ClientId = "6dc71b09e7f4885aeb3551eae81351f9c81d6dfc82d2042a064bc5165337fd98"
-            });
+                if (!string.IsNullOrEmpty(compania.APIUSER) && !string.IsNullOrEmpty(compania.APICLIENTID) 
+                 && !string.IsNullOrEmpty(compania.APIPASSWORD))
+                {
+                    lista.Add(new UserRequest
+                    {
+                        User = Encripta.getDecryptTripleDES(compania.APIUSER!),
+                        Password = Encripta.getDecryptTripleDES(compania.APIPASSWORD!),
+                        ClientId = Encripta.getDecryptTripleDES(compania.APICLIENTID!)
+                    });
+                }
+                
 
-            lista.Add(new UserRequest
-            {
-                User = "DELOITTE",
-                Password = "9A4B229E90E51274B442B85D326882A3D3D6CE39A69081DFB8EF855074EEBA56",
-                ClientId = "73ED37A7547BC82D03A3E6AD5ED137677824BB59089FDC123A4D32892B4BE1B0"
-            });
+            }
+
+            //lista.Add(new UserRequest
+            //{
+            //    User ="GSITCR",
+            //    Password = "c5bbf3d10de5c6dfdad016e6e948a27d343b5e22f35471324388460c4e14a27c",
+            //    ClientId = "197ac2e4bd0843c3974725a6544e1089c4a7dcae59087543ba6428c9914c35d9"
+            //});
+
+
+            //lista.Add(new UserRequest
+            //{
+            //    User = "FARMANOVA",
+            //    Password = "f0d81b01ad108987352b1cd7c1b9fc9b683635fe6b19598040f250430cbf863a",
+            //    ClientId = "6dc71b09e7f4885aeb3551eae81351f9c81d6dfc82d2042a064bc5165337fd98"
+            //});
+
+            //lista.Add(new UserRequest
+            //{
+            //    User = "DELOITTE",
+            //    Password = "9A4B229E90E51274B442B85D326882A3D3D6CE39A69081DFB8EF855074EEBA56",
+            //    ClientId = "73ED37A7547BC82D03A3E6AD5ED137677824BB59089FDC123A4D32892B4BE1B0"
+            //});
 
 
 

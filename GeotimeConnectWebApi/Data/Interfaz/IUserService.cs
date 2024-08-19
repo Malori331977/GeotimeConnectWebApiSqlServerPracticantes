@@ -5,6 +5,6 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
 {
     public interface IUserService
     {
-        public UserResponse Auth(UserRequest user);
+        public Task<UserResponse> Auth(UserRequest user);
     }
 }
