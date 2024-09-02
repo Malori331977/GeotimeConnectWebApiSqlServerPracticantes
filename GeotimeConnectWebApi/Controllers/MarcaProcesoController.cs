@@ -10,6 +10,7 @@ using GeoTimeConnectWebApi.Models.Utils;
 using System.Text.Json;
 using GeoTimeConnectWebApi.Models.Request;
 using GeoTimeConnectWebApi.Models.Response;
+using GeotimeConnectWebApi.Models;
 
 namespace GeoTimeConnectWebApi.Controllers
 {
@@ -29,6 +30,11 @@ namespace GeoTimeConnectWebApi.Controllers
 
         [HttpGet("{idnumero}/{fecha}")]
         public async Task<IEnumerable<cMarcaProceso>> Get(string idnumero, string fecha) => await _repoGT.GetMarcasProceso(idnumero,fecha);
+
+        // Nuevo GET para Cambio Masivo, Entrada - Salida
+        [HttpGet("{idplanilla}/{fechainicio}/{fechafin}/{idgrupo}")]
+        public async Task<IEnumerable<cMarcaProceso>> Get(string idplanilla, string fechainicio, string fechafin, string idgrupo) => await _repoGT.GetMarcasProceso(idplanilla, fechainicio, fechafin, idgrupo);
+
 
         [HttpPut]
         public async Task<IActionResult> Put([FromBody] IEnumerable<cMarcaMovTurno> marcasMovTurno)

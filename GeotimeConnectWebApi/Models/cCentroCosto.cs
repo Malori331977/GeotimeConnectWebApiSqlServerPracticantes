@@ -8,6 +8,7 @@
         public string? Alias_CCosto { get; set; }
 
         public IEnumerable<cEmpleado>? Empleado { get; set; }
+        public IEnumerable<cMarcaTiempoAdicional>? cMarcaTiempoAdicionals { get; set; }
 
     }
 }
