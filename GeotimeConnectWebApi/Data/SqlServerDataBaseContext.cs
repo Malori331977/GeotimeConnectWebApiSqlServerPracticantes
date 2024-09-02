@@ -97,6 +97,7 @@ namespace GeoTimeConnectWebApi.Data
         public DbSet<cPaletaColor> PaletaColores { get; set; }
         public DbSet<cPh_Nivel> Ph_Niveles { get; set; }
         public DbSet<cMarcaDistribucionConcepto> Marcas_Distribuciones_Conceptos { get; set; }
+        public DbSet<cMarcaTiempoAdicional> Marcas_Tiempo_Adicional { get; set; }
 
 
 
@@ -190,6 +191,8 @@ namespace GeoTimeConnectWebApi.Data
             builder.Entity<cPh_Nivel>().ToTable("PH_NIVELES", Schema)
                .HasKey(e => new { e.IDNIVEL });
             builder.Entity<cMarcaDistribucionConcepto>().ToTable("MARCAS_DISTRIBUCIONES_CONCEPTOS", Schema)
+               .HasKey(e => new { e.IDREGISTRO });
+            builder.Entity<cMarcaTiempoAdicional>().ToTable("MARCAS_TIEMPO_ADICIONAL", Schema)
                .HasKey(e => new { e.IDREGISTRO });
 
             #endregion
@@ -300,6 +303,37 @@ namespace GeoTimeConnectWebApi.Data
                .HasOne(e => e.cIncidencia)
                .WithMany(d => d.cAccionPersonal)
                .HasForeignKey(e => new { e.IdIncidencia });
+
+            builder.Entity<cMarcaProceso>()
+               .ToTable("MARCAS_PROCESO", Schema)
+               .HasOne(e => e.cEmpleado)
+               .WithMany(d => d.cMarcaProcesos)
+               .HasForeignKey(e => new { e.idnumero });
+
+            builder.Entity<cMarcaProceso>()
+               .ToTable("MARCAS_PROCESO", Schema)
+               .HasOne(e => e.cTurno)
+               .WithMany(d => d.cMarcaProcesos)
+               .HasForeignKey(e => new { e.idturno });
+
+            builder.Entity<cMarcaTiempoAdicional>()
+               .ToTable("MARCAS_TIEMPO_ADICIONAL", Schema)
+               .HasOne(e => e.cEmpleado)
+               .WithMany(d => d.cMarcaTiempoAdicionals)
+               .HasForeignKey(e => new { e.IDNUMERO });
+
+            builder.Entity<cMarcaTiempoAdicional>()
+               .ToTable("MARCAS_TIEMPO_ADICIONAL", Schema)
+               .HasOne(e => e.cCentroCosto)
+               .WithMany(d => d.cMarcaTiempoAdicionals)
+               .HasForeignKey(e => new { e.CENTRO_COSTO });
+
+            builder.Entity<cMarcaTiempoAdicional>()
+               .ToTable("MARCAS_TIEMPO_ADICIONAL", Schema)
+               .HasOne(e => e.cConcepto)
+               .WithMany(d => d.cMarcaTiempoAdicionals)
+               .HasForeignKey(e => new { e.IDCONCEPTO });
+
 
             #endregion
 

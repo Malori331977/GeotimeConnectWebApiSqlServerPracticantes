@@ -639,6 +639,17 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         /// <param name="fecha">fecha para determinar periodo</param>
         /// <returns>Lista de Marcas del periodo</returns>
         public Task<List<cMarcaProceso>> GetMarcasProceso(string idnumero, string fecha);
+        public Task<List<cMarcaProceso>> GetMarcasProceso(string IdPlanilla, string FechaInicio, string FechaFin, string idgrupo);
+
+        /// <summary>
+        /// GetMarcasTiempoAdicional: Obtener las marcas tiempo adicional 
+        /// </summary>
+        /// <param name="IdPlanilla">Planilla</param>
+        /// <param name="FechaInicio">fecha para determinar periodo</param>
+        /// <param name="idgrupo">Grupos a lo que pertenecen los empleados</param>
+        /// <returns>Lista de Marcas Tiempos adicionales</returns>
+        public Task<List<cMarcaTiempoAdicional>> GetMarcasTiempoAdicional(string IdPlanilla, string FechaInicio, string idgrupo);
+
 
         /// <summary>
         /// GetMarcasAudit: Obtener las marcas_audit para un empleado, planilla y un periodo especifico

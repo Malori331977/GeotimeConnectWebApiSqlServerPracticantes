@@ -96,5 +96,7 @@ namespace GeoTimeConnectWebApi.Models
         [NotMapped]
         public int? idRegistro { get; set; }
 
+        public IEnumerable<cMarcaProceso>? cMarcaProcesos { get; set; }
+
     }
 }

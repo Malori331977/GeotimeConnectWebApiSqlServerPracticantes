@@ -1,4 +1,6 @@
-﻿namespace GeoTimeConnectWebApi.Models
+﻿using GeotimeConnectWebApi.Models;
+
+namespace GeoTimeConnectWebApi.Models
 {
     public class cMarcaProceso
     {
@@ -41,5 +43,8 @@
         public string? mtardia { get; set; }
         public char proyectado { get; set; }
         public long? reg_sale { get; set; }
+
+        public cEmpleado? cEmpleado { get; set; }
+        public cTurno? cTurno { get; set; }
     }
 }

@@ -5445,6 +5445,264 @@ namespace GeoTimeConnectWebApi.Data
             }
             return marca;
         }
+        //Creado por: Allan Prieto Badilla
+        //Fecha: 2024-09-2
+        //Obtener lista de Marcas procesos para Entrada - Salida
+        public async Task<List<cMarcaProceso>> GetMarcasProceso(string IdPlanilla, string FechaInicio, string FechaFin, string idgrupo)
+        {
+            List<cMarcaProceso> accionPersonal = new();
+            try
+            {
+                DateTime fechaMovInicio = DateTime.Parse($"{FechaInicio.Substring(0, 4)}-{FechaInicio.Substring(4, 2)}-{FechaInicio.Substring(6, 2)}");
+                DateTime fechaMovFinal = DateTime.Parse($"{FechaFin.Substring(0, 4)}-{FechaFin.Substring(4, 2)}-{FechaFin.Substring(6, 2)}");
+
+                string[] ListGrupos = idgrupo?.Split(',');
+                List<int> groupIds = ListGrupos
+                    .Select(int.Parse)
+                    .ToList();
+
+                var accionPersonalConsulta = await _context.Marcas_Proceso
+                                        .Include(e => e.cEmpleado)
+                                        .Include(e => e.cTurno)
+                                        .Where(e => e.idplanilla == IdPlanilla &&
+                                            e.fecha_entra == fechaMovInicio ).ToListAsync();
+
+                var filteredAccionesPersonal = (from ap in accionPersonalConsulta
+                                                join g in groupIds on ap.cEmpleado.IdGrupo equals g
+                                                select ap).OrderBy(e => e.cEmpleado.Nombre).ToList();
+
+                accionPersonal = filteredAccionesPersonal.Select(ap => new cMarcaProceso
+                {
+                    idregistro = ap.idregistro,
+                    idplanilla = ap.idplanilla,
+                    idnumero = ap.idnumero,
+                    fecha_entra = ap.fecha_entra,
+                    fecha_sale = ap.fecha_sale,
+                    hora_entra = ap.hora_entra,
+                    hora_sale = ap.hora_sale,
+                    idturno = ap.idturno,
+
+                    TIEMPO_CALC_JORN = ap.TIEMPO_CALC_JORN,
+                    TDC = ap.TDC,
+                    estado = ap.estado,
+                    estado_inc = ap.estado_inc,
+                    manticipo = ap.manticipo,
+                    mtardia = ap.mtardia,
+                    proyectado = ap.proyectado,
+                    reg_sale = ap.reg_sale,
+                    cEmpleado = ap.cEmpleado == null ? null :
+                                                new cEmpleado
+                                                {
+                                                    IdNumero = ap.cEmpleado.IdNumero,
+                                                    IdPlanilla = ap.cEmpleado.IdPlanilla,
+                                                    Nombre = ap.cEmpleado.Nombre,
+                                                    Tarjeta = ap.cEmpleado.Tarjeta,
+                                                    Identificacion = ap.cEmpleado.Identificacion,
+                                                    IdGrupo = ap.cEmpleado.IdGrupo,
+                                                    IdDepartamento = ap.cEmpleado.IdDepartamento,
+                                                    IdHorario = ap.cEmpleado.IdHorario,
+                                                    Estado = ap.cEmpleado.Estado,
+                                                    IdAgrupamiento = ap.cEmpleado.IdAgrupamiento,
+                                                    foto = ap.cEmpleado.foto,
+                                                    IdCCosto = ap.cEmpleado.IdCCosto,
+                                                    exporta = ap.cEmpleado.exporta,
+                                                    ubicacion = ap.cEmpleado.ubicacion,
+                                                    rubro1 = ap.cEmpleado.rubro1,
+                                                    rubro2 = ap.cEmpleado.rubro2,
+                                                    rubro3 = ap.cEmpleado.rubro3,
+                                                    rubro4 = ap.cEmpleado.rubro4,
+                                                    rubro5 = ap.cEmpleado.rubro5,
+                                                    rubro6 = ap.cEmpleado.rubro6,
+                                                    rubro7 = ap.cEmpleado.rubro7,
+                                                    rubro8 = ap.cEmpleado.rubro8,
+                                                    rubro9 = ap.cEmpleado.rubro9,
+                                                    rubro10 = ap.cEmpleado.rubro10,
+                                                    rubro11 = ap.cEmpleado.rubro11,
+                                                    rubro12 = ap.cEmpleado.rubro12,
+                                                    rubro13 = ap.cEmpleado.rubro13,
+                                                    rubro14 = ap.cEmpleado.rubro14,
+                                                    rubro15 = ap.cEmpleado.rubro15,
+                                                    rubro16 = ap.cEmpleado.rubro16,
+                                                    rubro17 = ap.cEmpleado.rubro17,
+                                                    rubro18 = ap.cEmpleado.rubro18,
+                                                    rubro19 = ap.cEmpleado.rubro19,
+                                                    rubro20 = ap.cEmpleado.rubro20,
+                                                    rubro21 = ap.cEmpleado.rubro21,
+                                                    rubro22 = ap.cEmpleado.rubro22,
+                                                    rubro23 = ap.cEmpleado.rubro23,
+                                                    rubro24 = ap.cEmpleado.rubro24,
+                                                    rubro25 = ap.cEmpleado.rubro25,
+                                                    Fecha_Ingreso = ap.cEmpleado.Fecha_Ingreso,
+                                                    Email = ap.cEmpleado.Email,
+                                                    Tipo_Marca = ap.cEmpleado.Tipo_Marca,
+                                                    inicio_rol = ap.cEmpleado.inicio_rol,
+                                                    web_pass = ap.cEmpleado.web_pass,
+                                                    id_transfo_conc = ap.cEmpleado.id_transfo_conc,
+                                                    widioma = ap.cEmpleado.widioma,
+                                                    def_cc = ap.cEmpleado.def_cc,
+                                                    def_py = ap.cEmpleado.def_py,
+                                                    def_fase = ap.cEmpleado.def_fase,
+                                                    global_clave = ap.cEmpleado.global_clave,
+                                                    Fecha_Salida = ap.cEmpleado.Fecha_Salida,
+                                                    global_code = ap.cEmpleado.global_code,
+                                                    fecha_act_code = ap.cEmpleado.fecha_act_code,
+                                                },
+                    cTurno = ap.cTurno == null ? null :
+                                                new cTurno
+                                                {
+                                                    IdTurno = ap.cTurno.IdTurno,
+                                                    Descripcion = ap.cTurno.Descripcion,
+                                                    min_con_6 = ap.cTurno.min_con_6,
+                                                    fuerza_calc = ap.cTurno.fuerza_calc,
+                                                    idagrupamiento = ap.cTurno.idagrupamiento,
+                                                }
+                }).ToList();
+            }
+            catch (Exception e)
+            {
+                string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetMarcasProceso: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
+            }
+            return accionPersonal;
+        }
+
+
+        //********************* Reparar este Tiempos Adicionales *****************
+        //Creado por: Allan Prieto Badilla
+        //Fecha: 2024-09-2
+        //Obtener lista de Marcas Tiempo Adicional
+        public async Task<List<cMarcaTiempoAdicional>> GetMarcasTiempoAdicional(string IdPlanilla, string FechaInicio, string idgrupo)
+        {
+            List<cMarcaTiempoAdicional> accionPersonal = new();
+            try
+            {
+                DateTime fechaMovInicio = DateTime.Parse($"{FechaInicio.Substring(0, 4)}-{FechaInicio.Substring(4, 2)}-{FechaInicio.Substring(6, 2)}");
+                //DateTime fechaMovFinal = DateTime.Parse($"{FechaFin.Substring(0, 4)}-{FechaFin.Substring(4, 2)}-{FechaFin.Substring(6, 2)}");
+
+                string[] ListGrupos = idgrupo?.Split(',');
+                List<int> groupIds = ListGrupos
+                    .Select(int.Parse)
+                    .ToList();
+
+                var accionPersonalConsulta = await _context.Marcas_Tiempo_Adicional
+                                        .Include(e => e.cEmpleado)
+                                        .Include(e => e.cCentroCosto)
+                                        .Include(e => e.cConcepto)
+                                        .Where(e => e.IDPLANILLA == IdPlanilla &&
+                                            e.FECHA_REFERENCIA >= fechaMovInicio).ToListAsync();
+
+                var filteredAccionesPersonal = (from ap in accionPersonalConsulta
+                                                join g in groupIds on ap.cEmpleado.IdGrupo equals g
+                                                select ap).OrderBy(e => e.cEmpleado.Nombre).ToList();
+
+                accionPersonal = filteredAccionesPersonal.Select(ap => new cMarcaTiempoAdicional
+                {
+                    IDREGISTRO = ap.IDREGISTRO,
+                    IDPLANILLA = ap.IDPLANILLA,
+                    IDNUMERO = ap.IDNUMERO,
+                    PERIODO = ap.PERIODO,
+                    IDCONCEPTO = ap.IDCONCEPTO,
+                    CANTIDAD = ap.CANTIDAD,
+                    FECHA_REFERENCIA = ap.FECHA_REFERENCIA,
+                    USUARIO = ap.USUARIO,
+                    FECHA_REGISTRO = ap.FECHA_REGISTRO,
+                    FECHA_ACTUALIZA = ap.FECHA_ACTUALIZA,
+                    CENTRO_COSTO = ap.CENTRO_COSTO,
+                    COMENTARIO = ap.COMENTARIO,
+                    USUARIO_ACTUALIZA = ap.USUARIO_ACTUALIZA,
+                    ESTADO = ap.ESTADO,
+                    TCANTIDAD = ap.TCANTIDAD,
+                    PROYECTO = ap.PROYECTO,
+                    FASE = ap.FASE,
+                    cEmpleado = ap.cEmpleado == null ? null :
+                                                new cEmpleado
+                                                {
+                                                    IdNumero = ap.cEmpleado.IdNumero,
+                                                    IdPlanilla = ap.cEmpleado.IdPlanilla,
+                                                    Nombre = ap.cEmpleado.Nombre,
+                                                    Tarjeta = ap.cEmpleado.Tarjeta,
+                                                    Identificacion = ap.cEmpleado.Identificacion,
+                                                    IdGrupo = ap.cEmpleado.IdGrupo,
+                                                    IdDepartamento = ap.cEmpleado.IdDepartamento,
+                                                    IdHorario = ap.cEmpleado.IdHorario,
+                                                    Estado = ap.cEmpleado.Estado,
+                                                    IdAgrupamiento = ap.cEmpleado.IdAgrupamiento,
+                                                    foto = ap.cEmpleado.foto,
+                                                    IdCCosto = ap.cEmpleado.IdCCosto,
+                                                    exporta = ap.cEmpleado.exporta,
+                                                    ubicacion = ap.cEmpleado.ubicacion,
+                                                    rubro1 = ap.cEmpleado.rubro1,
+                                                    rubro2 = ap.cEmpleado.rubro2,
+                                                    rubro3 = ap.cEmpleado.rubro3,
+                                                    rubro4 = ap.cEmpleado.rubro4,
+                                                    rubro5 = ap.cEmpleado.rubro5,
+                                                    rubro6 = ap.cEmpleado.rubro6,
+                                                    rubro7 = ap.cEmpleado.rubro7,
+                                                    rubro8 = ap.cEmpleado.rubro8,
+                                                    rubro9 = ap.cEmpleado.rubro9,
+                                                    rubro10 = ap.cEmpleado.rubro10,
+                                                    rubro11 = ap.cEmpleado.rubro11,
+                                                    rubro12 = ap.cEmpleado.rubro12,
+                                                    rubro13 = ap.cEmpleado.rubro13,
+                                                    rubro14 = ap.cEmpleado.rubro14,
+                                                    rubro15 = ap.cEmpleado.rubro15,
+                                                    rubro16 = ap.cEmpleado.rubro16,
+                                                    rubro17 = ap.cEmpleado.rubro17,
+                                                    rubro18 = ap.cEmpleado.rubro18,
+                                                    rubro19 = ap.cEmpleado.rubro19,
+                                                    rubro20 = ap.cEmpleado.rubro20,
+                                                    rubro21 = ap.cEmpleado.rubro21,
+                                                    rubro22 = ap.cEmpleado.rubro22,
+                                                    rubro23 = ap.cEmpleado.rubro23,
+                                                    rubro24 = ap.cEmpleado.rubro24,
+                                                    rubro25 = ap.cEmpleado.rubro25,
+                                                    Fecha_Ingreso = ap.cEmpleado.Fecha_Ingreso,
+                                                    Email = ap.cEmpleado.Email,
+                                                    Tipo_Marca = ap.cEmpleado.Tipo_Marca,
+                                                    inicio_rol = ap.cEmpleado.inicio_rol,
+                                                    web_pass = ap.cEmpleado.web_pass,
+                                                    id_transfo_conc = ap.cEmpleado.id_transfo_conc,
+                                                    widioma = ap.cEmpleado.widioma,
+                                                    def_cc = ap.cEmpleado.def_cc,
+                                                    def_py = ap.cEmpleado.def_py,
+                                                    def_fase = ap.cEmpleado.def_fase,
+                                                    global_clave = ap.cEmpleado.global_clave,
+                                                    Fecha_Salida = ap.cEmpleado.Fecha_Salida,
+                                                    global_code = ap.cEmpleado.global_code,
+                                                    fecha_act_code = ap.cEmpleado.fecha_act_code,
+                                                },
+                    cCentroCosto = ap.cCentroCosto == null ? null :
+                                                new cCentroCosto
+                                                {
+                                                    IdCCosto = ap.cCentroCosto.IdCCosto,
+                                                    Descripcion = ap.cCentroCosto.Descripcion,
+                                                },
+                    cConcepto = ap.cConcepto == null ? null :
+                                                new cConcepto
+                                                {
+                                                    id = ap.cConcepto.id,
+                                                    Concepto = ap.cConcepto.Concepto,
+                                                    Descripcion = ap.cConcepto.Descripcion,
+                                                    tipo_j = ap.cConcepto.tipo_j,
+                                                    tipo_h = ap.cConcepto.tipo_h,
+                                                    columnar = ap.cConcepto.columnar,
+                                                    factor = ap.cConcepto.factor,
+                                                    tolerancia = ap.cConcepto.tolerancia,
+                                                    ordinario = ap.cConcepto.ordinario,
+                                                    autorizado = ap.cConcepto.autorizado,
+                                                    adicional = ap.cConcepto.adicional,
+                                                }
+                }).ToList();
+            }
+            catch (Exception e)
+            {
+                string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetMarcasTiempoAdicional: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
+            }
+            return accionPersonal;
+        }
+
+
 
         //Creado por: Marlon Loria Solano
         //Fecha: 2023-08-25

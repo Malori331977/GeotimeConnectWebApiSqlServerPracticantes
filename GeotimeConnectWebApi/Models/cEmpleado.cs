@@ -66,6 +66,8 @@ namespace GeoTimeConnectWebApi.Models
         public cPh_Planilla? Ph_Planilla { get; set; }
 
         public IEnumerable<cAccionPersonal>? cAccionPersonal { get; set; }
+        public IEnumerable<cMarcaProceso>? cMarcaProcesos { get; set; }
+        public IEnumerable<cMarcaTiempoAdicional>? cMarcaTiempoAdicionals { get; set; }
 
 
     }
