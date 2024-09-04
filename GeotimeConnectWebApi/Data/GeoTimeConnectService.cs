@@ -5664,8 +5664,7 @@ namespace GeoTimeConnectWebApi.Data
             }
             return accionPersonal;
         }
-
-
+        // Cambio 
         //********************* Reparar este Tiempos Adicionales *****************
         //Creado por: Allan Prieto Badilla
         //Fecha: 2024-09-2

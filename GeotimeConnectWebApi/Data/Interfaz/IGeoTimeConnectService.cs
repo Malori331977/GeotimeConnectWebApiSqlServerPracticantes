@@ -11,7 +11,7 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
     public interface IGeoTimeConnectService
     {
         
-
+        // ..
         /* Metodos SQL */
         #region SQLMetodes
         public Task<IEnumerable<cPh_Login>> GetPhLogin();
