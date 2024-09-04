@@ -24,6 +24,7 @@ namespace GeoTimeConnectWebApi.Controllers
         {
             _repoGT = repoGT;
         }
+        // .
 
         //[HttpGet("{fecha}")]
         //public async Task<IEnumerable<cMarcaProceso>> Get(string fecha) => await _repoGT.GetMarcasProceso(fecha);

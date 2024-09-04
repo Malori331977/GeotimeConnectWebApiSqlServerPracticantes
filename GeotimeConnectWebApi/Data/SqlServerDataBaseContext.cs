@@ -321,7 +321,7 @@ namespace GeoTimeConnectWebApi.Data
                .HasOne(e => e.cEmpleado)
                .WithMany(d => d.cMarcaTiempoAdicionals)
                .HasForeignKey(e => new { e.IDNUMERO });
-
+            //.
             builder.Entity<cMarcaTiempoAdicional>()
                .ToTable("MARCAS_TIEMPO_ADICIONAL", Schema)
                .HasOne(e => e.cCentroCosto)
