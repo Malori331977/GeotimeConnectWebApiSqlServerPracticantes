@@ -18,8 +18,9 @@ namespace GeoTimeConnectWebApi.Models
         public string CANTIDAD { get; set; }
         public DateTime FECHA_REFERENCIA { get; set; }
         public string USUARIO { get; set; }
-        public Date? FECHA_REGISTRO { get; set; }
-        public Date? FECHA_ACTUALIZA { get; set; }
+        
+        public DateOnly? FECHA_REGISTRO { get; set; }
+        public DateOnly? FECHA_ACTUALIZA { get; set; }
         public string? CENTRO_COSTO { get; set; }
         public string? COMENTARIO { get; set; }
         public string? USUARIO_ACTUALIZA { get; set; }

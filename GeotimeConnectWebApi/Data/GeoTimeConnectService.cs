@@ -5686,8 +5686,8 @@ namespace GeoTimeConnectWebApi.Data
                                         .Include(e => e.cEmpleado)
                                         .Include(e => e.cCentroCosto)
                                         .Include(e => e.cConcepto)
-                                        .Where(e => e.IDPLANILLA == IdPlanilla &&
-                                            e.FECHA_REFERENCIA >= fechaMovInicio).ToListAsync();
+                                        .Where(e => e.IDPLANILLA == IdPlanilla && e.FECHA_REFERENCIA>=fechaMovInicio)
+                                        .ToListAsync();
 
                 var filteredAccionesPersonal = (from ap in accionPersonalConsulta
                                                 join g in groupIds on ap.cEmpleado.IdGrupo equals g
