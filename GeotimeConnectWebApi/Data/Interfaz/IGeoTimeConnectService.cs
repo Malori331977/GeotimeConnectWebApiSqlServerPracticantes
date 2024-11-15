@@ -485,6 +485,16 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         public Task<IEnumerable<cPh_Periodos>> GetPeriodo(string fecha, string vigente);
 
         /// <summary>
+        /// getPeriodo: Método para obtener los periodos della proyeccion anterior 
+        /// </summary>
+        /// <returns>Lista de cPh_Periodos</returns>
+        /// <param name="idperiodo">Fecha del periodo</param>
+        /// <param name="proyeccion">Fecha del periodo</param>
+        /// <param name="vigente">Periodo está vigente </param>
+        public Task<IEnumerable<cPh_Periodos>> GetPeriodo(string idperiodo, string proyeccion, string vigente);
+
+
+        /// <summary>
         /// GetPeriodoVigenteEmpleado: Método para obtener el periodo vigenta para un empleado  
         /// </summary>
         /// <returns>Un item de cPh_Periodos</returns>
