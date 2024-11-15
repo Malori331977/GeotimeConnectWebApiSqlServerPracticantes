@@ -4525,6 +4525,41 @@ namespace GeoTimeConnectWebApi.Data
             return periodo;
         }
 
+        //Creado por: Allan Prieto
+        //Fecha: 2024-11-15
+        /// <summary>
+        /// getPeriodo: Método para obtener los periodos anteriores a la proyecion 
+        /// </summary>
+        /// <returns>Lista de cPh_Periodos</returns>
+        /// <param name="idperiodo">Fecha del periodo</param>
+        /// <param name="proyeccion">Fecha del periodo</param>
+        /// <param name="vigente">Periodo está vigente </param>
+        public async Task<IEnumerable<cPh_Periodos>> GetPeriodo(string idperiodo, string proyeccion, string vigente)
+        {
+
+            List<cPh_Periodos>? periodos = new();
+            try
+            {
+                var periodo = await _context.Ph_Periodos.FindAsync(idperiodo);
+                if (periodo == null || !periodo.inicio_proy.HasValue)
+                {
+                    // Manejar el caso en que el periodo no se encuentra o no tiene fecha de inicio_proyeccion
+                    return new List<cPh_Periodos>();
+                }
+                DateTime fechaInicioProyeccion = periodo.inicio_proy.Value;
+                periodos = await _context.Ph_Periodos
+                    .Where(e => e.inicio_proy < fechaInicioProyeccion && e.estado == 'T')
+                    .ToListAsync();
+
+            }
+            catch (Exception e)
+            {
+                string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetPeriodo: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
+            }
+            return periodos;
+        }
+
         /// <summary>
         /// GetPeriodoVigenteUsuario: Método para obtener lista de periodos vigentes para un usuario  
         /// </summary>

@@ -26,12 +26,16 @@ namespace GeoTimeConnectWebApi.Controllers
         }
 
         [HttpGet]
-        public async Task<IEnumerable<cPh_Periodos>> Get() => await _repoGT.GetPeriodo();      
+        public async Task<IEnumerable<cPh_Periodos>> Get() => await _repoGT.GetPeriodo();
 
         [HttpGet("{idperiodo}")]
         public async Task<cPh_Periodos> Get(string idperiodo) => await _repoGT.GetPeriodo(idperiodo);
 
-		[HttpGet("{fecha}/{vigente}")]
+        [HttpGet("{idperiodo}/{proyeccion}/{vigente}")]
+        public async Task<IEnumerable<cPh_Periodos>> Get(string idperiodo, string proyeccion, string vigente) => await _repoGT.GetPeriodo(idperiodo, proyeccion, vigente);
+
+
+        [HttpGet("{fecha}/{vigente}")]
 		public async Task<IEnumerable<cPh_Periodos>> Get(string fecha, string vigente) => await _repoGT.GetPeriodo(fecha, vigente);
 
         [HttpPost]
