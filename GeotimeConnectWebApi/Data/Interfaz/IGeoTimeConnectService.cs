@@ -652,14 +652,37 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         public Task<List<cMarcaProceso>> GetMarcasProceso(string IdPlanilla, string FechaInicio, string FechaFin, string idgrupo);
 
         /// <summary>
+        /// GetMarcasTiempoAdicional: Obtener marca tiempo adicional 
+        /// </summary>
+        /// <param name="IdRegistro">Planilla</param>
+        /// <returns>Un registro en particular de Marca Tiempo Adicional</returns>
+        public Task<List<cMarcaTiempoAdicional>> GetMarcasTiempoAdicional(string IdRegistro);
+
+
+        /// <summary>
         /// GetMarcasTiempoAdicional: Obtener las marcas tiempo adicional 
         /// </summary>
         /// <param name="IdPlanilla">Planilla</param>
-        /// <param name="FechaInicio">fecha para determinar periodo</param>
+        /// <param name="idPeriodo">Planilla</param>
+        /// <param name="Fecha">fecha para determinar periodo</param>
+        /// <param name="idconcepto">fecha para determinar periodo</param>
         /// <param name="idgrupo">Grupos a lo que pertenecen los empleados</param>
         /// <returns>Lista de Marcas Tiempos adicionales</returns>
-        public Task<List<cMarcaTiempoAdicional>> GetMarcasTiempoAdicional(string IdPlanilla, string FechaInicio, string idgrupo);
+        public Task<List<cMarcaTiempoAdicional>> GetMarcasTiempoAdicional(string IdPlanilla, string idPeriodo, string Fecha, int idconcepto, string idgrupo);
 
+        /// <summary>
+        /// Sincronizar_MarcasTiempoAdicional: Sincroniza las marcas tiempo adicional
+        /// </summary>
+        /// <param name="marcasTiempoAdicional"></param>
+        /// <returns></returns>
+        public Task<EventResponse> Sincronizar_MarcasTiempoAdicional(IEnumerable<cMarcaTiempoAdicional> marcasTiempoAdicional);
+
+        /// <summary>
+        /// Elimina_MarcasTiempoAdicional: Elimina un registro de Marca Tiempo Adicional
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public Task<EventResponse> Elimina_MarcasTiempoAdicional(int id);
 
         /// <summary>
         /// GetMarcasAudit: Obtener las marcas_audit para un empleado, planilla y un periodo especifico
