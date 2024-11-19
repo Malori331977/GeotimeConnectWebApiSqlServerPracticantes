@@ -24,29 +24,34 @@ namespace GeoTimeConnectWebApi.Controllers
         {
             _repoGT = repoGT;
         }
-        // .
 
-        //[HttpGet("{fecha}")]
-        //public async Task<IEnumerable<cMarcaProceso>> Get(string fecha) => await _repoGT.GetMarcasProceso(fecha);
-
-        //[HttpGet("{idnumero}/{fecha}")]
-        //public async Task<IEnumerable<cMarcaProceso>> Get(string idnumero, string fecha) => await _repoGT.GetMarcasProceso(idnumero,fecha);
+        [HttpGet("{idRegistro}")]
+        public async Task<IEnumerable<cMarcaTiempoAdicional>> Get(string idRegistro) => await _repoGT.GetMarcasTiempoAdicional(idRegistro);
 
         // GET para Edición Condiciones especiales
-        [HttpGet("{idplanilla}/{fechainicio}/{idgrupo}")]
-        public async Task<IEnumerable<cMarcaTiempoAdicional>> Get(string idplanilla, string fechainicio, string idgrupo) => await _repoGT.GetMarcasTiempoAdicional(idplanilla, fechainicio, idgrupo);
+        [HttpGet("{idplanilla}/{idperiodo}/{fecha}/{idconcepto}/{idgrupo}")]
+        public async Task<IEnumerable<cMarcaTiempoAdicional>> Get(string idplanilla, string idperiodo, string fecha, int idconcepto , string idgrupo) => await _repoGT.GetMarcasTiempoAdicional(idplanilla, idperiodo, fecha, idconcepto, idgrupo);
 
+        [HttpPost]
+        public async Task<IActionResult> Post([FromBody] IEnumerable<cMarcaTiempoAdicional> marcasTiempoAdicional)
+        {
+            EventResponse respuesta = await _repoGT.Sincronizar_MarcasTiempoAdicional(marcasTiempoAdicional);
 
-        //[HttpPut]
-        //public async Task<IActionResult> Put([FromBody] IEnumerable<cMarcaMovTurno> marcasMovTurno)
-        //{
-        //    EventResponse respuesta = await _repoGT.PutMarcasProceso(marcasMovTurno);
+            if (respuesta.Id != "0")
+                return BadRequest(respuesta);
 
-        //    if (respuesta.Id != "0")
-        //        return BadRequest(respuesta);
+            return Ok(respuesta);
+        }
 
-        //    return Ok(respuesta);
-        //}
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            EventResponse respuesta = await _repoGT.Elimina_MarcasTiempoAdicional(id);
 
+            if (respuesta.Id != "0")
+                return BadRequest(respuesta);
+
+            return Ok(respuesta);
+        }
     }
 }
