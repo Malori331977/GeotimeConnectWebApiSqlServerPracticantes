@@ -126,13 +126,13 @@ namespace GeoTimeConnectWebApi.Data
         /// </summary>
         /// <returns>Una instancia de la clase cPhLogin</returns>
         /// ///<param name="id">Id del usuario requerido</param>
-        public async Task<cPh_Login> GetPhLoginByUsuario(string id)
+        public async Task<cPh_Login> GetPhLoginByUsuario(int id)
         {
             cPh_Login? phlogin = new();
 
             try
             {
-                phlogin = await _context.PH_LOGIN.FirstOrDefaultAsync(e => e.usuario.ToUpper() == id.ToUpper());
+                phlogin = await _context.PH_LOGIN.FirstOrDefaultAsync(e => e.idusuario == id);
             }
             catch (Exception e)
             {
