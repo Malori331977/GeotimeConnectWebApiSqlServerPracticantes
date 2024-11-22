@@ -26,7 +26,7 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         /// </summary>
         /// <returns>Una instancia de la clase cPhLogin</returns>
         /// ///<param name="id">Id del usuario requerido</param>
-        public Task<cPh_Login> GetPhLoginByUsuario(int id);
+        public Task<cPh_Login> GetPhLoginByUsuario(string id);
 
         /// <summary>
         /// PutPhLogin: metodo para actualizar campos de filtros del ph_login

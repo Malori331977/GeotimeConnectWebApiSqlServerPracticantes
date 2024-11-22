@@ -24,7 +24,7 @@ namespace GeoTimeConnectWebApi.Controllers
         }     
 
         [HttpGet("{id}")]
-        public async Task<cPh_Login> Get(int id) => await _repoGT.GetPhLoginByUsuario(id);
+        public async Task<cPh_Login> Get(string id) => await _repoGT.GetPhLoginByUsuario(id);
 
     }
 }
