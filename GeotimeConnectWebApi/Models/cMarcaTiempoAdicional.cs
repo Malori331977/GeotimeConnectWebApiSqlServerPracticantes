@@ -7,7 +7,7 @@ namespace GeoTimeConnectWebApi.Models
 {
     public class cMarcaTiempoAdicional
     {
-        // ..
+        
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public long IDREGISTRO { get; set; }

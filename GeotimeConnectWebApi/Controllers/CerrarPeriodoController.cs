@@ -22,7 +22,6 @@ namespace GeoTimeConnectWebApi.Controllers
         private readonly IGeoTimeConnectService _repoGT;
         public CerrarPeriodoController(IGeoTimeConnectService repoGT)
         {
-
             _repoGT = repoGT;
         }
 

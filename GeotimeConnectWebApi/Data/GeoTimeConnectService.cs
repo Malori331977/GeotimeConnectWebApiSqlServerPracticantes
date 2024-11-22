@@ -5478,6 +5478,7 @@ namespace GeoTimeConnectWebApi.Data
             }
             return marca;
         }
+
         //Creado por: Allan Prieto Badilla
         //Fecha: 2024-09-2
         //Obtener lista de Marcas procesos para Entrada - Salida
@@ -5842,7 +5843,7 @@ namespace GeoTimeConnectWebApi.Data
                                         .Where(e => e.IDPLANILLA == IdPlanilla
                                                     && e.PERIODO == idPeriodo
                                                     && e.FECHA_REFERENCIA>=fechaMovInicio
-                                                    && e.IDCONCEPTO == idConcepto)
+                                                    && e.IDCONCEPTO == (idConcepto == -1 ? e.IDCONCEPTO : idConcepto))
                                         .ToListAsync();
 
                 var filteredAccionesPersonal = (from ap in accionPersonalConsulta
@@ -9316,9 +9317,9 @@ namespace GeoTimeConnectWebApi.Data
                         command.CommandText = _schema + ".cierro_periodo";
                         command.CommandType = CommandType.StoredProcedure;
 
-                        /* Parametros necesarios */
+                        // Parametros necesarios 
                         command.Parameters.Add(new SqlParameter("@IDPLANILLA", SqlDbType.VarChar) { Value = parametros.IdPlanilla });
-                        command.Parameters.Add(new SqlParameter("@GRUPO", SqlDbType.Int) { Value = parametros.Grupo });
+                        command.Parameters.Add(new SqlParameter("@GRUPO", SqlDbType.VarChar) { Value = parametros.Grupo });
                         command.Parameters.Add(new SqlParameter("@PERIODO", SqlDbType.VarChar) { Value = parametros.Periodo });
                         command.Parameters.Add(new SqlParameter("@INICIO", SqlDbType.DateTime) { Value = parametros.Inicio });
                         command.Parameters.Add(new SqlParameter("@FIN", SqlDbType.DateTime) { Value = parametros.Fin });
