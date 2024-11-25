@@ -9817,6 +9817,13 @@ namespace GeoTimeConnectWebApi.Data
 
         }
 
+        // Creado por: Allan Prieto Badilla
+        /// <summary>
+        /// Obtener_Conceptos: Obtiene la lista de conceptos de la compañia
+        /// </summary>
+        /// <param name="compania"></param>
+        /// <param name="sesion"></param>
+        /// <returns></returns>
         public async Task<IEnumerable<cObtengoConcepto>> Obtener_Conceptos(string compania, string sesion)
         {
             List<cObtengoConcepto>? listaConceptos = new();
@@ -9848,6 +9855,46 @@ namespace GeoTimeConnectWebApi.Data
                 throw;
             }
             return listaConceptos;
+        }
+
+        // creando por Allan Prieto Badilla
+        /// <summary>
+        /// Obtener_TipoAccion: Obtiene la lista de tipos de acciones de la compañia
+        /// </summary>
+        /// <param name="compania"></param>
+        /// <param name="sesion"></param>
+        /// <returns></returns>
+        public async Task<IEnumerable<cObtengoTipoAccion>> Obtener_TipoAccion(string compania, string sesion)
+        {
+            List<cObtengoTipoAccion>? listaTipoAccion = new();
+
+            try
+            {
+                obtengo_tipoaccionRequest obtengoTipoAccion = new obtengo_tipoaccionRequest
+                {
+                    comp = compania,
+                    sesion = sesion,
+                };
+
+                EndpointConfiguration endpointConfiguration = new();
+                GeoTimeServiceReference.ServiceSoapClient geoWebService = new(endpointConfiguration);
+
+                var result = await geoWebService.obtengo_tipoaccionAsync(obtengoTipoAccion);
+                string resultString = result.obtengo_tipoaccionResult;
+
+                if (!string.IsNullOrEmpty(resultString))
+                {
+                    // Conversión de la respuesta JSON a la lista de objetos cObtengoConcepto
+                    listaTipoAccion = JsonSerializer.Deserialize<List<cObtengoTipoAccion>>(resultString);
+                }
+            }
+            catch (Exception e)
+            {
+                string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.obtengo_tipoaccionRequest: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}");
+                throw;
+            }
+            return listaTipoAccion;
         }
 
         #endregion
