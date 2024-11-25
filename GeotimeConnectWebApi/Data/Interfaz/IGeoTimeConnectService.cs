@@ -310,6 +310,7 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         public Task<EventResponse> Init_Periodo(IEnumerable<cInit_Periodo> parametros);
         public Task<EventResponse> Cal_Periodo_Planilla(IEnumerable<cCal_Periodo_Planilla> parametros);
         public Task<IEnumerable<cObtengoConcepto>> Obtener_Conceptos(string compania, string sesion);
+        public Task<IEnumerable<cObtengoTipoAccion>> Obtener_TipoAccion(string compania, string sesion);
 
         #endregion
 
