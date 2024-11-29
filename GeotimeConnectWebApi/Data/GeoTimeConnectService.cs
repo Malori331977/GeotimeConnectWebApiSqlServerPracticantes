@@ -157,8 +157,16 @@ namespace GeoTimeConnectWebApi.Data
 
                 if (loginBuscar is not null)
                 {
-                    loginBuscar.fcomp = phLogin.fcomp;
+                    loginBuscar.usuario = phLogin.usuario;
+                    loginBuscar.descripcion = phLogin.descripcion;
+                    //loginBuscar.fcomp = phLogin.fcomp;
+                    loginBuscar.usa_wusuario = phLogin.usa_wusuario;
+                    loginBuscar.OMITE_LIC = phLogin.OMITE_LIC;
                     loginBuscar.idsesion = 0; // se reinicia la sesion
+                    loginBuscar.clave = phLogin.clave;
+                    loginBuscar.GLOBAL_CLAVE = phLogin.GLOBAL_CLAVE;
+                    loginBuscar.EMAIL = phLogin.EMAIL;
+                    loginBuscar.companias = phLogin.companias;
                     _context.PH_LOGIN.Update(loginBuscar);
                 }
                 else
