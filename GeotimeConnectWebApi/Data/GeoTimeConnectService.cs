@@ -107,6 +107,7 @@ namespace GeoTimeConnectWebApi.Data
         public async Task<cPh_Login> GetPhLogin(string id)
         {
             cPh_Login? phlogin = new();
+            funciones.funciones_geo funcionesGeo = new();
 
             try
             {
@@ -151,26 +152,37 @@ namespace GeoTimeConnectWebApi.Data
         public async Task<EventResponse> PutPhLogin(cPh_Login phLogin)
         {
             EventResponse respuesta = new EventResponse();
+            funciones.funciones_geo funcionesGeo = new();
             try
             {
                 cPh_Login? loginBuscar = await _context.PH_LOGIN.FirstOrDefaultAsync(e => e.idusuario == phLogin.idusuario);
-
+                var Pas = (phLogin.GLOBAL_CLAVE == null) ? "0" : "1";
+                
                 if (loginBuscar is not null)
                 {
+
                     loginBuscar.usuario = phLogin.usuario;
                     loginBuscar.descripcion = phLogin.descripcion;
-                    //loginBuscar.fcomp = phLogin.fcomp;
                     loginBuscar.usa_wusuario = phLogin.usa_wusuario;
                     loginBuscar.OMITE_LIC = phLogin.OMITE_LIC;
+                    //loginBuscar.fcomp = phLogin.fcomp;
                     loginBuscar.idsesion = 0; // se reinicia la sesion
-                    loginBuscar.clave = phLogin.clave;
-                    loginBuscar.GLOBAL_CLAVE = phLogin.GLOBAL_CLAVE;
+                    
+                    // Verifica que sea necesario cambiar la clave
+                    loginBuscar.clave = ("0" == Pas) ? loginBuscar.clave : funcionesGeo.Global_encrypt(Encripta.getDecryptTripleDES(phLogin.clave));
+                    // Verifica que sea necesario cambiar la clave
+                    loginBuscar.GLOBAL_CLAVE = ("0" == Pas) ? loginBuscar.GLOBAL_CLAVE : funcionesGeo.Global_encrypt(Encripta.getDecryptTripleDES(phLogin.GLOBAL_CLAVE));
+
+                    //loginBuscar.GLOBAL_CLAVE = phLogin.GLOBAL_CLAVE;
                     loginBuscar.EMAIL = phLogin.EMAIL;
                     loginBuscar.companias = phLogin.companias;
+
                     _context.PH_LOGIN.Update(loginBuscar);
                 }
                 else
                 {
+                    phLogin.clave = funcionesGeo.Global_encrypt(Encripta.getDecryptTripleDES(phLogin.clave));
+                    phLogin.GLOBAL_CLAVE = funcionesGeo.Global_encrypt(Encripta.getDecryptTripleDES(phLogin.GLOBAL_CLAVE));
                     // crear un nuevo registro si no existe
                     await _context.PH_LOGIN.AddAsync(phLogin);
                 }
