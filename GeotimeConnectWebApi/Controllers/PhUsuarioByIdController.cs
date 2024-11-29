@@ -27,5 +27,17 @@ namespace GeoTimeConnectWebApi.Controllers
         [HttpGet("{id}")]
         public async Task<cPh_Usuario> Get(int id) => await _repoGT.GetPhUsuarioById(id);
 
+
+        [HttpPut]// Actualiza de el mantenimiento de configuracion, Usuarios compañia
+        public async Task<IActionResult> Post([FromBody] cPh_Usuario usuario)
+        {
+            EventResponse respuesta = await _repoGT.PutActualizarPhUsuario(usuario);
+
+            if (respuesta.Id != "0")
+                return BadRequest(respuesta);
+
+            return Ok(respuesta);
+        }
+
     }
 }

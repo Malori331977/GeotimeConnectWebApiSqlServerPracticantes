@@ -805,6 +805,13 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         public Task<EventResponse> PutPhUsuario(cPh_Usuario usuario);
 
         /// <summary>
+        /// PutPhUsuario: utilizado para actualizar variables globales del usuario para los filtros
+        /// </summary>
+        /// <param name="usuario"></param>
+        /// <returns></returns>
+        public Task<EventResponse> PutActualizarPhUsuario(cPh_Usuario usuario);
+
+        /// <summary>
         /// GetPhSistema: Obtener datos de Sistema 
         /// </summary>
         /// <returns>Instancia de cPh_Sistema con los datos del sistema </returns>

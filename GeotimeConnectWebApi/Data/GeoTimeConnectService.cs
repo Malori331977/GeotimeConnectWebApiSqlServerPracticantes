@@ -6675,7 +6675,6 @@ namespace GeoTimeConnectWebApi.Data
 
             try
             {
-
                 cPh_Usuario? usuarioBuscar = await _context.Ph_Usuarios.FirstOrDefaultAsync(e => e.IDUSUARIO == usuario.IDUSUARIO);
 
                 if (usuarioBuscar is not null)
@@ -6691,6 +6690,49 @@ namespace GeoTimeConnectWebApi.Data
             catch (Exception e)
             {
                string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"{error}");
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo realizar la actualización del usuario. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo realizar la actualización del usuario. Detalle de Error: " + e.InnerException.Message;
+
+            }
+
+            return respuesta;
+
+        }
+
+        /// <summary>
+        /// PutPhUsuario: utilizado para actualizar variables de PhUsuario 
+        /// </summary>
+        /// <param name="usuario"></param>
+        /// <returns></returns>
+        public async Task<EventResponse> PutActualizarPhUsuario(cPh_Usuario usuario)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+                cPh_Usuario? usuarioBuscar = await _context.Ph_Usuarios.FirstOrDefaultAsync(e => e.IDUSUARIO == usuario.IDUSUARIO);
+
+                if (usuarioBuscar is not null)
+                {
+                    usuarioBuscar.PLANILLAS = usuario.PLANILLAS;
+                    usuarioBuscar.NIVEL = usuario.NIVEL;
+                    usuarioBuscar.GRUPOS = usuario.GRUPOS;
+                    usuarioBuscar.ESTADO = usuario.ESTADO;
+                    usuarioBuscar.NIVEL_APROB_EXT = usuario.NIVEL_APROB_EXT;
+
+                    _context.Ph_Usuarios.Update(usuarioBuscar);
+                }
+
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
                 _logger.LogError($"{error}");
                 respuesta.Id = "1";
                 respuesta.Respuesta = "Error";
