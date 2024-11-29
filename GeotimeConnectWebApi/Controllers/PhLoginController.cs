@@ -24,11 +24,11 @@ namespace GeoTimeConnectWebApi.Controllers
             _repoGT = repoGT;
         }
 
-        [HttpGet]
-        public async Task<IEnumerable<cPh_Login>> Get() => await _repoGT.GetPhLogin();
+        [HttpGet] // Lista de elementos de cPh_Login
+        public async Task<IEnumerable<cPh_Login>> Get() => await _repoGT.GetPhLogin(); 
 
-        [HttpGet("{id}")]
-        public async Task<cPh_Login> Get(string id) => await _repoGT.GetPhLogin(id);
+        [HttpGet("{id}")] // Obtiene un elemento por medio del id ==> en este caso es el (correo)
+        public async Task<cPh_Login> Get(string id) => await _repoGT.GetPhLogin(id); 
 
         [HttpPut]
         public async Task<IActionResult> Post([FromBody] cPh_Login phLogin)

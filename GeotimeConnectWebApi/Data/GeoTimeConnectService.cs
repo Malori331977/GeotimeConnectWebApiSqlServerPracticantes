@@ -158,7 +158,13 @@ namespace GeoTimeConnectWebApi.Data
                 if (loginBuscar is not null)
                 {
                     loginBuscar.fcomp = phLogin.fcomp;
+                    loginBuscar.idsesion = 0; // se reinicia la sesion
                     _context.PH_LOGIN.Update(loginBuscar);
+                }
+                else
+                {
+                    // crear un nuevo registro si no existe
+                    await _context.PH_LOGIN.AddAsync(phLogin);
                 }
 
                 await _context.SaveChangesAsync();
@@ -173,11 +179,8 @@ namespace GeoTimeConnectWebApi.Data
                     respuesta.Descripcion = "No se pudo realizar la actualización del login. Detalle de Error: " + e.Message;
                 else
                     respuesta.Descripcion = "No se pudo realizar la actualización del login. Detalle de Error: " + e.InnerException.Message;
-
             }
-
             return respuesta;
-
         }
 
         /// <summary>
