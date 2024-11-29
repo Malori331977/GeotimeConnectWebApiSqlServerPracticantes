@@ -10,6 +10,7 @@ using GeoTimeConnectWebApi.Models.Utils;
 using System.Text.Json;
 using GeoTimeConnectWebApi.Models.Request;
 using GeoTimeConnectWebApi.Models.Response;
+using GeotimeConnectWebApi.Models;
 
 namespace GeoTimeConnectWebApi.Controllers
 {
