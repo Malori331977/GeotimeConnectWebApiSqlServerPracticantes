@@ -156,7 +156,7 @@ namespace GeoTimeConnectWebApi.Data
             try
             {
                 cPh_Login? loginBuscar = await _context.PH_LOGIN.FirstOrDefaultAsync(e => e.idusuario == phLogin.idusuario);
-                var Pas = (phLogin.GLOBAL_CLAVE == null) ? "0" : "1";
+                var Pas = (phLogin.GLOBAL_CLAVE == "0") ? "0" : "1";
                 
                 if (loginBuscar is not null)
                 {
