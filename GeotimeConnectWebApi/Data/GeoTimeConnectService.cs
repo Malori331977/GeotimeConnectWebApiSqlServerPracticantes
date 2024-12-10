@@ -6724,6 +6724,9 @@ namespace GeoTimeConnectWebApi.Data
                     usuarioBuscar.GRUPOS = usuario.GRUPOS;
                     usuarioBuscar.ESTADO = usuario.ESTADO;
                     usuarioBuscar.NIVEL_APROB_EXT = usuario.NIVEL_APROB_EXT;
+                    usuarioBuscar.ORDEN_EMP = usuario.ORDEN_EMP;
+                    usuarioBuscar.FILT_PRGT = usuario.FILT_PRGT;
+                    usuarioBuscar.TIPO_EDT = usuario.TIPO_EDT;
 
                     _context.Ph_Usuarios.Update(usuarioBuscar);
                 }
@@ -6740,11 +6743,8 @@ namespace GeoTimeConnectWebApi.Data
                     respuesta.Descripcion = "No se pudo realizar la actualización del usuario. Detalle de Error: " + e.Message;
                 else
                     respuesta.Descripcion = "No se pudo realizar la actualización del usuario. Detalle de Error: " + e.InnerException.Message;
-
             }
-
             return respuesta;
-
         }
 
         /// <summary>
