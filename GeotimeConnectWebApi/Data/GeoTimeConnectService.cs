@@ -4191,23 +4191,29 @@ namespace GeoTimeConnectWebApi.Data
                     {
                         idgrupo = int.Parse(valor),
                     });
-                
 
+                var periodos = await _context.Ph_Periodos.ToListAsync();
+                var planillas = await _context.Ph_Planilla.ToListAsync();
+                var empleados = await _context.Empleados.ToListAsync();
                 DateTime fechaMov = DateTime.Parse($"{fechaPeriodo.Substring(0, 4)}-{fechaPeriodo.Substring(4, 2)}-{fechaPeriodo.Substring(6, 2)}");
-                var periodos = await (from a in _context.Ph_Periodos
-                                      join b in _context.Ph_Planilla on a.tipo_planilla equals b.tipo_planilla
-                                      join c in _context.Empleados on b.idplanilla equals c.IdPlanilla
+                
+                periodos = (from a in periodos
+                                      join b in planillas on a.tipo_planilla equals b.tipo_planilla
+                                      join c in empleados on b.idplanilla equals c.IdPlanilla
                                       join g in phgrupos on c.IdGrupo equals g.idgrupo
                                       where fechaMov >= a.inicio && fechaMov <= a.fin
-                                      select a).Distinct().ToListAsync();
+                                      select a).Distinct().ToList();
+
                 foreach (var periodo in periodos)
                 {
-                    var marcasperiodo = await (from m in _context.Marcas_Mov_Turnos
-                                               join c in _context.Empleados on new { idnumero = m.idnumero, idplanilla = m.idplanilla } equals new { idnumero = c.IdNumero, idplanilla = c.IdPlanilla }
+                    var marcasMovTurno = await _context.Marcas_Mov_Turnos
+                                                .Where(m => m.fecha >= periodo.inicio
+                                                 && m.fecha <= periodo.fin).ToListAsync();
+
+                    var marcasperiodo = (from m in marcasMovTurno
+                                               join c in empleados on new { idnumero = m.idnumero, idplanilla = m.idplanilla } equals new { idnumero = c.IdNumero, idplanilla = c.IdPlanilla }
                                                join g in phgrupos on c.IdGrupo equals g.idgrupo
-                                               where m.fecha >= periodo.inicio
-                                                 && m.fecha <= periodo.fin
-                                               select m).ToListAsync();
+                                               select m).ToList();
 
                     marcaMovTurno.AddRange(marcasperiodo);
                 }
