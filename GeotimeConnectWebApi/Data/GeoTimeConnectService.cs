@@ -9968,6 +9968,58 @@ namespace GeoTimeConnectWebApi.Data
             return listaTipoAccion;
         }
 
+        //Creado por: Allan Prieto Badilla
+        //Fecha: 2025-02-01
+        /// <summary>
+        /// EjecutaInitPeriodo: Ejecuta WS de Exporto_Concepto
+        /// </summary>
+        /// <param name="parametros">Ejecuta el Web Service</param>
+        /// <returns>EventResponse con resultado del proceso</returns>
+        public async Task<EventResponse> Exporto_Concepto(IEnumerable<cExporto_Concepto> parametros)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+                foreach (var item in parametros)
+                {
+                    exporto_conceptosRequest exportoConceptos = new exporto_conceptosRequest
+                    {
+                        comp = item.IdComp,
+                        periodo = item.IdPeriodo,
+                        plan = item.IdPlanilla,
+                        hora_labora = item.IdHoraLaboral,
+                        sesion = item.Sesion,
+
+                    };
+
+                    EndpointConfiguration endpointConfiguration = new();
+                    GeoTimeServiceReference.ServiceSoapClient geoWebService = new(endpointConfiguration);
+
+                    var result = await geoWebService.exporto_conceptosAsync(exportoConceptos);
+                    if (result.exporto_conceptosResult != "")
+                    {
+                        respuesta.Id = "0";
+                        respuesta.Respuesta = "Ok";
+                        respuesta.Descripcion = $"Respuesta: {result.exporto_conceptosResult}";
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"{error}");
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo realizar la Activación del Periodo. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo realizar la Activación del Periodo. Detalle de Error: " + e.InnerException.Message;
+            }
+            return respuesta;
+        }
+
+
         #endregion
 
 

@@ -311,6 +311,12 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         public Task<EventResponse> Cal_Periodo_Planilla(IEnumerable<cCal_Periodo_Planilla> parametros);
         public Task<IEnumerable<cObtengoConcepto>> Obtener_Conceptos(string compania, string sesion);
         public Task<IEnumerable<cObtengoTipoAccion>> Obtener_TipoAccion(string compania, string sesion);
+        /// <summary>
+        /// Exporto_Concepto:  Se ejecuta el WebService Exporto_Concepto.
+        /// </summary>
+        /// <param name="parametros">Recibe los datos de cExporto_Concepto</param>
+        /// <returns>Instancia de EventResponse con el resultado de la operación</returns>
+        public Task<EventResponse> Exporto_Concepto(IEnumerable<cExporto_Concepto> parametros);
 
         #endregion
 
