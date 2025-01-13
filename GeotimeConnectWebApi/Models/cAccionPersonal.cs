@@ -1,10 +1,7 @@
-﻿using GeotimeConnectWebApi.Models;
-using GeoTimeConnectWebApi.Models;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Numerics;
 
-namespace GeotimeConnectWebApi.Models
+namespace GeoTimeConnectWebApi.Models
 {
     public class cAccionPersonal
     {

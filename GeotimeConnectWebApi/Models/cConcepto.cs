@@ -1,8 +1,7 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-using System.ComponentModel.DataAnnotations;
-using GeoTimeConnectWebApi.Models;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
-namespace GeotimeConnectWebApi.Models
+namespace GeoTimeConnectWebApi.Models
 {
     public class cConcepto
     {

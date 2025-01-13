@@ -1,9 +1,4 @@
-﻿using GeotimeConnectWebApi.Models;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Runtime.ConstrainedExecution;
-using System.Text.RegularExpressions;
-
-namespace GeoTimeConnectWebApi.Models
+﻿namespace GeoTimeConnectWebApi.Models
 {
     public class cEmpleado
     {

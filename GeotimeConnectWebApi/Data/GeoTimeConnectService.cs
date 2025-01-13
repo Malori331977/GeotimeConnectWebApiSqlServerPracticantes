@@ -1,32 +1,21 @@
-﻿using GeotimeConnectWebApi.Models;
-using GeoTimeConnectWebApi.Data.Interfaz;
+﻿using GeoTimeConnectWebApi.Data.Interfaz;
 using GeoTimeConnectWebApi.Models;
 using GeoTimeConnectWebApi.Models.Response;
+using GeoTimeServiceReference;
+using LibEncripta;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Seguridad_Geotime;
+using SourceAFIS;
 using System.Data;
-using System.Linq;
-using System.Reflection.PortableExecutable;
-using System.Security.Claims;
-using LibEncripta;
-using System.Collections.Generic;
+using System.Net;
 using System.Net.Mail;
 using System.Net.Mime;
-using System.Net;
 using System.Security;
-using static System.Runtime.InteropServices.JavaScript.JSType;
-using System;
-using Microsoft.Data.SqlClient;
-using GeoTimeServiceReference;
-using static GeoTimeServiceReference.ServiceSoapClient;
-using Microsoft.Extensions.Logging;
-using System.Data.Common;
-using static GeoTimeConnectWebApi.Models.CalculoPeriodoParam;
-using Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
-using System.Numerics;
-using System.Text.Json.Serialization;
+using System.Security.Claims;
 using System.Text.Json;
-using Microsoft.IdentityModel.Tokens;
+using static GeoTimeConnectWebApi.Models.CalculoPeriodoParam;
+using static GeoTimeServiceReference.ServiceSoapClient;
 
 namespace GeoTimeConnectWebApi.Data
 {
@@ -3582,6 +3571,27 @@ namespace GeoTimeConnectWebApi.Data
             catch (Exception e)
             {
                string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetMarcasResumen: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
+            }
+            return marcasResumen;
+        }
+
+        //Creado por: Marlon Loria Solano
+        //Fecha: 2022-10-30
+        //Obtener lista de Marcas Resumen que solo se pueden tranferir al ERP
+        public async Task<List<cMarcaResumen>> GetMarcasResumenATransferir(string idPlanilla, string idPeriodo)
+        {
+            List<cMarcaResumen> marcasResumen = new();
+            try
+            {
+                marcasResumen = await( from mr in _context.Marcas_Resumen.Where(e => e.IdPlanilla == idPlanilla && e.IdPeriodo == idPeriodo)
+                                       join c in _context.Ph_Conceptos.Where(e=>e.transferir=='T') on mr.IdConcepto equals c.id
+                                       select mr
+                                    ).ToListAsync();
+            }
+            catch (Exception e)
+            {
+                string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
                 _logger.LogError($"GeoTimeConnectService.GetMarcasResumen: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
             return marcasResumen;
@@ -9244,6 +9254,158 @@ namespace GeoTimeConnectWebApi.Data
             return respuesta;
         }
 
+
+        /// <summary>
+        /// GetTemplateHID: obtiene lista de TemplateHID (huellas de colaboradores HID)
+        /// </summary>
+        /// <returns>lista de TemplateHID</returns>
+        public async Task<List<cTemplateHID>> GetTemplateHID()
+        {
+            List<cTemplateHID> model = new();
+            try
+            {
+                model = await _context.TemplatesHID.ToListAsync();
+            }
+            catch (Exception e)
+            {
+                string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetTemplateHID: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}");
+                throw;
+            }
+            return model;
+        }
+        /// <summary>
+        /// GetNivel: obtiene una lista de registro de TemplateHID para un empleado especifico
+        /// </summary>
+        /// <param name="idnumero">id de color a recuperar</param>
+        /// <returns></returns>
+        public async Task<List<cTemplateHID>> GetTemplateHID(string idnumero)
+        {
+            List<cTemplateHID>? model = new();
+            try
+            {
+                model = await _context.TemplatesHID.Where(e => e.IDNUMERO == idnumero).ToListAsync();
+            }
+            catch (Exception e)
+            {
+                string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetTemplateHID: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}");
+                throw;
+            }
+            return model;
+        }
+        /// <summary>
+        /// Sincronizar_TemplatesHID: metodo para sincronizar lista de TemplateHID
+        /// </summary>
+        /// <param name="templates"></param>
+        /// <returns>una instancia EventResponse con el resultado de los nivveles</returns>
+        public async Task<EventResponse> Sincronizar_TemplateHID(IEnumerable<cTemplateHID> templates)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+                Task task = new Task(async () =>
+                {
+                    var options = new FingerprintImageOptions() { Dpi = 512 };
+
+                    foreach (var item in templates)
+                    {
+                        var image = new FingerprintImage(item.HID_TEMPLATE, options);
+                        FingerprintTemplate template = new FingerprintTemplate(image);
+                        byte[] serialized = template.ToByteArray();
+
+                        cTemplateHID empleadoHID = new cTemplateHID
+                        {
+                            IDNUMERO = item.IDNUMERO!,
+                            INDEXID = 0,
+                            HID_TEMPLATE = serialized,
+                        };
+
+                        _context.Add(empleadoHID);
+
+                    }
+                    await _context.SaveChangesAsync();
+                });
+                task.Start();
+            }
+            catch (Exception e)
+            {
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo realizar la sincronización del template. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo realizar la sincronización del template. Detalle de Error: " + e.InnerException.Message;
+
+                string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.Sincronizar_TemplateHID: {respuesta.Descripcion}");
+            }
+            return respuesta;
+        }
+        /// <summary>
+        /// Elimina_TemplateHID:  Metodo borrado de datos de la tabla Ph_Niveles para un empleado especifico
+        /// </summary>
+        /// <param name="IdNumero"></param>
+        /// <returns>EventResponse</returns>
+        public async Task<EventResponse> Elimina_TemplateHID(string IdNumero)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+                List<cTemplateHID>? templates = await _context.TemplatesHID
+                    .Where(e => e.IDNUMERO == IdNumero).ToListAsync();
+
+                foreach (var item in templates)
+                {
+                    _context.TemplatesHID.Remove(item);
+                    await _context.SaveChangesAsync();
+
+                }
+            }
+            catch (Exception e)
+            {
+                string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"{error}");
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo eliminar el TemplateHID. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo eliminar el TemplateHID. Detalle de Error: " + e.InnerException.Message;
+            }
+            return respuesta;
+        }
+
+        /// <summary>
+        /// Verifica_TemplatesHID: metodo para verificar TemplateHID en lista de TemplateHID registrados
+        /// </summary>
+        /// <param name="templates"></param>
+        /// <returns>una instancia EventResponse con el resultado de los nivveles</returns>
+        public async Task<EventResponse> Verifica_TemplateHID(cTemplateHID template)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+                
+                
+            }
+            catch (Exception e)
+            {
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo realizar la verificación del Template. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo realizar la verificación del Template. Detalle de Error: " + e.InnerException.Message;
+
+                string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.Verifica_TemplateHID: {respuesta.Descripcion}");
+            }
+            return respuesta;
+        }
 
         #endregion
 

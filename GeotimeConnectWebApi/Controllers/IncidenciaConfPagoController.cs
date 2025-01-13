@@ -1,11 +1,8 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using GeoTimeConnectWebApi.Data;
-using GeoTimeConnectWebApi.Data.Interfaz;
+﻿using GeoTimeConnectWebApi.Data.Interfaz;
 using GeoTimeConnectWebApi.Models;
-using GeotimeConnectWebApi.Models;
 using GeoTimeConnectWebApi.Models.Response;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace GeoTimeConnectWebApi.Controllers
 {

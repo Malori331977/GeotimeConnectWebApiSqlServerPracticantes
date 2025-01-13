@@ -1,4 +1,4 @@
-﻿using GeotimeConnectWebApi.Models;
+﻿using GeoTimeConnectWebApi.Models;
 using GeoTimeConnectWebApi.Models;
 using GeoTimeConnectWebApi.Models.Response;
 using GeoTimeServiceReference;
@@ -268,6 +268,39 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         /// <returns>EventResponse</returns>
         public Task<EventResponse> Elimina_MarcaDtnConcepto(long idregistro);
 
+        /// <summary>
+        /// GetTemplateHID: obtiene lista de TemplateHID (huellas de colaboradores HID)
+        /// </summary>
+        /// <returns>lista de TemplateHID</returns>
+        public Task<List<cTemplateHID>> GetTemplateHID();
+
+        /// <summary>
+        /// GetTemplateHID: obtiene una lista de registro de TemplateHID para un empleado especifico
+        /// </summary>
+        /// <param name="idnumero">id de color a recuperar</param>
+        /// <returns></returns>
+        public Task<List<cTemplateHID>> GetTemplateHID(string idnumero);
+
+        /// <summary>
+        /// Sincronizar_TemplatesHID: metodo para sincronizar lista de TemplateHID
+        /// </summary>
+        /// <param name="templates"></param>
+        /// <returns>una instancia EventResponse con el resultado de los TemplateHID</returns>
+        public Task<EventResponse> Sincronizar_TemplateHID(IEnumerable<cTemplateHID> templates);
+        /// <summary>
+        /// Elimina_TemplateHID:  Metodo borrado de datos de la tabla Ph_Niveles para un empleado especifico
+        /// </summary>
+        /// <param name="IdNumero"></param>
+        /// <returns>EventResponse</returns>
+        public Task<EventResponse> Elimina_TemplateHID(string IdNumero);
+
+        /// <summary>
+        /// Verifica_TemplatesHID: metodo para verificar TemplateHID en lista de TemplateHID registrados 
+        /// </summary>
+        /// <param name="template"></param>
+        /// <returns>una instancia EventResponse con el resultado de los TemplateHID</returns>
+        public Task<EventResponse> Verifica_TemplateHID(cTemplateHID template);
+
         #endregion
 
         #region SPMetodos
@@ -392,6 +425,14 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         public Task<IEnumerable<cMarcaResumen>> GetMarcasResumen(string IdPeriodo, string IdPlanilla, string idnumero);
 
         public Task<List<cMarcaResumen>> GetMarcasResumenXPeriodo(string idPeriodo);
+
+        /// <summary>
+        /// GetMarcasResumenTransferir:   Proceso para determinar resumen de marcas para la planilla y el periodo que se deben enviar en al ERP
+        /// </summary>
+        /// <param name="idPlanilla"></param>
+        /// <param name="idPeriodo"></param>
+        /// <returns></returns>
+        public Task<List<cMarcaResumen>> GetMarcasResumenATransferir(string idPlanilla, string idPeriodo);
         public Task<EventResponse> Sincronizar_MarcasResumen(IEnumerable<cMarcaResumen> marcasResumen);
 
 
