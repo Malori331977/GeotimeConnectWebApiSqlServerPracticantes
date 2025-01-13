@@ -2,7 +2,6 @@
 using Microsoft.EntityFrameworkCore;
 using GeoTimeConnectWebApi.Data.Interfaz;
 using GeoTimeConnectWebApi.Models;
-using GeotimeConnectWebApi.Models;
 
 
 namespace GeoTimeConnectWebApi.Data
@@ -98,6 +97,7 @@ namespace GeoTimeConnectWebApi.Data
         public DbSet<cPh_Nivel> Ph_Niveles { get; set; }
         public DbSet<cMarcaDistribucionConcepto> Marcas_Distribuciones_Conceptos { get; set; }
         public DbSet<cMarcaTiempoAdicional> Marcas_Tiempo_Adicional { get; set; }
+        public DbSet<cTemplateHID> TemplatesHID { get; set; }
 
 
 
@@ -194,6 +194,9 @@ namespace GeoTimeConnectWebApi.Data
                .HasKey(e => new { e.IDREGISTRO });
             builder.Entity<cMarcaTiempoAdicional>().ToTable("MARCAS_TIEMPO_ADICIONAL", Schema)
                .HasKey(e => new { e.IDREGISTRO });
+
+            builder.Entity<cTemplateHID>().ToTable("TEMPLATESHID", Schema)
+              .HasKey(e => new { e.IDNUMERO,e.INDEXID });
 
             #endregion
 

@@ -1,6 +1,4 @@
-﻿using GeotimeConnectWebApi.Models;
-
-namespace GeoTimeConnectWebApi.Models
+﻿namespace GeoTimeConnectWebApi.Models
 {
     public class cMarcaIncidencia
     {

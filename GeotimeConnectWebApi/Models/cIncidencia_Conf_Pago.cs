@@ -1,7 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-using System.ComponentModel.DataAnnotations;
-
-namespace GeotimeConnectWebApi.Models
+﻿namespace GeoTimeConnectWebApi.Models
 {
     public class cIncidencia_Conf_Pago
     {

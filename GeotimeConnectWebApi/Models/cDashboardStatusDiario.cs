@@ -1,4 +1,4 @@
-﻿namespace GeotimeConnectWebApi.Models
+﻿namespace GeoTimeConnectWebApi.Models
 {
     public class cDashboardStatusDiario
     {
