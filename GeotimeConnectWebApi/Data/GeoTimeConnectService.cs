@@ -5,6 +5,7 @@ using GeoTimeServiceReference;
 using LibEncripta;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Seguridad_Geotime;
 using SourceAFIS;
 using System.Data;
@@ -9305,8 +9306,8 @@ namespace GeoTimeConnectWebApi.Data
 
             try
             {
-                Task task = new Task(async () =>
-                {
+                //Task task = new Task(async () =>
+                //{
                     var options = new FingerprintImageOptions() { Dpi = 512 };
 
                     foreach (var item in templates)
@@ -9326,8 +9327,8 @@ namespace GeoTimeConnectWebApi.Data
 
                     }
                     await _context.SaveChangesAsync();
-                });
-                task.Start();
+                //});
+                //task.Start();
             }
             catch (Exception e)
             {
@@ -9383,14 +9384,20 @@ namespace GeoTimeConnectWebApi.Data
         /// </summary>
         /// <param name="templates"></param>
         /// <returns>una instancia EventResponse con el resultado de los nivveles</returns>
-        public async Task<EventResponse> Verifica_TemplateHID(cTemplateHID template)
+        public async Task<EventResponseHID> Verifica_TemplateHID(IEnumerable<cTemplateHID> template)
         {
-            EventResponse respuesta = new EventResponse();
-
+            FingerprintTemplate? vTemplate=null;
+            EventResponseHID respuesta = new();
             try
             {
-                
-                
+                foreach(var item in template)
+                {
+                    var options = new FingerprintImageOptions() { Dpi = 512 };
+                    var image = new FingerprintImage(item.HID_TEMPLATE, options);
+                    vTemplate = new FingerprintTemplate(image);
+                    byte[] serialized = vTemplate.ToByteArray();
+                    respuesta.Template = serialized;
+                }
             }
             catch (Exception e)
             {
@@ -9404,7 +9411,7 @@ namespace GeoTimeConnectWebApi.Data
                 string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
                 _logger.LogError($"GeoTimeConnectService.Verifica_TemplateHID: {respuesta.Descripcion}");
             }
-            return respuesta;
+            return respuesta!;
         }
 
         #endregion

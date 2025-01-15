@@ -10,6 +10,7 @@ using GeoTimeConnectWebApi.Models.Utils;
 using System.Text.Json;
 using GeoTimeConnectWebApi.Models.Request;
 using GeoTimeConnectWebApi.Models.Response;
+using SourceAFIS;
 
 namespace GeoTimeConnectWebApi.Controllers
 {
@@ -42,11 +43,11 @@ namespace GeoTimeConnectWebApi.Controllers
         }
 
         [HttpPut]
-        public async Task<IActionResult> Put([FromBody] cTemplateHID template)
+        public async Task<IActionResult> Put([FromBody] IEnumerable<cTemplateHID> templates)
         {
-            EventResponse respuesta = await _repoGT.Verifica_TemplateHID(template);
+            EventResponseHID? respuesta = await _repoGT.Verifica_TemplateHID(templates);
 
-            if (respuesta.Id != "0")
+            if (respuesta is null)
                 return BadRequest(respuesta);
 
             return Ok(respuesta);
