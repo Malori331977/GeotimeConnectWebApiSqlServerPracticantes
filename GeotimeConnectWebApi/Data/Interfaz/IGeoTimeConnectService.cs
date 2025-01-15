@@ -1,9 +1,6 @@
 ﻿using GeoTimeConnectWebApi.Models;
-using GeoTimeConnectWebApi.Models;
 using GeoTimeConnectWebApi.Models.Response;
-using GeoTimeServiceReference;
-using Microsoft.EntityFrameworkCore;
-using System.Numerics;
+using SourceAFIS;
 using static GeoTimeConnectWebApi.Models.CalculoPeriodoParam;
 
 namespace GeoTimeConnectWebApi.Data.Interfaz
@@ -299,7 +296,7 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         /// </summary>
         /// <param name="template"></param>
         /// <returns>una instancia EventResponse con el resultado de los TemplateHID</returns>
-        public Task<EventResponse> Verifica_TemplateHID(cTemplateHID template);
+        public Task<EventResponseHID> Verifica_TemplateHID(IEnumerable<cTemplateHID> template);
 
         #endregion
 
