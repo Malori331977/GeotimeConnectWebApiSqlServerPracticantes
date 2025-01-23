@@ -10212,7 +10212,7 @@ namespace GeoTimeConnectWebApi.Data
             return listaConceptos;
         }
 
-        // creando por Allan Prieto Badilla
+        // creando por Allan Prieto
         /// <summary>
         /// Obtener_TipoAccion: Obtiene la lista de tipos de acciones de la compañia
         /// </summary>
@@ -10250,6 +10250,286 @@ namespace GeoTimeConnectWebApi.Data
                 throw;
             }
             return listaTipoAccion;
+        }
+
+        #endregion
+
+
+        #region Menus y Opciones de Control de Asistencia
+
+        // creando por Marlon Loria Solano 23-01-2025
+        /// <summary>
+        /// GetPhMenuSistema: Obtener lista de menus de sistema 
+        /// </summary>
+        /// <returns>Lista de lista de menus del sistema</returns>
+        public async Task<List<cPh_MenuSistema>> GetPhMenuSistema()
+        {
+            List<cPh_MenuSistema>? portalMenu = new();
+
+            try
+            {
+                portalMenu = (from e in await _context.Ph_Menus_Sistema
+                                .Include(e => e.cPh_OpcionSistema)
+                            .ToListAsync()
+                              select new cPh_MenuSistema
+                              {
+                                  ID = e.ID,
+                                  MENUTEXT = e.MENUTEXT,
+                                  ICONID = e.ICONID,
+                                  cPh_OpcionSistema = e.cPh_OpcionSistema == null ? null :
+                                                  (from po in e.cPh_OpcionSistema
+                                                   select new cPh_OpcionSistema
+                                                   {
+                                                       PARENTID = po.PARENTID,
+                                                       ID = po.ID,
+                                                       MENUTEXT = po.MENUTEXT,
+                                                       ICONID = po.ICONID,
+                                                       PRINCIPAL = po.PRINCIPAL,
+                                                       HREF = po.HREF,
+                                                   }).ToList()
+                              }
+                            ).ToList();
+
+            }
+            catch (Exception e)
+            {
+                string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetPhMenuSistema: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
+            }
+            return portalMenu;
+        }
+        // creando por Marlon Loria Solano 23-01-2025
+        /// <summary>
+        /// GetPhMenuSistema: Obtener datos de una opcion de menu de sistema 
+        /// </summary>
+        /// <param name="id">id de la opcion</param>
+        /// <returns>Instancia de cPh_MenuSistema </returns>
+        public async Task<cPh_MenuSistema> GetPhMenuSistema(string id)
+        {
+            cPh_MenuSistema? portalMenu = new();
+
+            try
+            {
+
+                portalMenu = (from e in await _context.Ph_Menus_Sistema.Where(e => e.ID == id)
+                                .Include(e => e.cPh_OpcionSistema)
+                            .ToListAsync()
+                              select new cPh_MenuSistema
+                              {
+                                  ID = e.ID,
+                                  MENUTEXT = e.MENUTEXT,
+                                  ICONID = e.ICONID,
+                                  cPh_OpcionSistema = e.cPh_OpcionSistema == null ? null :
+                                                  (from po in e.cPh_OpcionSistema
+                                                   select new cPh_OpcionSistema
+                                                   {
+                                                       PARENTID = po.PARENTID,
+                                                       ID = po.ID,
+                                                       MENUTEXT = po.MENUTEXT,
+                                                       ICONID = po.ICONID,
+                                                       PRINCIPAL = po.PRINCIPAL,
+                                                       HREF = po.HREF,
+                                                   }).ToList()
+                              }
+                            ).FirstOrDefault();
+
+            }
+            catch (Exception e)
+            {
+                string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetPhMenuSistema: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
+            }
+            return portalMenu;
+        }
+
+        // creando por Marlon Loria Solano 23-01-2025
+        /// <summary>
+        /// Sincronizar_PortalMenu: Método para registrar los menus del sistema
+        /// </summary>
+        /// <returns>Una instancia de la Clase EventResponse, con el resultado del proceso</returns>
+        /// <param name="portalOpcion">Lista de registros de cPortal_Menu </param>
+        public async Task<EventResponse> Sincronizar_PhMenuSistema(IEnumerable<cPh_MenuSistema> portalMenu)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+                foreach (var item in portalMenu)
+                {
+                    cPh_MenuSistema? portalMenuBuscar = await _context.Ph_Menus_Sistema
+                                    .Where(e => e.ID == item.ID)
+                                    .FirstOrDefaultAsync();
+                    //si la opcion existe se actualiza 
+                    //de lo contrario se agrega el registro
+                    if (portalMenuBuscar is not null)
+                    {
+                        portalMenuBuscar.ICONID = item.ICONID;
+                        portalMenuBuscar.MENUTEXT = item.MENUTEXT;
+
+                        _context.Ph_Menus_Sistema.Update(portalMenuBuscar);
+                    }
+                    else
+                    {
+                        item.cPh_OpcionSistema = null;
+                        _context.Add(item);
+                    }
+                    await _context.SaveChangesAsync();
+
+                }
+
+            }
+            catch (Exception e)
+            {
+                string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"{error}");
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo realizar el registro del menú. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo realizar el registro del menú. Detalle de Error: " + e.InnerException.Message;
+
+            }
+
+            return respuesta;
+
+        }
+
+        /// <summary>
+        /// GetPh_OpcionSistema: Obtener lista de opciones del menu de CA 
+        /// </summary>
+        /// <returns>Lista de Opciones del sistema</returns>
+        public async Task<List<cPh_OpcionSistema>> GetPh_OpcionSistema()
+        {
+            List<cPh_OpcionSistema>? portalOpcion = new();
+
+            try
+            {
+                portalOpcion = (from e in await _context.Ph_Opciones_Sistema
+                                .Include(e => e.cPh_MenuSistema)
+                                .ToListAsync()
+                                select new cPh_OpcionSistema
+                                {
+                                    PARENTID = e.PARENTID,
+                                    ID = e.ID,
+                                    MENUTEXT = e.MENUTEXT,
+                                    ICONID = e.ICONID,
+                                    PRINCIPAL = e.PRINCIPAL,
+                                    HREF = e.HREF,
+                                    cPh_MenuSistema = e.cPh_MenuSistema == null ? null :
+                                                    new cPh_MenuSistema
+                                                    {
+                                                        ID = e.cPh_MenuSistema.ID,
+                                                        MENUTEXT = e.cPh_MenuSistema.MENUTEXT,
+                                                        ICONID = e.cPh_MenuSistema.ICONID,
+                                                    },
+                                }
+                           ).ToList();
+
+            }
+            catch (Exception e)
+            {
+                string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetPh_OpcionSistema: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
+            }
+            return portalOpcion;
+        }
+
+        /// <summary>
+        /// GetPortalOpcion: Obtener datos de una opcion de sistema 
+        /// </summary>
+        /// <param name="id">id de la opcion</param>
+        /// <returns>Instancia de cPortal_Opcion con los datos de la opción </returns>
+        public async Task<cPh_OpcionSistema> GetPh_OpcionSistema(string id)
+        {
+            cPh_OpcionSistema? portalOpcion = new();
+
+            try
+            {
+
+                portalOpcion = (from e in await _context.Ph_Opciones_Sistema.Where(e => e.ID == id)
+                                .Include(e => e.cPh_MenuSistema)
+                                .ToListAsync()
+                                select new cPh_OpcionSistema
+                                {
+                                    PARENTID = e.PARENTID,
+                                    ID = e.ID,
+                                    MENUTEXT = e.MENUTEXT,
+                                    ICONID = e.ICONID,
+                                    PRINCIPAL = e.PRINCIPAL,
+                                    HREF = e.HREF,
+                                    cPh_MenuSistema = e.cPh_MenuSistema == null ? null :
+                                                    new cPh_MenuSistema
+                                                    {
+                                                        ID = e.cPh_MenuSistema.ID,
+                                                        MENUTEXT = e.cPh_MenuSistema.MENUTEXT,
+                                                        ICONID = e.cPh_MenuSistema.ICONID,
+                                                    },
+                                }
+                           ).FirstOrDefault();
+
+            }
+            catch (Exception e)
+            {
+                string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetPh_OpcionSistema: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
+            }
+            return portalOpcion;
+        }
+
+
+        /// <summary>
+        /// Sincronizar_PortalOpcion: Método para registrar las opciones del sistema Portal de empleados
+        /// </summary>
+        /// <returns>Una instancia de la Clase EventResponse, con el resultado del proceso</returns>
+        /// <param name="portalOpcion">Lista de registros de cPortal_Opcion </param>
+        public async Task<EventResponse> Sincronizar_PhOpcionSistema(IEnumerable<cPh_OpcionSistema> portalOpcion)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+                foreach (var item in portalOpcion)
+                {
+                    cPh_OpcionSistema? portalOpcionBuscar = await _context.Ph_Opciones_Sistema
+                                    .Where(e => e.ID == item.ID)
+                                    .FirstOrDefaultAsync();
+                    //si la opcion existe se actualiza 
+                    //de lo contrario se agrega el registro
+                    if (portalOpcionBuscar is not null)
+                    {
+                        portalOpcionBuscar.HREF = item.HREF;
+                        portalOpcionBuscar.ICONID = item.ICONID;
+                        portalOpcionBuscar.PRINCIPAL = item.PRINCIPAL;
+                        portalOpcionBuscar.MENUTEXT = item.MENUTEXT;
+                        portalOpcionBuscar.PARENTID = item.PARENTID;
+
+                        _context.Ph_Opciones_Sistema.Update(portalOpcionBuscar);
+                    }
+                    else
+                    {
+                        _context.Add(item);
+                    }
+                    await _context.SaveChangesAsync();
+
+                }
+
+            }
+            catch (Exception e)
+            {
+                string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"{error}");
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo realizar el registro de la opción de menú. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo realizar el registro de la opción de menú. Detalle de Error: " + e.InnerException.Message;
+
+            }
+
+            return respuesta;
+
         }
 
         #endregion

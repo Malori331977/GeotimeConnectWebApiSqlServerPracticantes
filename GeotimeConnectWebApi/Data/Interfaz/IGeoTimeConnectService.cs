@@ -1187,5 +1187,46 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         /// <param name="indice"></param>
         /// <returns>Instancia de EventResponse con el resultado de la operación</returns>
         public Task<EventResponse> Elimina_MarcasIncidencias(string indice);
+
+        /// <summary>
+        /// GetPhMenuSistema: Obtener lista de menus de sistema 
+        /// </summary>
+        /// <returns>Lista de lista de menus del sistema</returns>
+        public Task<List<cPh_MenuSistema>> GetPhMenuSistema();
+
+        /// <summary>
+        /// GetPhMenuSistema: Obtener datos de una opcion de menu de sistema 
+        /// </summary>
+        /// <param name="id">id de la opcion</param>
+        /// <returns>Instancia de cPh_MenuSistema </returns>
+        public Task<cPh_MenuSistema> GetPhMenuSistema(string id);
+
+        /// <summary>
+        /// Sincronizar_PortalMenu: Método para registrar los menus del sistema
+        /// </summary>
+        /// <returns>Una instancia de la Clase EventResponse, con el resultado del proceso</returns>
+        /// <param name="portalOpcion">Lista de registros de cPortal_Menu </param>
+        public Task<EventResponse> Sincronizar_PhMenuSistema(IEnumerable<cPh_MenuSistema> portalMenu);
+
+        /// <summary>
+        /// GetPh_OpcionSistema: Obtener lista de opciones del menu de CA 
+        /// </summary>
+        /// <returns>Lista de Opciones del sistema</returns>
+        public Task<List<cPh_OpcionSistema>> GetPh_OpcionSistema();
+
+        /// <summary>
+        /// GetPortalOpcion: Obtener datos de una opcion de sistema 
+        /// </summary>
+        /// <param name="id">id de la opcion</param>
+        /// <returns>Instancia de cPortal_Opcion con los datos de la opción </returns>
+        public Task<cPh_OpcionSistema> GetPh_OpcionSistema(string id);
+
+        /// <summary>
+        /// Sincronizar_PortalOpcion: Método para registrar las opciones del sistema Portal de empleados
+        /// </summary>
+        /// <returns>Una instancia de la Clase EventResponse, con el resultado del proceso</returns>
+        /// <param name="portalOpcion">Lista de registros de cPortal_Opcion </param>
+        public Task<EventResponse> Sincronizar_PhOpcionSistema(IEnumerable<cPh_OpcionSistema> portalOpcion);
+
     }
 }

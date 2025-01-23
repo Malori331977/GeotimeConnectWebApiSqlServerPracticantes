@@ -100,6 +100,9 @@ namespace GeoTimeConnectWebApi.Data
         public DbSet<cTemplateHID> TemplatesHID { get; set; }
         public DbSet<cTemplateFACE> TemplatesFACES { get; set; }
 
+        public DbSet<cPh_MenuSistema> Ph_Menus_Sistema { get; set; }
+        public DbSet<cPh_OpcionSistema> Ph_Opciones_Sistema { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -112,6 +115,10 @@ namespace GeoTimeConnectWebApi.Data
             builder.Entity<cPh_Compania>().ToTable("PH_COMPANIAS", schemaAdmin)
                 .HasKey(e => new { e.IDCOMP });
             builder.Entity<cPh_Sistema>().ToTable("PH_SISTEMA", schemaAdmin)
+                .HasNoKey();
+            builder.Entity<cPh_MenuSistema>().ToTable("PH_MENUS_SISTEMA", schemaAdmin)
+                .HasNoKey();
+            builder.Entity<cPh_OpcionSistema>().ToTable("PH_OPCIONES_SISTEMA", schemaAdmin)
                 .HasNoKey();
 
             #endregion
@@ -326,7 +333,7 @@ namespace GeoTimeConnectWebApi.Data
                .HasOne(e => e.cEmpleado)
                .WithMany(d => d.cMarcaTiempoAdicionals)
                .HasForeignKey(e => new { e.IDNUMERO });
-            //.
+
             builder.Entity<cMarcaTiempoAdicional>()
                .ToTable("MARCAS_TIEMPO_ADICIONAL", Schema)
                .HasOne(e => e.cCentroCosto)
@@ -338,6 +345,12 @@ namespace GeoTimeConnectWebApi.Data
                .HasOne(e => e.cConcepto)
                .WithMany(d => d.cMarcaTiempoAdicionals)
                .HasForeignKey(e => new { e.IDCONCEPTO });
+
+            builder.Entity<cPh_OpcionSistema>()
+              .ToTable("PH_OPCIONES_SISTEMA", Schema)
+              .HasOne(e => e.cPh_MenuSistema)
+              .WithMany(d => d.cPh_OpcionSistema)
+              .HasForeignKey(e => new { e.PARENTID });
 
 
             #endregion
