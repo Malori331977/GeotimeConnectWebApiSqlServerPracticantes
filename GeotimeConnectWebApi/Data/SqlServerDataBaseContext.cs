@@ -98,7 +98,7 @@ namespace GeoTimeConnectWebApi.Data
         public DbSet<cMarcaDistribucionConcepto> Marcas_Distribuciones_Conceptos { get; set; }
         public DbSet<cMarcaTiempoAdicional> Marcas_Tiempo_Adicional { get; set; }
         public DbSet<cTemplateHID> TemplatesHID { get; set; }
-
+        public DbSet<cTemplateFACE> TemplatesFACES { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder builder)
@@ -197,6 +197,8 @@ namespace GeoTimeConnectWebApi.Data
 
             builder.Entity<cTemplateHID>().ToTable("TEMPLATESHID", Schema)
               .HasKey(e => new { e.IDNUMERO,e.INDEXID });
+            builder.Entity<cTemplateFACE>().ToTable("TEMPLATESFACES", Schema)
+              .HasKey(e => new { e.IDNUMERO, e.INDEXID });
 
             #endregion
 

@@ -92,6 +92,15 @@ namespace GeoTimeConnectWebApi.Data
 
         private string GetToken(UserRequest user)
         {
+
+            // Build a config object, using env vars and JSON providers.
+            IConfiguration config = new ConfigurationBuilder()
+                .AddJsonFile("appsettings.json")
+                .AddEnvironmentVariables()
+                .Build();
+
+            var ExpirationTime = config.GetConnectionString("TokenExpire");
+
             var tokenHandler = new JwtSecurityTokenHandler();
 
             var key = Encoding.ASCII.GetBytes(_appSettings.Secret);
@@ -106,7 +115,7 @@ namespace GeoTimeConnectWebApi.Data
                             new Claim(ClaimTypes.Spn, user.BDName)
                         }
                     ),
-                Expires = DateTime.UtcNow.AddDays(1),
+                Expires = DateTime.UtcNow.AddMinutes(ExpirationTime!=null?int.Parse(ExpirationTime):60),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key),SecurityAlgorithms.HmacSha256Signature)
             };
 
