@@ -298,6 +298,35 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         /// <returns>una instancia EventResponse con el resultado de los TemplateHID</returns>
         public Task<EventResponseHID> Verifica_TemplateHID(IEnumerable<cTemplateHID> template);
 
+
+
+        /// <summary>
+        /// GetTemplateFACE: obtiene lista de TemplateFACE (huellas de colaboradores FACE)
+        /// </summary>
+        /// <returns>lista de TemplateFACE</returns>
+        public Task<List<cTemplateFACE>> GetTemplateFACE();
+
+        /// <summary>
+        /// GetTemplateFACE: obtiene una lista de registro de TemplateFACE para un empleado especifico
+        /// </summary>
+        /// <param name="idnumero">id de color a recuperar</param>
+        /// <returns></returns>
+        public Task<List<cTemplateFACE>> GetTemplateFACE(string idnumero);
+
+        /// <summary>
+        /// Sincronizar_TemplatesFACE: metodo para sincronizar lista de TemplateFACE
+        /// </summary>
+        /// <param name="templates"></param>
+        /// <returns>una instancia EventResponse con el resultado de los TemplateFACE</returns>
+        public Task<EventResponse> Sincronizar_TemplateFACE(IEnumerable<cTemplateFACE> templates);
+        /// <summary>
+        /// Elimina_TemplateFACE:  Metodo borrado de datos de la tabla Ph_Niveles para un empleado especifico
+        /// </summary>
+        /// <param name="IdNumero"></param>
+        /// <returns>EventResponse</returns>
+        public Task<EventResponse> Elimina_TemplateFACE(string IdNumero);
+
+
         #endregion
 
         #region SPMetodos

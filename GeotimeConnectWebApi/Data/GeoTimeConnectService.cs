@@ -9414,6 +9414,121 @@ namespace GeoTimeConnectWebApi.Data
             return respuesta!;
         }
 
+
+        /// <summary>
+        /// GetTemplateFACE: obtiene lista de TemplateFACE (Rostros de colaboradores)
+        /// </summary>
+        /// <returns>lista de TemplateFACE</returns>
+        public async Task<List<cTemplateFACE>> GetTemplateFACE()
+        {
+            List<cTemplateFACE> model = new();
+            try
+            {
+                model = await _context.TemplatesFACES.ToListAsync();
+            }
+            catch (Exception e)
+            {
+                string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetTemplateFACE: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}");
+                throw;
+            }
+            return model;
+        }
+        /// <summary>
+        /// GetNivel: obtiene una lista de registro de TemplateFACE para un empleado especifico
+        /// </summary>
+        /// <param name="idnumero">id de empleado recuperar</param>
+        /// <returns></returns>
+        public async Task<List<cTemplateFACE>> GetTemplateFACE(string idnumero)
+        {
+            List<cTemplateFACE>? model = new();
+            try
+            {
+                model = await _context.TemplatesFACES.Where(e => e.IDNUMERO == idnumero).ToListAsync();
+            }
+            catch (Exception e)
+            {
+                string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetTemplateFACE: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}");
+                throw;
+            }
+            return model;
+        }
+        /// <summary>
+        /// Sincronizar_TemplatesFACE: metodo para sincronizar lista de TemplateFACE
+        /// </summary>
+        /// <param name="templates"></param>
+        /// <returns>una instancia EventResponse con el resultado de los nivveles</returns>
+        public async Task<EventResponse> Sincronizar_TemplateFACE(IEnumerable<cTemplateFACE> templates)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+
+                foreach (var item in templates)
+                {
+                    cTemplateFACE empleadoFACE = new cTemplateFACE
+                    {
+                        IDNUMERO = item.IDNUMERO!,
+                        INDEXID = 0,
+                        FACETEMPLATE = item.FACETEMPLATE,
+                    };
+
+                    _context.Add(empleadoFACE);
+
+                }
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo realizar la sincronización del template. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo realizar la sincronización del template. Detalle de Error: " + e.InnerException.Message;
+
+                string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.Sincronizar_TemplateFACE: {respuesta.Descripcion}");
+            }
+            return respuesta;
+        }
+        /// <summary>
+        /// Elimina_TemplateFACE:  Metodo borrado de datos de la tabla Ph_Niveles para un empleado especifico
+        /// </summary>
+        /// <param name="IdNumero"></param>
+        /// <returns>EventResponse</returns>
+        public async Task<EventResponse> Elimina_TemplateFACE(string IdNumero)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+                List<cTemplateFACE>? templates = await _context.TemplatesFACES
+                    .Where(e => e.IDNUMERO == IdNumero).ToListAsync();
+
+                foreach (var item in templates)
+                {
+                    _context.TemplatesFACES.Remove(item);
+                    await _context.SaveChangesAsync();
+
+                }
+            }
+            catch (Exception e)
+            {
+                string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"{error}");
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo eliminar el TemplateFACE. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo eliminar el TemplateFACE. Detalle de Error: " + e.InnerException.Message;
+            }
+            return respuesta;
+        }
+
         #endregion
 
         #region SPMetodos
