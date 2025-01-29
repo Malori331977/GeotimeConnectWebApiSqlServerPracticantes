@@ -103,6 +103,10 @@ namespace GeoTimeConnectWebApi.Data
         public DbSet<cPh_MenuSistema> Ph_Menus_Sistema { get; set; }
         public DbSet<cPh_OpcionSistema> Ph_Opciones_Sistema { get; set; }
 
+        public DbSet<cPh_RolSistema> Ph_Roles_Sistema { get; set; }
+        public DbSet<cPh_RolSistemaDet> Ph_Roles_SistemaDet { get; set; }
+        public DbSet<cPh_UsuarioRol> Ph_Usuarios_Roles { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -117,9 +121,15 @@ namespace GeoTimeConnectWebApi.Data
             builder.Entity<cPh_Sistema>().ToTable("PH_SISTEMA", schemaAdmin)
                 .HasNoKey();
             builder.Entity<cPh_MenuSistema>().ToTable("PH_MENUS_SISTEMA", schemaAdmin)
-                .HasNoKey();
+                .HasKey(e => new { e.ID });
             builder.Entity<cPh_OpcionSistema>().ToTable("PH_OPCIONES_SISTEMA", schemaAdmin)
-                .HasNoKey();
+                .HasKey(e => new { e.ID });
+            builder.Entity<cPh_RolSistema>().ToTable("PH_ROLES_SISTEMA", schemaAdmin)
+                .HasKey(e => new { e.ID });
+            builder.Entity<cPh_RolSistemaDet>().ToTable("PH_ROLES_SISTEMADET", schemaAdmin)
+               .HasKey(e => new { e.ROLSISTEMAID,e.MENUSISTEMAID,e.OPCIONSISTEMAID });
+            builder.Entity<cPh_UsuarioRol>().ToTable("PH_USUARIOS_ROLES", schemaAdmin)
+                .HasKey(e => new { e.IDUSUARIO,e.IDREGISTRO });
 
             #endregion
 
@@ -210,6 +220,8 @@ namespace GeoTimeConnectWebApi.Data
             #endregion
 
             #region Objetos Seguridad y de Portal 
+
+
 
             builder.Entity<cPortal_Config>().ToTable("PORTAL_CONFIG", Schema)
                 .HasKey(e => new { e.ID });
@@ -351,6 +363,12 @@ namespace GeoTimeConnectWebApi.Data
               .HasOne(e => e.cPh_MenuSistema)
               .WithMany(d => d.cPh_OpcionSistema)
               .HasForeignKey(e => new { e.PARENTID });
+
+            builder.Entity<cPh_RolSistemaDet>()
+              .ToTable("PH_ROLES_SISTEMADET", Schema)
+              .HasOne(e => e.cPh_RolSistema)
+              .WithMany(d => d.cPh_RolSistemaDet)
+              .HasForeignKey(e => new { e.ROLSISTEMAID });
 
 
             #endregion
