@@ -52,9 +52,9 @@ namespace GeoTimeConnectWebApi.Data
                 {
                     lista.Add(new UserRequest
                     {
-                        User = Encripta.getDecryptTripleDES(compania.APIUSER!),
-                        Password = Encripta.getDecryptTripleDES(compania.APIPASSWORD!),
-                        ClientId = Encripta.getDecryptTripleDES(compania.APICLIENTID!)
+                        User = compania.APIUSER!,
+                        Password = compania.APIPASSWORD!,
+                        ClientId = compania.APICLIENTID!
                     });
                 }
                 

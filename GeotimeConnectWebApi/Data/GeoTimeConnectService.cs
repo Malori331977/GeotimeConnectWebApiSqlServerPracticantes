@@ -31,7 +31,7 @@ namespace GeoTimeConnectWebApi.Data
         public GeoTimeConnectService(IHttpContextAccessor httpContextAccessor, ILogger<GeoTimeConnectService> logger)
         {
             _httpContextAccessor = httpContextAccessor;
-            IEnumerable<Claim> claims = _httpContextAccessor.HttpContext.User.Claims;
+            IEnumerable<Claim> claims = _httpContextAccessor.HttpContext!.User.Claims;
             string schema = "";
             string bdname = "";
             _logger = logger;
@@ -236,7 +236,35 @@ namespace GeoTimeConnectWebApi.Data
             List<cPh_Compania> companias = new();
             try
             {
-                companias = await _context.PH_COMPANIAS.ToListAsync();
+                companias = (from e in await _context.PH_COMPANIAS.ToListAsync()
+                             select new cPh_Compania
+                             {
+                                 IDCOMP = e.IDCOMP,
+                                 COMPANIA = e.COMPANIA,
+                                 NOM_CONECTOR = e.NOM_CONECTOR,
+                                 STRING_SQL = e.STRING_SQL,
+                                 STRING_SQL_ERP = e.STRING_SQL_ERP,
+                                 PAIS = e.PAIS,
+                                 AUTO_PROCESO = e.AUTO_PROCESO,
+                                 REMOTE_ERPSERVICE = e.REMOTE_ERPSERVICE,
+                                 MAIL_SERVER = e.MAIL_SERVER,
+                                 MAIL_USER = e.MAIL_USER,
+                                 MAIL_PASSWORD = e.MAIL_PASSWORD,
+                                 MAIL_PORT = e.MAIL_PORT,
+                                 MAIL_AUTH = e.MAIL_AUTH,
+                                 MAIL_SSL = e.MAIL_SSL,
+                                 HORA_SUP = e.HORA_SUP,
+                                 HORA_EMP = e.HORA_EMP,
+                                 SUPERVISOR_ACUM = e.SUPERVISOR_ACUM,
+                                 MAIL_TLS = e.MAIL_TLS,
+                                 IN_MARCAS = e.IN_MARCAS,
+                                 HORA_CALC = e.HORA_CALC,
+                                 APICLIENTID = String.IsNullOrEmpty(e.APICLIENTID) ? "" : Encripta.getDecryptTripleDES(e.APICLIENTID!),
+                                 APIUSER = String.IsNullOrEmpty(e.APIUSER) ? "" : Encripta.getDecryptTripleDES(e.APIUSER!),
+                                 APIPASSWORD = String.IsNullOrEmpty(e.APIPASSWORD) ? "" : Encripta.getDecryptTripleDES(e.APIPASSWORD!),
+                                 APIDATABASE = String.IsNullOrEmpty(e.APIDATABASE) ? "" : Encripta.getDecryptTripleDES(e.APIDATABASE!),
+                                 APIURL = String.IsNullOrEmpty(e.APIURL) ? "" : Encripta.getDecryptTripleDES(e.APIURL!),                                
+                             }).ToList();
             }
             catch (Exception e)
             {
@@ -249,14 +277,56 @@ namespace GeoTimeConnectWebApi.Data
 
         //Creado por: Marlon Loria Solano
         //Fecha: 2022-10-30
-        //Obtener un centro de costo especifico
-        //Parametros: idCCosto=centro de costo a buscar
+        /// <summary>
+        /// GetPhCompania: Obtener una compañia especifica
+        /// </summary>
+        /// <param name="idcomp">Id de Compañia a buscar</param>
+        /// <returns>Intancia de compañia</returns>
         public async Task<cPh_Compania> GetPhCompania(string idcomp)
         {
             cPh_Compania? compania = new();
             try
             {
-                compania = await _context.PH_COMPANIAS.FirstOrDefaultAsync(e => e.IDCOMP == idcomp);
+                compania = (from e in await _context.PH_COMPANIAS.Where(e => e.IDCOMP == idcomp)
+                             .ToListAsync()
+                             select new cPh_Compania
+                             {
+                                 IDCOMP = e.IDCOMP,
+                                 COMPANIA = e.COMPANIA,
+                                 NOM_CONECTOR = e.NOM_CONECTOR,
+                                 STRING_SQL = e.STRING_SQL,
+                                 STRING_SQL_ERP = e.STRING_SQL_ERP,
+                                 PAIS = e.PAIS,
+                                 AUTO_PROCESO = e.AUTO_PROCESO,
+                                 REMOTE_ERPSERVICE = e.REMOTE_ERPSERVICE,
+                                 MAIL_SERVER = e.MAIL_SERVER,
+                                 MAIL_USER = e.MAIL_USER,
+                                 MAIL_PASSWORD = e.MAIL_PASSWORD,
+                                 MAIL_PORT = e.MAIL_PORT,
+                                 MAIL_AUTH = e.MAIL_AUTH,
+                                 MAIL_SSL = e.MAIL_SSL,
+                                 HORA_SUP = e.HORA_SUP,
+                                 HORA_EMP = e.HORA_EMP,
+                                 SUPERVISOR_ACUM = e.SUPERVISOR_ACUM,
+                                 MAIL_TLS = e.MAIL_TLS,
+                                 IN_MARCAS = e.IN_MARCAS,
+                                 HORA_CALC = e.HORA_CALC,
+                                 APICLIENTID = String.IsNullOrEmpty(e.APICLIENTID) ? "" : Encripta.getDecryptTripleDES(e.APICLIENTID!),
+                                 APIUSER = String.IsNullOrEmpty(e.APIUSER) ? "" : Encripta.getDecryptTripleDES(e.APIUSER!),
+                                 APIPASSWORD = String.IsNullOrEmpty(e.APIPASSWORD) ? "" : Encripta.getDecryptTripleDES(e.APIPASSWORD!),
+                                 APIDATABASE = String.IsNullOrEmpty(e.APIDATABASE) ? "" : Encripta.getDecryptTripleDES(e.APIDATABASE!),
+                                 APIURL = String.IsNullOrEmpty(e.APIURL) ? "" : Encripta.getDecryptTripleDES(e.APIURL!),
+                             }).FirstOrDefault();
+
+                if (compania is not null)
+                {
+                    compania!.APICLIENTID = String.IsNullOrEmpty(compania.APICLIENTID) ? "" : Encripta.getDecryptTripleDES(compania.APICLIENTID!);
+                    compania.APIUSER = String.IsNullOrEmpty(compania.APIUSER) ? "" : Encripta.getDecryptTripleDES(compania.APIUSER!);
+                    compania.APIPASSWORD = String.IsNullOrEmpty(compania.APIPASSWORD) ? "" : Encripta.getDecryptTripleDES(compania.APIPASSWORD!);
+                    compania.APIURL = String.IsNullOrEmpty(compania.APIURL) ? "" : Encripta.getDecryptTripleDES(compania.APIURL!);
+                    compania.APIDATABASE = String.IsNullOrEmpty(compania.APIDATABASE) ? "" : Encripta.getDecryptTripleDES(compania.APIDATABASE!);
+                }
+                
             }
             catch (Exception e)
             {
@@ -305,11 +375,24 @@ namespace GeoTimeConnectWebApi.Data
                         objetoBuscar.MAIL_TLS = item.MAIL_TLS;
                         objetoBuscar.HORA_CALC = item.HORA_CALC;
                         objetoBuscar.IN_MARCAS = item.IN_MARCAS;
+                        objetoBuscar.APICLIENTID = Encripta.getEncryptTripleDES(item.APICLIENTID!);
+                        objetoBuscar.APIUSER = Encripta.getEncryptTripleDES(item.APIUSER!);
+                        objetoBuscar.APIPASSWORD = Encripta.getEncryptTripleDES(item.APIPASSWORD!);
+                        objetoBuscar.APIURL = Encripta.getEncryptTripleDES(item.APIURL!); 
+                        objetoBuscar.APIDATABASE = Encripta.getEncryptTripleDES(item.APIDATABASE!);
+
+
 
                         _context.PH_COMPANIAS.Update(objetoBuscar);
                     }
                     else
                     {
+                        item.APICLIENTID = Encripta.getEncryptTripleDES(item.APICLIENTID!);
+                        item.APIUSER = Encripta.getEncryptTripleDES(item.APIUSER!);
+                        item.APIPASSWORD = Encripta.getEncryptTripleDES(item.APIPASSWORD!);
+                        item.APIURL = Encripta.getEncryptTripleDES(item.APIURL!);
+                        item.APIDATABASE = Encripta.getEncryptTripleDES(item.APIDATABASE!);
+
                         _context.Add(item);
                     }
                 }

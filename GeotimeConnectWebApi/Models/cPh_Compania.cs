@@ -26,5 +26,7 @@
         public string? APICLIENTID  { get; set; }
         public string? APIUSER { get; set; }
         public string? APIPASSWORD { get; set; }
+        public string APIDATABASE { get; set; } = "";
+        public string APIURL { get; set; } = "";
     }
 }
