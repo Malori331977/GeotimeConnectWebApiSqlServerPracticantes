@@ -16,7 +16,7 @@ namespace GeoTimeConnectWebApi.Models
         public char Estado { get; set; }        
         public int? IdAccion { get; set; }
         public String? Comentario { get; set; }
-        public int Dias { get; set; }
+        public decimal Dias { get; set; }
         public string? Usuario { get; set; }
         public DateTime Fecha_Just { get; set; }
         public string? Dias_Apl { get; set; }

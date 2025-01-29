@@ -359,13 +359,13 @@ namespace GeoTimeConnectWebApi.Data
                .HasForeignKey(e => new { e.IDCONCEPTO });
 
             builder.Entity<cPh_OpcionSistema>()
-              .ToTable("PH_OPCIONES_SISTEMA", Schema)
+              .ToTable("PH_OPCIONES_SISTEMA", schemaAdmin)
               .HasOne(e => e.cPh_MenuSistema)
               .WithMany(d => d.cPh_OpcionSistema)
               .HasForeignKey(e => new { e.PARENTID });
 
             builder.Entity<cPh_RolSistemaDet>()
-              .ToTable("PH_ROLES_SISTEMADET", Schema)
+              .ToTable("PH_ROLES_SISTEMADET", schemaAdmin)
               .HasOne(e => e.cPh_RolSistema)
               .WithMany(d => d.cPh_RolSistemaDet)
               .HasForeignKey(e => new { e.ROLSISTEMAID });
