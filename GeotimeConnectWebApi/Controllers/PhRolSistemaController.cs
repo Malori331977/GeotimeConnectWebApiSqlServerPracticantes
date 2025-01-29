@@ -10,43 +10,31 @@ using GeoTimeConnectWebApi.Models.Utils;
 using System.Text.Json;
 using GeoTimeConnectWebApi.Models.Request;
 using GeoTimeConnectWebApi.Models.Response;
-using SourceAFIS;
 
 namespace GeoTimeConnectWebApi.Controllers
 {
     [ApiController]
     [Route("[controller]")]
     [Authorize]
-    public class TemplateFACEController : Controller
+    public class PhRolSistemaController : Controller
     {
         private readonly IGeoTimeConnectService _repoGT;
-        public TemplateFACEController(IGeoTimeConnectService repoGT)
+        public PhRolSistemaController(IGeoTimeConnectService repoGT)
         {
+
             _repoGT = repoGT;
         }
 
         [HttpGet]
-        public async Task<IEnumerable<cTemplateFACE>> Get() => await _repoGT.GetTemplateFACE();      
+        public async Task<IEnumerable<cPh_RolSistema>> Get() => await _repoGT.GetPhRolSistema();      
 
         [HttpGet("{id}")]
-        public async Task<IEnumerable<cTemplateFACE>> Get(string id) => await _repoGT.GetTemplateFACE(id);
+        public async Task<cPh_RolSistema> Get(string id) => await _repoGT.GetPhRolSistema(id);
 
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody] IEnumerable<cTemplateFACE> templates)
+        public async Task<IActionResult> Post([FromBody] IEnumerable<cPh_RolSistema> roles)
         {
-            EventResponse respuesta = await _repoGT.Sincronizar_TemplateFACE(templates);
-
-            if (respuesta.Id != "0")
-                return BadRequest(respuesta);
-
-            return Ok(respuesta);
-        }
-
-   
-        [HttpDelete("{idnumero}")]
-        public async Task<IActionResult> Delete(string idnumero)
-        {
-            EventResponse respuesta = await _repoGT.Elimina_TemplateFACE(idnumero);
+            EventResponse respuesta = await _repoGT.Sincronizar_PhRolSistema(roles);
 
             if (respuesta.Id != "0")
                 return BadRequest(respuesta);

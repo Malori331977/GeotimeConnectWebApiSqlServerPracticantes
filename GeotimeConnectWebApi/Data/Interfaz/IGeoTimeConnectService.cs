@@ -1234,5 +1234,58 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         /// <param name="portalOpcion">Lista de registros de cPortal_Opcion </param>
         public Task<EventResponse> Sincronizar_PhOpcionSistema(IEnumerable<cPh_OpcionSistema> portalOpcion);
 
+        // creando por Marlon Loria Solano 23-01-2025
+        /// <summary>
+        /// GetPhRolSistema: Obtener lista de Roles de sistema 
+        /// </summary>
+        /// <returns>Lista de lista de menus del sistema</returns>
+        public Task<List<cPh_RolSistema>> GetPhRolSistema();
+
+        // creando por Marlon Loria Solano 23-01-2025
+        /// <summary>
+        /// GetPhRolSistema: Obtener datos de un rol de sistema 
+        /// </summary>
+        /// <param name="id">id de la opcion</param>
+        /// <returns>Instancia de cPh_RolSistema </returns>
+        public Task<cPh_RolSistema> GetPhRolSistema(string id);
+
+        // creando por Marlon Loria Solano 23-01-2025
+        /// <summary>
+        /// Sincronizar_PhRolSistema: Método para registrar los roles del sistema
+        /// </summary>
+        /// <returns>Una instancia de la Clase EventResponse, con el resultado del proceso</returns>
+        /// <param name="roles">Lista de registros de cPh_RolSistema </param>
+        public Task<EventResponse> Sincronizar_PhRolSistema(IEnumerable<cPh_RolSistema> roles);
+
+        // creando por Marlon Loria Solano 23-01-2025
+        /// <summary>
+        /// GetPhRolSistemaDet: Obtener lista de Detalle de Roles de sistema 
+        /// </summary>
+        /// <returns>Lista de lista de detalle de roles del sistema</returns>
+        public Task<List<cPh_RolSistemaDet>> GetPhRolSistemaDet();
+
+        // creando por Marlon Loria Solano 23-01-2025
+        /// <summary>
+        /// GetPhRolSistemaDet: Obtener datos de detalle de un rol de sistema 
+        /// </summary>
+        /// <param name="id">id de la opcion</param>
+        /// <returns>lista de opciones asociadas al rol cPh_RolSistemaDet </returns>
+        public Task<List<cPh_RolSistemaDet>> GetPhRolSistemaDet(string id);
+
+        // creando por Marlon Loria Solano 23-01-2025
+        /// <summary>
+        /// GetPhUsuarioRol: Obtener datos de detalle roles de sistema para un usuario especifico 
+        /// </summary>
+        /// <param name="id">id de usuario</param>
+        /// <returns>lista de roles asociados al usuario</returns>
+        public Task<List<cPh_UsuarioRol>> GetPhUsuarioRol(int id);
+
+        /// <summary>
+        /// Sincronizar_PhUsuarioRol:  Crear o actualizar la lista de usuarios y roles del sistema.  Se verifica cada elemento si existe en cuyo caso actualiza el registro, de lo contrario lo crea.
+        /// </summary>
+        /// <param name="usuariosRoles">Recibe una lista de cPh_UsuarioRol</param>
+        /// <returns>Instancia de EventResponse con el resultado de la operación</returns>
+        public Task<EventResponse> Sincronizar_PhUsuarioRol(IEnumerable<cPh_UsuarioRol> usuariosRoles);
+
     }
 }

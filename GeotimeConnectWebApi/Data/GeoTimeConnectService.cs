@@ -3752,7 +3752,13 @@ namespace GeoTimeConnectWebApi.Data
             {
                 var periodoVigente = await GetPeriodoVigenteEmpleado(idnumero, fecha);
 
-                marca = await _context.Marcas.Where(e => e.idnumero == idnumero && (DateTime)e.fecha_hora >= periodoVigente.inicio && (DateTime)e.fecha_hora <= periodoVigente.fin).ToListAsync();
+                if (periodoVigente is not null)
+                {
+                    marca = await _context.Marcas.Where(e => e.idnumero == idnumero 
+                                                          && (DateTime)e.fecha_hora >= periodoVigente.inicio 
+                                                          && (DateTime)e.fecha_hora <= periodoVigente.fin).ToListAsync();
+                }
+                                
             }
             catch (Exception e)
             {
@@ -10307,7 +10313,7 @@ namespace GeoTimeConnectWebApi.Data
         #endregion
 
 
-        #region Menus y Opciones de Control de Asistencia
+        #region Menus, Opciones, Roles de Usuario de Control de Asistencia
 
         // creando por Marlon Loria Solano 23-01-2025
         /// <summary>
@@ -10577,6 +10583,393 @@ namespace GeoTimeConnectWebApi.Data
                     respuesta.Descripcion = "No se pudo realizar el registro de la opción de menú. Detalle de Error: " + e.Message;
                 else
                     respuesta.Descripcion = "No se pudo realizar el registro de la opción de menú. Detalle de Error: " + e.InnerException.Message;
+
+            }
+
+            return respuesta;
+
+        }
+
+
+        // creando por Marlon Loria Solano 23-01-2025
+        /// <summary>
+        /// GetPhRolSistema: Obtener lista de Roles de sistema 
+        /// </summary>
+        /// <returns>Lista de lista de menus del sistema</returns>
+        public async Task<List<cPh_RolSistema>> GetPhRolSistema()
+        {
+            List<cPh_RolSistema>? model = new();
+
+            try
+            {
+                model = (from e in await _context.Ph_Roles_Sistema
+                                .Include(e => e.cPh_RolSistemaDet)
+                            .ToListAsync()
+                              select new cPh_RolSistema
+                              {
+                                  ID = e.ID,
+                                  DESCRIPCION = e.DESCRIPCION,
+                                  HABILITADO = e.HABILITADO,
+                                  cPh_RolSistemaDet = e.cPh_RolSistemaDet == null ? null :
+                                                  (from det in e.cPh_RolSistemaDet
+                                                   select new cPh_RolSistemaDet
+                                                   {
+                                                       ROLSISTEMAID = det.ROLSISTEMAID,
+                                                       MENUSISTEMAID = det.MENUSISTEMAID,
+                                                       OPCIONSISTEMAID = det.OPCIONSISTEMAID,
+                                                       HABILITADO = det.HABILITADO,
+                                                       AGREGA = det.AGREGA,
+                                                       MODIFICA = det.MODIFICA,
+                                                       ELIMINA = det.ELIMINA,
+                                                       CONSULTA = det.CONSULTA,
+                                                   }).ToList()
+                              }
+                            ).ToList();
+
+            }
+            catch (Exception e)
+            {
+                string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetPhRolSistema: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
+            }
+            return model;
+        }
+        // creando por Marlon Loria Solano 23-01-2025
+        /// <summary>
+        /// GetPhRolSistema: Obtener datos de un rol de sistema 
+        /// </summary>
+        /// <param name="id">id de la opcion</param>
+        /// <returns>Instancia de cPh_RolSistema </returns>
+        public async Task<cPh_RolSistema> GetPhRolSistema(string id)
+        {
+            cPh_RolSistema? model = new();
+
+            try
+            {
+
+                model = (from e in await _context.Ph_Roles_Sistema.Where(e => e.ID == id)
+                                .Include(e => e.cPh_RolSistemaDet)
+                            .ToListAsync()
+                              select new cPh_RolSistema
+                              {
+                                  ID = e.ID,
+                                  DESCRIPCION = e.DESCRIPCION,
+                                  HABILITADO = e.HABILITADO,
+                                  cPh_RolSistemaDet = e.cPh_RolSistemaDet == null ? null :
+                                                  (from det in e.cPh_RolSistemaDet
+                                                   select new cPh_RolSistemaDet
+                                                   {
+                                                       ROLSISTEMAID = det.ROLSISTEMAID,
+                                                       MENUSISTEMAID = det.MENUSISTEMAID,
+                                                       OPCIONSISTEMAID = det.OPCIONSISTEMAID,
+                                                       HABILITADO = det.HABILITADO,
+                                                       AGREGA = det.AGREGA,
+                                                       MODIFICA = det.MODIFICA,
+                                                       ELIMINA = det.ELIMINA,
+                                                       CONSULTA = det.CONSULTA,
+                                                   }).ToList()
+                              }
+                            ).FirstOrDefault();
+
+            }
+            catch (Exception e)
+            {
+                string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetPhMenuSistema: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
+            }
+            return model!;
+        }
+
+        // creando por Marlon Loria Solano 23-01-2025
+        /// <summary>
+        /// Sincronizar_PhRolSistema: Método para registrar los roles del sistema
+        /// </summary>
+        /// <returns>Una instancia de la Clase EventResponse, con el resultado del proceso</returns>
+        /// <param name="roles">Lista de registros de cPh_RolSistema </param>
+        public async Task<EventResponse> Sincronizar_PhRolSistema(IEnumerable<cPh_RolSistema> roles)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+                List<cPh_RolSistemaDet>? rolesDet;
+                foreach (var item in roles)
+                {
+                    rolesDet = item.cPh_RolSistemaDet!.ToList();
+                    cPh_RolSistema? objetoBuscar = await _context.Ph_Roles_Sistema
+                                    .Where(e => e.ID == item.ID)
+                                    .FirstOrDefaultAsync();
+                    //si la opcion existe se actualiza 
+                    //de lo contrario se agrega el registro
+                    if (objetoBuscar is not null)
+                    {
+                        objetoBuscar.DESCRIPCION = item.DESCRIPCION;
+                        objetoBuscar.HABILITADO = item.HABILITADO;
+
+                        _context.Ph_Roles_Sistema.Update(objetoBuscar);
+                    }
+                    else
+                    {
+                        item.cPh_RolSistemaDet = null;
+                        _context.Add(item);
+                    }
+                    await _context.SaveChangesAsync();
+
+                    foreach (var roldet in rolesDet)
+                    {
+                        cPh_RolSistemaDet? rolSistemaDet = await _context.Ph_Roles_SistemaDet
+                                    .Where(e => e.ROLSISTEMAID == roldet.ROLSISTEMAID
+                                             && e.MENUSISTEMAID == roldet.MENUSISTEMAID
+                                             && e.OPCIONSISTEMAID == roldet.OPCIONSISTEMAID)
+                                    .FirstOrDefaultAsync();
+                        //si la opcion existe se actualiza 
+                        //de lo contrario se agrega el registro
+                        if (rolSistemaDet is not null)
+                        {
+                            rolSistemaDet.HABILITADO = roldet.HABILITADO;
+                            rolSistemaDet.AGREGA = roldet.AGREGA;
+                            rolSistemaDet.MODIFICA = roldet.MODIFICA;
+                            rolSistemaDet.ELIMINA = roldet.ELIMINA;
+                            rolSistemaDet.CONSULTA = roldet.CONSULTA;
+
+                            _context.Ph_Roles_SistemaDet.Update(rolSistemaDet);
+                        }
+                        else
+                        {
+                            _context.Add(roldet);
+                        }
+
+                        await _context.SaveChangesAsync();
+                    }
+
+                }
+
+            }
+            catch (Exception e)
+            {
+                string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"{error}");
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo realizar el registro del rol de sistema. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo realizar el registro del rol de sistema. Detalle de Error: " + e.InnerException.Message;
+
+            }
+
+            return respuesta;
+
+        }
+
+
+        // creando por Marlon Loria Solano 23-01-2025
+        /// <summary>
+        /// GetPhRolSistemaDet: Obtener lista de Detalle de Roles de sistema 
+        /// </summary>
+        /// <returns>Lista de lista de detalle de roles del sistema</returns>
+        public async Task<List<cPh_RolSistemaDet>> GetPhRolSistemaDet()
+        {
+            List<cPh_RolSistemaDet>? model = new();
+
+            try
+            {
+                model = (from e in await _context.Ph_Roles_SistemaDet
+                                .Include(e => e.cPh_RolSistema)
+                            .ToListAsync()
+                         select new cPh_RolSistemaDet
+                         {
+                             ROLSISTEMAID = e.ROLSISTEMAID,
+                             MENUSISTEMAID = e.MENUSISTEMAID,
+                             OPCIONSISTEMAID = e.OPCIONSISTEMAID,
+                             HABILITADO = e.HABILITADO,
+                             AGREGA = e.AGREGA,
+                             MODIFICA = e.MODIFICA,
+                             ELIMINA = e.ELIMINA,
+                             CONSULTA = e.CONSULTA,
+                             cPh_RolSistema = e.cPh_RolSistema == null?null:
+                                new cPh_RolSistema
+                                {
+                                    ID = e.cPh_RolSistema.ID,
+                                    DESCRIPCION = e.cPh_RolSistema.DESCRIPCION,
+                                    HABILITADO = e.cPh_RolSistema.HABILITADO,
+                                }
+                         }
+                            ).ToList();
+
+            }
+            catch (Exception e)
+            {
+                string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetPhRolSistemaDet: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
+            }
+            return model;
+        }
+
+        // creando por Marlon Loria Solano 23-01-2025
+        /// <summary>
+        /// GetPhRolSistemaDet: Obtener datos de detalle de un rol de sistema 
+        /// </summary>
+        /// <param name="id">id de la opcion</param>
+        /// <returns>lista de opciones asociadas al rol cPh_RolSistemaDet </returns>
+        public async Task<List<cPh_RolSistemaDet>> GetPhRolSistemaDet(string id)
+        {
+            List<cPh_RolSistemaDet>? model = new();
+
+            try
+            {
+
+                model = (from e in await _context.Ph_Roles_SistemaDet
+                                .Include(e => e.cPh_RolSistema)
+                            .Where(e=>e.ROLSISTEMAID==id)
+                            .ToListAsync()
+                         select new cPh_RolSistemaDet
+                         {
+                             ROLSISTEMAID = e.ROLSISTEMAID,
+                             MENUSISTEMAID = e.MENUSISTEMAID,
+                             OPCIONSISTEMAID = e.OPCIONSISTEMAID,
+                             HABILITADO = e.HABILITADO,
+                             AGREGA = e.AGREGA,
+                             MODIFICA = e.MODIFICA,
+                             ELIMINA = e.ELIMINA,
+                             CONSULTA = e.CONSULTA,
+                             cPh_RolSistema = e.cPh_RolSistema == null ? null :
+                                new cPh_RolSistema
+                                {
+                                    ID = e.cPh_RolSistema.ID,
+                                    DESCRIPCION = e.cPh_RolSistema.DESCRIPCION,
+                                    HABILITADO = e.cPh_RolSistema.HABILITADO,
+                                }
+                         }).ToList();
+
+            }
+            catch (Exception e)
+            {
+                string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetPhMenuSistema: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
+            }
+            return model!;
+        }
+
+
+        // creando por Marlon Loria Solano 23-01-2025
+        /// <summary>
+        /// GetPhUsuarioRol: Obtener datos de detalle roles de sistema para un usuario especifico 
+        /// </summary>
+        /// <param name="id">id de usuario</param>
+        /// <returns>lista de roles asociados al usuario</returns>
+        public async Task<List<cPh_UsuarioRol>> GetPhUsuarioRol(int id)
+        {
+            List<cPh_UsuarioRol>? model = new();
+
+            try
+            {
+
+                model = (from e in await _context.Ph_Usuarios_Roles
+                            .Where(e => e.IDUSUARIO == id)
+                            .ToListAsync()
+                         select new cPh_UsuarioRol
+                         {
+                             IDUSUARIO = e.IDUSUARIO,
+                             IDREGISTRO = e.IDREGISTRO,
+                             IDUSUARIOREGISTRA = e.IDUSUARIOREGISTRA,
+                             FECHAREGISTRO = e.FECHAREGISTRO,
+                             IDUSUARIOMODIFICA = e.IDUSUARIOMODIFICA,
+                             FECHAMODIFICA = e.FECHAMODIFICA,
+                             ROLID = GetRolId(e.ROL),
+                             HABILITADO = GetRolStatus(e.ROL),
+                             ROL = e.ROL,
+                         }).ToList();
+
+            }
+            catch (Exception e)
+            {
+                string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetPhUsuarioRol: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
+            }
+            return model!;
+        }
+
+        private string GetRolId(string rol)
+        {
+            if (!String.IsNullOrEmpty(rol))
+            {
+                var data = Encripta.getDecryptTripleDES(rol);
+
+                var listValues = data.Split("|");
+                return listValues[3];
+
+            }
+            return "-1";
+
+        }
+        private bool GetRolStatus(string rol)
+        {
+            if (!String.IsNullOrEmpty(rol))
+            {
+                var data = Encripta.getDecryptTripleDES(rol);
+
+                var listValues = data.Split("|");
+                return bool.Parse(listValues[4]);
+
+            }
+            return false;
+
+        }
+
+        /// <summary>
+        /// Sincronizar_PhUsuarioRol:  Crear o actualizar la lista de usuarios y roles del sistema.  Se verifica cada elemento si existe en cuyo caso actualiza el registro, de lo contrario lo crea.
+        /// </summary>
+        /// <param name="usuariosRoles">Recibe una lista de cPh_UsuarioRol</param>
+        /// <returns>Instancia de EventResponse con el resultado de la operación</returns>
+        public async Task<EventResponse> Sincronizar_PhUsuarioRol(IEnumerable<cPh_UsuarioRol> usuariosRoles)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+
+                foreach (var usuarioRol in usuariosRoles)
+                {
+                    cPh_UsuarioRol? objetoBuscar = await _context.Ph_Usuarios_Roles.FirstOrDefaultAsync(e => e.IDUSUARIO == usuarioRol.IDUSUARIO 
+                                                                                                        && GetRolId(e.ROL)==usuarioRol.ROLID);
+
+                    if (objetoBuscar is not null)
+                    {
+                        objetoBuscar.FECHAMODIFICA = DateTime.Now;
+                        objetoBuscar.IDUSUARIOMODIFICA = usuarioRol.IDUSUARIOMODIFICA;
+
+                        string fechaRegistro = objetoBuscar.FECHAREGISTRO.ToString("HHmmssddMMyyyy");
+                        string rol = $"{fechaRegistro}|{objetoBuscar.IDUSUARIOREGISTRA}|{objetoBuscar.IDUSUARIO}|{usuarioRol.ROLID}|{usuarioRol.HABILITADO}";
+                        objetoBuscar.ROL = Encripta.getEncryptTripleDES(rol);
+
+                        _context.Ph_Usuarios_Roles.Update(objetoBuscar!);
+                    }
+                    else
+                    {
+                        usuarioRol.FECHAREGISTRO = DateTime.Now;
+                        usuarioRol.FECHAMODIFICA = DateTime.Now;
+
+                        string fechaRegistro = usuarioRol.FECHAREGISTRO.ToString("HHmmssddMMyyyy");
+                        string rol = $"{fechaRegistro}|{usuarioRol.IDUSUARIOREGISTRA}|{usuarioRol.IDUSUARIO}|{usuarioRol.ROLID}|{usuarioRol.HABILITADO}";
+                        usuarioRol.ROL=Encripta.getEncryptTripleDES(rol);
+
+                        _context.Add(usuarioRol);
+                    }
+                }
+                await _context.SaveChangesAsync();
+
+            }
+            catch (Exception e)
+            {
+                string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"{error}");
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo realizar la sincronización de roles de usuario. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo realizar la sincronización de roles de usuario. Detalle de Error: " + e.InnerException.Message;
 
             }
 
