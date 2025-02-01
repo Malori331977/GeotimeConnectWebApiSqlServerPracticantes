@@ -2,6 +2,7 @@
 using GeoTimeConnectWebApi.Models;
 using GeoTimeConnectWebApi.Models.Response;
 using GeoTimeServiceReference;
+using JtSegEncrypta;
 using LibEncripta;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
@@ -22,19 +23,27 @@ namespace GeoTimeConnectWebApi.Data
 {
     public class GeoTimeConnectService : IGeoTimeConnectService
     {
+
         private readonly SqlServerDataBaseContext _context;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private string _schema = "";
+        private string _dataBase = "";
         private readonly ILogger<GeoTimeConnectService> _logger;
+        private readonly IGraphSendMail _sendMail;
+        private readonly IEncriptaService _encriptaService;
 
-
-        public GeoTimeConnectService(IHttpContextAccessor httpContextAccessor, ILogger<GeoTimeConnectService> logger)
+        public GeoTimeConnectService(IHttpContextAccessor httpContextAccessor, 
+                                     ILogger<GeoTimeConnectService> logger,
+                                     IEncriptaService encriptaService,
+                                     IGraphSendMail sendMail)
         {
             _httpContextAccessor = httpContextAccessor;
             IEnumerable<Claim> claims = _httpContextAccessor.HttpContext!.User.Claims;
             string schema = "";
             string bdname = "";
             _logger = logger;
+            _sendMail = sendMail;
+            _encriptaService = encriptaService;
 
             foreach (Claim clm in claims)
             {
@@ -62,8 +71,10 @@ namespace GeoTimeConnectWebApi.Data
                     .Build();
 
                 schema = config.GetConnectionString("Schema");
+                bdname = config.GetConnectionString("DBName");
             }
             _schema = schema;
+            _dataBase = bdname;
             _context = SchemaChangeDbContext.GetSchemaChangeDbContext(schema, bdname);
         }
 
@@ -318,15 +329,7 @@ namespace GeoTimeConnectWebApi.Data
                                  APIURL = String.IsNullOrEmpty(e.APIURL) ? "" : Encripta.getDecryptTripleDES(e.APIURL!),
                              }).FirstOrDefault();
 
-                if (compania is not null)
-                {
-                    compania!.APICLIENTID = String.IsNullOrEmpty(compania.APICLIENTID) ? "" : Encripta.getDecryptTripleDES(compania.APICLIENTID!);
-                    compania.APIUSER = String.IsNullOrEmpty(compania.APIUSER) ? "" : Encripta.getDecryptTripleDES(compania.APIUSER!);
-                    compania.APIPASSWORD = String.IsNullOrEmpty(compania.APIPASSWORD) ? "" : Encripta.getDecryptTripleDES(compania.APIPASSWORD!);
-                    compania.APIURL = String.IsNullOrEmpty(compania.APIURL) ? "" : Encripta.getDecryptTripleDES(compania.APIURL!);
-                    compania.APIDATABASE = String.IsNullOrEmpty(compania.APIDATABASE) ? "" : Encripta.getDecryptTripleDES(compania.APIDATABASE!);
-                }
-                
+                                
             }
             catch (Exception e)
             {
@@ -3193,6 +3196,7 @@ namespace GeoTimeConnectWebApi.Data
                         {
                             item.FECHA_JUST = DateTime.Now;
                             item.IDACC = accionbuscar.IdRegistro;
+                            item.COMENTARIO = accion.Comentario;
 
                             _context.Marcas_Incidencias.Update(item);
                             await _context.SaveChangesAsync();
@@ -3215,6 +3219,7 @@ namespace GeoTimeConnectWebApi.Data
                         {
                             item.FECHA_JUST = DateTime.Now;
                             item.IDACC = ultimaAccion;
+                            item.COMENTARIO = accion.Comentario;
 
                             _context.Marcas_Incidencias.Update(item);
                             await _context.SaveChangesAsync();
@@ -6333,7 +6338,7 @@ namespace GeoTimeConnectWebApi.Data
                 marcaIncidencia = await _context.Marcas_Incidencias.Where(e => e.IDNUMERO == idnumero
                                                         && e.FECHA >= fechaInicio
                                                         && e.FECHA <= fechaFinal
-                                                        && e.FECHA_JUST == null
+                                                        && e.IDACC == null
                                                         && e.IDPLANILLA == idplanilla).ToListAsync();
             }
             catch (Exception e)
@@ -6883,13 +6888,21 @@ namespace GeoTimeConnectWebApi.Data
 
             try
             {
-                portalConfig = (from pc in await _context.Portal_Config.ToListAsync()
+                portalConfig = (from e in await _context.Portal_Config.Where(e=>e.IDAPLICACION=="com.gsitcr.portalmarcasweb").ToListAsync()
                                 select new cPortal_Config
                                 {
-                                    ID = pc.ID,
-                                    DATA_01 = Encripta.getDecryptTripleDES(pc.DATA_01),
-                                    LIC_PORTAL = pc.LIC_PORTAL,
-                                    USORESTRINGIDO = pc.USORESTRINGIDO
+                                    IDAPLICACION = e.IDAPLICACION,
+                                    IDVERSION = e.IDVERSION,
+                                    COMPANIA = e.COMPANIA,
+                                    BASEDATOS = e.BASEDATOS,
+                                    IDLICENCIA = Encripta.getDecryptTripleDES(e.IDLICENCIA) ,
+                                    ACTIVA = e.ACTIVA,
+                                    USORESTRINGIDO = e.USORESTRINGIDO,
+                                    REGSITROLIC = Encripta.getDecryptTripleDES(e.REGSITROLIC),
+                                    PERMANENTE = e.PERMANENTE,
+                                    USARECONOCIMIENTOFACIAL = e.USARECONOCIMIENTOFACIAL,
+                                    FECHAULTMODIFICA = e.FECHAULTMODIFICA,
+                                    IDUSUARIOMODIFICA = e.IDUSUARIOMODIFICA,
                                 }).FirstOrDefault();
 
             }
@@ -6898,7 +6911,7 @@ namespace GeoTimeConnectWebApi.Data
                string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
                 _logger.LogError($"GeoTimeConnectService.GetPortalConfig: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
-            return portalConfig;
+            return portalConfig!;
         }
 
         //Creado por: Marlon Loria Solano
@@ -6915,22 +6928,28 @@ namespace GeoTimeConnectWebApi.Data
             try
             {
 
-                cPortal_Config? portConfBuscar = await _context.Portal_Config.FirstOrDefaultAsync(e => e.ID == portalConfig.ID);
-                string dataEncrypt = Encripta.getEncryptTripleDES(portalConfig.DATA_01);
+                cPortal_Config? objetoBuscar = await _context.Portal_Config.FirstOrDefaultAsync(e => e.IDAPLICACION == portalConfig.IDAPLICACION);
 
                 //si el proyectoFase existe se actualiza 
                 //de lo contrario se agrega el registro
-                if (portConfBuscar is not null)
+                if (objetoBuscar is not null)
                 {
-                    portConfBuscar.LIC_PORTAL = portalConfig.LIC_PORTAL;
-                    portConfBuscar.DATA_01 = dataEncrypt;
-                    portConfBuscar.USORESTRINGIDO = portalConfig.USORESTRINGIDO;
+                    objetoBuscar.IDVERSION = portalConfig.IDVERSION;
+                    objetoBuscar.COMPANIA = portalConfig.COMPANIA;
+                    objetoBuscar.BASEDATOS = portalConfig.BASEDATOS;
+                    objetoBuscar.IDLICENCIA = Encripta.getEncryptTripleDES(portalConfig.IDLICENCIA);  
+                    objetoBuscar.ACTIVA = portalConfig.ACTIVA;
+                    objetoBuscar.USORESTRINGIDO = portalConfig.USORESTRINGIDO;
+                    objetoBuscar.REGSITROLIC = Encripta.getEncryptTripleDES(portalConfig.REGSITROLIC);
+                    objetoBuscar.PERMANENTE = portalConfig.PERMANENTE;
+                    objetoBuscar.USARECONOCIMIENTOFACIAL = portalConfig.USARECONOCIMIENTOFACIAL;
+                    objetoBuscar.FECHAULTMODIFICA = portalConfig.FECHAULTMODIFICA;
+                    objetoBuscar.IDUSUARIOMODIFICA = portalConfig.IDUSUARIOMODIFICA;;
 
-                    _context.Portal_Config.Update(portConfBuscar);
+                    _context.Portal_Config.Update(objetoBuscar);
                 }
                 else
                 {
-                    portalConfig.ID = Guid.NewGuid();
                     _context.Add(portalConfig);
                 }
 
@@ -7233,18 +7252,20 @@ namespace GeoTimeConnectWebApi.Data
         //Obtener Parametros Email por Id
         public async Task<cParametroEmail> GetParametroEmail(int id)
         {
-            cParametroEmail parametroEmail = new();
+            cParametroEmail? parametroEmail = new();
             try
             {
                 parametroEmail = await _context.ParametrosEmail.FirstOrDefaultAsync(e => e.Id == id);
-                parametroEmail.DefaultPassWord = Encripta.getDecryptTripleDES(parametroEmail.DefaultPassWord);
+
+                parametroEmail!.DefaultPassWord = String.IsNullOrEmpty(parametroEmail!.DefaultPassWord) ? "" : Encripta.getDecryptTripleDES(parametroEmail.DefaultPassWord);
+                parametroEmail.ClientSecret = String.IsNullOrEmpty(parametroEmail!.ClientSecret) ? "" : Encripta.getDecryptTripleDES(parametroEmail.ClientSecret);
             }
             catch (Exception e)
             {
                string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
                 _logger.LogError($"GeoTimeConnectService.GetParametroEmail: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}");
             }
-            return parametroEmail;
+            return parametroEmail!;
         }
 
         //Creado por: Marlon Loria Solano
@@ -7268,7 +7289,12 @@ namespace GeoTimeConnectWebApi.Data
                     parametroBuscado.SmtpServer = parametroEmail.SmtpServer;
                     parametroBuscado.SmtpPort = parametroEmail.SmtpPort;
                     parametroBuscado.DefaultEmail = parametroEmail.DefaultEmail;
-                    parametroBuscado.DefaultPassWord = Encripta.getEncryptTripleDES(parametroEmail.DefaultPassWord);
+                    parametroBuscado.DefaultPassWord = String.IsNullOrEmpty(parametroEmail.DefaultPassWord!) ? "" : Encripta.getEncryptTripleDES(parametroEmail.DefaultPassWord!);
+                    parametroBuscado.UserName = parametroEmail.UserName;
+                    parametroBuscado.TipoServicio = parametroEmail.TipoServicio;
+                    parametroBuscado.TenantId = parametroEmail.TenantId;
+                    parametroBuscado.ClientId = parametroEmail.ClientId;
+                    parametroBuscado.ClientSecret = String.IsNullOrEmpty(parametroEmail.ClientSecret) ? "" : Encripta.getEncryptTripleDES(parametroEmail.ClientSecret!);
 
                     _context.ParametrosEmail.Update(parametroBuscado);
                 }
@@ -8757,7 +8783,30 @@ namespace GeoTimeConnectWebApi.Data
 
             try
             {
-                var portalConfig = await GetPortalConfig();
+                int usuariosActivos = portalEmpleados.FirstOrDefault().USUARIOS_HABILITADOS;
+
+                var portalConfig = await _context.Portal_Config.FirstOrDefaultAsync(e => e.IDAPLICACION == "com.gsitcr.portalmarcasweb");
+
+                var licencia = Encripta.getDecryptTripleDES(portalConfig!.IDLICENCIA);                                 
+
+                string dataLic = _encriptaService.Decrypt(licencia);
+                string[] data = dataLic.Split("|");
+                var fechaVence = data[1];
+                var cantLicencias = data[2];
+                var licPermanente = data[3] == "1";
+                string strFechaVence = $"{fechaVence.Substring(0, 4)}-{fechaVence.Substring(4, 2)}-{fechaVence.Substring(6, 2)} 23:59:59";
+                DateTime dfechaVence = DateTime.Parse(strFechaVence);
+
+                if (!licPermanente)
+                {
+                    if (dfechaVence < DateTime.Now)
+                    {
+                        respuesta.Id = "1";
+                        respuesta.Respuesta = "Error";
+                        respuesta.Descripcion = "La licencia del sistema ha expirado.  Por favor contacte al administrador del sistema.";
+                        return respuesta;
+                    }
+                }
 
                 if (!portalConfig.USORESTRINGIDO)
                 {
@@ -8769,6 +8818,7 @@ namespace GeoTimeConnectWebApi.Data
                         if (existeEmpleado is null)
                         {
                             _context.Portal_Empleado.Remove(empleado);
+                            usuariosActivos -= 1;
                         }
 
                     }
@@ -8783,16 +8833,49 @@ namespace GeoTimeConnectWebApi.Data
                     //de lo contrario se agrega el registro
                     if (portalEmp is not null)
                     {
+                        if (!portalEmp.HABILITADO)
+                        {
+                            //si en el empleado estaba deshabilitado y se activa entonces se cuenta como una licencia nueva en uso
+                            if (item.HABILITADO)
+                                usuariosActivos+=1;
+                        }
+                        else
+                        {
+                            //si el empleado estaba habilitado y se inactiva se resta licencia
+                            if (!item.HABILITADO)
+                                usuariosActivos -=1;
+                        }
                         portalEmp.PORTALROLID = item.PORTALROLID;
                         portalEmp.HABILITADO = item.HABILITADO;
                         _context.Portal_Empleado.Update(portalEmp);
                     }
                     else
                     {
+                        //es un empleado que ingresa como usuario del portal de marcas habilitado, se suma licencia
+                        if (item.HABILITADO)
+                            usuariosActivos += 1;
+
                         _context.Add(item);
                     }
                 }
-                await _context.SaveChangesAsync();
+
+                //antes de guardar se verifica que hayan licencias suficientes para efectuar la operación.
+                if (int.Parse(cantLicencias)>= usuariosActivos)
+                {
+                    await _context.SaveChangesAsync();
+
+                    portalConfig.REGSITROLIC = Encripta.getEncryptTripleDES(usuariosActivos.ToString());
+                    _context.Portal_Config.Update(portalConfig);
+                    await _context.SaveChangesAsync();
+                }
+                else
+                {
+                    respuesta.Id = "1";
+                    respuesta.Respuesta = "Error";
+                    respuesta.Descripcion = $"Se ha superado la cantidad de Empleados permitidos por el sistema. La cantidad de licencias registrada para la compania es de {cantLicencias} y actualmente se han utilizado {usuariosActivos}.";
+                }
+
+                
             }
             catch (Exception e)
             {
@@ -8804,6 +8887,81 @@ namespace GeoTimeConnectWebApi.Data
                     respuesta.Descripcion = "No se pudo realizar la sincronización de Empleados para el portal de Marcas. Detalle de Error: " + e.Message;
                 else
                     respuesta.Descripcion = "No se pudo realizar la sincronización de Empleados para el portal de Marcas. Detalle de Error: " + e.InnerException.Message;
+
+            }
+
+            return respuesta;
+
+        }
+
+
+        /// <summary>
+        /// PutPortalEmpleado:  Actualizar la lista de empleados con acceso a marcar web.  Se verifica cada elemento si existe en cuyo caso actualiza el registro, de lo contrario lo crea.
+        /// </summary>
+        /// <param name="portalEmpleado">Recibe una instancia de cPortal_Empleado</param>
+        /// <returns>Instancia de EventResponse con el resultado de la operación</returns>
+        public async Task<EventResponse> PutPortalEmpleado(cPortal_Empleado portalEmpleado)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+                int usuariosActivos = portalEmpleado.USUARIOS_HABILITADOS;
+
+                var portalConfig = await _context.Portal_Config.FirstOrDefaultAsync(e => e.IDAPLICACION == "com.gsitcr.portalmarcasweb");
+
+                var licencia = Encripta.getDecryptTripleDES(portalConfig!.IDLICENCIA);
+
+                string dataLic = _encriptaService.Decrypt(licencia);
+                string[] data = dataLic.Split("|");
+                var fechaVence = data[1];
+                var cantLicencias = data[2];
+                var licPermanente = data[3] == "1";
+                string strFechaVence = $"{fechaVence.Substring(0, 4)}-{fechaVence.Substring(4, 2)}-{fechaVence.Substring(6, 2)} 23:59:59";
+                DateTime dfechaVence = DateTime.Parse(strFechaVence);
+
+                if (!licPermanente)
+                {
+                    if (dfechaVence < DateTime.Now)
+                    {
+                        respuesta.Id = "1";
+                        respuesta.Respuesta = "Error";
+                        respuesta.Descripcion = "La licencia del sistema ha expirado.  Por favor contacte al administrador del sistema.";
+                        return respuesta;
+                    }
+                }
+
+
+                //es un empleado que ingresa como usuario del portal de marcas habilitado, se suma licencia
+                usuariosActivos += 1;
+                _context.Add(portalEmpleado);
+
+                //antes de guardar se verifica que hayan licencias suficientes para efectuar la operación.
+                if (int.Parse(cantLicencias) >= usuariosActivos)
+                {
+                    await _context.SaveChangesAsync();
+
+                    portalConfig.REGSITROLIC = Encripta.getEncryptTripleDES(usuariosActivos.ToString());
+                    _context.Portal_Config.Update(portalConfig);
+                    await _context.SaveChangesAsync();
+                }
+                else
+                {
+                    respuesta.Id = "1";
+                    respuesta.Respuesta = "Error";
+                    respuesta.Descripcion = $"Se ha superado la cantidad de Empleados permitidos por el sistema. Por favor contacte al administrador del sistema.";
+                }
+            }
+            catch (Exception e)
+            {
+                string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"{error}");
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo realizar la actualización de Empleados para el portal de Marcas. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo realizar la actualización de Empleados para el portal de Marcas. Detalle de Error: " + e.InnerException.Message;
 
             }
 
@@ -9647,7 +9805,8 @@ namespace GeoTimeConnectWebApi.Data
                     await connection.OpenAsync();
                     using (var command = connection.CreateCommand())
                     {
-                        command.CommandText = $"{schemaAdmin}.VerificaCompaniaUsuarioWeb @IdNumero='{idnumero}'";
+                        
+                        command.CommandText = $"{schemaAdmin}.VerificaCompaniaUsuarioWeb @IdNumero='{idnumero}',@DataBase='{Encripta.getEncryptTripleDES(_dataBase)}'";
                         System.Data.Common.DbDataReader result = command.ExecuteReader();
 
                         table = new DataTable();
@@ -9678,6 +9837,51 @@ namespace GeoTimeConnectWebApi.Data
                 throw;
             }
             return companiasUsuario;
+        }
+
+        /// <summary>
+        /// VerificaUsuariosActivosPMW:  Verifica cantidad de usuarios habilitados en la base de datos para el portal de marcas web
+        /// </summary>
+        /// <returns>cantidad de usuarios habilitados para el portal de marcas web</returns>
+        public async Task<int> VerificaUsuariosActivosPMW()
+        {
+
+            DataTable table;
+            int respuesta = 0;
+            try
+            {
+                // Build a config object, using env vars and JSON providers.
+                IConfiguration config = new ConfigurationBuilder()
+                    .AddJsonFile("appsettings.json")
+                    .AddEnvironmentVariables()
+                    .Build();
+
+                string schemaAdmin = config.GetConnectionString("SchemaAdmin");
+
+                using (var connection = _context.Database.GetDbConnection())
+                {
+                    await connection.OpenAsync();
+                    using (var command = connection.CreateCommand())
+                    {
+
+                        command.CommandText = $"{schemaAdmin}.VerificaDatosPMW @Name='{Encripta.getEncryptTripleDES(_dataBase)}',@Object='Portal_Empleado', @field ='idnumero',@filter='habilitado=1' ";
+                        System.Data.Common.DbDataReader result = command.ExecuteReader();
+
+                        table = new DataTable();
+                        table.Load(result);
+                        result.Close();
+                        respuesta = table.Rows.Count;
+
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.VerificaUsuariosActivosPMW: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}");
+                throw;
+            }
+            return respuesta;
         }
 
         public async Task EjecutaPostCambioPlanilla(string idnumero, string oldPlanilla, string newPlanilla)
@@ -11061,6 +11265,25 @@ namespace GeoTimeConnectWebApi.Data
         }
 
         #endregion
+
+        #region NotificacionesCorreo
+
+        public async Task<EventResponse> EnviarCorreo(IEnumerable<Email> correos)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            cParametroEmail parametrosCorreo = await GetParametroEmail(1);
+
+            switch (parametrosCorreo.TipoServicio)
+            {
+                case 0: respuesta = _sendMail.SendMailSMTP(correos, parametrosCorreo); break;
+                case 1: respuesta = _sendMail.SendMailMSGraph(correos, parametrosCorreo); break;
+            }
+            return respuesta;
+        }
+        #endregion
+
+       
 
 
 

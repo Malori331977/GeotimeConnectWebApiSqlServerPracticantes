@@ -1,6 +1,5 @@
 ﻿using GeoTimeConnectWebApi.Models;
 using GeoTimeConnectWebApi.Models.Response;
-using SourceAFIS;
 using static GeoTimeConnectWebApi.Models.CalculoPeriodoParam;
 
 namespace GeoTimeConnectWebApi.Data.Interfaz
@@ -8,7 +7,6 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
     public interface IGeoTimeConnectService
     {
         
-        // ..
         /* Metodos SQL */
         #region SQLMetodes
         public Task<IEnumerable<cPh_Login>> GetPhLogin();
@@ -956,7 +954,7 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         /// <returns>instancia de EventResponse con el resultado de la operacion</returns>
         public Task<EventResponse> CambiarCodigoSeguridadEmpleado(cEmpleado empleado);
 
-        public Task<EventResponse> EnviarCorreo(Email correo);
+
         public Task<cParametroEmail> GetParametroEmail(int id);
         public Task<EventResponse> Sincronizar_ParametroEmail(cParametroEmail parametroEmail);
 
@@ -1109,6 +1107,15 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         /// <param name="portalEmpleados">Recibe una instancia de cPortal_Empleado</param>
         /// <returns>Instancia de EventResponse con el resultado de la operación</returns>
         public Task<EventResponse> Sincronizar_PortalEmpleado(IEnumerable<cPortal_Empleado> portalEmpleados);
+
+        /// <summary>
+        /// PutPortalEmpleado:  Actualizar la lista de empleados con acceso a marcar web.  Se verifica cada elemento si existe en cuyo caso actualiza el registro, de lo contrario lo crea.
+        /// </summary>
+        /// <param name="portalEmpleado">Recibe una instancia de cPortal_Empleado</param>
+        /// <returns>Instancia de EventResponse con el resultado de la operación</returns>
+        public Task<EventResponse> PutPortalEmpleado(cPortal_Empleado portalEmpleado);
+
+
 
         /// <summary>
         /// GetPortalDocMarca: Lista de documentos total de Documentos Marcas
@@ -1286,6 +1293,19 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         /// <param name="usuariosRoles">Recibe una lista de cPh_UsuarioRol</param>
         /// <returns>Instancia de EventResponse con el resultado de la operación</returns>
         public Task<EventResponse> Sincronizar_PhUsuarioRol(IEnumerable<cPh_UsuarioRol> usuariosRoles);
+        
+        /// <summary>
+        /// EnviarCorreo: Notificaciones por correo
+        /// </summary>
+        /// <param name="correo"></param>
+        /// <returns></returns>
+        public Task<EventResponse> EnviarCorreo(IEnumerable<Email> correo);
+
+        /// <summary>
+        /// VerificaUsuariosActivosPMW:  Verifica cantidad de usuarios habilitados en la base de datos para el portal de marcas web
+        /// </summary>
+        /// <returns>cantidad de usuarios habilitados para el portal de marcas web</returns>
+        public Task<int> VerificaUsuariosActivosPMW();
 
     }
 }

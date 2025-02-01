@@ -223,8 +223,8 @@ namespace GeoTimeConnectWebApi.Data
 
 
 
-            builder.Entity<cPortal_Config>().ToTable("PORTAL_CONFIG", Schema)
-                .HasKey(e => new { e.ID });
+            builder.Entity<cPortal_Config>().ToTable("PORTAL_CONFIG", schemaAdmin)
+                .HasKey(e => new { e.IDAPLICACION });
             builder.Entity<cPortal_Menu>().ToTable("PORTAL_MENU", Schema)
                 .HasKey(e => new { e.ID });
             builder.Entity<cPortal_Opcion>().ToTable("PORTAL_OPCIONES", Schema)

@@ -8,6 +8,7 @@ using GeoTimeConnectWebApi.Data.Interfaz;
 using GeoTimeConnectWebApi.Models.Utils;
 using System.Text;
 using LibEncripta;
+using JtSegEncrypta;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -72,6 +73,8 @@ builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 builder.Services.AddSingleton<IMemoryCache, MemoryCache>();
 builder.Services.AddScoped<IGeoTimeConnectService, GeoTimeConnectService>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IGraphSendMail, GraphSendMail>();
+builder.Services.AddScoped<IEncriptaService, EncriptaService>();
 
 
 

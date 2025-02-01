@@ -12,6 +12,6 @@ namespace GeoTimeConnectWebApi.Models
         public string CC { get; set; }
         public string SmtpServer { get; set; }
         public int SmtpPort { get; set; }
-
+        public string? UserName { get; set; }
     }
 }

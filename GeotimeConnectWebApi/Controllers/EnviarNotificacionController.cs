@@ -20,7 +20,7 @@ namespace GeoTimeConnectWebApi.Controllers
             _repoGT = repoGT;
         }
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody] Email email)
+        public async Task<IActionResult> Post([FromBody] IEnumerable<Email> email)
         {
             EventResponse respuesta = await _repoGT.EnviarCorreo(email);
 
