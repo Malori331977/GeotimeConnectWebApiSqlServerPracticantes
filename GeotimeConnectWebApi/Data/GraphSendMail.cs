@@ -35,7 +35,6 @@ namespace GeoTimeConnectWebApi.Data
         {
             try
             {
-                
 
                 using (HttpClient httpClient = new HttpClient())
                 {
