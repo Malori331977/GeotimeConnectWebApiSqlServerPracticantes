@@ -27,7 +27,20 @@ namespace GeoTimeConnectWebApi.Controllers
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] IEnumerable<cPortal_Empleado> portalEmpleado)
         {
+
             EventResponse respuesta = await _repoGT.Sincronizar_PortalEmpleado(portalEmpleado);
+
+            if (respuesta.Id != "0")
+                return BadRequest(respuesta);
+
+            return Ok(respuesta);
+        }
+
+        [HttpPut]
+        public async Task<IActionResult> Put([FromBody] cPortal_Empleado portalEmpleado)
+        {
+
+            EventResponse respuesta = await _repoGT.PutPortalEmpleado(portalEmpleado);
 
             if (respuesta.Id != "0")
                 return BadRequest(respuesta);

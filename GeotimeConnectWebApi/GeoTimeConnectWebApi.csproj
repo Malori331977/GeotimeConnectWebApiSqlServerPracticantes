@@ -28,6 +28,9 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Reference Include="JtSegEncrypta">
+	    <HintPath>..\..\..\..\JtSegEncrypta\JtSegEncrypta.dll</HintPath>
+	  </Reference>
 	  <Reference Include="LibEncripta">
 	    <HintPath>..\..\..\..\LibEncripta\LibEncripta\bin\Release\net6.0\LibEncripta.dll</HintPath>
 	  </Reference>

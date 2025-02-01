@@ -2,9 +2,18 @@
 {
     public class cPortal_Config
     {
-        public System.Guid ID { get; set; }
-        public char LIC_PORTAL { get; set; }
-        public string? DATA_01 { get; set; }
+        public string IDAPLICACION { get; set; }
+        public string IDVERSION { get; set; }
+        public string COMPANIA { get; set; }
+        public string BASEDATOS { get; set; }
+        public string IDLICENCIA { get; set; }
+        public bool ACTIVA { get; set; }
         public bool USORESTRINGIDO { get; set; }
+        public string REGSITROLIC { get; set; }
+        public bool PERMANENTE { get; set; }
+        public bool USARECONOCIMIENTOFACIAL { get; set; }
+        public DateTime FECHAULTMODIFICA { get; set; }
+        public string IDUSUARIOMODIFICA { get; set; }
+
     }
 }
