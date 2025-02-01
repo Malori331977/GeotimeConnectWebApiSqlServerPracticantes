@@ -24,11 +24,6 @@ namespace GeoTimeConnectWebApi.Data
         private readonly ILogger<GraphSendMail> _logger;
 
 
-        //string clientId = "89de7e9f-7215-4537-abb5-4ae20f821ff2";
-        //string tenantId = "113b44c5-85f5-4bfe-a11e-7eaafe7aaa19";
-        //string clientSecret = ".lF8Q~xbQFR9mwNzooMFa-cuuzctOalLLbpRYb1T";
-
-
         public GraphSendMail(ILogger<GraphSendMail> logger)
         {
             _logger = logger;
