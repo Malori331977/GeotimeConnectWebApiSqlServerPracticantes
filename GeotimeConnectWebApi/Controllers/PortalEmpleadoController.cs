@@ -14,7 +14,6 @@ namespace GeoTimeConnectWebApi.Controllers
         private readonly IGeoTimeConnectService _repoGT;
         public PortalEmpleadoController(IGeoTimeConnectService repoGT)
         {
-
             _repoGT = repoGT;
         }
 
