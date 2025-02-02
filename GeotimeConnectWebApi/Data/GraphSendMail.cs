@@ -22,8 +22,6 @@ namespace GeoTimeConnectWebApi.Data
         private string tenantId = "";
         private string clientSecret = "";
         private readonly ILogger<GraphSendMail> _logger;
-
-
         public GraphSendMail(ILogger<GraphSendMail> logger)
         {
             _logger = logger;

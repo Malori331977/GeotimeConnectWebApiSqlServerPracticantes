@@ -9,5 +9,6 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
     {
         public EventResponse SendMailMSGraph(IEnumerable<Email> Mensajes, cParametroEmail parametrosCorreo);
         public EventResponse SendMailSMTP(IEnumerable<Email> correos, cParametroEmail parametrosCorreo);
+
     }
 }

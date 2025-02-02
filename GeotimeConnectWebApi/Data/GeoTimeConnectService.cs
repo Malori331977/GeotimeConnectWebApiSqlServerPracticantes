@@ -23,7 +23,6 @@ namespace GeoTimeConnectWebApi.Data
 {
     public class GeoTimeConnectService : IGeoTimeConnectService
     {
-
         private readonly SqlServerDataBaseContext _context;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private string _schema = "";

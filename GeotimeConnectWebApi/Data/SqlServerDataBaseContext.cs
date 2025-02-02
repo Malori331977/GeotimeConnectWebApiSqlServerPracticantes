@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using GeoTimeConnectWebApi.Data.Interfaz;
 using GeoTimeConnectWebApi.Models;
 
-
 namespace GeoTimeConnectWebApi.Data
 {
 
