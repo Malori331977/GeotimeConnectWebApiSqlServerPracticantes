@@ -58,7 +58,6 @@ namespace GeoTimeConnectWebApi.Data
                     });
                 }
                 
-
             }
 
             //lista.Add(new UserRequest
