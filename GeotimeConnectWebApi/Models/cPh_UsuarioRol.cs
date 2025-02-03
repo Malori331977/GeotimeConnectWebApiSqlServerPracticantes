@@ -1,10 +1,15 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace GeoTimeConnectWebApi.Models
 {
     public class cPh_UsuarioRol
     {
+        [Key]
         public int IDUSUARIO { get; set; }
+
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int IDREGISTRO { get; set; }
         public string ROL { get; set; }
         public int IDUSUARIOREGISTRA { get; set; }

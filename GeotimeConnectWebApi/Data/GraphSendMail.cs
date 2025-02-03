@@ -27,8 +27,6 @@ namespace GeoTimeConnectWebApi.Data
             _logger = logger;
         }
 
-
-
         private async Task<string> GenerateToken()
         {
             try

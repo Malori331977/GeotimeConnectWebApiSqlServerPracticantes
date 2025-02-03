@@ -20,7 +20,7 @@ namespace GeoTimeConnectWebApi.Controllers
         [HttpGet("{id}")]
         public async Task<IEnumerable<cPh_UsuarioRol>> Get(int id) => await _repoGT.GetPhUsuarioRol(id);
 
-        [HttpPut]
+        [HttpPost]
         public async Task<IActionResult> Post([FromBody] IEnumerable<cPh_UsuarioRol> usuarioRoles)
         {
             EventResponse respuesta = await _repoGT.Sincronizar_PhUsuarioRol(usuarioRoles);

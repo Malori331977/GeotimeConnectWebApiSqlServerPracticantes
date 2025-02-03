@@ -11218,7 +11218,7 @@ namespace GeoTimeConnectWebApi.Data
                 foreach (var usuarioRol in usuariosRoles)
                 {
                     cPh_UsuarioRol? objetoBuscar = await _context.Ph_Usuarios_Roles.FirstOrDefaultAsync(e => e.IDUSUARIO == usuarioRol.IDUSUARIO 
-                                                                                                        && GetRolId(e.ROL)==usuarioRol.ROLID);
+                                                                                                        && e.IDREGISTRO==usuarioRol.IDREGISTRO);
 
                     if (objetoBuscar is not null)
                     {
@@ -11233,6 +11233,7 @@ namespace GeoTimeConnectWebApi.Data
                     }
                     else
                     {
+                        
                         usuarioRol.FECHAREGISTRO = DateTime.Now;
                         usuarioRol.FECHAMODIFICA = DateTime.Now;
 
