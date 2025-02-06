@@ -3364,8 +3364,25 @@ namespace GeoTimeConnectWebApi.Data
                 if (model is not null)
                 {
                     _context.Acciones_Personal.Remove(model);
+                    await _context.SaveChangesAsync();
+
+                    if (model!.Estado == 'A')
+                    {
+                        var marcasIncidencias = await _context.Marcas_Incidencias
+                                           .Where(e => e.IDACC == id &&
+                                                  e.IDNUMERO==model.IdNumero).ToListAsync();
+
+                        if (marcasIncidencias is not null)
+                        {
+                            foreach (var item in marcasIncidencias)
+                            {
+                                _context.Marcas_Incidencias.Remove(item);
+                            }
+                            await _context.SaveChangesAsync();
+                        }
+                    }
                 }
-                await _context.SaveChangesAsync();
+
             }
             catch (Exception e)
             {
