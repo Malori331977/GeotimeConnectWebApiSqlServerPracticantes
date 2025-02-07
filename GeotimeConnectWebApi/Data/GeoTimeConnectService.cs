@@ -3669,9 +3669,10 @@ namespace GeoTimeConnectWebApi.Data
             List<cMarcaResumen> marcasResumen = new();
             try
             {
-                marcasResumen = await _context.Marcas_Resumen
-                                    .Where(e => e.IdPlanilla == idPlanilla && e.IdPeriodo == idPeriodo)
-                                    .ToListAsync();
+                marcasResumen = await (from mr in _context.Marcas_Resumen.Where(mr=> mr.IdPlanilla == idPlanilla && mr.IdPeriodo == idPeriodo)
+                                       join emp in _context.Empleados.Where(e=>e.Estado == 'T') on mr.IdNumero equals emp.IdNumero
+                                       select mr
+                                       ).ToListAsync();
             }
             catch (Exception e)
             {
@@ -3690,9 +3691,9 @@ namespace GeoTimeConnectWebApi.Data
             try
             {
                 marcasResumen = await( from mr in _context.Marcas_Resumen.Where(e => e.IdPlanilla == idPlanilla && e.IdPeriodo == idPeriodo)
+                                       join emp in _context.Empleados.Where(e => e.Estado == 'T') on mr.IdNumero equals emp.IdNumero
                                        join c in _context.Ph_Conceptos.Where(e=>e.transferir=='T') on mr.IdConcepto equals c.id
-                                       select mr
-                                    ).ToListAsync();
+                                       select mr).ToListAsync();
             }
             catch (Exception e)
             {
@@ -3710,9 +3711,10 @@ namespace GeoTimeConnectWebApi.Data
             List<cMarcaResumen> marcasResumen = new();
             try
             {
-                marcasResumen = await _context.Marcas_Resumen
-                                    .Where(e => e.IdPlanilla == idPlanilla)
-                                    .ToListAsync();
+                marcasResumen = await (from mr in _context.Marcas_Resumen.Where(mr => mr.IdPlanilla == idPlanilla )
+                                       join emp in _context.Empleados.Where(e => e.Estado == 'T') on mr.IdNumero equals emp.IdNumero
+                                       select mr
+                                       ).ToListAsync();
             }
             catch (Exception e)
             {
@@ -3792,9 +3794,9 @@ namespace GeoTimeConnectWebApi.Data
             List<cMarcaResumen> marcasResumen = new();
             try
             {
-                marcasResumen = await _context.Marcas_Resumen
-                                    .Where(e => e.IdPeriodo == idPeriodo)
-                                    .ToListAsync();
+                marcasResumen = await (from mr in _context.Marcas_Resumen.Where(e => e.IdPeriodo == idPeriodo)
+                                       join emp in _context.Empleados.Where(e => e.Estado == 'T') on mr.IdNumero equals emp.IdNumero
+                                       select mr).ToListAsync();
             }
             catch (Exception e)
             {
