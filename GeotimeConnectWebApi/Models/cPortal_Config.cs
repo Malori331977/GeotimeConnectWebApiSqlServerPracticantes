@@ -12,6 +12,10 @@
         public string REGSITROLIC { get; set; }
         public bool PERMANENTE { get; set; }
         public bool USARECONOCIMIENTOFACIAL { get; set; }
+        public bool USARGEOLOCALIZACION { get; set; }
+        public string? MAPAPIKEY { get; set; }
+        public decimal FACEDIST { get; set; }
+        public decimal FACETEXT { get; set; }
         public DateTime FECHAULTMODIFICA { get; set; }
         public string IDUSUARIOMODIFICA { get; set; }
 

@@ -6906,21 +6906,25 @@ namespace GeoTimeConnectWebApi.Data
 
             try
             {
-                portalConfig = (from e in await _context.Portal_Config.Where(e=>e.IDAPLICACION=="com.gsitcr.portalmarcasweb").ToListAsync()
+                portalConfig = (from e in await _context.Portal_Config.Where(e => e.IDAPLICACION == "com.gsitcr.portalmarcasweb").ToListAsync()
                                 select new cPortal_Config
                                 {
                                     IDAPLICACION = e.IDAPLICACION,
                                     IDVERSION = e.IDVERSION,
                                     COMPANIA = e.COMPANIA,
                                     BASEDATOS = e.BASEDATOS,
-                                    IDLICENCIA = Encripta.getDecryptTripleDES(e.IDLICENCIA) ,
+                                    IDLICENCIA = Encripta.getDecryptTripleDES(e.IDLICENCIA),
                                     ACTIVA = e.ACTIVA,
                                     USORESTRINGIDO = e.USORESTRINGIDO,
                                     REGSITROLIC = Encripta.getDecryptTripleDES(e.REGSITROLIC),
                                     PERMANENTE = e.PERMANENTE,
                                     USARECONOCIMIENTOFACIAL = e.USARECONOCIMIENTOFACIAL,
+                                    USARGEOLOCALIZACION = e.USARGEOLOCALIZACION,
                                     FECHAULTMODIFICA = e.FECHAULTMODIFICA,
                                     IDUSUARIOMODIFICA = e.IDUSUARIOMODIFICA,
+                                    MAPAPIKEY = e.MAPAPIKEY != null ? Encripta.getDecryptTripleDES(e.MAPAPIKEY!) : null,
+                                    FACEDIST = e.FACEDIST,
+                                    FACETEXT = e.FACETEXT,
                                 }).FirstOrDefault();
 
             }
@@ -6962,7 +6966,11 @@ namespace GeoTimeConnectWebApi.Data
                     objetoBuscar.PERMANENTE = portalConfig.PERMANENTE;
                     objetoBuscar.USARECONOCIMIENTOFACIAL = portalConfig.USARECONOCIMIENTOFACIAL;
                     objetoBuscar.FECHAULTMODIFICA = portalConfig.FECHAULTMODIFICA;
-                    objetoBuscar.IDUSUARIOMODIFICA = portalConfig.IDUSUARIOMODIFICA;;
+                    objetoBuscar.IDUSUARIOMODIFICA = portalConfig.IDUSUARIOMODIFICA;
+                    objetoBuscar.USARGEOLOCALIZACION = portalConfig.USARGEOLOCALIZACION;
+                    objetoBuscar.MAPAPIKEY = portalConfig.MAPAPIKEY!=null?Encripta.getEncryptTripleDES(portalConfig.MAPAPIKEY!):null;
+                    objetoBuscar.FACEDIST = portalConfig.FACEDIST;
+                    objetoBuscar.FACETEXT = portalConfig.FACETEXT;
 
                     _context.Portal_Config.Update(objetoBuscar);
                 }
