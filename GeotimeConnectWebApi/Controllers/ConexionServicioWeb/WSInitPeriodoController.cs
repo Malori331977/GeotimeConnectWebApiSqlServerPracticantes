@@ -4,24 +4,24 @@ using GeoTimeConnectWebApi.Models.Response;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace GeoTimeConnectWebApi.Controllers
+namespace GeoTimeConnectWebApi.Controllers.ConexionServicioWeb
 {
     [ApiController]
     [Route("[controller]")]
     [Authorize]
-    public class WSExportoConceptoController : Controller
+    public class WSInitPeriodoController : Controller
     {
         private readonly IGeoTimeConnectService _repoGT;
-        public WSExportoConceptoController(IGeoTimeConnectService repoGT)
+        public WSInitPeriodoController(IGeoTimeConnectService repoGT)
         {
 
             _repoGT = repoGT;
         }
 
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody] IEnumerable<cExporto_Concepto> parametros)
+        public async Task<IActionResult> Post([FromBody] IEnumerable<cInit_Periodo> parametros)
         {
-            EventResponse respuesta = await _repoGT.Exporto_Concepto(parametros);
+            EventResponse respuesta = await _repoGT.Init_Periodo(parametros);
 
             if (respuesta.Id != "0")
                 return BadRequest(respuesta);

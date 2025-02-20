@@ -4,7 +4,7 @@ using GeoTimeConnectWebApi.Models.Response;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace GeoTimeConnectWebApi.Controllers
+namespace GeoTimeConnectWebApi.Controllers.ConexionServicioWeb
 {
     [ApiController]
     [Route("[controller]")]

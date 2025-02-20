@@ -1,27 +1,27 @@
 ﻿using GeoTimeConnectWebApi.Data.Interfaz;
-using GeoTimeConnectWebApi.Models;
 using GeoTimeConnectWebApi.Models.Response;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using static GeoTimeConnectWebApi.Models.CalculoPeriodoParam;
 
-namespace GeoTimeConnectWebApi.Controllers
+namespace GeoTimeConnectWebApi.Controllers.ConexionServicioWeb
 {
     [ApiController]
     [Route("[controller]")]
     [Authorize]
-    public class WSInitPeriodoController : Controller
+    public class WSCalPeriodoPlanillaEmpleadoController : Controller
     {
         private readonly IGeoTimeConnectService _repoGT;
-        public WSInitPeriodoController(IGeoTimeConnectService repoGT)
+        public WSCalPeriodoPlanillaEmpleadoController(IGeoTimeConnectService repoGT)
         {
 
             _repoGT = repoGT;
         }
 
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody] IEnumerable<cInit_Periodo> parametros)
+        public async Task<IActionResult> Post([FromBody] cCalculoPeriodoParam parametros)
         {
-            EventResponse respuesta = await _repoGT.Init_Periodo(parametros);
+            EventResponse respuesta = await _repoGT.EjecutaCalculoPlanillaEmpleado(parametros);
 
             if (respuesta.Id != "0")
                 return BadRequest(respuesta);
