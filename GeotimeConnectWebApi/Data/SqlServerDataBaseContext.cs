@@ -107,6 +107,16 @@ namespace GeoTimeConnectWebApi.Data
         public DbSet<cPh_UsuarioRol> Ph_Usuarios_Roles { get; set; }
 
 
+        public DbSet<cRelojDispositivoAdmin> RelojDispositivoAdmin { get; set; }
+        public DbSet<cRelojDispositivo> RelojDispositivo { get; set; }
+        public DbSet<cRelojTemplate> RelojTemplate { get; set; }
+        public DbSet<cRelojTemplateFace> RelojTemplateFace { get; set; }
+        public DbSet<cRelojUsuario> RelojUsuario { get; set; }
+
+
+
+
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             builder.HasDefaultSchema(schemaAdmin);
@@ -129,6 +139,19 @@ namespace GeoTimeConnectWebApi.Data
                .HasKey(e => new { e.ROLSISTEMAID,e.MENUSISTEMAID,e.OPCIONSISTEMAID });
             builder.Entity<cPh_UsuarioRol>().ToTable("PH_USUARIOS_ROLES", schemaAdmin)
                 .HasKey(e => new { e.IDUSUARIO,e.IDREGISTRO });
+
+            //INTEGRACION CON REOLJES
+            builder.Entity<cRelojDispositivoAdmin>().ToTable("RELOJES_DISPOSITIVO", schemaAdmin)
+               .HasKey(e => new { e.CLOCK_ID });
+            builder.Entity<cRelojDispositivo>().ToTable("RELOJES_DISPOSITIVO", Schema)
+               .HasKey(e => new { e.CLOCK_ID });
+            builder.Entity<cRelojUsuario>().ToTable("RELOJ_USUARIO", Schema)
+               .HasKey(e => new { e.FP_ENROLLID });
+            builder.Entity<cRelojTemplate>().ToTable("RELOJ_TEMPLATE", Schema)
+               .HasKey(e => new { e.FP_ENROLLID, e.FP_INDEXID });
+            builder.Entity<cRelojTemplateFace>().ToTable("RELOJ_TEMPLATE_FACES", Schema)
+               .HasKey(e => new { e.FACE_PIN, e.FACE_INDEX });
+
 
             #endregion
 
