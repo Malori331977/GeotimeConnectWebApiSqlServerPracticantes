@@ -3,22 +3,22 @@ using GeoTimeConnectWebApi.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace GeoTimeConnectWebApi.Controllers
+namespace GeoTimeConnectWebApi.Controllers.ConexionServicioWeb
 {
     [ApiController]
     [Route("[controller]")]
     [Authorize]
-    public class WSObtenerTipoAccionController : Controller
+    public class WSObtenerConceptoController : Controller
     {
         private readonly IGeoTimeConnectService _repoGT;
-        public WSObtenerTipoAccionController(IGeoTimeConnectService repoGT)
+        public WSObtenerConceptoController(IGeoTimeConnectService repoGT)
         {
 
             _repoGT = repoGT;
         }
 
         [HttpGet("{compania}/{session}")]
-        public async Task<IEnumerable<cObtengoTipoAccion>> Get(string compania, string session) => await _repoGT.Obtener_TipoAccion(compania, session);
+        public async Task<IEnumerable<cObtengoConcepto>> Get(string compania, string session) => await _repoGT.Obtener_Conceptos(compania, session);
 
     }
 }
