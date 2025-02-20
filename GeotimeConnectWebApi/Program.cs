@@ -75,7 +75,7 @@ builder.Services.AddScoped<IGeoTimeConnectService, GeoTimeConnectService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IGraphSendMail, GraphSendMail>();
 builder.Services.AddScoped<IEncriptaService, EncriptaService>();
-
+builder.Services.AddScoped<IRelojesServices, RelojesServices>();
 
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
