@@ -7855,6 +7855,223 @@ namespace GeoTimeConnectWebApi.Data
 
         }
 
+        //Creado por: Allan Prieto Badilla
+        //Fecha: 2025-2-23
+        /// <summary>
+        /// GetTransformacionTipoMarca: Método para obtener una lista de Transformaciones Tipo Marca 
+        /// </summary>
+        /// <returns>Lista de cTransformacionTipoMarca</returns>
+        public async Task<IEnumerable<cTransformacionTipoMarca>> GetTransformacionTipoMarca()
+        {
+            List<cTransformacionTipoMarca>? transformacionesTipoMarca = new();
+            try
+            {
+                transformacionesTipoMarca = await _context.TransformacionesTipoMarca.ToListAsync();
+            }
+            catch (Exception e)
+            {
+                string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetTransformacionGlobal: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
+            }
+            return transformacionesTipoMarca;
+        }
+
+        //Creado por: Allan Prieto
+        //Fecha: 2025-2-23
+        /// <summary>
+        /// GetTransformacionTipoMarca: Método para una Transformacion Tipo Marca específica
+        /// </summary>
+        /// <returns>Una instancia de la clase cTransformacionTipoMarca</returns>
+        /// ///<param name="id">idperiodo de la Transformacion Global requerido</param>
+        public async Task<cTransformacionTipoMarca> GetTransformacionTipoMarca(int id)
+        {
+            cTransformacionTipoMarca? transformacionesTipoMarcas = new();
+            try
+            {
+                transformacionesTipoMarcas = await _context.TransformacionesTipoMarca.FirstOrDefaultAsync(e => e.TRANSFORMACIONID == id);
+            }
+            catch (Exception e)
+            {
+                string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetTransformacionGlobal: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
+            }
+            return transformacionesTipoMarcas;
+        }
+
+        //Creado por: Allan Prieto Badilla
+        //Fecha: 2025-2-23
+        /// <summary>
+        /// Sincronizar_TransformacionTipoMarca: Método para registrar los registros en la tabla Transformaciones Tipo Marca
+        /// </summary>
+        /// <returns>Una instancia de la Clase EventResponse, con el resultado del proceso</returns>
+        /// <param name="transformacionTM">Lista de registros de la clase cTransformacionTipoMarca</param>
+        public async Task<EventResponse> Sincronizar_TransformacionTipoMarca(IEnumerable<cTransformacionTipoMarca> transformacionTM)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+                foreach (var item in transformacionTM)
+                {
+                    cTransformacionTipoMarca? objetoBuscar = await _context.TransformacionesTipoMarca
+                                    .Where(e => e.TRANSFORMACIONID == item.TRANSFORMACIONID)
+                                    .FirstOrDefaultAsync();
+                    //si la opcion existe se actualiza 
+                    //de lo contrario se agrega el registro
+                    if (objetoBuscar is not null)
+                    {
+
+                        objetoBuscar.TRANSFORMACIONID = item.TRANSFORMACIONID;
+                        objetoBuscar.HORA_INICIO = item.HORA_INICIO;
+                        objetoBuscar.HORA_FIN = item.HORA_FIN;
+                        objetoBuscar.RESTARDIA = item.RESTARDIA;
+
+                        _context.TransformacionesTipoMarca.Update(objetoBuscar);
+                    }
+                    else
+                    {
+                        _context.Add(item);
+                    }
+                    await _context.SaveChangesAsync();
+                }
+            }
+            catch (Exception e)
+            {
+                string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"{error}");
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo realizar el registro en la tabla Transformacion Tipo Marca. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo realizar el registro en la tabla Transformacion Tipo Marca. Detalle de Error: " + e.InnerException.Message;
+            }
+
+            return respuesta;
+        }
+
+        //Creado por: Allan Prieto Badilla
+        //Fecha: 2025-2-23
+        /// <summary>
+        /// Elimina_TransformacionTipoMarca:  Metodo boorado de datos de la tabla cTransformacion Tipo Marca
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns>EventResponse</returns>
+        public async Task<EventResponse> Elimina_TransformacionTipoMarca(int id)
+        {
+            EventResponse respuesta = new EventResponse();
+            try
+            {
+                cTransformacionTipoMarca? model = await _context.TransformacionesTipoMarca
+                    .FirstOrDefaultAsync(e => e.TRANSFORMACIONID == id);
+
+                if (model is not null)
+                {
+                    _context.TransformacionesTipoMarca.Remove(model);
+                }
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"{error}");
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo eliminar la Transformación Tipo Marca. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo eliminar la Transformación Tipo Marca. Detalle de Error: " + e.InnerException.Message;
+            }
+            return respuesta;
+        }
+
+        //Creado por: Allan Prieto Badilla
+        //Fecha: 2025-2-23
+        /// <summary>
+        /// GetTransformacionTipoMarcaDet: Método para obtener una lista de Transformaciones Tipo Marca Detalle 
+        /// </summary>
+        /// <returns>Lista de cTransformacionTipoMarcaDet</returns>
+        public async Task<IEnumerable<cTransformacionTipoMarcaDet>> GetTransformacionTipoMarcaDet(int transformacionID)
+        {
+            List<cTransformacionTipoMarcaDet>? transformacionesTipoMarcaDet = new();
+            try
+            {
+                transformacionesTipoMarcaDet = await (from e in _context.TransformacionesTipoMarcaDet
+                                                      .Where(e => e.TRANSFORMACIONID == transformacionID)
+                                                      select new cTransformacionTipoMarcaDet
+                                                      {
+                                                          TRANSFORMACIONID = e.TRANSFORMACIONID,
+                                                          IDREGISTRO = e.IDREGISTRO,
+                                                          VERIFICA_MARCA = e.VERIFICA_MARCA,
+                                                          HORA_INICIO = e.HORA_INICIO,
+                                                          HORA_FIN = e.HORA_FIN,
+                                                          TIPO_MARCA = e.TIPO_MARCA,
+                                                          TIPO_MARCA_TRANS = e.TIPO_MARCA_TRANS,
+                                                          TIPO_DEFAULT = e.TIPO_DEFAULT
+                                                      }).ToListAsync();
+            }
+            catch (Exception e)
+            {
+                string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetTransformacionTipoMarcaDet: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
+            }
+            return transformacionesTipoMarcaDet;
+        }
+
+        //Creado por: Allan Prieto Badilla
+        //Fecha: 2025-2-23
+        /// <summary>
+        /// Sincronizar_TransformacionTipoMarcaDet: Método para registrar los registros en la tabla Transformaciones Tipo Marca Detalle
+        /// </summary>
+        /// <returns>Una instancia de la Clase EventResponse, con el resultado del proceso</returns>
+        /// <param name="transformacionTMD">Lista de registros de la clase cTransformacionTipoMarcaDet</param>
+        public async Task<EventResponse> Sincronizar_TransformacionTipoMarcaDet(IEnumerable<cTransformacionTipoMarcaDet> transformacionTMD)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+                foreach (var item in transformacionTMD)
+                {
+                    cTransformacionTipoMarcaDet? objetoBuscar = await _context.TransformacionesTipoMarcaDet
+                                    .Where(e => e.IDREGISTRO == item.IDREGISTRO)
+                                    .FirstOrDefaultAsync();
+                    //si la opcion existe se actualiza 
+                    //de lo contrario se agrega el registro
+                    if (objetoBuscar is not null)
+                    {
+
+                        objetoBuscar.TRANSFORMACIONID = item.TRANSFORMACIONID;
+                        objetoBuscar.IDREGISTRO = item.IDREGISTRO;
+                        objetoBuscar.VERIFICA_MARCA = item.VERIFICA_MARCA;
+                        objetoBuscar.HORA_INICIO = item.HORA_INICIO;
+                        objetoBuscar.HORA_FIN = item.HORA_FIN;
+                        objetoBuscar.TIPO_MARCA = item.TIPO_MARCA;
+                        objetoBuscar.TIPO_MARCA_TRANS = item.TIPO_MARCA_TRANS;
+                        objetoBuscar.TIPO_DEFAULT = item.TIPO_DEFAULT;
+
+                        _context.TransformacionesTipoMarcaDet.Update(objetoBuscar);
+                    }
+                    else
+                    {
+                        _context.Add(item);
+                    }
+                    await _context.SaveChangesAsync();
+                }
+            }
+            catch (Exception e)
+            {
+                string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"{error}");
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo realizar el registro en la tabla Transformacion Tipo Marca Detalle. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo realizar el registro en la tabla Transformacion Tipo Marca Detalle. Detalle de Error: " + e.InnerException.Message;
+            }
+            return respuesta;
+        }
 
         //Creado por: Allan Prieto Badilla
         //Fecha: 2024-2-6
@@ -7876,6 +8093,8 @@ namespace GeoTimeConnectWebApi.Data
             }
             return IncidenciaConfPagos;
         }
+
+
 
         //Creado por: Allan Prieto
         //Fecha: 2024-2-6
