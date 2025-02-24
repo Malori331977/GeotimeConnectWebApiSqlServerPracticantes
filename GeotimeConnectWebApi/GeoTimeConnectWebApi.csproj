@@ -29,7 +29,7 @@
 
 	<ItemGroup>
 	  <Reference Include="JtSegEncrypta">
-	    <HintPath>..\..\..\JtSegEncrypta.dll</HintPath>
+	    <HintPath>..\..\..\..\JtSegEncrypta\JtSegEncrypta.dll</HintPath>
 	  </Reference>
 	  <Reference Include="LibEncripta">
 	    <HintPath>..\..\..\..\LibEncripta\LibEncripta\bin\Release\net6.0\LibEncripta.dll</HintPath>
@@ -38,7 +38,7 @@
 	    <HintPath>..\..\..\..\Seguridad GeoTime\Seguridad_Geotime.dll</HintPath>
 	  </Reference>
 	  <Reference Include="SourceAFIS">
-	    <HintPath>..\..\..\SourceAFIS.dll</HintPath>
+	    <HintPath>..\..\..\..\SourceAFIS\SourceAFIS.dll</HintPath>
 	  </Reference>
 	</ItemGroup>
 
