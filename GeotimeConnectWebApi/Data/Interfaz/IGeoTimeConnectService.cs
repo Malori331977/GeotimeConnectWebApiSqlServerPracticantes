@@ -1014,6 +1014,21 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         public Task<EventResponse> Sincronizar_TransformacionGlobal(IEnumerable<cTransformacionGlobal> departamentos);
         public Task<EventResponse> Elimina_TransformacionGlobal(int id);
 
+        /// <summary>
+        /// GetTransformacionTipoMarca: obtener lista de Transformaciones Tipo Marca
+        /// </summary>
+        /// <returns>Lista de Transformacion Tipo Marca</returns>
+        public Task<IEnumerable<cTransformacionTipoMarca>> GetTransformacionTipoMarca();
+        public Task<cTransformacionTipoMarca> GetTransformacionTipoMarca(int id);
+        public Task<EventResponse> Sincronizar_TransformacionTipoMarca(IEnumerable<cTransformacionTipoMarca> transformacionTM);
+        public Task<EventResponse> Elimina_TransformacionTipoMarca(int id);
+
+        /// <summary>
+        /// GetTransformacionTipoMarcaDet: obtener lista de Transformaciones Tipo Marca Detalle
+        /// </summary>
+        /// <returns>Lista de Transformacion Tipo Marca Detalle</returns>
+        public Task<IEnumerable<cTransformacionTipoMarcaDet>> GetTransformacionTipoMarcaDet(int transformacionID);
+        public Task<EventResponse> Sincronizar_TransformacionTipoMarcaDet(IEnumerable<cTransformacionTipoMarcaDet> transformacionTMD);
 
         /// <summary>
         /// GetIncidencia_Conf_Pago: obtener lista de Incidencias Conf Pago

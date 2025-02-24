@@ -85,6 +85,8 @@ namespace GeoTimeConnectWebApi.Data
         public DbSet<cPh_RolTurno> Ph_Roles_Turnos { get; set; }
         public DbSet<cTransformacion> Transformaciones { get; set; }
         public DbSet<cTransformacionGlobal> TransformacionesGlobales { get; set; }
+        public DbSet<cTransformacionTipoMarca> TransformacionesTipoMarca { get; set; }
+        public DbSet<cTransformacionTipoMarcaDet> TransformacionesTipoMarcaDet { get; set; }
         public DbSet<cIncidencia_Conf_Pago> Incidencias_Conf_Pago { get; set; }
         public DbSet<cPortal_Rol> Portal_Rol { get; set; }
         public DbSet<cPortal_RolDet> Portal_RolDet { get; set; }
@@ -219,6 +221,10 @@ namespace GeoTimeConnectWebApi.Data
                 .HasKey(e => new { e.ID });
             builder.Entity<cTransformacionGlobal>().ToTable("TRANSFORMACIONES_GLOBALES", Schema)
                 .HasKey(e => new { e.ID });
+            builder.Entity<cTransformacionTipoMarca>().ToTable("TRANSFORMACIONES_TIPO_MARCA", Schema)
+                .HasKey(e => new { e.TRANSFORMACIONID });
+            builder.Entity<cTransformacionTipoMarcaDet>().ToTable("TRANSFORMACIONES_TIPO_MARCA_DET", Schema)
+                .HasKey(e => new { e.TRANSFORMACIONID,  e.IDREGISTRO });
             builder.Entity<cIncidencia_Conf_Pago>().ToTable("INCIDENCIAS_CONF_PAGO", Schema)
                 .HasKey(e => new { e.ID });
             builder.Entity<cPh_DescansoTurno>().ToTable("PH_DESCANSOS_TURNOS", Schema)
