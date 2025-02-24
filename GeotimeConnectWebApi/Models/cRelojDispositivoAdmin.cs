@@ -21,12 +21,6 @@
         public string? USUARIO_HIK { get; set; }
         public string? PASSWORD_HIK { get; set; }
         public string? CLOCK_SERIE { get; set; }
-        public char? ALERTA_MASCARILLA { get; set; }
-        public char? ALERTA_TEMPERATURA { get; set; }
-        public string? CORTE_TEMPERATURA { get; set; }
-        public string? DIRECCIONES_ALERTA { get; set; }
-        public char? ACC { get; set; }
-        public DateTime? ULTIMO_ESTADO { get; set; }
 
         public string? IDCOMP { get; set; }
     }

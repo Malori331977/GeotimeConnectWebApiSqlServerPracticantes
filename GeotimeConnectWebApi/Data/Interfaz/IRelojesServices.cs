@@ -24,7 +24,7 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        public Task<cRelojDispositivoAdmin> GetRelojDispositivoAdmin(int id);
+        public Task<cRelojDispositivoAdmin> GetRelojDispositivoAdmin(string id);
 
         /// <summary>
         /// PostRelojDispositivoAdmin: metodo crear o modificar uno o varios registros de Relojes_Dispositivos en esquema ctadmin 

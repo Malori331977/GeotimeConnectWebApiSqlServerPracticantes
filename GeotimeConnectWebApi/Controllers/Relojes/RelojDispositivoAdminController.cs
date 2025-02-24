@@ -25,7 +25,7 @@ namespace GeoTimeConnectWebApi.Controllers
         public async Task<IEnumerable<cRelojDispositivoAdmin>> Get(string compania, string estado) => await _repoGT.GetRelojDispositivoAdmin(compania, estado);
 
         [HttpGet("{id}")]
-        public async Task<cRelojDispositivoAdmin> Get(int id) => await _repoGT.GetRelojDispositivoAdmin(id);
+        public async Task<cRelojDispositivoAdmin> Get(string id) => await _repoGT.GetRelojDispositivoAdmin(id);
 
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] IEnumerable<cRelojDispositivoAdmin> dispositivos)

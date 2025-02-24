@@ -117,14 +117,13 @@ namespace GeoTimeConnectWebApi.Data
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        public async Task<cRelojDispositivoAdmin> GetRelojDispositivoAdmin(int id)
+        public async Task<cRelojDispositivoAdmin> GetRelojDispositivoAdmin(string id)
         {
             cRelojDispositivoAdmin? model = new();
-            funciones.funciones_geo funcionesGeo = new();
 
             try
             {
-                model = await _context.RelojDispositivoAdmin.FirstOrDefaultAsync(e => e.CLOCK_ID == id);
+                model = await _context.RelojDispositivoAdmin.FirstOrDefaultAsync(e => e.CLOCK_SERIE == id);
             }
             catch (Exception e)
             {
@@ -148,7 +147,8 @@ namespace GeoTimeConnectWebApi.Data
             {
                 foreach (var item in relojes)
                 {
-                    cRelojDispositivoAdmin? objetoBuscar = await _context.RelojDispositivoAdmin.FirstOrDefaultAsync(e => e.CLOCK_ID == item.CLOCK_ID);
+                    cRelojDispositivoAdmin? objetoBuscar = await _context.RelojDispositivoAdmin
+                        .FirstOrDefaultAsync(e => e.CLOCK_ID == item.CLOCK_ID || e.CLOCK_SERIE==item.CLOCK_SERIE);
 
                     if (objetoBuscar is not null)
                     {
@@ -171,17 +171,12 @@ namespace GeoTimeConnectWebApi.Data
                         objetoBuscar.PASSWORD_HIK = item.PASSWORD_HIK;
                         objetoBuscar.CLOCK_SERIE = item.CLOCK_SERIE;
                         objetoBuscar.IDCOMP = item.IDCOMP;
-                        objetoBuscar.ALERTA_MASCARILLA = item.ALERTA_MASCARILLA;
-                        objetoBuscar.ALERTA_TEMPERATURA = item.ALERTA_TEMPERATURA;
-                        objetoBuscar.CORTE_TEMPERATURA = item.CORTE_TEMPERATURA;
-                        objetoBuscar.DIRECCIONES_ALERTA = item.DIRECCIONES_ALERTA;
-                        objetoBuscar.ACC = item.ACC;
-                        objetoBuscar.ULTIMO_ESTADO = item.ULTIMO_ESTADO;
-
+                        
                         _context.RelojDispositivoAdmin.Update(objetoBuscar);
                     }
                     else
                     {
+
                         // crear un nuevo registro si no existe
                         item.CLOCK_ID = 0;
                         await _context.RelojDispositivoAdmin.AddAsync(item);
