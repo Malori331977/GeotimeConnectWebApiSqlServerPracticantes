@@ -7953,7 +7953,8 @@ namespace GeoTimeConnectWebApi.Data
         //Creado por: Allan Prieto Badilla
         //Fecha: 2025-2-23
         /// <summary>
-        /// Elimina_TransformacionTipoMarca:  Metodo boorado de datos de la tabla cTransformacion Tipo Marca
+        /// Elimina_TransformacionTipoMarca:  Metodo boorado de datos de la tabla cTransformacion Tipo Marca y 
+        /// Los registros de detalle que contiene la tabla de TransformacionesTipoMarcaDetalle
         /// </summary>
         /// <param name="id"></param>
         /// <returns>EventResponse</returns>
@@ -7967,6 +7968,15 @@ namespace GeoTimeConnectWebApi.Data
 
                 if (model is not null)
                 {
+                    // Buscar y eliminar los detalles relacionados
+                    var detalles = await _context.TransformacionesTipoMarcaDet
+                        .Where(d => d.TRANSFORMACIONID == id)
+                        .ToListAsync();
+
+                    // Eliminar los detalles de la transformación
+                    _context.TransformacionesTipoMarcaDet.RemoveRange(detalles);
+
+                    // Eliminar la transformación
                     _context.TransformacionesTipoMarca.Remove(model);
                 }
                 await _context.SaveChangesAsync();
