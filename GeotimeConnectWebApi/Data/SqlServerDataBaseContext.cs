@@ -149,9 +149,9 @@ namespace GeoTimeConnectWebApi.Data
                .HasKey(e => new { e.CLOCK_ID });
             builder.Entity<cRelojUsuario>().ToTable("RELOJ_USUARIO", Schema)
                .HasKey(e => new { e.FP_ENROLLID });
-            builder.Entity<cRelojTemplate>().ToTable("RELOJ_TEMPLATE", Schema)
+            builder.Entity<cRelojTemplate>().ToTable("RELOJ_TEMPLATES", Schema)
                .HasKey(e => new { e.FP_ENROLLID, e.FP_INDEXID });
-            builder.Entity<cRelojTemplateFace>().ToTable("RELOJ_TEMPLATE_FACES", Schema)
+            builder.Entity<cRelojTemplateFace>().ToTable("RELOJ_TEMPLATES_FACES", Schema)
                .HasKey(e => new { e.FACE_PIN, e.FACE_INDEX });
 
 

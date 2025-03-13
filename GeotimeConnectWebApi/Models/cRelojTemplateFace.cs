@@ -3,14 +3,14 @@
     public class cRelojTemplateFace
     {
         public string FACE_PIN { get; set; }
-        public short FACE_INDEX { get; set; }
-        public short? FACE_NO { get; set; }
-        public short? FACE_VALID { get; set; }
-        public short? FACE_DURESS { get; set; }
-        public short? FACE_TYPE { get; set; }
-        public short? FACE_MAJORVER { get; set; }
-        public short? FACE_MINORVER { get; set; }
-        public short? FACE_FORMAT { get; set; }
+        public int FACE_INDEX { get; set; }
+        public int? FACE_NO { get; set; }
+        public int? FACE_VALID { get; set; }
+        public int? FACE_DURESS { get; set; }
+        public int? FACE_TYPE { get; set; }
+        public int? FACE_MAJORVER { get; set; }
+        public int? FACE_MINORVER { get; set; }
+        public int? FACE_FORMAT { get; set; }
         public string FACE_TEMPLATE { get; set; }
     }
 }
