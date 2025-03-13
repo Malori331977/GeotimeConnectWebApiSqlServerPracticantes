@@ -567,7 +567,6 @@ namespace GeoTimeConnectWebApi.Data
 
                     if (objetoBuscar is not null)
                     {
-                        objetoBuscar.FACE_INDEX = item.FACE_INDEX;
                         objetoBuscar.FACE_NO = item.FACE_NO;
                         objetoBuscar.FACE_VALID = item.FACE_VALID;
                         objetoBuscar.FACE_DURESS = item.FACE_DURESS;
