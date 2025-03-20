@@ -7996,6 +7996,120 @@ namespace GeoTimeConnectWebApi.Data
         }
 
         //Creado por: Allan Prieto Badilla
+        //Fecha: 2025-3-19
+        /// <summary>
+        /// Elimina_TransformacionTipoMarcaDet:  Metodo borado de datos de la tabla cTransformacionTipoMarcaDet
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="nivel"></param>
+        /// <returns>EventResponse</returns>
+        public async Task<EventResponse> Elimina_TransformacionTipoMarcaDet(int id, int nivel)
+        {
+            EventResponse respuesta = new EventResponse();
+            try
+            {
+                if (nivel == 2)
+                {
+                    // Buscar el registro por IDREGISTRO
+                    var registro = await _context.TransformacionesTipoMarcaDet
+                        .FirstOrDefaultAsync(e => e.IDREGISTRO == id);
+
+                    if (registro is not null)
+                    {
+                        // Obtener el TRANSFORMACIONID del registro encontrado
+                        int transformacionId = registro.TRANSFORMACIONID;
+
+                        // Buscar todos los registros con el mismo TRANSFORMACIONID
+                        var detalles = await _context.TransformacionesTipoMarcaDet
+                            .Where(d => d.TRANSFORMACIONID == transformacionId)
+                            .ToListAsync();
+
+                        if (detalles.Any())
+                        {
+                            // Eliminar todos los registros asociados al TRANSFORMACIONID
+                            _context.TransformacionesTipoMarcaDet.RemoveRange(detalles);
+                            await _context.SaveChangesAsync();
+
+                            respuesta.Id = "0";
+                            respuesta.Respuesta = "Éxito";
+                            respuesta.Descripcion = $"Se eliminaron todos los registros asociados al TRANSFORMACIONID {transformacionId}.";
+                        }
+                        else
+                        {
+                            respuesta.Id = "1";
+                            respuesta.Respuesta = "Advertencia";
+                            respuesta.Descripcion = $"No se encontraron registros asociados al TRANSFORMACIONID {transformacionId}.";
+                        }
+                    }
+                    else
+                    {
+                        respuesta.Id = "1";
+                        respuesta.Respuesta = "Advertencia";
+                        respuesta.Descripcion = "No se encontró el registro con el IDREGISTRO especificado.";
+                    }
+                }
+                else if (nivel == 3)
+                {
+                    // Eliminar solo el registro con el IDREGISTRO específico
+                    var registro = await _context.TransformacionesTipoMarcaDet
+                        .FirstOrDefaultAsync(e => e.IDREGISTRO == id);
+
+                    if (registro is not null)
+                    {
+                        _context.TransformacionesTipoMarcaDet.Remove(registro);
+                        await _context.SaveChangesAsync();
+
+                        respuesta.Id = "0";
+                        respuesta.Respuesta = "Éxito";
+                        respuesta.Descripcion = "Se eliminó el registro con el IDREGISTRO especificado.";
+                    }
+                    else
+                    {
+                        respuesta.Id = "1";
+                        respuesta.Respuesta = "Advertencia";
+                        respuesta.Descripcion = "No se encontró el registro con el IDREGISTRO especificado.";
+                    }
+                }
+                else
+                {
+                    respuesta.Id = "1";
+                    respuesta.Respuesta = "Error";
+                    respuesta.Descripcion = "Nivel de eliminación no válido. Use 2 para eliminar por TRANSFORMACIONID o 3 para eliminar por IDREGISTRO.";
+                }
+
+                //cTransformacionTipoMarcaDet? model = await _context.TransformacionesTipoMarcaDet
+                //    .FirstOrDefaultAsync(e => e.TRANSFORMACIONID == id);
+
+                //if (model is not null)
+                //{
+                //    // Buscar y eliminar los detalles relacionados
+                //    var detalles = await _context.TransformacionesTipoMarcaDet
+                //        .Where(d => d.TRANSFORMACIONID == id)
+                //        .ToListAsync();
+
+                //    // Eliminar los detalles de la transformación
+                //    _context.TransformacionesTipoMarcaDet.RemoveRange(detalles);
+
+                //    // Eliminar la transformación
+                //    _context.TransformacionesTipoMarca.Remove(model);
+                //}
+                //await _context.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"{error}");
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo eliminar la Transformación Tipo Marca. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo eliminar la Transformación Tipo Marca. Detalle de Error: " + e.InnerException.Message;
+            }
+            return respuesta;
+        }
+
+        //Creado por: Allan Prieto Badilla
         //Fecha: 2025-2-23
         /// <summary>
         /// GetTransformacionTipoMarcaDet: Método para obtener una lista de Transformaciones Tipo Marca Detalle 
