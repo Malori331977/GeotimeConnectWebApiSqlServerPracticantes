@@ -7976,6 +7976,8 @@ namespace GeoTimeConnectWebApi.Data
                     // Eliminar los detalles de la transformación
                     _context.TransformacionesTipoMarcaDet.RemoveRange(detalles);
 
+                    await _context.SaveChangesAsync();
+
                     // Eliminar la transformación
                     _context.TransformacionesTipoMarca.Remove(model);
                 }
