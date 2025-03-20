@@ -1022,6 +1022,7 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         public Task<cTransformacionTipoMarca> GetTransformacionTipoMarca(int id);
         public Task<EventResponse> Sincronizar_TransformacionTipoMarca(IEnumerable<cTransformacionTipoMarca> transformacionTM);
         public Task<EventResponse> Elimina_TransformacionTipoMarca(int id);
+        public Task<EventResponse> Elimina_TransformacionTipoMarcaDet(int id, int nivel);
 
         /// <summary>
         /// GetTransformacionTipoMarcaDet: obtener lista de Transformaciones Tipo Marca Detalle

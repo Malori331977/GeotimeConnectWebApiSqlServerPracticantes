@@ -31,5 +31,16 @@ namespace GeoTimeConnectWebApi.Controllers
             return Ok(respuesta);
         }
 
+        [HttpDelete("{id}/{nivel}")]
+        public async Task<IActionResult> Delete(int id, int nivel)
+        {
+            EventResponse respuesta = await _repoGT.Elimina_TransformacionTipoMarcaDet(id, nivel);
+
+            if (respuesta.Id != "0")
+                return BadRequest(respuesta);
+
+            return Ok(respuesta);
+        }
+
     }
 }
