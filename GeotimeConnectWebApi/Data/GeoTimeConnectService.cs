@@ -4951,12 +4951,20 @@ namespace GeoTimeConnectWebApi.Data
 
             try
             {
+                
                 foreach (var marcaIn in marcasIn)
                 {
-                    _context.Add(marcaIn);
-                    await _context.SaveChangesAsync();
+                    var empleado = await _context.Empleados.FirstOrDefaultAsync(e => e.IdNumero == marcaIn.idnumero);
 
-                    await EjecutaInMarcasWeb(marcaIn.idnumero);
+                    if (empleado is not null)
+                    {
+                        marcaIn.idtarjeta = empleado.Tarjeta;
+                        _context.Add(marcaIn);
+                        await _context.SaveChangesAsync();
+
+                        await EjecutaInMarcasWeb(marcaIn.idnumero!);
+                    }
+                    
                 }
 
             }
