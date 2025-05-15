@@ -1,9 +1,9 @@
-﻿using GeoTimeConnectWebApi.Data.Interfaz;
-using GeoTimeConnectWebApi.Models;
+﻿using com.gsitcr.geotime.Data.Interfaz;
+using com.gsitcr.geotime.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace GeoTimeConnectWebApi.Controllers.ConexionServicioWeb
+namespace com.gsitcr.geotime.Controllers.ConexionServicioWeb
 {
     [ApiController]
     [Route("[controller]")]

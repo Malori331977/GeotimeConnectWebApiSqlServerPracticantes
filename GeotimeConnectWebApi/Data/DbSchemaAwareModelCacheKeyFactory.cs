@@ -1,8 +1,8 @@
-﻿using GeoTimeConnectWebApi.Data.Interfaz;
+﻿using com.gsitcr.geotime.Data.Interfaz;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
-namespace GeoTimeConnectWebApi.Data
+namespace com.gsitcr.geotime.Data
 {
     public class DbSchemaAwareModelCacheKeyFactory : IModelCacheKeyFactory
     {

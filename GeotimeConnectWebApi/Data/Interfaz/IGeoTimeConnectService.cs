@@ -1,8 +1,8 @@
-﻿using GeoTimeConnectWebApi.Models;
-using GeoTimeConnectWebApi.Models.Response;
-using static GeoTimeConnectWebApi.Models.CalculoPeriodoParam;
+﻿using com.gsitcr.geotime.Models;
+using com.gsitcr.geotime.Models.Response;
+using static com.gsitcr.geotime.Models.CalculoPeriodoParam;
 
-namespace GeoTimeConnectWebApi.Data.Interfaz
+namespace com.gsitcr.geotime.Data.Interfaz
 {
     public interface IGeoTimeConnectService
     {

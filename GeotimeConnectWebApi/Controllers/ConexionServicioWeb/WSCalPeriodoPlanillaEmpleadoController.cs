@@ -1,10 +1,10 @@
-﻿using GeoTimeConnectWebApi.Data.Interfaz;
-using GeoTimeConnectWebApi.Models.Response;
+﻿using com.gsitcr.geotime.Data.Interfaz;
+using com.gsitcr.geotime.Models.Response;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using static GeoTimeConnectWebApi.Models.CalculoPeriodoParam;
+using static com.gsitcr.geotime.Models.CalculoPeriodoParam;
 
-namespace GeoTimeConnectWebApi.Controllers.ConexionServicioWeb
+namespace com.gsitcr.geotime.Controllers.ConexionServicioWeb
 {
     [ApiController]
     [Route("[controller]")]

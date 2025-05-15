@@ -1,15 +1,15 @@
 ﻿using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using GeoTimeConnectWebApi.Data.Interfaz;
-using GeoTimeConnectWebApi.Models.Request;
-using GeoTimeConnectWebApi.Models.Response;
-using GeoTimeConnectWebApi.Models.Utils;
+using com.gsitcr.geotime.Data.Interfaz;
+using com.gsitcr.geotime.Models.Request;
+using com.gsitcr.geotime.Models.Response;
+using com.gsitcr.geotime.Models.Utils;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using LibEncripta;
 
-namespace GeoTimeConnectWebApi.Data
+namespace com.gsitcr.geotime.Data
 {
     public class UserService : IUserService
     {
@@ -48,7 +48,8 @@ namespace GeoTimeConnectWebApi.Data
             foreach (var compania in companias)
             {
                 if (!string.IsNullOrEmpty(compania.APIUSER) && !string.IsNullOrEmpty(compania.APICLIENTID) 
-                 && !string.IsNullOrEmpty(compania.APIPASSWORD))
+                 && !string.IsNullOrEmpty(compania.APIPASSWORD) && !string.IsNullOrEmpty(compania.APIDATABASE)
+                 && !string.IsNullOrEmpty(compania.APIURL))
                 {
                     lista.Add(new UserRequest
                     {

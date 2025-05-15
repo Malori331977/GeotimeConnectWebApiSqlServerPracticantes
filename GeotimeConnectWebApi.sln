@@ -5,6 +5,10 @@ VisualStudioVersion = 17.3.32825.248
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GeoTimeConnectWebApi", "GeotimeConnectWebApi\GeoTimeConnectWebApi.csproj", "{574E6208-8B2C-47BC-9FAA-76D4D981FD16}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GeotimeFuncionesLib", "FuncionesGeotimeLib\GeotimeFuncionesLib.csproj", "{6991754A-BE28-48DD-B3E9-72EEEFCFE63A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GeotimeModelsLib", "GeotimeModelsLib\GeotimeModelsLib.csproj", "{ED046B4D-CBA6-4AF9-B33C-DF02921B87BB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +19,14 @@ Global
 		{574E6208-8B2C-47BC-9FAA-76D4D981FD16}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{574E6208-8B2C-47BC-9FAA-76D4D981FD16}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{574E6208-8B2C-47BC-9FAA-76D4D981FD16}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6991754A-BE28-48DD-B3E9-72EEEFCFE63A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6991754A-BE28-48DD-B3E9-72EEEFCFE63A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6991754A-BE28-48DD-B3E9-72EEEFCFE63A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6991754A-BE28-48DD-B3E9-72EEEFCFE63A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ED046B4D-CBA6-4AF9-B33C-DF02921B87BB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ED046B4D-CBA6-4AF9-B33C-DF02921B87BB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ED046B4D-CBA6-4AF9-B33C-DF02921B87BB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ED046B4D-CBA6-4AF9-B33C-DF02921B87BB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
