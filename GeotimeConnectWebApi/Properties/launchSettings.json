@@ -1,6 +1,6 @@
 {
   "profiles": {
-    "GeoTimeConnectWebApi": {
+    "GeotimeConnectWebApi": {
       "commandName": "Project",
       "launchBrowser": true,
       "launchUrl": "swagger",

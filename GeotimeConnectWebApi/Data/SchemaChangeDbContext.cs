@@ -1,11 +1,11 @@
-﻿using GeoTimeConnectWebApi.Data.Interfaz;
-using GeoTimeConnectWebApi.Models.Utils;
+﻿using com.gsitcr.geotime.Data.Interfaz;
+using com.gsitcr.geotime.Models.Utils;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using LibEncripta;
 
-namespace GeoTimeConnectWebApi.Data
+namespace com.gsitcr.geotime.Data
 {
     public class SchemaChangeDbContext
     {

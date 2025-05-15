@@ -1,5 +1,5 @@
 ﻿
-using GeoTimeConnectWebApi.Models.Utils;
+using com.gsitcr.geotime.Models.Utils;
 
 namespace GeoTimeServiceReference
 {

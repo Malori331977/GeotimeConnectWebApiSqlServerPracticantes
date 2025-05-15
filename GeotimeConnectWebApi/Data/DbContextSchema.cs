@@ -1,8 +1,8 @@
-﻿using GeoTimeConnectWebApi.Data.Interfaz;
+﻿using com.gsitcr.geotime.Data.Interfaz;
 using System;
 using System.Reflection;
 
-namespace GeoTimeConnectWebApi.Data
+namespace com.gsitcr.geotime.Data
 {
 	public class DbContextSchema : IDbContextSchema
 	{

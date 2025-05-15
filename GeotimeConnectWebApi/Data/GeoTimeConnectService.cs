@@ -1,13 +1,11 @@
-﻿using GeoTimeConnectWebApi.Data.Interfaz;
-using GeoTimeConnectWebApi.Models;
-using GeoTimeConnectWebApi.Models.Response;
+﻿using com.gsitcr.geotime.Data.Interfaz;
+using com.gsitcr.geotime.Models;
+using com.gsitcr.geotime.Models.Response;
 using GeoTimeServiceReference;
 using JtSegEncrypta;
 using LibEncripta;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
-using Seguridad_Geotime;
 using SourceAFIS;
 using System.Data;
 using System.Net;
@@ -16,10 +14,11 @@ using System.Net.Mime;
 using System.Security;
 using System.Security.Claims;
 using System.Text.Json;
-using static GeoTimeConnectWebApi.Models.CalculoPeriodoParam;
+using static com.gsitcr.geotime.Models.CalculoPeriodoParam;
 using static GeoTimeServiceReference.ServiceSoapClient;
+using GeotimeFuncionesLib.Utiles;
 
-namespace GeoTimeConnectWebApi.Data
+namespace com.gsitcr.geotime.Data
 {
     public class GeoTimeConnectService : IGeoTimeConnectService
     {
@@ -107,7 +106,7 @@ namespace GeoTimeConnectWebApi.Data
         public async Task<cPh_Login> GetPhLogin(string id)
         {
             cPh_Login? phlogin = new();
-            funciones.funciones_geo funcionesGeo = new();
+           
 
             try
             {
@@ -152,7 +151,7 @@ namespace GeoTimeConnectWebApi.Data
         public async Task<EventResponse> PutPhLogin(cPh_Login phLogin)
         {
             EventResponse respuesta = new EventResponse();
-            funciones.funciones_geo funcionesGeo = new();
+            
             try
             {
                 cPh_Login? loginBuscar = await _context.PH_LOGIN.FirstOrDefaultAsync(e => e.idusuario == phLogin.idusuario);
@@ -169,9 +168,9 @@ namespace GeoTimeConnectWebApi.Data
                     loginBuscar.idsesion = 0; // se reinicia la sesion
                     
                     // Verifica que sea necesario cambiar la clave
-                    loginBuscar.clave = ("0" == Pas) ? loginBuscar.clave : funcionesGeo.Global_encrypt(Encripta.getDecryptTripleDES(phLogin.clave));
+                    loginBuscar.clave = ("0" == Pas) ? loginBuscar.clave : FuncionesGlobales.Global_encrypt(Encripta.getDecryptTripleDES(phLogin.clave));
                     // Verifica que sea necesario cambiar la clave
-                    loginBuscar.GLOBAL_CLAVE = ("0" == Pas) ? loginBuscar.GLOBAL_CLAVE : funcionesGeo.Global_encrypt(Encripta.getDecryptTripleDES(phLogin.GLOBAL_CLAVE));
+                    loginBuscar.GLOBAL_CLAVE = ("0" == Pas) ? loginBuscar.GLOBAL_CLAVE : FuncionesGlobales.Global_encrypt(Encripta.getDecryptTripleDES(phLogin.GLOBAL_CLAVE!));
 
                     //loginBuscar.GLOBAL_CLAVE = phLogin.GLOBAL_CLAVE;
                     loginBuscar.EMAIL = phLogin.EMAIL;
@@ -181,8 +180,8 @@ namespace GeoTimeConnectWebApi.Data
                 }
                 else
                 {
-                    phLogin.clave = funcionesGeo.Global_encrypt(Encripta.getDecryptTripleDES(phLogin.clave));
-                    phLogin.GLOBAL_CLAVE = funcionesGeo.Global_encrypt(Encripta.getDecryptTripleDES(phLogin.GLOBAL_CLAVE));
+                    phLogin.clave = FuncionesGlobales.Global_encrypt(Encripta.getDecryptTripleDES(phLogin.clave));
+                    phLogin.GLOBAL_CLAVE = FuncionesGlobales.Global_encrypt(Encripta.getDecryptTripleDES(phLogin.GLOBAL_CLAVE!));
                     // crear un nuevo registro si no existe
                     await _context.PH_LOGIN.AddAsync(phLogin);
                 }
@@ -3963,7 +3962,7 @@ namespace GeoTimeConnectWebApi.Data
         public async Task<EventResponse> ValidarClaveEmpleado(cLogin login)
         {
             EventResponse respuesta = new EventResponse();
-            funciones.funciones_geo funcionesGeo = new();
+            //funciones_geo funcionesGeo = new();
 
             try
             {
@@ -3971,8 +3970,8 @@ namespace GeoTimeConnectWebApi.Data
 
                 if (emp is not null)
                 {
-                    var pass = funcionesGeo.Global_encrypt(login.Password);
-                    // var m = funcionesGeo.Encrypt(login.Password);
+                    var pass = FuncionesGlobales.Global_encrypt(login.Password);
+
 
                     if (emp.global_clave != pass)
                     {
@@ -4016,16 +4015,14 @@ namespace GeoTimeConnectWebApi.Data
         public async Task<EventResponse> ValidarClaveAdm(cLogin login)
         {
             EventResponse respuesta = new EventResponse();
-            funciones.funciones_geo funcionesGeo = new();
 
             try
             {
-                var user = await _context.PH_LOGIN.FirstAsync(e => e.usuario.ToLower() == login.Usuario.ToLower());
+                var user = await _context.PH_LOGIN.FirstAsync(e => e.usuario.ToLower() == login.Usuario!.ToLower());
 
                 if (user is not null)
                 {
-                    var pass = funcionesGeo.Global_encrypt(login.Password);
-                    // var m = funcionesGeo.Encrypt(login.Password);
+                    var pass = FuncionesGlobales.Global_encrypt(login.Password!);
 
                     if (user.GLOBAL_CLAVE != pass)
                     {
@@ -4069,7 +4066,6 @@ namespace GeoTimeConnectWebApi.Data
         public async Task<EventResponse> CambiarClaveEmpleado(cEmpleado empleado)
         {
             EventResponse respuesta = new EventResponse();
-            funciones.funciones_geo funcionesGeo = new();
 
             try
             {
@@ -4077,7 +4073,7 @@ namespace GeoTimeConnectWebApi.Data
 
                 if (emp is not null)
                 {
-                    var pass = funcionesGeo.Global_encrypt(empleado.global_clave);
+                    var pass = FuncionesGlobales.Global_encrypt(empleado.global_clave!);
 
                     emp.global_clave = pass;
 
@@ -4095,10 +4091,6 @@ namespace GeoTimeConnectWebApi.Data
                             await _context.SaveChangesAsync();
                         }
                     }
-
-                    
-
-
                     
                 }
                 else
@@ -4183,7 +4175,190 @@ namespace GeoTimeConnectWebApi.Data
             List<cMarcaMovTurno> marcaMovTurno = new();
             try
             {
-                marcaMovTurno = await _context.Marcas_Mov_Turnos.ToListAsync();
+                marcaMovTurno = await (from e in _context.Marcas_Mov_Turnos
+                                       .Include(e => e.cEmpleado)
+                                       .Include(e => e.cTurno)
+                                       .Include(e => e.cPh_Planilla)
+                                       select new cMarcaMovTurno
+                                       {
+                                           idregistro = e.idregistro,
+                                           idplanilla = e.idplanilla,
+                                           idnumero = e.idnumero,
+                                           fecha = e.fecha,
+                                           hora = e.hora,
+                                           turno = e.turno,
+                                           estado = e.estado,
+                                           usuario = e.usuario,
+                                           fecha_reg = e.fecha_reg,
+                                           linea = e.linea,
+                                           cEmpleado = e.cEmpleado==null?null:
+                                                new cEmpleado
+                                                {
+                                                    IdNumero = e.cEmpleado.IdNumero,
+                                                    IdPlanilla = e.cEmpleado.IdPlanilla,
+                                                    Nombre = e.cEmpleado.Nombre,
+                                                    Tarjeta = e.cEmpleado.Tarjeta,
+                                                    Identificacion = e.cEmpleado.Identificacion,
+                                                    IdGrupo = e.cEmpleado.IdGrupo,
+                                                    IdDepartamento = e.cEmpleado.IdDepartamento,
+                                                    IdHorario = e.cEmpleado.IdHorario,
+                                                    Estado = e.cEmpleado.Estado,
+                                                    IdAgrupamiento = e.cEmpleado.IdAgrupamiento,
+                                                    foto = e.cEmpleado.foto,
+                                                    IdCCosto = e.cEmpleado.IdCCosto,
+                                                    exporta = e.cEmpleado.exporta,
+                                                    ubicacion = e.cEmpleado.ubicacion,
+                                                    rubro1 = e.cEmpleado.rubro1,
+                                                    rubro2 = e.cEmpleado.rubro2,
+                                                    rubro3 = e.cEmpleado.rubro3,
+                                                    rubro4 = e.cEmpleado.rubro4,
+                                                    rubro5 = e.cEmpleado.rubro5,
+                                                    rubro6 = e.cEmpleado.rubro6,
+                                                    rubro7 = e.cEmpleado.rubro7,
+                                                    rubro8 = e.cEmpleado.rubro8,
+                                                    rubro9 = e.cEmpleado.rubro9,
+                                                    rubro10 = e.cEmpleado.rubro10,
+                                                    rubro11 = e.cEmpleado.rubro11,
+                                                    rubro12 = e.cEmpleado.rubro12,
+                                                    rubro13 = e.cEmpleado.rubro13,
+                                                    rubro14 = e.cEmpleado.rubro14,
+                                                    rubro15 = e.cEmpleado.rubro15,
+                                                    rubro16 = e.cEmpleado.rubro16,
+                                                    rubro17 = e.cEmpleado.rubro17,
+                                                    rubro18 = e.cEmpleado.rubro18,
+                                                    rubro19 = e.cEmpleado.rubro19,
+                                                    rubro20 = e.cEmpleado.rubro20,
+                                                    rubro21 = e.cEmpleado.rubro21,
+                                                    rubro22 = e.cEmpleado.rubro22,
+                                                    rubro23 = e.cEmpleado.rubro23,
+                                                    rubro24 = e.cEmpleado.rubro24,
+                                                    rubro25 = e.cEmpleado.rubro25,
+                                                    Fecha_Ingreso = e.cEmpleado.Fecha_Ingreso,
+                                                    Email = e.cEmpleado.Email,
+                                                    Tipo_Marca = e.cEmpleado.Tipo_Marca,
+                                                    inicio_rol = e.cEmpleado.inicio_rol,
+                                                    web_pass = e.cEmpleado.web_pass,
+                                                    id_transfo_conc = e.cEmpleado.id_transfo_conc,
+                                                    widioma = e.cEmpleado.widioma,
+                                                    global_clave = e.cEmpleado.global_clave,
+                                                    def_fase = e.cEmpleado.def_fase,
+                                                    def_py = e.cEmpleado.def_py,
+                                                    def_cc = e.cEmpleado.def_cc,
+                                                    Fecha_Salida = e.cEmpleado.Fecha_Salida,
+                                                    global_code = e.cEmpleado.global_code,
+                                                    fecha_act_code = e.cEmpleado.fecha_act_code,
+                                                },
+                                            cPh_Planilla = e.cPh_Planilla == null ? null :
+                                                    new cPh_Planilla
+                                                    {
+                                                        idplanilla = e.cPh_Planilla.idplanilla,
+                                                        planilla = e.cPh_Planilla.planilla,
+                                                        nom_conector = e.cPh_Planilla.nom_conector,
+                                                        tipo_planilla = e.cPh_Planilla.tipo_planilla,
+                                                        c_ext = e.cPh_Planilla.c_ext,
+                                                        c_inci = e.cPh_Planilla.c_inci,
+                                                        c_adic = e.cPh_Planilla.c_adic,
+                                                        m_desc = e.cPh_Planilla.m_desc,
+                                                        proyecta = e.cPh_Planilla.proyecta,
+                                                        dia_inicio = e.cPh_Planilla.dia_inicio,
+                                                        auto_proceso = e.cPh_Planilla.auto_proceso,
+                                                        tipo_dist = e.cPh_Planilla.tipo_dist,
+                                                        est_nomina = e.cPh_Planilla.est_nomina,
+                                                        ext_per_ant = e.cPh_Planilla.ext_per_ant,
+                                                        ext_det = e.cPh_Planilla.ext_det,
+                                                        agrup_salida = e.cPh_Planilla.agrup_salida,
+                                                        tipo_adic = e.cPh_Planilla.tipo_adic,
+                                                        nivel_aprob_ext = e.cPh_Planilla.nivel_aprob_ext,
+                                                    },
+                                            cTurno = e.cTurno == null ? null :
+                                                new cTurno
+                                                {
+                                                    IdTurno = e.cTurno.IdTurno,
+                                                    Descripcion = e.cTurno.Descripcion,
+                                                    HEntra = e.cTurno.HEntra,
+                                                    HSale = e.cTurno.HSale,
+                                                    tar_apl = e.cTurno.tar_apl,
+                                                    ant_apl = e.cTurno.ant_apl,
+                                                    des_1_in = e.cTurno.des_1_in,
+                                                    des_1_out = e.cTurno.des_1_out,
+                                                    des_2_in = e.cTurno.des_2_in,
+                                                    des_2_out = e.cTurno.des_2_out,
+                                                    des_3_in = e.cTurno.des_3_in,
+                                                    des_3_out = e.cTurno.des_3_out,
+                                                    apl_des_1 = e.cTurno.apl_des_1,
+                                                    apl_des_2 = e.cTurno.apl_des_2,
+                                                    apl_des_3 = e.cTurno.apl_des_3,
+                                                    des_1_tiem = e.cTurno.des_1_tiem,
+                                                    des_2_tiem = e.cTurno.des_2_tiem,
+                                                    des_3_tiem = e.cTurno.des_3_tiem,
+                                                    marca_des_1 = e.cTurno.marca_des_1,
+                                                    marca_des_2 = e.cTurno.marca_des_2,
+                                                    marca_des_3 = e.cTurno.marca_des_3,
+                                                    tar_tiem = e.cTurno.tar_tiem,
+                                                    ant_tiem = e.cTurno.ant_tiem,
+                                                    con_1 = e.cTurno.con_1,
+                                                    con_2 = e.cTurno.con_2,
+                                                    con_3 = e.cTurno.con_3,
+                                                    con_4 = e.cTurno.con_4,
+                                                    con_5 = e.cTurno.con_5,
+                                                    con_6 = e.cTurno.con_6,
+                                                    cant_con_1 = e.cTurno.cant_con_1,
+                                                    cant_con_2 = e.cTurno.cant_con_2,
+                                                    cant_con_3 = e.cTurno.cant_con_3,
+                                                    cant_con_4 = e.cTurno.cant_con_4,
+                                                    cant_con_5 = e.cTurno.cant_con_5,
+                                                    cant_con_6 = e.cTurno.cant_con_6,
+                                                    min_con_1 = e.cTurno.min_con_1,
+                                                    min_con_2 = e.cTurno.min_con_2,
+                                                    min_con_3 = e.cTurno.min_con_3,
+                                                    min_con_4 = e.cTurno.min_con_4,
+                                                    min_con_5 = e.cTurno.min_con_5,
+                                                    min_con_6 = e.cTurno.min_con_6,
+                                                    Tipo = e.cTurno.Tipo,
+                                                    Tipo_Jor = e.cTurno.Tipo_Jor,
+                                                    fuerza_calc = e.cTurno.fuerza_calc,
+                                                    idagrupamiento = e.cTurno.idagrupamiento,
+                                                    apl_trans1 = e.cTurno.apl_trans1,
+                                                    id_trans1 = e.cTurno.id_trans1,
+                                                    apl_trans2 = e.cTurno.apl_trans2,
+                                                    id_trans2 = e.cTurno.id_trans2,
+                                                    apl_trans3 = e.cTurno.apl_trans3,
+                                                    id_trans3 = e.cTurno.id_trans3,
+                                                    apl_trans4 = e.cTurno.apl_trans4,
+                                                    id_trans4 = e.cTurno.id_trans4,
+                                                    apl_trans5 = e.cTurno.apl_trans5,
+                                                    id_trans5 = e.cTurno.id_trans5,
+                                                    apl_trans6 = e.cTurno.apl_trans6,
+                                                    id_trans6 = e.cTurno.id_trans6,
+                                                    apl_ben1 = e.cTurno.apl_ben1,
+                                                    id_ben1 = e.cTurno.id_ben1,
+                                                    apl_ben2 = e.cTurno.apl_ben2,
+                                                    id_ben2 = e.cTurno.id_ben2,
+                                                    apl_ben3 = e.cTurno.apl_ben3,
+                                                    id_ben3 = e.cTurno.id_ben3,
+                                                    apl_ben4 = e.cTurno.apl_ben4,
+                                                    id_ben4 = e.cTurno.id_ben4,
+                                                    apl_ben5 = e.cTurno.apl_ben5,
+                                                    id_ben5 = e.cTurno.id_ben5,
+                                                    apl_ben6 = e.cTurno.apl_ben6,
+                                                    id_ben6 = e.cTurno.id_ben6,
+                                                    conc_ben1 = e.cTurno.conc_ben1,
+                                                    conc_ben2 = e.cTurno.conc_ben2,
+                                                    conc_ben3 = e.cTurno.conc_ben3,
+                                                    conc_ben4 = e.cTurno.conc_ben4,
+                                                    conc_ben5 = e.cTurno.conc_ben5,
+                                                    conc_ben6 = e.cTurno.conc_ben6,
+                                                    apl_trans_post = e.cTurno.apl_trans_post,
+                                                    id_trans_post = e.cTurno.id_trans_post,
+                                                    apl_redond_entrada = e.cTurno.apl_redond_entrada,
+                                                    cant_redond_entrada = e.cTurno.cant_redond_entrada,
+                                                    auto_pan = e.cTurno.auto_pan,
+                                                    ColorId = e.cTurno.ColorId,
+                                                },
+                                       }
+                                 ).ToListAsync();
+
+
             }
             catch (Exception e)
             {
@@ -4244,11 +4419,193 @@ namespace GeoTimeConnectWebApi.Data
                 DateTime fechaMovInicio = DateTime.Parse($"{fechaInicio.Substring(0, 4)}-{fechaInicio.Substring(4, 2)}-{fechaInicio.Substring(6, 2)}");
                 DateTime fechaMovFinal = DateTime.Parse($"{fechaFinal.Substring(0, 4)}-{fechaFinal.Substring(4, 2)}-{fechaFinal.Substring(6, 2)}");
 
-                marcaMovTurno = await _context.Marcas_Mov_Turnos
-                                  .Where(e => e.idplanilla == idplanilla &&
+                marcaMovTurno = await (from e in _context.Marcas_Mov_Turnos
+                                       .Include(e => e.cEmpleado)
+                                       .Include(e => e.cTurno)
+                                       .Include(e => e.cPh_Planilla)
+                                       .Where(e => e.idplanilla == (idplanilla=="-1"? e.idplanilla : idplanilla) &&
                                               e.estado.ToString() == estado &&
                                               e.fecha >= fechaMovInicio &&
-                                              e.fecha <= fechaMovFinal).ToListAsync();
+                                              e.fecha <= fechaMovFinal)
+                                       select new cMarcaMovTurno
+                                       {
+                                           idregistro = e.idregistro,
+                                           idplanilla = e.idplanilla,
+                                           idnumero = e.idnumero,
+                                           fecha = e.fecha,
+                                           hora = e.hora,
+                                           turno = e.turno,
+                                           estado = e.estado,
+                                           usuario = e.usuario,
+                                           fecha_reg = e.fecha_reg,
+                                           linea = e.linea,
+                                           cEmpleado = e.cEmpleado == null ? null :
+                                                new cEmpleado
+                                                {
+                                                    IdNumero = e.cEmpleado.IdNumero,
+                                                    IdPlanilla = e.cEmpleado.IdPlanilla,
+                                                    Nombre = e.cEmpleado.Nombre,
+                                                    Tarjeta = e.cEmpleado.Tarjeta,
+                                                    Identificacion = e.cEmpleado.Identificacion,
+                                                    IdGrupo = e.cEmpleado.IdGrupo,
+                                                    IdDepartamento = e.cEmpleado.IdDepartamento,
+                                                    IdHorario = e.cEmpleado.IdHorario,
+                                                    Estado = e.cEmpleado.Estado,
+                                                    IdAgrupamiento = e.cEmpleado.IdAgrupamiento,
+                                                    foto = e.cEmpleado.foto,
+                                                    IdCCosto = e.cEmpleado.IdCCosto,
+                                                    exporta = e.cEmpleado.exporta,
+                                                    ubicacion = e.cEmpleado.ubicacion,
+                                                    rubro1 = e.cEmpleado.rubro1,
+                                                    rubro2 = e.cEmpleado.rubro2,
+                                                    rubro3 = e.cEmpleado.rubro3,
+                                                    rubro4 = e.cEmpleado.rubro4,
+                                                    rubro5 = e.cEmpleado.rubro5,
+                                                    rubro6 = e.cEmpleado.rubro6,
+                                                    rubro7 = e.cEmpleado.rubro7,
+                                                    rubro8 = e.cEmpleado.rubro8,
+                                                    rubro9 = e.cEmpleado.rubro9,
+                                                    rubro10 = e.cEmpleado.rubro10,
+                                                    rubro11 = e.cEmpleado.rubro11,
+                                                    rubro12 = e.cEmpleado.rubro12,
+                                                    rubro13 = e.cEmpleado.rubro13,
+                                                    rubro14 = e.cEmpleado.rubro14,
+                                                    rubro15 = e.cEmpleado.rubro15,
+                                                    rubro16 = e.cEmpleado.rubro16,
+                                                    rubro17 = e.cEmpleado.rubro17,
+                                                    rubro18 = e.cEmpleado.rubro18,
+                                                    rubro19 = e.cEmpleado.rubro19,
+                                                    rubro20 = e.cEmpleado.rubro20,
+                                                    rubro21 = e.cEmpleado.rubro21,
+                                                    rubro22 = e.cEmpleado.rubro22,
+                                                    rubro23 = e.cEmpleado.rubro23,
+                                                    rubro24 = e.cEmpleado.rubro24,
+                                                    rubro25 = e.cEmpleado.rubro25,
+                                                    Fecha_Ingreso = e.cEmpleado.Fecha_Ingreso,
+                                                    Email = e.cEmpleado.Email,
+                                                    Tipo_Marca = e.cEmpleado.Tipo_Marca,
+                                                    inicio_rol = e.cEmpleado.inicio_rol,
+                                                    web_pass = e.cEmpleado.web_pass,
+                                                    id_transfo_conc = e.cEmpleado.id_transfo_conc,
+                                                    widioma = e.cEmpleado.widioma,
+                                                    global_clave = e.cEmpleado.global_clave,
+                                                    def_fase = e.cEmpleado.def_fase,
+                                                    def_py = e.cEmpleado.def_py,
+                                                    def_cc = e.cEmpleado.def_cc,
+                                                    Fecha_Salida = e.cEmpleado.Fecha_Salida,
+                                                    global_code = e.cEmpleado.global_code,
+                                                    fecha_act_code = e.cEmpleado.fecha_act_code,
+                                                },
+                                           cPh_Planilla = e.cPh_Planilla == null ? null :
+                                                    new cPh_Planilla
+                                                    {
+                                                        idplanilla = e.cPh_Planilla.idplanilla,
+                                                        planilla = e.cPh_Planilla.planilla,
+                                                        nom_conector = e.cPh_Planilla.nom_conector,
+                                                        tipo_planilla = e.cPh_Planilla.tipo_planilla,
+                                                        c_ext = e.cPh_Planilla.c_ext,
+                                                        c_inci = e.cPh_Planilla.c_inci,
+                                                        c_adic = e.cPh_Planilla.c_adic,
+                                                        m_desc = e.cPh_Planilla.m_desc,
+                                                        proyecta = e.cPh_Planilla.proyecta,
+                                                        dia_inicio = e.cPh_Planilla.dia_inicio,
+                                                        auto_proceso = e.cPh_Planilla.auto_proceso,
+                                                        tipo_dist = e.cPh_Planilla.tipo_dist,
+                                                        est_nomina = e.cPh_Planilla.est_nomina,
+                                                        ext_per_ant = e.cPh_Planilla.ext_per_ant,
+                                                        ext_det = e.cPh_Planilla.ext_det,
+                                                        agrup_salida = e.cPh_Planilla.agrup_salida,
+                                                        tipo_adic = e.cPh_Planilla.tipo_adic,
+                                                        nivel_aprob_ext = e.cPh_Planilla.nivel_aprob_ext,
+                                                    },
+                                           cTurno = e.cTurno == null ? null :
+                                                new cTurno
+                                                {
+                                                    IdTurno = e.cTurno.IdTurno,
+                                                    Descripcion = e.cTurno.Descripcion,
+                                                    HEntra = e.cTurno.HEntra,
+                                                    HSale = e.cTurno.HSale,
+                                                    tar_apl = e.cTurno.tar_apl,
+                                                    ant_apl = e.cTurno.ant_apl,
+                                                    des_1_in = e.cTurno.des_1_in,
+                                                    des_1_out = e.cTurno.des_1_out,
+                                                    des_2_in = e.cTurno.des_2_in,
+                                                    des_2_out = e.cTurno.des_2_out,
+                                                    des_3_in = e.cTurno.des_3_in,
+                                                    des_3_out = e.cTurno.des_3_out,
+                                                    apl_des_1 = e.cTurno.apl_des_1,
+                                                    apl_des_2 = e.cTurno.apl_des_2,
+                                                    apl_des_3 = e.cTurno.apl_des_3,
+                                                    des_1_tiem = e.cTurno.des_1_tiem,
+                                                    des_2_tiem = e.cTurno.des_2_tiem,
+                                                    des_3_tiem = e.cTurno.des_3_tiem,
+                                                    marca_des_1 = e.cTurno.marca_des_1,
+                                                    marca_des_2 = e.cTurno.marca_des_2,
+                                                    marca_des_3 = e.cTurno.marca_des_3,
+                                                    tar_tiem = e.cTurno.tar_tiem,
+                                                    ant_tiem = e.cTurno.ant_tiem,
+                                                    con_1 = e.cTurno.con_1,
+                                                    con_2 = e.cTurno.con_2,
+                                                    con_3 = e.cTurno.con_3,
+                                                    con_4 = e.cTurno.con_4,
+                                                    con_5 = e.cTurno.con_5,
+                                                    con_6 = e.cTurno.con_6,
+                                                    cant_con_1 = e.cTurno.cant_con_1,
+                                                    cant_con_2 = e.cTurno.cant_con_2,
+                                                    cant_con_3 = e.cTurno.cant_con_3,
+                                                    cant_con_4 = e.cTurno.cant_con_4,
+                                                    cant_con_5 = e.cTurno.cant_con_5,
+                                                    cant_con_6 = e.cTurno.cant_con_6,
+                                                    min_con_1 = e.cTurno.min_con_1,
+                                                    min_con_2 = e.cTurno.min_con_2,
+                                                    min_con_3 = e.cTurno.min_con_3,
+                                                    min_con_4 = e.cTurno.min_con_4,
+                                                    min_con_5 = e.cTurno.min_con_5,
+                                                    min_con_6 = e.cTurno.min_con_6,
+                                                    Tipo = e.cTurno.Tipo,
+                                                    Tipo_Jor = e.cTurno.Tipo_Jor,
+                                                    fuerza_calc = e.cTurno.fuerza_calc,
+                                                    idagrupamiento = e.cTurno.idagrupamiento,
+                                                    apl_trans1 = e.cTurno.apl_trans1,
+                                                    id_trans1 = e.cTurno.id_trans1,
+                                                    apl_trans2 = e.cTurno.apl_trans2,
+                                                    id_trans2 = e.cTurno.id_trans2,
+                                                    apl_trans3 = e.cTurno.apl_trans3,
+                                                    id_trans3 = e.cTurno.id_trans3,
+                                                    apl_trans4 = e.cTurno.apl_trans4,
+                                                    id_trans4 = e.cTurno.id_trans4,
+                                                    apl_trans5 = e.cTurno.apl_trans5,
+                                                    id_trans5 = e.cTurno.id_trans5,
+                                                    apl_trans6 = e.cTurno.apl_trans6,
+                                                    id_trans6 = e.cTurno.id_trans6,
+                                                    apl_ben1 = e.cTurno.apl_ben1,
+                                                    id_ben1 = e.cTurno.id_ben1,
+                                                    apl_ben2 = e.cTurno.apl_ben2,
+                                                    id_ben2 = e.cTurno.id_ben2,
+                                                    apl_ben3 = e.cTurno.apl_ben3,
+                                                    id_ben3 = e.cTurno.id_ben3,
+                                                    apl_ben4 = e.cTurno.apl_ben4,
+                                                    id_ben4 = e.cTurno.id_ben4,
+                                                    apl_ben5 = e.cTurno.apl_ben5,
+                                                    id_ben5 = e.cTurno.id_ben5,
+                                                    apl_ben6 = e.cTurno.apl_ben6,
+                                                    id_ben6 = e.cTurno.id_ben6,
+                                                    conc_ben1 = e.cTurno.conc_ben1,
+                                                    conc_ben2 = e.cTurno.conc_ben2,
+                                                    conc_ben3 = e.cTurno.conc_ben3,
+                                                    conc_ben4 = e.cTurno.conc_ben4,
+                                                    conc_ben5 = e.cTurno.conc_ben5,
+                                                    conc_ben6 = e.cTurno.conc_ben6,
+                                                    apl_trans_post = e.cTurno.apl_trans_post,
+                                                    id_trans_post = e.cTurno.id_trans_post,
+                                                    apl_redond_entrada = e.cTurno.apl_redond_entrada,
+                                                    cant_redond_entrada = e.cTurno.cant_redond_entrada,
+                                                    auto_pan = e.cTurno.auto_pan,
+                                                    ColorId = e.cTurno.ColorId,
+                                                },
+                                       }
+                                 ).ToListAsync();
+
             }
             catch (Exception e)
             {
@@ -4366,7 +4723,7 @@ namespace GeoTimeConnectWebApi.Data
                 foreach (var item in marcasMovTurnos)
                 {
                     cMarcaMovTurno? marcaMovTurno = await _context.Marcas_Mov_Turnos
-                                    .Where(e => e.idnumero == item.idnumero && e.fecha == item.fecha)
+                                    .Where(e => e.idnumero == item.idnumero && e.fecha == item.fecha && e.linea==item.linea)
                                     .FirstOrDefaultAsync();
                     //si el centro de costo existe se actualiza descripción
                     //de lo contrario se agrega el registro

@@ -1,7 +1,7 @@
-﻿using GeoTimeConnectWebApi.Models.Request;
-using GeoTimeConnectWebApi.Models.Response;
+﻿using com.gsitcr.geotime.Models.Request;
+using com.gsitcr.geotime.Models.Response;
 
-namespace GeoTimeConnectWebApi.Data.Interfaz
+namespace com.gsitcr.geotime.Data.Interfaz
 {
     public interface IUserService
     {

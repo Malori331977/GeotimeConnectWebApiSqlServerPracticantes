@@ -1,7 +1,7 @@
-﻿using GeoTimeConnectWebApi.Models;
-using GeoTimeConnectWebApi.Models.Response;
+﻿using com.gsitcr.geotime.Models;
+using com.gsitcr.geotime.Models.Response;
 
-namespace GeoTimeConnectWebApi.Data.Interfaz
+namespace com.gsitcr.geotime.Data.Interfaz
 {
     public interface IRelojesServices
     {

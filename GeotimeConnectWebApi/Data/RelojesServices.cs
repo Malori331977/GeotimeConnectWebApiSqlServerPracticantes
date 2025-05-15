@@ -1,13 +1,10 @@
-﻿using GeoTimeConnectWebApi.Data.Interfaz;
-using GeoTimeConnectWebApi.Models;
-using GeoTimeConnectWebApi.Models.Response;
-using JtSegEncrypta;
-using LibEncripta;
+﻿using com.gsitcr.geotime.Data.Interfaz;
+using com.gsitcr.geotime.Models;
+using com.gsitcr.geotime.Models.Response;
 using Microsoft.EntityFrameworkCore;
-using Seguridad_Geotime;
 using System.Security.Claims;
 
-namespace GeoTimeConnectWebApi.Data
+namespace com.gsitcr.geotime.Data
 {
     public class RelojesServices : IRelojesServices
     {
@@ -231,7 +228,6 @@ namespace GeoTimeConnectWebApi.Data
         public async Task<cRelojDispositivo> GetRelojDispositivo(int id)
         {
             cRelojDispositivo? model = new();
-            funciones.funciones_geo funcionesGeo = new();
 
             try
             {

@@ -1,9 +1,9 @@
 
 using Microsoft.EntityFrameworkCore;
-using GeoTimeConnectWebApi.Data.Interfaz;
-using GeoTimeConnectWebApi.Models;
+using com.gsitcr.geotime.Data.Interfaz;
+using com.gsitcr.geotime.Models;
 
-namespace GeoTimeConnectWebApi.Data
+namespace com.gsitcr.geotime.Data
 {
 
     public class SqlServerDataBaseContext:DbContext
@@ -397,6 +397,24 @@ namespace GeoTimeConnectWebApi.Data
               .HasOne(e => e.cPh_RolSistema)
               .WithMany(d => d.cPh_RolSistemaDet)
               .HasForeignKey(e => new { e.ROLSISTEMAID });
+
+            builder.Entity<cMarcaMovTurno>()
+               .ToTable("MARCAS_MOV_TURNOS", Schema)
+               .HasOne(e => e.cEmpleado)
+               .WithMany(d => d.cMarcaMovTurno)
+               .HasForeignKey(e => new { e.idnumero });
+
+            builder.Entity<cMarcaMovTurno>()
+              .ToTable("MARCAS_MOV_TURNOS", Schema)
+              .HasOne(e => e.cTurno)
+              .WithMany(d => d.cMarcaMovTurno)
+              .HasForeignKey(e => new { e.turno });
+
+            builder.Entity<cMarcaMovTurno>()
+              .ToTable("MARCAS_MOV_TURNOS", Schema)
+              .HasOne(e => e.cPh_Planilla)
+              .WithMany(d => d.cMarcaMovTurno)
+              .HasForeignKey(e => new { e.idplanilla });
 
 
             #endregion

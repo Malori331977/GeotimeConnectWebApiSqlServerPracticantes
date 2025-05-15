@@ -3,9 +3,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.IdentityModel.Tokens;
-using GeoTimeConnectWebApi.Data;
-using GeoTimeConnectWebApi.Data.Interfaz;
-using GeoTimeConnectWebApi.Models.Utils;
+using com.gsitcr.geotime.Data;
+using com.gsitcr.geotime.Data.Interfaz;
+using com.gsitcr.geotime.Models.Utils;
 using System.Text;
 using LibEncripta;
 using JtSegEncrypta;
@@ -106,7 +106,7 @@ app.UseSwagger();
 
 string urlApi = appSettingsSection.GetValue<string>("UrlApi");
 
-app.UseSwaggerUI(c => { c.SwaggerEndpoint($"{urlApi}swagger/v1/swagger.json", "GeoTimeConnectWebApi"); });
+app.UseSwaggerUI(c => { c.SwaggerEndpoint($"{urlApi}swagger/v1/swagger.json", "com.gsitcr.geotime"); });
 app.UseHttpsRedirection();
 
 

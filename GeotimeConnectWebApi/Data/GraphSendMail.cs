@@ -1,6 +1,6 @@
-﻿using GeoTimeConnectWebApi.Data.Interfaz;
-using GeoTimeConnectWebApi.Models;
-using GeoTimeConnectWebApi.Models.Response;
+﻿using com.gsitcr.geotime.Data.Interfaz;
+using com.gsitcr.geotime.Models;
+using com.gsitcr.geotime.Models.Response;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Mail;
@@ -10,7 +10,7 @@ using System.Text;
 using System.Text.Json;
 
 
-namespace GeoTimeConnectWebApi.Data
+namespace com.gsitcr.geotime.Data
 {
     public class GraphSendMail: IGraphSendMail
     {
