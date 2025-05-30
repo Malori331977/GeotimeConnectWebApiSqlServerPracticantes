@@ -43,6 +43,8 @@ namespace com.gsitcr.geotime.Data
                 Schema = config.GetConnectionString("Schema");
             }
 
+            
+
         }
 
         public DbSet<cAccionPersonal> Acciones_Personal { get; set; }
@@ -122,6 +124,7 @@ namespace com.gsitcr.geotime.Data
         protected override void OnModelCreating(ModelBuilder builder)
         {
             builder.HasDefaultSchema(schemaAdmin);
+           
 
             #region Objetos del CTAADMIN
 

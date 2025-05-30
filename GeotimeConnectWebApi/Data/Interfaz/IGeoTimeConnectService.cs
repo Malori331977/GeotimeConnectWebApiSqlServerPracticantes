@@ -723,6 +723,15 @@ namespace com.gsitcr.geotime.Data.Interfaz
         public Task<List<cMarcaProceso>> GetMarcasProceso(string IdPlanilla, string FechaInicio, string FechaFin, string idgrupo);
 
         /// <summary>
+        /// GetMarcasProcesoHorasExtrasPendientes: Marcas Proceso con detalle de Horas Extras Pendientes
+        /// </summary>
+        /// <param name="IdPlanilla"></param>
+        /// <param name="FechaInicio"></param>
+        /// <param name="FechaFin"></param>
+        /// <returns></returns>
+        public Task<List<cMarcaProceso>> GetMarcasProcesoHorasExtrasPendientes(string IdPlanilla, string FechaInicio, string FechaFin);
+
+        /// <summary>
         /// GetMarcasTiempoAdicional: Obtener marca tiempo adicional 
         /// </summary>
         /// <param name="IdRegistro">Planilla</param>

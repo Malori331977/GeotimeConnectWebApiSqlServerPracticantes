@@ -24,9 +24,10 @@ namespace GeoTimeConnectWebApi.Controllers.Procesos.Marcas
 
             _repoGT = repoGT;
         }
-    
+
         [HttpGet("{fechaPeriodo}/{idgrupo}")]
-        public async Task<IEnumerable<cMarcaMovTurno>> Get(string fechaPeriodo, string idgrupo) => await _repoGT.GetMarcaMovTurnoByGrupo(fechaPeriodo,idgrupo);
+        public async Task<IEnumerable<cMarcaMovTurno>> Get(string fechaPeriodo, string idgrupo)=> await _repoGT.GetMarcaMovTurnoByGrupo(fechaPeriodo, idgrupo);
+   
 
     }
 }
