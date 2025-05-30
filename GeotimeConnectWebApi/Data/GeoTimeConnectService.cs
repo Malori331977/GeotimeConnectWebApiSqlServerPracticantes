@@ -74,6 +74,8 @@ namespace com.gsitcr.geotime.Data
             _schema = schema;
             _dataBase = bdname;
             _context = SchemaChangeDbContext.GetSchemaChangeDbContext(schema, bdname);
+
+            //_context.Database.ExecuteSqlRaw($"SET DATEFORMAT dmy");
         }
 
         #region SQLMetodos
@@ -1533,6 +1535,7 @@ namespace com.gsitcr.geotime.Data
                         emp.IdCCosto = empleado.IdCCosto;
                         emp.IdPlanilla = empleado.IdPlanilla;
                         emp.Fecha_Ingreso = fechaIngreso;
+                        emp.Identificacion = empleado.Identificacion;
 
                         emp.IdGrupo = (empleado.IdGrupo != null && empleado.IdGrupo != 0) ? empleado.IdGrupo : emp.IdGrupo;
                         emp.IdHorario = (empleado.IdHorario != null && empleado.IdHorario != 0) ? empleado.IdHorario : emp.IdHorario;
@@ -4693,7 +4696,20 @@ namespace com.gsitcr.geotime.Data
                     var marcasperiodo = (from m in marcasMovTurno
                                                join c in empleados on new { idnumero = m.idnumero, idplanilla = m.idplanilla } equals new { idnumero = c.IdNumero, idplanilla = c.IdPlanilla }
                                                join g in phgrupos on c.IdGrupo equals g.idgrupo
-                                               select m).ToList();
+                                               select new cMarcaMovTurno
+                                               {
+                                                   idregistro = m.idregistro,
+                                                   idplanilla = m.idplanilla,
+                                                   idnumero = m.idnumero,
+                                                   fecha = m.fecha,
+                                                   hora = m.hora,
+                                                   turno = m.turno,
+                                                   estado = m.estado,
+                                                   usuario = m.usuario,
+                                                   fecha_reg = m.fecha_reg,
+                                                   linea = m.linea,                               
+                                               }).ToList();
+
 
                     marcaMovTurno.AddRange(marcasperiodo);
                 }
@@ -5488,55 +5504,58 @@ namespace com.gsitcr.geotime.Data
                 // join g in phgrupos on c.IdGrupo equals g.idgrupo
 
                 DateTime fechaMov = DateTime.Parse($"{fechaPeriodo.Substring(0, 4)}-{fechaPeriodo.Substring(4, 2)}-{fechaPeriodo.Substring(6, 2)}");
-                var periodos = await (from a in _context.Ph_Periodos
-                                      join b in _context.Ph_Planilla on a.tipo_planilla equals b.tipo_planilla
-                                      join c in _context.Empleados on b.idplanilla equals c.IdPlanilla
-                                      join g in phgrupos on c.IdGrupo equals g.idgrupo
-                                      where ((fechaMov >= a.inicio && fechaMov <= a.fin))
+
+                var periodosVigentes = await _context.Ph_Periodos.Where(a => fechaMov >= a.inicio && fechaMov <= a.fin).ToListAsync();
+                var planillas = await _context.Ph_Planilla.ToListAsync();
+
+                var empleados = await _context.Empleados.Where(e => grupos.Contains(e.IdGrupo.ToString())).ToListAsync();
+
+
+                var periodos = (from a in periodosVigentes
+                                      join b in planillas on a.tipo_planilla equals b.tipo_planilla
+                                      join c in empleados on b.idplanilla equals c.IdPlanilla
                                       select new
                                       {
                                           idplanilla = b.idplanilla,
                                           inicio = a.inicio,
                                           fin = a.fin,
                                           nivel_aprob_ext = b.nivel_aprob_ext,
-                                      }).Distinct().ToListAsync();
+                                      }).Distinct().ToList();
                 foreach (var periodo in periodos)
                 {
                     List<cMarcaExtraApb> marcasextrasApb = new();
                     switch (periodo.nivel_aprob_ext)
                     {
                         case 1:
-                            marcasextrasApb = await (from m in _context.Marcas_Extras_Apb.Where(e => e.idplanilla == periodo.idplanilla)
-                                                     join c in _context.Empleados on new { idnumero = m.idnumero, idplanilla = m.idplanilla } equals new { idnumero = c.IdNumero, idplanilla = c.IdPlanilla }
-                                                     join g in phgrupos on c.IdGrupo equals g.idgrupo
-                                                     where m.estado == 'A'
-                                                       && ((m.aprob_nivel1 == 'F' || m.aprob_nivel1 == null) && m.fecha_aprob_nivel1 == null && m.aprob_nivel1 == null)
-                                                       && ((m.fecha >= periodo.inicio && m.fecha <= periodo.fin)
-                                                          || (m.fecha >= periodo.inicio && m.fecha > periodo.fin))
-                                                     select m).ToListAsync();
+                            var marcarPendientes = await _context.Marcas_Extras_Apb.Where(e => e.idplanilla == periodo.idplanilla && e.estado == 'A'
+                                                                                                && ((e.aprob_nivel1 == 'F' || e.aprob_nivel1 == null) && e.fecha_aprob_nivel1 == null
+                                                                                                && e.aprob_nivel1 == null) && ((e.fecha >= periodo.inicio && e.fecha <= periodo.fin)
+                                                                                                || (e.fecha >= periodo.inicio && e.fecha > periodo.fin))).ToListAsync();
+                            marcasextrasApb = (from m in marcarPendientes
+                                               join c in empleados on new { idnumero = m.idnumero, idplanilla = m.idplanilla } 
+                                                        equals new { idnumero = c.IdNumero, idplanilla = c.IdPlanilla }                                                     
+                                                     select m).ToList();
                             break;
                         case 2:
-                            marcasextrasApb = await (from m in _context.Marcas_Extras_Apb.Where(e => e.idplanilla == periodo.idplanilla)
-                                                     join c in _context.Empleados on new { idnumero = m.idnumero, idplanilla = m.idplanilla } equals new { idnumero = c.IdNumero, idplanilla = c.IdPlanilla }
-                                                     join g in phgrupos on c.IdGrupo equals g.idgrupo
-                                                     where m.estado == 'A'
-                                                       && (((m.aprob_nivel1 == 'F' || m.aprob_nivel1 == null) && m.fecha_aprob_nivel1 == null && m.aprob_nivel1 == null) ||
-                                                           ((m.aprob_nivel2 == 'F' || m.aprob_nivel2 == null) && m.fecha_aprob_nivel2 == null && m.aprob_nivel2 == null))
-                                                       && ((m.fecha >= periodo.inicio && m.fecha <= periodo.fin)
-                                                          || (m.fecha >= periodo.inicio && m.fecha > periodo.fin))
-                                                     select m).ToListAsync();
+                            marcasextrasApb = (from m in await _context.Marcas_Extras_Apb.Where(m => m.idplanilla == periodo.idplanilla && m.estado == 'A'
+                                                                                                && (((m.aprob_nivel1 == 'F' || m.aprob_nivel1 == null) && m.fecha_aprob_nivel1 == null && m.aprob_nivel1 == null) ||
+                                                                                                    ((m.aprob_nivel2 == 'F' || m.aprob_nivel2 == null) && m.fecha_aprob_nivel2 == null && m.aprob_nivel2 == null))
+                                                                                                && ((m.fecha >= periodo.inicio && m.fecha <= periodo.fin)
+                                                                                                    || (m.fecha >= periodo.inicio && m.fecha > periodo.fin))).ToListAsync()
+                                                     join c in _context.Empleados on new { idnumero = m.idnumero, idplanilla = m.idplanilla } 
+                                                        equals new { idnumero = c.IdNumero, idplanilla = c.IdPlanilla }
+                                                     select m).ToList();
                             break;
                         case 3:
-                            marcasextrasApb = await (from m in _context.Marcas_Extras_Apb.Where(e => e.idplanilla == periodo.idplanilla)
-                                                     join c in _context.Empleados on new { idnumero = m.idnumero, idplanilla = m.idplanilla } equals new { idnumero = c.IdNumero, idplanilla = c.IdPlanilla }
-                                                     join g in phgrupos on c.IdGrupo equals g.idgrupo
-                                                     where m.estado == 'A'
-                                                       && (((m.aprob_nivel1 == 'F' || m.aprob_nivel1 == null) && m.fecha_aprob_nivel1 == null && m.aprob_nivel1 == null) ||
-                                                           ((m.aprob_nivel2 == 'F' || m.aprob_nivel2 == null) && m.fecha_aprob_nivel2 == null && m.aprob_nivel2 == null) ||
-                                                           ((m.aprob_nivel3 == 'F' || m.aprob_nivel3 == null) && m.fecha_aprob_nivel3 == null && m.aprob_nivel3 == null))
-                                                       && ((m.fecha >= periodo.inicio && m.fecha <= periodo.fin)
-                                                          || (m.fecha >= periodo.inicio && m.fecha > periodo.fin))
-                                                     select m).ToListAsync();
+                            marcasextrasApb = (from m in await _context.Marcas_Extras_Apb.Where(m => m.idplanilla == periodo.idplanilla && m.estado == 'A'
+                                                                                               && (((m.aprob_nivel1 == 'F' || m.aprob_nivel1 == null) && m.fecha_aprob_nivel1 == null && m.aprob_nivel1 == null) ||
+                                                                                                   ((m.aprob_nivel2 == 'F' || m.aprob_nivel2 == null) && m.fecha_aprob_nivel2 == null && m.aprob_nivel2 == null) ||
+                                                                                                   ((m.aprob_nivel3 == 'F' || m.aprob_nivel3 == null) && m.fecha_aprob_nivel3 == null && m.aprob_nivel3 == null))
+                                                                                               && ((m.fecha >= periodo.inicio && m.fecha <= periodo.fin)
+                                                                                                  || (m.fecha >= periodo.inicio && m.fecha > periodo.fin))).ToListAsync()
+                                                     join c in _context.Empleados on new { idnumero = m.idnumero, idplanilla = m.idplanilla } 
+                                                        equals new { idnumero = c.IdNumero, idplanilla = c.IdPlanilla }                                                     
+                                                     select m).ToList();
                             break;
 
                     }
@@ -6216,6 +6235,222 @@ namespace com.gsitcr.geotime.Data
             return accionPersonal;
         }
 
+        /// <summary>
+        /// GetMarcasProcesoHorasExtrasPendientes: Marcas Proceso con detalle de Horas Extras Pendientes
+        /// </summary>
+        /// <param name="IdPlanilla"></param>
+        /// <param name="FechaInicio"></param>
+        /// <param name="FechaFin"></param>
+        /// <returns></returns>
+        public async Task<List<cMarcaProceso>> GetMarcasProcesoHorasExtrasPendientes(string IdPlanilla, string FechaInicio, string FechaFin)
+        {
+            List<cMarcaProceso> accionPersonal = new();
+            try
+            {
+                DateTime fechaMovInicio = DateTime.Parse($"{FechaInicio.Substring(0, 4)}-{FechaInicio.Substring(4, 2)}-{FechaInicio.Substring(6, 2)}");
+                DateTime fechaMovFinal = DateTime.Parse($"{FechaFin.Substring(0, 4)}-{FechaFin.Substring(4, 2)}-{FechaFin.Substring(6, 2)}");
+
+                var marcasProcesos = await _context.Marcas_Proceso
+                                        .Include(e => e.cEmpleado)
+                                        .Include(e => e.cTurno)
+                                        .Where(e => e.idplanilla == IdPlanilla &&
+                                            e.EXTC!="00:00" && e.EXTT=="00:00" &&
+                                            e.fecha_entra >= fechaMovInicio && e.fecha_sale <= fechaMovFinal).ToListAsync();
+
+                accionPersonal = marcasProcesos.Select(ap => new cMarcaProceso
+                {
+                    idregistro = ap.idregistro,
+                    idplanilla = ap.idplanilla,
+                    idnumero = ap.idnumero,
+                    fecha_entra = ap.fecha_entra,
+                    fecha_sale = ap.fecha_sale,
+                    hora_entra = ap.hora_entra,
+                    hora_sale = ap.hora_sale,
+                    idturno = ap.idturno,
+
+                    ORDC = ap.ORDC,
+                    EXTC = ap.EXTC,
+                    ORDT = ap.ORDT,
+                    EXTT = ap.EXTT,
+                    TC1 = ap.TC1,
+                    TC2 = ap.TC2,
+                    TC3 = ap.TC3,
+                    TC4 = ap.TC4,
+                    TC5 = ap.TC5,
+                    CON_1 = ap.CON_1,
+                    CON_2 = ap.CON_2,
+                    CON_3 = ap.CON_3,
+                    CON_4 = ap.CON_4,
+                    CON_5 = ap.CON_5,
+                    ID1 = ap.ID1,
+                    ID2 = ap.ID2,
+                    ID3 = ap.ID3,
+                    FD1 = ap.FD1,
+                    FD2 = ap.FD2,
+                    FD3 = ap.FD3,
+                    TOD = ap.TOD,
+                    TED = ap.TED,
+                    TDD = ap.TDD,
+                    TIEMPO_CALC_JORN = ap.TIEMPO_CALC_JORN,
+                    TDC = ap.TDC,
+                    estado = ap.estado,
+                    estado_inc = ap.estado_inc,
+                    manticipo = ap.manticipo,
+                    mtardia = ap.mtardia,
+                    proyectado = ap.proyectado,
+                    reg_sale = ap.reg_sale,
+                    cEmpleado = ap.cEmpleado == null ? null :
+                                                new cEmpleado
+                                                {
+                                                    IdNumero = ap.cEmpleado.IdNumero,
+                                                    IdPlanilla = ap.cEmpleado.IdPlanilla,
+                                                    Nombre = ap.cEmpleado.Nombre,
+                                                    Tarjeta = ap.cEmpleado.Tarjeta,
+                                                    Identificacion = ap.cEmpleado.Identificacion,
+                                                    IdGrupo = ap.cEmpleado.IdGrupo,
+                                                    IdDepartamento = ap.cEmpleado.IdDepartamento,
+                                                    IdHorario = ap.cEmpleado.IdHorario,
+                                                    Estado = ap.cEmpleado.Estado,
+                                                    IdAgrupamiento = ap.cEmpleado.IdAgrupamiento,
+                                                    foto = ap.cEmpleado.foto,
+                                                    IdCCosto = ap.cEmpleado.IdCCosto,
+                                                    exporta = ap.cEmpleado.exporta,
+                                                    ubicacion = ap.cEmpleado.ubicacion,
+                                                    rubro1 = ap.cEmpleado.rubro1,
+                                                    rubro2 = ap.cEmpleado.rubro2,
+                                                    rubro3 = ap.cEmpleado.rubro3,
+                                                    rubro4 = ap.cEmpleado.rubro4,
+                                                    rubro5 = ap.cEmpleado.rubro5,
+                                                    rubro6 = ap.cEmpleado.rubro6,
+                                                    rubro7 = ap.cEmpleado.rubro7,
+                                                    rubro8 = ap.cEmpleado.rubro8,
+                                                    rubro9 = ap.cEmpleado.rubro9,
+                                                    rubro10 = ap.cEmpleado.rubro10,
+                                                    rubro11 = ap.cEmpleado.rubro11,
+                                                    rubro12 = ap.cEmpleado.rubro12,
+                                                    rubro13 = ap.cEmpleado.rubro13,
+                                                    rubro14 = ap.cEmpleado.rubro14,
+                                                    rubro15 = ap.cEmpleado.rubro15,
+                                                    rubro16 = ap.cEmpleado.rubro16,
+                                                    rubro17 = ap.cEmpleado.rubro17,
+                                                    rubro18 = ap.cEmpleado.rubro18,
+                                                    rubro19 = ap.cEmpleado.rubro19,
+                                                    rubro20 = ap.cEmpleado.rubro20,
+                                                    rubro21 = ap.cEmpleado.rubro21,
+                                                    rubro22 = ap.cEmpleado.rubro22,
+                                                    rubro23 = ap.cEmpleado.rubro23,
+                                                    rubro24 = ap.cEmpleado.rubro24,
+                                                    rubro25 = ap.cEmpleado.rubro25,
+                                                    Fecha_Ingreso = ap.cEmpleado.Fecha_Ingreso,
+                                                    Email = ap.cEmpleado.Email,
+                                                    Tipo_Marca = ap.cEmpleado.Tipo_Marca,
+                                                    inicio_rol = ap.cEmpleado.inicio_rol,
+                                                    web_pass = ap.cEmpleado.web_pass,
+                                                    id_transfo_conc = ap.cEmpleado.id_transfo_conc,
+                                                    widioma = ap.cEmpleado.widioma,
+                                                    def_cc = ap.cEmpleado.def_cc,
+                                                    def_py = ap.cEmpleado.def_py,
+                                                    def_fase = ap.cEmpleado.def_fase,
+                                                    global_clave = ap.cEmpleado.global_clave,
+                                                    Fecha_Salida = ap.cEmpleado.Fecha_Salida,
+                                                    global_code = ap.cEmpleado.global_code,
+                                                    fecha_act_code = ap.cEmpleado.fecha_act_code,
+                                                },
+                    cTurno = ap.cTurno == null ? null :
+                                                new cTurno
+                                                {
+                                                    IdTurno = ap.cTurno.IdTurno,
+                                                    Descripcion = ap.cTurno.Descripcion,
+                                                    HEntra = ap.cTurno.HEntra,
+                                                    HSale = ap.cTurno.HSale,
+                                                    tar_apl = ap.cTurno.tar_apl,
+                                                    ant_apl = ap.cTurno.ant_apl,
+                                                    des_1_in = ap.cTurno.des_1_in,
+                                                    des_1_out = ap.cTurno.des_1_out,
+                                                    des_2_in = ap.cTurno.des_2_in,
+                                                    des_2_out = ap.cTurno.des_2_out,
+                                                    des_3_in = ap.cTurno.des_3_in,
+                                                    des_3_out = ap.cTurno.des_3_out,
+                                                    apl_des_1 = ap.cTurno.apl_des_1,
+                                                    apl_des_2 = ap.cTurno.apl_des_2,
+                                                    apl_des_3 = ap.cTurno.apl_des_3,
+                                                    des_1_tiem = ap.cTurno.des_1_tiem,
+                                                    des_2_tiem = ap.cTurno.des_2_tiem,
+                                                    des_3_tiem = ap.cTurno.des_3_tiem,
+                                                    marca_des_1 = ap.cTurno.marca_des_1,
+                                                    marca_des_2 = ap.cTurno.marca_des_2,
+                                                    marca_des_3 = ap.cTurno.marca_des_3,
+                                                    tar_tiem = ap.cTurno.tar_tiem,
+                                                    ant_tiem = ap.cTurno.ant_tiem,
+                                                    con_1 = ap.cTurno.con_1,
+                                                    con_2 = ap.cTurno.con_2,
+                                                    con_3 = ap.cTurno.con_3,
+                                                    con_4 = ap.cTurno.con_4,
+                                                    con_5 = ap.cTurno.con_5,
+                                                    con_6 = ap.cTurno.con_6,
+                                                    cant_con_1 = ap.cTurno.cant_con_1,
+                                                    cant_con_2 = ap.cTurno.cant_con_2,
+                                                    cant_con_3 = ap.cTurno.cant_con_3,
+                                                    cant_con_4 = ap.cTurno.cant_con_4,
+                                                    cant_con_5 = ap.cTurno.cant_con_5,
+                                                    cant_con_6 = ap.cTurno.cant_con_6,
+                                                    min_con_1 = ap.cTurno.min_con_1,
+                                                    min_con_2 = ap.cTurno.min_con_2,
+                                                    min_con_3 = ap.cTurno.min_con_3,
+                                                    min_con_4 = ap.cTurno.min_con_4,
+                                                    min_con_5 = ap.cTurno.min_con_5,
+                                                    min_con_6 = ap.cTurno.min_con_6,
+                                                    Tipo = ap.cTurno.Tipo,
+                                                    Tipo_Jor = ap.cTurno.Tipo_Jor,
+                                                    fuerza_calc = ap.cTurno.fuerza_calc,
+                                                    idagrupamiento = ap.cTurno.idagrupamiento,
+                                                    apl_trans1 = ap.cTurno.apl_trans1,
+                                                    id_trans1 = ap.cTurno.id_trans1,
+                                                    apl_trans2 = ap.cTurno.apl_trans2,
+                                                    id_trans2 = ap.cTurno.id_trans2,
+                                                    apl_trans3 = ap.cTurno.apl_trans3,
+                                                    id_trans3 = ap.cTurno.id_trans3,
+                                                    apl_trans4 = ap.cTurno.apl_trans4,
+                                                    id_trans4 = ap.cTurno.id_trans4,
+                                                    apl_trans5 = ap.cTurno.apl_trans5,
+                                                    id_trans5 = ap.cTurno.id_trans5,
+                                                    apl_trans6 = ap.cTurno.apl_trans6,
+                                                    id_trans6 = ap.cTurno.id_trans6,
+                                                    apl_ben1 = ap.cTurno.apl_ben1,
+                                                    id_ben1 = ap.cTurno.id_ben1,
+                                                    apl_ben2 = ap.cTurno.apl_ben2,
+                                                    id_ben2 = ap.cTurno.id_ben2,
+                                                    apl_ben3 = ap.cTurno.apl_ben3,
+                                                    id_ben3 = ap.cTurno.id_ben3,
+                                                    apl_ben4 = ap.cTurno.apl_ben4,
+                                                    id_ben4 = ap.cTurno.id_ben4,
+                                                    apl_ben5 = ap.cTurno.apl_ben5,
+                                                    id_ben5 = ap.cTurno.id_ben5,
+                                                    apl_ben6 = ap.cTurno.apl_ben6,
+                                                    id_ben6 = ap.cTurno.id_ben6,
+                                                    conc_ben1 = ap.cTurno.conc_ben1,
+                                                    conc_ben2 = ap.cTurno.conc_ben2,
+                                                    conc_ben3 = ap.cTurno.conc_ben3,
+                                                    conc_ben4 = ap.cTurno.conc_ben4,
+                                                    conc_ben5 = ap.cTurno.conc_ben5,
+                                                    conc_ben6 = ap.cTurno.conc_ben6,
+                                                    apl_trans_post = ap.cTurno.apl_trans_post,
+                                                    id_trans_post = ap.cTurno.id_trans_post,
+                                                    apl_redond_entrada = ap.cTurno.apl_redond_entrada,
+                                                    cant_redond_entrada = ap.cTurno.cant_redond_entrada,
+                                                    auto_pan = ap.cTurno.auto_pan,
+                                                    ColorId = ap.cTurno.ColorId,
+                                                }
+                }).ToList();
+            }
+            catch (Exception e)
+            {
+                string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetMarcasProceso: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
+            }
+            return accionPersonal;
+        }
+
         //Creado por: Allan Prieto Badilla
         //Fecha: 2024-11-19
         //Obtener lista de Marcas Tiempo Adicional
@@ -6574,7 +6809,7 @@ namespace com.gsitcr.geotime.Data
             {
                 var periodoVigente = await GetPeriodoVigenteEmpleado(idnumero, fecha);
 
-                marca = await _context.Marcas_Audit.Where(e => e.IDNUMERO == idnumero
+                marca = await _context.Marcas_Audit.Where(e => e.IDNUMERO == (idnumero=="-1"? e.IDNUMERO : idnumero)
                                                         && e.FECHA >= periodoVigente.inicio
                                                         && e.FECHA <= periodoVigente.fin
                                                         && e.IDPLANILLA == idplanilla).ToListAsync();
@@ -6603,7 +6838,7 @@ namespace com.gsitcr.geotime.Data
                 DateTime fechaInicioExt = DateTime.Parse($"{fechaInicio.Substring(0, 4)}-{fechaInicio.Substring(4, 2)}-{fechaInicio.Substring(6, 2)}");
                 DateTime fechaFinExt = DateTime.Parse($"{fechaFinal.Substring(0, 4)}-{fechaFinal.Substring(4, 2)}-{fechaFinal.Substring(6, 2)}T23:59:59.999");
 
-                marca = await _context.Marcas_Audit.Where(e => e.IDNUMERO == idnumero
+                marca = await _context.Marcas_Audit.Where(e => e.IDNUMERO == (idnumero == "-1" ? e.IDNUMERO : idnumero)
                                                         && e.FECHA_ORIG >= fechaInicioExt
                                                         && e.FECHA_ORIG <= fechaFinExt
                                                         && e.IDPLANILLA == idplanilla).ToListAsync();
@@ -10825,6 +11060,8 @@ namespace com.gsitcr.geotime.Data
                                     manticipo = r.GetString(r.GetOrdinal("manticipo")),
                                     reg_sale =  r.GetInt64(r.GetOrdinal("reg_sale")),
                                     idregistro = r.GetInt64(r.GetOrdinal("idregistro")),
+                                    fecha_ingreso = r.GetDateTime(r.GetOrdinal("fecha_ingreso")),
+                                    iddepartamento = r.GetString(r.GetOrdinal("iddepartamento")),
                                 }).ToList();
             
                     }

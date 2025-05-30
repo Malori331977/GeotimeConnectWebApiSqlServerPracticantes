@@ -20,5 +20,7 @@
         public string manticipo { get; set; }
         public long? reg_sale { get; set; }
         public long idregistro { get; set; }
+        public DateTime? fecha_ingreso { get; set; }
+        public string? iddepartamento { get; set; }
     }
 }
