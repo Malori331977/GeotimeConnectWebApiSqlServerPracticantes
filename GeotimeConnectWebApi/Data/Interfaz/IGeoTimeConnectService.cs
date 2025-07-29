@@ -877,6 +877,13 @@ namespace com.gsitcr.geotime.Data.Interfaz
         public Task<cPh_Usuario> GetPhUsuario(string idnumero);
 
         /// <summary>
+        /// PostPhUsuario: crear o actualizar registro de phUsuario
+        /// </summary>
+        /// <param name="usuario"></param>
+        /// <returns></returns>
+        public Task<EventResponse> PostPhUsuario(cPh_Usuario usuario);
+
+        /// <summary>
         /// PutPhUsuario: utilizado para actualizar variables globales del usuario para los filtros
         /// </summary>
         /// <param name="usuario"></param>
@@ -1031,7 +1038,7 @@ namespace com.gsitcr.geotime.Data.Interfaz
         public Task<cTransformacionTipoMarca> GetTransformacionTipoMarca(int id);
         public Task<EventResponse> Sincronizar_TransformacionTipoMarca(IEnumerable<cTransformacionTipoMarca> transformacionTM);
         public Task<EventResponse> Elimina_TransformacionTipoMarca(int id);
-        public Task<EventResponse> Elimina_TransformacionTipoMarcaDet(int id, int nivel);
+        public Task<EventResponse> Elimina_TransformacionTipoMarcaDet(string id);
 
         /// <summary>
         /// GetTransformacionTipoMarcaDet: obtener lista de Transformaciones Tipo Marca Detalle

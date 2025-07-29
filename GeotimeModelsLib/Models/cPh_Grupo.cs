@@ -9,5 +9,8 @@
         public char? estado { get; set; }
         public int idagrupamiento { get; set; }
         public string turno_continuo { get; set; }
+        public int? OrganizacionId { get; set; }
+
+        
     }
 }

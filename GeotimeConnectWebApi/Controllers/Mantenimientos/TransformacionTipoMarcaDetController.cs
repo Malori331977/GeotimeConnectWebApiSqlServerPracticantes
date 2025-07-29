@@ -31,10 +31,10 @@ namespace GeoTimeConnectWebApi.Controllers.Mantenimientos
             return Ok(respuesta);
         }
 
-        [HttpDelete("{id}/{nivel}")]
-        public async Task<IActionResult> Delete(int id, int nivel)
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(string id)
         {
-            EventResponse respuesta = await _repoGT.Elimina_TransformacionTipoMarcaDet(id, nivel);
+            EventResponse respuesta = await _repoGT.Elimina_TransformacionTipoMarcaDet(id);
 
             if (respuesta.Id != "0")
                 return BadRequest(respuesta);

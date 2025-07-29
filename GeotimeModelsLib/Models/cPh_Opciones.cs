@@ -20,6 +20,7 @@
         public string? DIST_LIC_EMP { get; set; }
         public char? TIPO_DIST { get; set; }
         public char? ACC_BLOC_PT { get; set; }
+        public string? ORG_BASE { get; set; }
 
     }
 }

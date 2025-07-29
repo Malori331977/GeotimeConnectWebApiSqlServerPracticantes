@@ -2,6 +2,10 @@
 using Microsoft.EntityFrameworkCore;
 using com.gsitcr.geotime.Data.Interfaz;
 using com.gsitcr.geotime.Models;
+using GeotimeModelsLib.Models;
+using System.Reflection.Emit;
+using System.Xml;
+using System.Runtime.InteropServices.Marshalling;
 
 namespace com.gsitcr.geotime.Data
 {
@@ -117,7 +121,21 @@ namespace com.gsitcr.geotime.Data
         public DbSet<cRelojTemplateFace> RelojTemplateFace { get; set; }
         public DbSet<cRelojUsuario> RelojUsuario { get; set; }
 
+        /*organizacion y niveles de autorizacion*/
+        public DbSet<cOrganizacionNivel> OrganizacionNiveles { get; set; }
+        public DbSet<cOrganizacion> Organizacion { get; set; }
+        public DbSet<cOrganizacionResponsable> OrganizacionResponsables { get; set; }
+        public DbSet<cFlujoAutorizacion> FlujosAutorizacion { get; set; }
+        public DbSet<cFlujoAutorizacionDetalle> FlujosAutorizacionDetalle { get; set; }
+        public DbSet<cEstado> Estados { get; set; }
+        public DbSet<cTipoSolicitud> TiposSolicitudes { get; set; }
+        public DbSet<cSolicitud> Solicitudes { get; set; } 
+        public DbSet<cSolicitudAutorizacion> SolicitudesAutorizacion { get; set; }
+        public DbSet<cEmpleadoJefatura> EmpleadosJefaturas { get; set; }
+        public DbSet<cOrganizacionBaseResponsable> OrganizacionBaseResponsables { get; set; }
 
+        //storeprocedure
+        public virtual DbSet<cInMarcaWeb> InMarcaWeb { get; set; }
 
 
 
@@ -157,6 +175,8 @@ namespace com.gsitcr.geotime.Data
             builder.Entity<cRelojTemplateFace>().ToTable("RELOJ_TEMPLATES_FACES", Schema)
                .HasKey(e => new { e.FACE_PIN, e.FACE_INDEX });
 
+            builder.Entity<cInMarcaWeb>().HasNoKey();
+
 
             #endregion
 
@@ -191,7 +211,7 @@ namespace com.gsitcr.geotime.Data
             builder.Entity<cPh_Planilla>().ToTable("PH_PLANILLA", Schema)
                 .HasKey(e => new { e.idplanilla });
             builder.Entity<cMarcaIn>().ToTable("MARCAS_IN", Schema)
-                .HasKey(e => new { e.idtarjeta, e.fecha, e.hora, e.idnumero, e.tipo });
+                .HasKey(e => new { e.idtarjeta, e.fecha, e.hora, e.idnumero, e.tipo, e.fecha_reg });
             builder.Entity<cMarcaExtraApb>().ToTable("MARCAS_EXTRAS_APB", Schema)
                 .HasKey(e => new { e.idregistro });
             builder.Entity<cMarcaProceso>().ToTable("MARCAS_PROCESO", Schema)
@@ -277,6 +297,37 @@ namespace com.gsitcr.geotime.Data
             builder.Entity<cPortal_DocMarca>().ToTable("PORTAL_DOCSMARCAS", Schema)
                .HasKey(e => new { e.IDREGISTRO,e.IDNUMERO,e.FECHA });
 
+            #endregion
+
+
+            #region Organizazion y flujos de Autorizacion
+
+            builder.Entity<cOrganizacionNivel>().ToTable("OrganizacionNiveles", Schema)
+              .HasKey(e => new { e.Id });
+            builder.Entity<cOrganizacion>().ToTable("Organizacion", Schema)
+                .HasKey(e => new { e.Id });
+            builder.Entity<cOrganizacionResponsable>().ToTable("OrganizacionResponsables", Schema)
+               .HasKey(e => new { e.OrganizacionId, e.OrdenJerarquia });
+            builder.Entity<cFlujoAutorizacion>().ToTable("FlujosAutorizacion", Schema)
+               .HasKey(e => new { e.Id });
+            builder.Entity<cFlujoAutorizacionDetalle>().ToTable("FlujosAutorizacionDetalle", Schema)
+               .HasKey(e => new { e.FlujoAutorizacionId, e.NivelOrganizacionId, e.OrdenPrioridad });
+            builder.Entity<cEstado>().ToTable("Estados", Schema)
+                   .HasKey(e => new { e.Id });
+            builder.Entity<cTipoSolicitud>().ToTable("TiposSolicitudes", Schema)
+                  .HasKey(e => new { e.Id });
+            builder.Entity<cEmpleadoJefatura>().ToTable("EmpleadosJefaturas", Schema)
+                  .HasKey(e => new { e.IdNumero });
+            builder.Entity<cOrganizacionBaseResponsable>().ToTable("OrganizacionBaseResponsables", Schema)
+               .HasKey(e => new { e.IdOrgBase, e.OrdenJerarquia });
+
+            #endregion
+
+            #region Solicitudes y autorizaciones
+            builder.Entity<cSolicitud>().ToTable("Solicitudes", Schema)
+                  .HasKey(e => new { e.Id });
+            builder.Entity<cSolicitudAutorizacion>().ToTable("SolicitudesAutorizaciones", Schema)
+                  .HasKey(e => new { e.SolicitudId,e.EstadoId });
             #endregion
 
             #region LLaves foraneas
@@ -420,7 +471,53 @@ namespace com.gsitcr.geotime.Data
               .HasForeignKey(e => new { e.idplanilla });
 
 
+            builder.Entity<cOrganizacion>()
+                .ToTable("Organizacion", Schema)
+                .HasOne(e => e.cOrganizacionNivel)
+                .WithMany(d => d.cOrganizacion)
+                .HasForeignKey(e => new { e.NivelOrganizacionId });
+
+            builder.Entity<cOrganizacionResponsable>()
+                .ToTable("OrganizacionResponsables", Schema)
+                .HasOne(e => e.cOrganizacion)
+                .WithMany(d => d.cOrganizacionResponsable)
+                .HasForeignKey(e => new { e.OrganizacionId });
+
+            builder.Entity<cFlujoAutorizacionDetalle>()
+               .ToTable("FlujosAutorizacionDetalle", Schema)
+               .HasOne(e => e.cFlujoAutorizacion)
+               .WithMany(d => d.cFlujoAutorizacionDetalle)
+               .HasForeignKey(e => new { e.FlujoAutorizacionId });
+            builder.Entity<cFlujoAutorizacionDetalle>()
+               .ToTable("FlujosAutorizacionDetalle", Schema)
+               .HasOne(e => e.cOrganizacionNivel)
+               .WithMany(d => d.cFlujoAutorizacionDetalle)
+               .HasForeignKey(e => new { e.NivelOrganizacionId });
+
+
+            builder.Entity<cSolicitud>()
+              .ToTable("Solicitudes", Schema)
+              .HasOne(e => e.cEstado)
+              .WithMany(d => d.cSolicitud)
+              .HasForeignKey(e => new { e.EstadoId });
+            builder.Entity<cSolicitud>()
+              .ToTable("Solicitudes", Schema)
+              .HasOne(e => e.cTipoSolicitud)
+              .WithMany(d => d.cSolicitud)
+              .HasForeignKey(e => new { e.TipoSolicitudId });
+
+            builder.Entity<cSolicitudAutorizacion>()
+             .ToTable("SolicitudesAutorizaciones", Schema)
+             .HasOne(e => e.cSolicitud)
+             .WithMany(d => d.cSolicitudAutorizacion)
+             .HasForeignKey(e => new { e.SolicitudId });
+
+
             #endregion
+
+
+
+
 
         }
 

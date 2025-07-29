@@ -29,7 +29,7 @@ namespace GeoTimeConnectWebApi.Controllers.Seguridad
 
 
         [HttpPut]// Actualiza de el mantenimiento de configuracion, Usuarios compañia
-        public async Task<IActionResult> Post([FromBody] cPh_Usuario usuario)
+        public async Task<IActionResult> Put([FromBody] cPh_Usuario usuario)
         {
             EventResponse respuesta = await _repoGT.PutActualizarPhUsuario(usuario);
 
