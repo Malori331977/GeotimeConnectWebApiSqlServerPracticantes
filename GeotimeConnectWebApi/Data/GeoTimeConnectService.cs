@@ -1,6 +1,7 @@
 ﻿using com.gsitcr.geotime.Data.Interfaz;
 using com.gsitcr.geotime.Models;
 using com.gsitcr.geotime.Models.Response;
+using GeotimeFuncionesLib.Utiles;
 using GeoTimeServiceReference;
 using JtSegEncrypta;
 using LibEncripta;
@@ -16,7 +17,6 @@ using System.Security.Claims;
 using System.Text.Json;
 using static com.gsitcr.geotime.Models.CalculoPeriodoParam;
 using static GeoTimeServiceReference.ServiceSoapClient;
-using GeotimeFuncionesLib.Utiles;
 
 namespace com.gsitcr.geotime.Data
 {
@@ -75,7 +75,6 @@ namespace com.gsitcr.geotime.Data
             _dataBase = bdname;
             _context = SchemaChangeDbContext.GetSchemaChangeDbContext(schema, bdname);
 
-            //_context.Database.ExecuteSqlRaw($"SET DATEFORMAT dmy");
         }
 
         #region SQLMetodos
@@ -177,6 +176,7 @@ namespace com.gsitcr.geotime.Data
                     //loginBuscar.GLOBAL_CLAVE = phLogin.GLOBAL_CLAVE;
                     loginBuscar.EMAIL = phLogin.EMAIL;
                     loginBuscar.companias = phLogin.companias;
+                    
 
                     _context.PH_LOGIN.Update(loginBuscar);
                 }
@@ -241,7 +241,7 @@ namespace com.gsitcr.geotime.Data
 
         //Creado por: Marlon Loria Solano
         //Fecha: 2022-01-02
-        //Obtener lista de Centros de Costo
+        //Obtener lista de Companias
         public async Task<List<cPh_Compania>> GetPhCompania()
         {
             List<cPh_Compania> companias = new();
@@ -384,7 +384,7 @@ namespace com.gsitcr.geotime.Data
                         objetoBuscar.APIURL = Encripta.getEncryptTripleDES(item.APIURL!); 
                         objetoBuscar.APIDATABASE = Encripta.getEncryptTripleDES(item.APIDATABASE!);
 
-
+                        _logger.LogError($"GeoTimeConnectService.Sincronizar_PhCompania.Update: {item.APIURL!}-{item.APIDATABASE}-{item.APICLIENTID}");
 
                         _context.PH_COMPANIAS.Update(objetoBuscar);
                     }
@@ -813,6 +813,7 @@ namespace com.gsitcr.geotime.Data
                         objetoBuscar.estado = item.estado;
                         objetoBuscar.idagrupamiento = item.idagrupamiento;
                         objetoBuscar.turno_continuo = item.turno_continuo;
+                        objetoBuscar.OrganizacionId = item.OrganizacionId;
 
                         _context.Ph_Grupos.Update(objetoBuscar);
                     }
@@ -5324,18 +5325,26 @@ namespace com.gsitcr.geotime.Data
 
             try
             {
-                
+
                 foreach (var marcaIn in marcasIn)
                 {
                     var empleado = await _context.Empleados.FirstOrDefaultAsync(e => e.IdNumero == marcaIn.idnumero);
+                    var relojDispositivo = await _context.RelojDispositivo.FirstOrDefaultAsync(e => e.CLOCK_SERIE == marcaIn.idterminal);
 
                     if (empleado is not null)
                     {
                         marcaIn.idtarjeta = empleado.Tarjeta;
+                        marcaIn.idplanilla = empleado.IdPlanilla;
+                        marcaIn.idterminal = relojDispositivo is null ? "WPE" : relojDispositivo.CLOCK_ID.ToString();
+
                         _context.Add(marcaIn);
-                        await _context.SaveChangesAsync();
+                        await _context.SaveChangesAsync();                        
 
                         await EjecutaInMarcasWeb(marcaIn.idnumero!);
+                    }
+                    else
+                    {
+                        _logger.LogError($"Sincronizar_MarcaIn: El empleado {marcaIn.idnumero} no existe.");
                     }
                     
                 }
@@ -7394,6 +7403,53 @@ namespace com.gsitcr.geotime.Data
         }
 
         /// <summary>
+        /// PostPhUsuario: crear o actualizar registro de phUsuario
+        /// </summary>
+        /// <param name="usuario"></param>
+        /// <returns></returns>
+        public async Task<EventResponse> PostPhUsuario(cPh_Usuario usuario)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+                cPh_Usuario? usuarioBuscar = await _context.Ph_Usuarios.FirstOrDefaultAsync(e => e.IDUSUARIO == usuario.IDUSUARIO);
+
+                if (usuarioBuscar is not null)
+                {
+                    usuarioBuscar.PLANILLAS = usuario.PLANILLAS;
+                    usuarioBuscar.NIVEL = usuario.NIVEL;
+                    usuarioBuscar.GRUPOS = usuario.GRUPOS;
+                    usuarioBuscar.ESTADO = usuario.ESTADO;
+                    usuarioBuscar.NIVEL_APROB_EXT = usuario.NIVEL_APROB_EXT;
+                    usuarioBuscar.ORDEN_EMP = usuario.ORDEN_EMP;
+                    usuarioBuscar.FILT_PRGT = usuario.FILT_PRGT;
+                    usuarioBuscar.TIPO_EDT = usuario.TIPO_EDT;
+
+                    _context.Ph_Usuarios.Update(usuarioBuscar);
+                }
+                else
+                {
+                    _context.Ph_Usuarios.Add(usuario);
+                }
+
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"{error}");
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo realizar la actualización del usuario. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo realizar la actualización del usuario. Detalle de Error: " + e.InnerException.Message;
+            }
+            return respuesta;
+        }
+
+        /// <summary>
         /// PutPhUsuario: utilizado para actualizar variables globales del usuario para los filtros
         /// </summary>
         /// <param name="usuario"></param>
@@ -7410,6 +7466,8 @@ namespace com.gsitcr.geotime.Data
                 {
                     usuarioBuscar.FPERIODO = usuario.FPERIODO;
                     usuarioBuscar.FPLANILLA = usuario.FPLANILLA;
+                    usuarioBuscar.FFECHA_EVALUAR = usuario.FFECHA_EVALUAR;
+                    usuarioBuscar.FCANT_MESES = usuario.FCANT_MESES;
 
                     _context.Ph_Usuarios.Update(usuarioBuscar);
                 }
@@ -7525,7 +7583,14 @@ namespace com.gsitcr.geotime.Data
                                     MAPAPIKEY = e.MAPAPIKEY != null ? Encripta.getDecryptTripleDES(e.MAPAPIKEY!) : null,
                                     FACEDIST = e.FACEDIST,
                                     FACETEXT = e.FACETEXT,
+                                    VERLOGMARCAS = e.VERLOGMARCAS,
+                                    ORGANIZACIONBASEID = "00",
                                 }).FirstOrDefault();
+
+                var opciones = await _context.Ph_Opciones.FirstOrDefaultAsync();
+                if (opciones is not null && portalConfig is not null)
+                    portalConfig!.ORGANIZACIONBASEID = opciones.ORG_BASE!;
+                
 
             }
             catch (Exception e)
@@ -7571,6 +7636,7 @@ namespace com.gsitcr.geotime.Data
                     objetoBuscar.MAPAPIKEY = portalConfig.MAPAPIKEY!=null?Encripta.getEncryptTripleDES(portalConfig.MAPAPIKEY!):null;
                     objetoBuscar.FACEDIST = portalConfig.FACEDIST;
                     objetoBuscar.FACETEXT = portalConfig.FACETEXT;
+                    objetoBuscar.VERLOGMARCAS = portalConfig.VERLOGMARCAS;
 
                     _context.Portal_Config.Update(objetoBuscar);
                 }
@@ -7579,6 +7645,15 @@ namespace com.gsitcr.geotime.Data
                     _context.Add(portalConfig);
                 }
 
+                var opciones = await _context.Ph_Opciones.FirstOrDefaultAsync();
+                if (opciones is not null)
+                {
+                    if (String.IsNullOrEmpty(opciones.ORG_BASE) || opciones.ORG_BASE=="00")
+                    {
+                        opciones.ORG_BASE = portalConfig.ORGANIZACIONBASEID;
+                        _context.Ph_Opciones.Update(opciones);
+                    }
+                }
                 await _context.SaveChangesAsync();
             }
             catch (Exception e)
@@ -8605,16 +8680,20 @@ namespace com.gsitcr.geotime.Data
         /// <param name="id"></param>
         /// <param name="nivel"></param>
         /// <returns>EventResponse</returns>
-        public async Task<EventResponse> Elimina_TransformacionTipoMarcaDet(int id, int nivel)
+        public async Task<EventResponse> Elimina_TransformacionTipoMarcaDet(string id)
         {
             EventResponse respuesta = new EventResponse();
             try
             {
-                if (nivel == 2)
+                var data = id.Split("|");
+                int nivel = Convert.ToInt32(data[0]); // Nivel de eliminación: 0 para TRANSFORMACIONID, 
+                int idregistro = Convert.ToInt32(data[1]); // 1 para IDREGISTRO
+
+                if (nivel == 1)
                 {
                     // Buscar el registro por IDREGISTRO
                     var registro = await _context.TransformacionesTipoMarcaDet
-                        .FirstOrDefaultAsync(e => e.IDREGISTRO == id);
+                        .FirstOrDefaultAsync(e => e.IDREGISTRO == idregistro);
 
                     if (registro is not null)
                     {
@@ -8650,11 +8729,11 @@ namespace com.gsitcr.geotime.Data
                         respuesta.Descripcion = "No se encontró el registro con el IDREGISTRO especificado.";
                     }
                 }
-                else if (nivel == 3)
+                else if (nivel == 2)
                 {
                     // Eliminar solo el registro con el IDREGISTRO específico
                     var registro = await _context.TransformacionesTipoMarcaDet
-                        .FirstOrDefaultAsync(e => e.IDREGISTRO == id);
+                        .FirstOrDefaultAsync(e => e.IDREGISTRO == idregistro);
 
                     if (registro is not null)
                     {
@@ -8672,11 +8751,51 @@ namespace com.gsitcr.geotime.Data
                         respuesta.Descripcion = "No se encontró el registro con el IDREGISTRO especificado.";
                     }
                 }
+                else if (nivel == 3)
+                {
+                    var registro = await _context.TransformacionesTipoMarcaDet
+                        .FirstOrDefaultAsync(e => e.IDREGISTRO == idregistro);
+
+                    if (registro is not null)
+                    {
+                        // Obtener el TRANSFORMACIONID del registro encontrado
+                        int transformacionId = registro.TRANSFORMACIONID;
+                        string horaInicio = registro.HORA_INICIO!;
+
+                        // Buscar todos los registros con el mismo TRANSFORMACIONID
+                        var detalles = await _context.TransformacionesTipoMarcaDet
+                            .Where(d => d.TRANSFORMACIONID == transformacionId && d.HORA_INICIO==horaInicio)
+                            .ToListAsync();
+
+                        if (detalles.Any())
+                        {
+                            // Eliminar todos los registros asociados al TRANSFORMACIONID
+                            _context.TransformacionesTipoMarcaDet.RemoveRange(detalles);
+                            await _context.SaveChangesAsync();
+
+                            respuesta.Id = "0";
+                            respuesta.Respuesta = "Éxito";
+                            respuesta.Descripcion = $"Se eliminaron todos los registros asociados al TRANSFORMACIONID {transformacionId}.";
+                        }
+                        else
+                        {
+                            respuesta.Id = "1";
+                            respuesta.Respuesta = "Advertencia";
+                            respuesta.Descripcion = $"No se encontraron registros asociados al TRANSFORMACIONID {transformacionId}.";
+                        }
+                    }
+                    else
+                    {
+                        respuesta.Id = "1";
+                        respuesta.Respuesta = "Advertencia";
+                        respuesta.Descripcion = "No se encontró el registro con el IDREGISTRO especificado.";
+                    }
+                }
                 else
                 {
                     respuesta.Id = "1";
                     respuesta.Respuesta = "Error";
-                    respuesta.Descripcion = "Nivel de eliminación no válido. Use 2 para eliminar por TRANSFORMACIONID o 3 para eliminar por IDREGISTRO.";
+                    respuesta.Descripcion = "Nivel de eliminación no válido. Use 1 para eliminar por TRANSFORMACIONID o 2 para eliminar por IDREGISTRO.";
                 }
 
                 //cTransformacionTipoMarcaDet? model = await _context.TransformacionesTipoMarcaDet
@@ -9677,6 +9796,7 @@ namespace com.gsitcr.geotime.Data
                         parametroBuscado.DIST_LIC_EMP = item.DIST_LIC_EMP;
                         parametroBuscado.TIPO_DIST = item.TIPO_DIST;
                         parametroBuscado.ACC_BLOC_PT = item.ACC_BLOC_PT;
+                        parametroBuscado.ORG_BASE = item.ORG_BASE;
 
                         _context.Ph_Opciones.Update(parametroBuscado);
                     }
@@ -10128,7 +10248,7 @@ namespace com.gsitcr.geotime.Data
                 else
                     respuesta.Descripcion = "No se pudo realizar la sincronización del color en la Paleta de Colores. Detalle de Error: " + e.InnerException.Message;
                string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
-                _logger.LogError($"GeoTimeConnectService.Sincronizar_PhCompania: {respuesta.Descripcion}");
+                _logger.LogError($"GeoTimeConnectService.Sincronizar_PaletaColor: {respuesta.Descripcion}");
 
 
             }
@@ -10834,8 +10954,7 @@ namespace com.gsitcr.geotime.Data
                     await connection.OpenAsync();
                     using (var command = connection.CreateCommand())
                     {
-
-                        command.CommandText = $"{schemaAdmin}.VerificaDatosPMW @Name='{Encripta.getEncryptTripleDES(_dataBase)}',@Object='Portal_Empleado', @field ='idnumero',@filter='habilitado=1' ";
+                        command.CommandText = $"{schemaAdmin}.VerificaDatosPMW @Name='{Encripta.getEncryptTripleDES(connection.Database)}',@Object='Portal_Empleado', @field ='idnumero',@filter='habilitado=1' ";
                         System.Data.Common.DbDataReader result = command.ExecuteReader();
 
                         table = new DataTable();
@@ -10995,15 +11114,17 @@ namespace com.gsitcr.geotime.Data
         {
             try
             {
-                using (var connection = _context.Database.GetDbConnection())
-                {
-                    await connection.OpenAsync();
-                    using (var command = connection.CreateCommand())
-                    {
-                        command.CommandText = _schema + $".IN_MARCAS_WEB @idnumero='{idnumero}'";
-                        await command.ExecuteNonQueryAsync();
-                    }
-                }
+                var result = _context.Database.ExecuteSqlRaw($"exec {_schema}.IN_MARCAS_WEB @idnumero='{idnumero}'");
+
+                //using (var connection = _context.Database.GetDbConnection())
+                //{
+                //    await connection.OpenAsync();
+                //    using (var command = connection.CreateCommand())
+                //    {
+                //        command.CommandText = _schema + $".IN_MARCAS_WEB @idnumero='{idnumero}'";
+                //        await command.ExecuteNonQueryAsync();
+                //    }
+                //}
             }
             catch (Exception e)
             {

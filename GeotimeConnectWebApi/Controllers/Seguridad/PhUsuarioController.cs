@@ -20,8 +20,19 @@ namespace GeoTimeConnectWebApi.Controllers.Seguridad
         [HttpGet("{idnumero}")]
         public async Task<cPh_Usuario> Get(string idnumero) => await _repoGT.GetPhUsuario(idnumero);
 
-        [HttpPut]
+        [HttpPost]
         public async Task<IActionResult> Post([FromBody] cPh_Usuario usuario)
+        {
+            EventResponse respuesta = await _repoGT.PostPhUsuario(usuario);
+
+            if (respuesta.Id != "0")
+                return BadRequest(respuesta);
+
+            return Ok(respuesta);
+        }
+
+        [HttpPut]
+        public async Task<IActionResult> Put([FromBody] cPh_Usuario usuario)
         {
             EventResponse respuesta = await _repoGT.PutPhUsuario(usuario);
 

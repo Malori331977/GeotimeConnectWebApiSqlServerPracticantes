@@ -1,4 +1,6 @@
-﻿namespace com.gsitcr.geotime.Models
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace com.gsitcr.geotime.Models
 {
     public class cPortal_Config
     {
@@ -18,6 +20,10 @@
         public decimal FACETEXT { get; set; }
         public DateTime FECHAULTMODIFICA { get; set; }
         public string IDUSUARIOMODIFICA { get; set; }
+        public bool VERLOGMARCAS { get; set; }
+
+        [NotMapped]
+        public string ORGANIZACIONBASEID { get; set; }
 
     }
 }

@@ -255,7 +255,7 @@ namespace com.gsitcr.geotime.Data
             {
                 foreach (var item in relojes)
                 {
-                    cRelojDispositivo? objetoBuscar = await _context.RelojDispositivo.FirstOrDefaultAsync(e => e.CLOCK_ID == item.CLOCK_ID);
+                    cRelojDispositivo? objetoBuscar = await _context.RelojDispositivo.FirstOrDefaultAsync(e => e.CLOCK_SERIE == item.CLOCK_SERIE);
 
                     if (objetoBuscar is not null)
                     {
@@ -276,7 +276,6 @@ namespace com.gsitcr.geotime.Data
                         objetoBuscar.USA_FACE = item.USA_FACE;
                         objetoBuscar.USUARIO_HIK = item.USUARIO_HIK;
                         objetoBuscar.PASSWORD_HIK = item.PASSWORD_HIK;
-                        objetoBuscar.CLOCK_SERIE = item.CLOCK_SERIE;
                         objetoBuscar.ALERTA_MASCARILLA = item.ALERTA_MASCARILLA;
                         objetoBuscar.ALERTA_TEMPERATURA = item.ALERTA_TEMPERATURA;
                         objetoBuscar.CORTE_TEMPERATURA = item.CORTE_TEMPERATURA;
