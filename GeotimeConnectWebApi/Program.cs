@@ -1,14 +1,5 @@
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.IdentityModel.Tokens;
 using com.gsitcr.geotime.Data;
-using com.gsitcr.geotime.Data.Interfaz;
-using com.gsitcr.geotime.Models.Utils;
-using System.Text;
-using LibEncripta;
-using JtSegEncrypta;
+using Microsoft.EntityFrameworkCore;
 using RelojesApi.DependencyInjection;
 
 
@@ -23,10 +14,57 @@ IConfiguration config = new ConfigurationBuilder()
 //correctos.
 var appSettingsSection = config.GetSection("AppSettings");
 string withCors = config.GetConnectionString("WithCors")!;
+string Modo = config.GetConnectionString("Modo")!;
 
 builder.Services.AddApplicationService();
 
+/*ajustes de Seguridad*/
+if (Modo == "PRD")
+{
+    // Configure HSTS
+    // https://learn.microsoft.com/en-us/aspnet/core/security/enforcing-ssl?WT.mc_id=DT-MVP-5003978#http-strict-transport-security-protocol-hsts
+    // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Strict-Transport-Security
+    builder.Services.AddHsts(options =>
+    {
+        options.MaxAge = TimeSpan.FromDays(180);
+        options.IncludeSubDomains = true;
+        options.Preload = true;
+    });
+    // Configure HTTPS redirection
+    builder.Services.AddHttpsRedirection(options =>
+    {
+        options.RedirectStatusCode = StatusCodes.Status301MovedPermanently;
+        options.HttpsPort = 443;
+    });
+}
+
+if (withCors is not null)
+{
+    if (withCors == "S")
+        builder.Services.AddCors(options =>
+        {
+            options.AddPolicy("CorsPolicy",
+                builder => builder.AllowAnyOrigin()
+                .WithMethods("GET", "POST", "PUT", "DELETE")
+                .AllowAnyHeader());
+        });
+}
+
+
 var app = builder.Build();
+
+// Configure the HTTP request pipeline.
+if (!app.Environment.IsDevelopment())
+{
+    if (Modo == "PRD")
+    {
+        app.UseExceptionHandler("/Error");
+        app.UseHsts();
+
+        // Add other security headers
+        app.UseMiddleware<SecurityHeadersMiddleware>();
+    }
+}
 
 app.UseSwagger();
 

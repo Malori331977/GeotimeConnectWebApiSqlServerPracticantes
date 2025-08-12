@@ -4,12 +4,13 @@ using com.gsitcr.geotime.Models.Response;
 using com.gsitcr.geotime.Models.Utils;
 using GeoTimeConnectWebApi.Data.Interfaz;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
 
 namespace com.gsitcr.geotime.Data
 {
-    public class SolicitudesService: ISolicitudesService
+    public class SolicitudesService : ISolicitudesService
     {
         private readonly SqlServerDataBaseContext _context;
         private readonly IHttpContextAccessor _httpContextAccessor;
@@ -20,7 +21,7 @@ namespace com.gsitcr.geotime.Data
         private readonly IOrganizacionService _organizacionService;
         private readonly IGeoTimeConnectService _geoServices;
 
-        public SolicitudesService(SqlServerDataBaseContext context, IHttpContextAccessor httpContextAccessor, ILogger<SolicitudesService> logger, 
+        public SolicitudesService(SqlServerDataBaseContext context, IHttpContextAccessor httpContextAccessor, ILogger<SolicitudesService> logger,
                 IFlujosAutorizacionService flujosServices, IOrganizacionService organizacionService, IGeoTimeConnectService geoServices)
         {
             _httpContextAccessor = httpContextAccessor;
@@ -28,7 +29,7 @@ namespace com.gsitcr.geotime.Data
             string schema = "";
             string bdname = "";
             _logger = logger;
-            
+
 
             foreach (Claim clm in claims)
             {
@@ -101,6 +102,8 @@ namespace com.gsitcr.geotime.Data
                              EstadoId = e.EstadoId,
                              IdUsuarioRegistra = e.IdUsuarioRegistra,
                              FechaRegistro = e.FechaRegistro,
+                             FechaModifica = e.FechaModifica,
+                             IdUsuarioModifica = e.IdUsuarioModifica,
                              cSolicitudAutorizacion = e.cSolicitudAutorizacion == null ? null :
                                 (from sa in e.cSolicitudAutorizacion
                                  select new cSolicitudAutorizacion
@@ -118,15 +121,17 @@ namespace com.gsitcr.geotime.Data
                                     Descripcion = e.cEstado.Descripcion,
                                     FechaRegistro = e.cEstado.FechaRegistro
                                 },
-                             cTipoSolicitud = e.cTipoSolicitud == null ? null : 
+                             cTipoSolicitud = e.cTipoSolicitud == null ? null :
                                 new cTipoSolicitud
                                 {
                                     Id = e.cTipoSolicitud.Id,
                                     Descripcion = e.cTipoSolicitud.Descripcion,
                                     FechaModifica = e.cTipoSolicitud.FechaModifica,
                                     FlujoAutorizacionId = e.cTipoSolicitud.FlujoAutorizacionId,
-                                    IdUsuarioModifica = e.cTipoSolicitud.IdUsuarioModifica,                                 
-                                 }
+                                    IdUsuarioModifica = e.cTipoSolicitud.IdUsuarioModifica,
+                                    Activa = e.cTipoSolicitud.Activa,
+                                    TipoConfiguracion = e.cTipoSolicitud.TipoConfiguracion
+                                }
                          }).ToList();
             }
             catch (Exception e)
@@ -175,6 +180,8 @@ namespace com.gsitcr.geotime.Data
                              EstadoId = e.EstadoId,
                              IdUsuarioRegistra = e.IdUsuarioRegistra,
                              FechaRegistro = e.FechaRegistro,
+                             FechaModifica = e.FechaModifica,
+                             IdUsuarioModifica = e.IdUsuarioModifica,
                              cSolicitudAutorizacion = e.cSolicitudAutorizacion == null ? null :
                                 (from sa in e.cSolicitudAutorizacion
                                  select new cSolicitudAutorizacion
@@ -200,6 +207,7 @@ namespace com.gsitcr.geotime.Data
                                     FechaModifica = e.cTipoSolicitud.FechaModifica,
                                     FlujoAutorizacionId = e.cTipoSolicitud.FlujoAutorizacionId,
                                     IdUsuarioModifica = e.cTipoSolicitud.IdUsuarioModifica,
+                                    TipoConfiguracion = e.cTipoSolicitud.TipoConfiguracion
                                 }
                          }).FirstOrDefault();
             }
@@ -234,54 +242,57 @@ namespace com.gsitcr.geotime.Data
                                      .Include(e => e.cTipoSolicitud)
                                 .Where(e => e.IdNumero == idnumero && e.FechaInicio >= fechaini && e.FechaFin <= fechafin
                                      && e.TipoSolicitudId == (tipoSolicitud == 0 ? e.TipoSolicitudId : tipoSolicitud)).ToListAsync()
-                                select new cSolicitud
-                                {
-                                    Id = e.Id,
-                                    IdPlanilla = e.IdPlanilla,
-                                    IdNumero = e.IdNumero,
-                                    FechaInicio = e.FechaInicio,
-                                    FechaFin = e.FechaFin,
-                                    TipoSolicitudId = e.TipoSolicitudId,
-                                    IdDepart = e.IdDepart,
-                                    IdGrupo = e.IdGrupo,
-                                    IdCCosto = e.IdCCosto,
-                                    proyecto = e.proyecto,
-                                    fase = e.fase,
-                                    HoraInicio = e.HoraInicio,
-                                    HoraFin = e.HoraFin,
-                                    TotalHoras = e.TotalHoras,
-                                    Cantidad = e.Cantidad,
-                                    Comentario = e.Comentario,
-                                    EstadoId = e.EstadoId,
-                                    IdUsuarioRegistra = e.IdUsuarioRegistra,
-                                    FechaRegistro = e.FechaRegistro,
-                                    cSolicitudAutorizacion = e.cSolicitudAutorizacion == null ? null :
-                                            (from sa in e.cSolicitudAutorizacion
-                                             select new cSolicitudAutorizacion
-                                             {
-                                                 SolicitudId = sa.SolicitudId,
-                                                 EstadoId = sa.EstadoId,
-                                                 IdNumero = sa.IdNumero,
-                                                 FechaRegistro = sa.FechaRegistro,
-                                                 Comentario = sa.Comentario,
-                                             }).ToList(),
-                                    cEstado = e.cEstado == null ? null :
-                                            new cEstado
+                               select new cSolicitud
+                               {
+                                   Id = e.Id,
+                                   IdPlanilla = e.IdPlanilla,
+                                   IdNumero = e.IdNumero,
+                                   FechaInicio = e.FechaInicio,
+                                   FechaFin = e.FechaFin,
+                                   TipoSolicitudId = e.TipoSolicitudId,
+                                   IdDepart = e.IdDepart,
+                                   IdGrupo = e.IdGrupo,
+                                   IdCCosto = e.IdCCosto,
+                                   proyecto = e.proyecto,
+                                   fase = e.fase,
+                                   HoraInicio = e.HoraInicio,
+                                   HoraFin = e.HoraFin,
+                                   TotalHoras = e.TotalHoras,
+                                   Cantidad = e.Cantidad,
+                                   Comentario = e.Comentario,
+                                   EstadoId = e.EstadoId,
+                                   IdUsuarioRegistra = e.IdUsuarioRegistra,
+                                   FechaRegistro = e.FechaRegistro,
+                                   FechaModifica = e.FechaModifica,
+                                   IdUsuarioModifica = e.IdUsuarioModifica,
+                                   cSolicitudAutorizacion = e.cSolicitudAutorizacion == null ? null :
+                                           (from sa in e.cSolicitudAutorizacion
+                                            select new cSolicitudAutorizacion
                                             {
-                                                Id = e.cEstado.Id,
-                                                Descripcion = e.cEstado.Descripcion,
-                                                FechaRegistro = e.cEstado.FechaRegistro
-                                            },
-                                    cTipoSolicitud = e.cTipoSolicitud == null ? null :
-                                            new cTipoSolicitud
-                                            {
-                                                Id = e.cTipoSolicitud.Id,
-                                                Descripcion = e.cTipoSolicitud.Descripcion,
-                                                FechaModifica = e.cTipoSolicitud.FechaModifica,
-                                                FlujoAutorizacionId = e.cTipoSolicitud.FlujoAutorizacionId,
-                                                IdUsuarioModifica = e.cTipoSolicitud.IdUsuarioModifica,
-                                            }
-                                }).ToList();
+                                                SolicitudId = sa.SolicitudId,
+                                                EstadoId = sa.EstadoId,
+                                                IdNumero = sa.IdNumero,
+                                                FechaRegistro = sa.FechaRegistro,
+                                                Comentario = sa.Comentario,
+                                            }).ToList(),
+                                   cEstado = e.cEstado == null ? null :
+                                           new cEstado
+                                           {
+                                               Id = e.cEstado.Id,
+                                               Descripcion = e.cEstado.Descripcion,
+                                               FechaRegistro = e.cEstado.FechaRegistro
+                                           },
+                                   cTipoSolicitud = e.cTipoSolicitud == null ? null :
+                                           new cTipoSolicitud
+                                           {
+                                               Id = e.cTipoSolicitud.Id,
+                                               Descripcion = e.cTipoSolicitud.Descripcion,
+                                               FechaModifica = e.cTipoSolicitud.FechaModifica,
+                                               FlujoAutorizacionId = e.cTipoSolicitud.FlujoAutorizacionId,
+                                               IdUsuarioModifica = e.cTipoSolicitud.IdUsuarioModifica,
+                                               TipoConfiguracion = e.cTipoSolicitud.TipoConfiguracion
+                                           }
+                               }).ToList();
             }
             catch (Exception e)
             {
@@ -335,6 +346,8 @@ namespace com.gsitcr.geotime.Data
                                    EstadoId = e.EstadoId,
                                    IdUsuarioRegistra = e.IdUsuarioRegistra,
                                    FechaRegistro = e.FechaRegistro,
+                                   FechaModifica = e.FechaModifica,
+                                   IdUsuarioModifica = e.IdUsuarioModifica,
                                    cSolicitudAutorizacion = e.cSolicitudAutorizacion == null ? null :
                                            (from sa in e.cSolicitudAutorizacion
                                             select new cSolicitudAutorizacion
@@ -360,6 +373,7 @@ namespace com.gsitcr.geotime.Data
                                                FechaModifica = e.cTipoSolicitud.FechaModifica,
                                                FlujoAutorizacionId = e.cTipoSolicitud.FlujoAutorizacionId,
                                                IdUsuarioModifica = e.cTipoSolicitud.IdUsuarioModifica,
+                                               TipoConfiguracion = e.cTipoSolicitud.TipoConfiguracion
                                            }
                                }).ToList();
             }
@@ -380,65 +394,67 @@ namespace com.gsitcr.geotime.Data
             List<cSolicitud> solicitudesPorAprobar = new();
             try
             {
-                var tiposSolicitudes = await _context.TiposSolicitudes.Where(e=>e.Activa==true).ToListAsync();
                 var opciones = await _context.Ph_Opciones.FirstOrDefaultAsync();
                 int vEstadoFinal = 99;
 
-                var solicitudesPendientes = await (from e in _context.Solicitudes
-                                                        .Include(e => e.cSolicitudAutorizacion)
-                                                        .Include(e => e.cEstado)
-                                                        .Include(e => e.cTipoSolicitud)
-                                                   .Where(e => e.EstadoId >= 1 && e.EstadoId < vEstadoFinal)
-                                                   join i in _context.TiposSolicitudes on e.TipoSolicitudId equals i.Id
-                                                   select new cSolicitud
-                                                   {
-                                                       Id = e.Id,
-                                                       IdPlanilla = e.IdPlanilla,
-                                                       IdNumero = e.IdNumero,
-                                                       FechaInicio = e.FechaInicio,
-                                                       FechaFin = e.FechaFin,
-                                                       TipoSolicitudId = e.TipoSolicitudId,
-                                                       IdDepart = e.IdDepart,
-                                                       IdGrupo = e.IdGrupo,
-                                                       IdCCosto = e.IdCCosto,
-                                                       proyecto = e.proyecto,
-                                                       fase = e.fase,
-                                                       HoraInicio = e.HoraInicio,
-                                                       HoraFin = e.HoraFin,
-                                                       TotalHoras = e.TotalHoras,
-                                                       Cantidad = e.Cantidad,
-                                                       Comentario = e.Comentario,
-                                                       EstadoId = e.EstadoId,
-                                                       IdUsuarioRegistra = e.IdUsuarioRegistra,
-                                                       FechaRegistro = e.FechaRegistro,
-                                                       cSolicitudAutorizacion = e.cSolicitudAutorizacion == null ? null :
-                                                           (from sa in e.cSolicitudAutorizacion
-                                                            select new cSolicitudAutorizacion
-                                                            {
-                                                                SolicitudId = sa.SolicitudId,
-                                                                EstadoId = sa.EstadoId,
-                                                                IdNumero = sa.IdNumero,
-                                                                FechaRegistro = sa.FechaRegistro,
-                                                                Comentario = sa.Comentario,
-                                                            }).ToList(),
-                                                        cEstado = e.cEstado == null ? null :
-                                                           new cEstado
-                                                           {
-                                                               Id = e.cEstado.Id,
-                                                               Descripcion = e.cEstado.Descripcion,
-                                                               FechaRegistro = e.cEstado.FechaRegistro
-                                                           },
-                                                        cTipoSolicitud = e.cTipoSolicitud == null ? null :
-                                                           new cTipoSolicitud
-                                                           {
-                                                               Id = e.cTipoSolicitud.Id,
-                                                               Descripcion = e.cTipoSolicitud.Descripcion,
-                                                               FechaModifica = e.cTipoSolicitud.FechaModifica,
-                                                               FlujoAutorizacionId = e.cTipoSolicitud.FlujoAutorizacionId,
-                                                               IdUsuarioModifica = e.cTipoSolicitud.IdUsuarioModifica,
-                                                           }
+                var solicitudesPendientes = (from e in await _context.Solicitudes
+                                                            .Include(e => e.cSolicitudAutorizacion)
+                                                            .Include(e => e.cEstado)
+                                                            .Include(e => e.cTipoSolicitud)
+                                                       .Where(e => e.EstadoId >= 1 && e.EstadoId < vEstadoFinal)
+                                                       .ToListAsync()
+                                             select new cSolicitud
+                                             {
+                                                 Id = e.Id,
+                                                 IdPlanilla = e.IdPlanilla,
+                                                 IdNumero = e.IdNumero,
+                                                 FechaInicio = e.FechaInicio,
+                                                 FechaFin = e.FechaFin,
+                                                 TipoSolicitudId = e.TipoSolicitudId,
+                                                 IdDepart = e.IdDepart,
+                                                 IdGrupo = e.IdGrupo,
+                                                 IdCCosto = e.IdCCosto,
+                                                 proyecto = e.proyecto,
+                                                 fase = e.fase,
+                                                 HoraInicio = e.HoraInicio,
+                                                 HoraFin = e.HoraFin,
+                                                 TotalHoras = e.TotalHoras,
+                                                 Cantidad = e.Cantidad,
+                                                 Comentario = e.Comentario,
+                                                 EstadoId = e.EstadoId,
+                                                 IdUsuarioRegistra = e.IdUsuarioRegistra,
+                                                 FechaRegistro = e.FechaRegistro,
+                                                 FechaModifica = e.FechaModifica,
+                                                 IdUsuarioModifica = e.IdUsuarioModifica,
+                                                 cSolicitudAutorizacion = e.cSolicitudAutorizacion == null ? null :
+                                                     (from sa in e.cSolicitudAutorizacion
+                                                      select new cSolicitudAutorizacion
+                                                      {
+                                                          SolicitudId = sa.SolicitudId,
+                                                          EstadoId = sa.EstadoId,
+                                                          IdNumero = sa.IdNumero,
+                                                          FechaRegistro = sa.FechaRegistro,
+                                                          Comentario = sa.Comentario,
+                                                      }).ToList(),
+                                                 cEstado = e.cEstado == null ? null :
+                                                     new cEstado
+                                                     {
+                                                         Id = e.cEstado.Id,
+                                                         Descripcion = e.cEstado.Descripcion,
+                                                         FechaRegistro = e.cEstado.FechaRegistro
+                                                     },
+                                                 cTipoSolicitud = e.cTipoSolicitud == null ? null :
+                                                     new cTipoSolicitud
+                                                     {
+                                                         Id = e.cTipoSolicitud.Id,
+                                                         Descripcion = e.cTipoSolicitud.Descripcion,
+                                                         FechaModifica = e.cTipoSolicitud.FechaModifica,
+                                                         FlujoAutorizacionId = e.cTipoSolicitud.FlujoAutorizacionId,
+                                                         IdUsuarioModifica = e.cTipoSolicitud.IdUsuarioModifica,
+                                                         TipoConfiguracion = e.cTipoSolicitud.TipoConfiguracion
+                                                     }
 
-                                                   }).ToListAsync();
+                                             }).ToList();
 
 
                 int organizacionPadre = 0;
@@ -447,7 +463,7 @@ namespace com.gsitcr.geotime.Data
                 foreach (var solicitud in solicitudesPendientes)
                 {
 
-                    var grupo = await _context.Ph_Grupos.FirstOrDefaultAsync(e=>e.idgrupo==solicitud.IdGrupo!);
+                    var grupo = await _context.Ph_Grupos.FirstOrDefaultAsync(e => e.idgrupo == solicitud.IdGrupo!);
 
                     if (grupo is not null)
                     {
@@ -614,8 +630,8 @@ namespace com.gsitcr.geotime.Data
                         modelBuscar.Cantidad = item.Cantidad;
                         modelBuscar.Comentario = item.Comentario;
                         modelBuscar.EstadoId = item.EstadoId;
-                        modelBuscar.IdUsuarioRegistra = item.IdUsuarioRegistra;
-                        modelBuscar.FechaRegistro = item.FechaRegistro;
+                        modelBuscar.FechaModifica = DateTime.Now;
+                        modelBuscar.IdUsuarioModifica = item.IdUsuarioModifica;
 
                         _context.Solicitudes.Update(modelBuscar);
                         await _context.SaveChangesAsync();
@@ -628,6 +644,7 @@ namespace com.gsitcr.geotime.Data
                         item.cSolicitudAutorizacion = null;
                         item.Id = 0;
                         item.FechaRegistro = DateTime.Now;
+                        item.FechaModifica = DateTime.Now;
                         _context.Add(item);
                         await _context.SaveChangesAsync();
 
@@ -637,8 +654,8 @@ namespace com.gsitcr.geotime.Data
 
                     respuesta.ValorRetorno = maxId.ToString();
 
-                    if (!regNew) 
-                    { 
+                    if (!regNew)
+                    {
                         var correosPorEnviar = await PostNotificaResponsables(modelBuscar!, maxId, estadoId);
                         if (correosPorEnviar.Count() > 0)
                         {
@@ -678,20 +695,23 @@ namespace com.gsitcr.geotime.Data
             {
                 foreach (var item in model)
                 {
-                  
+
                     cSolicitud? modelBuscar = await _context.Solicitudes
                                                     .Where(e => e.Id == item.Id)
                                                     .FirstOrDefaultAsync();
 
                     if (modelBuscar is not null)
-                    {                        
+                    {
                         modelBuscar.EstadoId = item.EstadoId;
+                        modelBuscar.Comentario = item.Comentario;
+                        modelBuscar.FechaModifica = DateTime.Now;
+                        modelBuscar.IdUsuarioModifica = item.IdUsuarioModifica;
 
                         _context.Solicitudes.Update(modelBuscar);
                         await _context.SaveChangesAsync();
                     }
 
-                    
+
                 }
 
 
@@ -730,6 +750,7 @@ namespace com.gsitcr.geotime.Data
                 if (model is not null)
                 {
                     model.EstadoId = 100; // Cambiamos el estado a eliminado
+                    model.FechaModifica = DateTime.Now;
                     await _context.SaveChangesAsync();
                 }
 
@@ -765,59 +786,45 @@ namespace com.gsitcr.geotime.Data
             List<Email> correosPorEnviar = new();
 
             try
-            {   
-                
-                    if (estadoId == 2)
+            {
+
+                if (estadoId == 2)
+                {
+                    var autorizadorDirecto = await _context.EmpleadosJefaturas.FirstOrDefaultAsync(e => e.IdNumero == solicitud.IdNumero!);
+                    var solicitante = await _context.Empleados.FirstOrDefaultAsync(e => e.IdNumero == solicitud.IdNumero!);
+
+                    if (autorizadorDirecto is not null)
                     {
-                        var autorizadorDirecto = await _context.EmpleadosJefaturas.FirstOrDefaultAsync(e => e.IdNumero == solicitud.IdNumero!);
-                        var solicitante = await _context.Empleados.FirstOrDefaultAsync(e => e.IdNumero == solicitud.IdNumero!);
 
-                        if (autorizadorDirecto is not null)
+                        var jefatura = await _context.Empleados.FirstOrDefaultAsync(e => e.IdNumero == autorizadorDirecto.IdNumeroResponsable);
+
+                        if (jefatura is not null)
                         {
-                            
-                            var jefatura = await _context.Empleados.FirstOrDefaultAsync(e => e.IdNumero == autorizadorDirecto.IdNumeroResponsable);
-
-                            if (jefatura is not null)
-                            {
-                                var correo = await EnviaCorreoSolicitudAutorización(jefatura, id, solicitante!, solicitud.cTipoSolicitud!);
-                                if (correo is not null) correosPorEnviar.Add(correo);
-                            }
+                            var correo = await EnviaCorreoSolicitudAutorización(jefatura, id, solicitante!, solicitud.cTipoSolicitud!);
+                            if (correo is not null) correosPorEnviar.Add(correo);
                         }
-                        else
+                    }
+                    else
+                    {
+
+                        var flujoAutorizacion = await _flujosServices.GetFlujoAutorizacion(solicitud.cTipoSolicitud!.FlujoAutorizacionId);
+
+                        if (flujoAutorizacion is null) return correosPorEnviar;
+
+                        if (flujoAutorizacion.cFlujoAutorizacionDetalle is not null)
                         {
-                            
-                            var flujoAutorizacion = await _flujosServices.GetFlujoAutorizacion(solicitud.cTipoSolicitud!.FlujoAutorizacionId);
-
-                            if (flujoAutorizacion is null) return correosPorEnviar;
-
-                            if (flujoAutorizacion.cFlujoAutorizacionDetalle is not null)
+                            var nivelautorizacion = flujoAutorizacion.cFlujoAutorizacionDetalle.FirstOrDefault(e => e.EstadoAnteriorId == 2);
+                            if (nivelautorizacion != null)
                             {
-                                var nivelautorizacion = flujoAutorizacion.cFlujoAutorizacionDetalle.FirstOrDefault(e => e.EstadoAnteriorId == 2);
-                                if (nivelautorizacion != null)
+                                if (nivelautorizacion.OrganizacionEspecificaId is null)
                                 {
-                                    if (nivelautorizacion.OrganizacionEspecificaId is null)
+                                    if (nivelautorizacion.NivelOrganizacionId == opciones.ORG_BASE)
                                     {
-                                        if (nivelautorizacion.NivelOrganizacionId == opciones.ORG_BASE)
-                                        {
-                                            var usersOrgBase = await (from d in _context.OrganizacionBaseResponsables.Where(e => e.IdOrgBase == solicitud.IdGrupo!.ToString() && e.OrdenJerarquia == 1)
-                                                                    join u in _context.Empleados on d.IdNumeroResponsable equals u.IdNumero
-                                                                    select u).ToListAsync();
+                                        var usersOrgBase = await (from d in _context.OrganizacionBaseResponsables.Where(e => e.IdOrgBase == solicitud.IdGrupo!.ToString() && e.OrdenJerarquia == 1)
+                                                                  join u in _context.Empleados on d.IdNumeroResponsable equals u.IdNumero
+                                                                  select u).ToListAsync();
 
-                                            foreach (var user in usersOrgBase)
-                                            {
-                                                var correo = await EnviaCorreoSolicitudAutorización(user, id, solicitante!, solicitud.cTipoSolicitud!);
-                                                if (correo is not null)
-                                                    correosPorEnviar.Add(correo);
-                                            }
-                                        }
-                                    }
-                                    else
-                                    {
-                                        var userOrganizacion = await (from d in _context.OrganizacionResponsables.Where(e => e.OrganizacionId == nivelautorizacion.OrganizacionEspecificaId! && e.OrdenJerarquia == 1)
-                                                                      join u in _context.Empleados on d.IdNumeroResponsable equals u.IdNumero
-                                                                      select u).ToListAsync();
-
-                                        foreach (var user in userOrganizacion)
+                                        foreach (var user in usersOrgBase)
                                         {
                                             var correo = await EnviaCorreoSolicitudAutorización(user, id, solicitante!, solicitud.cTipoSolicitud!);
                                             if (correo is not null)
@@ -825,13 +832,27 @@ namespace com.gsitcr.geotime.Data
                                         }
                                     }
                                 }
+                                else
+                                {
+                                    var userOrganizacion = await (from d in _context.OrganizacionResponsables.Where(e => e.OrganizacionId == nivelautorizacion.OrganizacionEspecificaId! && e.OrdenJerarquia == 1)
+                                                                  join u in _context.Empleados on d.IdNumeroResponsable equals u.IdNumero
+                                                                  select u).ToListAsync();
+
+                                    foreach (var user in userOrganizacion)
+                                    {
+                                        var correo = await EnviaCorreoSolicitudAutorización(user, id, solicitante!, solicitud.cTipoSolicitud!);
+                                        if (correo is not null)
+                                            correosPorEnviar.Add(correo);
+                                    }
+                                }
                             }
-                            
                         }
 
-                        return correosPorEnviar;
                     }
-                
+
+                    return correosPorEnviar;
+                }
+
             }
             catch (Exception)
             {
@@ -846,7 +867,7 @@ namespace com.gsitcr.geotime.Data
 
             try
             {
-                
+
                 if (!string.IsNullOrEmpty(empleado.Email))
                 {
                     var compania = await _context.PH_COMPANIAS.FirstOrDefaultAsync(e => e.IDCOMP == _schema);
@@ -909,10 +930,7 @@ namespace com.gsitcr.geotime.Data
         /// <summary>
         /// AutorizantesSolicitud: obtener lista de autorizantes de la solicitud
         /// </summary>
-        /// <param name="departamentoId"></param>
-        /// <param name="incidenciaId"></param>
-        /// <param name="IdNumero"></param>
-        /// <param name="solicitudId"></param>
+        /// <param name="solicitud"></param>
         /// <returns></returns>
         public async Task<IEnumerable<cAutorizante>> GetAutorizantesSolicitud(cSolicitud solicitud)
         {
@@ -920,26 +938,26 @@ namespace com.gsitcr.geotime.Data
             DateTime? fechaAutoriza = null;
             try
             {
-               
-                
+
+
                 var estados = await _flujosServices.GetEstado();
                 var grupo = await _geoServices.GetGrupo((int)solicitud.IdGrupo!);
                 var orgBaseResp = await _organizacionService.GetOrganizacionBaseResponsable(solicitud.IdGrupo.ToString()!);
                 if (orgBaseResp is null)
                     return listAutorizantes;
-                var empleadoJefatura = await _context.EmpleadosJefaturas.FirstOrDefaultAsync(e => e.IdNumero == solicitud.IdNumero);                
+                var empleadoJefatura = await _context.EmpleadosJefaturas.FirstOrDefaultAsync(e => e.IdNumero == solicitud.IdNumero);
                 var opciones = await _context.Ph_Opciones.FirstOrDefaultAsync();
 
 
                 var flujoAutorizacion = await _flujosServices.GetFlujoAutorizacion(solicitud.cTipoSolicitud!.FlujoAutorizacionId);
                 cOrganizacion organizacionSuperior = new();
-                var solicitudAut = await _context.SolicitudesAutorizacion.Where(e=>e.SolicitudId==solicitud.Id).ToListAsync();
+                var solicitudAut = await _context.SolicitudesAutorizacion.Where(e => e.SolicitudId == solicitud.Id).ToListAsync();
                 string? IdNumeroAutoriza = null;
                 int organizacionPadre = 0;
 
                 List<cOrganizacion> jerarquiaGrupo = new();
 
-                organizacionPadre = grupo.OrganizacionId == null ? -1 : (int) grupo.OrganizacionId;
+                organizacionPadre = grupo.OrganizacionId == null ? -1 : (int)grupo.OrganizacionId;
                 cOrganizacion? organizacion = await _organizacionService.GetOrganizacion(organizacionPadre);
 
 
@@ -1073,6 +1091,172 @@ namespace com.gsitcr.geotime.Data
         }
 
 
+        /// <summary>
+        /// AutorizantesSolicitud: obtener lista de autorizantes de la solicitud
+        /// </summary>
+        /// <param name="IdGrupo"></param>
+        /// <param name="TipoSolicitudId"></param>
+        /// <param name="IdNumero"></param>
+        /// <param name="Id"></param>
+        /// <returns></returns>
+        public async Task<IEnumerable<cAutorizante>> GetAutorizantesSolicitud(int IdGrupo, int TipoSolicitudId, string IdNumero, long Id)
+        {
+            List<cAutorizante> listAutorizantes = new();
+            DateTime? fechaAutoriza = null;
+            try
+            {
+
+                var tipoSolicitud = await _context.TiposSolicitudes.FirstOrDefaultAsync(e => e.Id == TipoSolicitudId);
+                var estados = await _flujosServices.GetEstado();
+                var grupo = await _geoServices.GetGrupo(IdGrupo!);
+                var orgBaseResp = await _organizacionService.GetOrganizacionBaseResponsable(IdGrupo.ToString()!);
+                if (orgBaseResp is null)
+                    return listAutorizantes;
+                var empleadoJefatura = await _context.EmpleadosJefaturas.FirstOrDefaultAsync(e => e.IdNumero == IdNumero);
+                var opciones = await _context.Ph_Opciones.FirstOrDefaultAsync();
+
+
+                var flujoAutorizacion = await _flujosServices.GetFlujoAutorizacion(tipoSolicitud!.FlujoAutorizacionId);
+                cOrganizacion organizacionSuperior = new();
+                var solicitudAut = await _context.SolicitudesAutorizacion.Where(e => e.SolicitudId == Id).ToListAsync();
+                string? IdNumeroAutoriza = null;
+                int organizacionPadre = 0;
+
+                List<cOrganizacion> jerarquiaGrupo = new();
+
+                organizacionPadre = grupo.OrganizacionId == null ? -1 : (int)grupo.OrganizacionId;
+                cOrganizacion? organizacion = await _organizacionService.GetOrganizacion(organizacionPadre);
+
+
+                if (organizacion is not null)
+                    jerarquiaGrupo.Add(organizacion);
+
+                while (organizacion!.OrganizacionSuperior != 0)
+                {
+                    organizacion = await _organizacionService.GetOrganizacion(organizacion.OrganizacionSuperior);
+                    if (organizacion is not null)
+                        jerarquiaGrupo.Add(organizacion);
+                }
+
+
+                if (flujoAutorizacion is not null)
+                {
+                    if (flujoAutorizacion.cFlujoAutorizacionDetalle is not null)
+                    {
+                        foreach (var detalleFlujo in flujoAutorizacion.cFlujoAutorizacionDetalle.OrderBy(e => e.OrdenPrioridad))
+                        {
+                            var autorizacion = solicitudAut.FirstOrDefault(e => e.EstadoId == detalleFlujo.EstadoNuevoId);
+                            if (autorizacion is not null)
+                            {
+                                IdNumeroAutoriza = autorizacion.IdNumero;
+                                fechaAutoriza = autorizacion.FechaRegistro;
+                                var estadoDoc = estados.FirstOrDefault(e => e.Id == autorizacion.EstadoId);
+
+                                listAutorizantes.Add(new cAutorizante
+                                {
+                                    IdNumero = IdNumeroAutoriza!,
+                                    IdNivelAutorizacion = Models.Utils.Utility.Right($"00{detalleFlujo.OrdenPrioridad}", 2),
+                                    DescNivelAutorizacion = estadoDoc!.Descripcion,
+                                    FechaAutorizacion = fechaAutoriza
+                                });
+
+                            }
+                            else
+                            {
+                                //si la autorizacion va por flujo normal
+                                if (detalleFlujo.OrganizacionEspecificaId is null)
+                                {
+                                    //es nivel de organizacion departamento
+                                    if (opciones!.ORG_BASE == detalleFlujo.NivelOrganizacionId)
+                                    {
+                                        //se obtiene responsable del departamento
+                                        if (orgBaseResp is not null)
+                                        {
+                                            if (empleadoJefatura is null)
+                                            {
+                                                var responsableGrupo = orgBaseResp!.OrderBy(e => e.OrdenJerarquia).FirstOrDefault();
+
+                                                if (responsableGrupo is not null)
+                                                {
+
+                                                    listAutorizantes.Add(new cAutorizante
+                                                    {
+                                                        IdNumero = responsableGrupo!.IdNumeroResponsable,
+                                                        IdNivelAutorizacion = Models.Utils.Utility.Right($"00{detalleFlujo.OrdenPrioridad}", 2),
+                                                        DescNivelAutorizacion = $"Responsable de {grupo.descripcion}",
+                                                        FechaAutorizacion = null
+                                                    });
+
+                                                    organizacionSuperior = await _organizacionService.GetOrganizacion((int)grupo.OrganizacionId!);
+                                                }
+                                                else
+                                                {
+                                                    organizacionSuperior = await _organizacionService.GetOrganizacion((int)grupo.OrganizacionId!);
+                                                }
+                                            }
+                                            else
+                                            {
+
+                                                listAutorizantes.Add(new cAutorizante
+                                                {
+                                                    IdNumero = empleadoJefatura!.IdNumeroResponsable,
+                                                    IdNivelAutorizacion = Models.Utils.Utility.Right($"00{detalleFlujo.OrdenPrioridad}", 2),
+                                                    DescNivelAutorizacion = $"Responsable de {grupo.descripcion}",
+                                                    FechaAutorizacion = null
+                                                });
+
+                                                organizacionSuperior = await _organizacionService.GetOrganizacion((int)grupo.OrganizacionId!);
+                                            }
+                                        }
+
+
+                                    }
+                                    else
+                                    {
+
+                                        //son niveles superiores de autorizacion
+                                        //se debe identificar el nivel superior de organizacion asociado al departamento o la organizacion siguiente
+                                        fechaAutoriza = null;
+                                        organizacionSuperior = jerarquiaGrupo.FirstOrDefault(e => e.NivelOrganizacionId == detalleFlujo.NivelOrganizacionId)!;
+
+                                        if (organizacionSuperior is not null)
+                                        {
+                                            var responsableOrg = await _organizacionService.GetResponsableOrganizacion(organizacionSuperior.Id, detalleFlujo.OrdenPrioridad, fechaAutoriza);
+                                            if (responsableOrg is not null)
+                                            {
+                                                listAutorizantes.Add(responsableOrg);
+                                            }
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    fechaAutoriza = null;
+                                    var responsableOrg = await _organizacionService.GetResponsableOrganizacion((int)detalleFlujo.OrganizacionEspecificaId, detalleFlujo.OrdenPrioridad, fechaAutoriza);
+                                    if (responsableOrg is not null)
+                                    {
+                                        listAutorizantes.Add(responsableOrg);
+                                    }
+
+
+                                }
+
+                            }
+
+
+                        }
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                throw;
+            }
+
+            return listAutorizantes;
+        }
+
 
         //Creado por: Marlon Loria Solano
         //Fecha: 2025-03-31
@@ -1096,10 +1280,10 @@ namespace com.gsitcr.geotime.Data
             {
                 string? autorizanteActual = null;
                 var opciones = await _context.Ph_Opciones.FirstOrDefaultAsync();
-                int vEstadoFinal = 99;               
-               
+                int vEstadoFinal = 99;
 
-                cSolicitud? soli = await _context.Solicitudes.Include(e=>e.cTipoSolicitud)
+
+                cSolicitud? soli = await _context.Solicitudes.Include(e => e.cTipoSolicitud)
                         .Where(e => e.Id == solicitudAutorizar.Id)
                         .FirstOrDefaultAsync();
 
@@ -1200,7 +1384,7 @@ namespace com.gsitcr.geotime.Data
 
                                                 if (autorizante is not null)
                                                 {
-                                                   
+
                                                     var correo = await EnviaCorreoSolicitudAutorización(autorizante, soli.Id, solicitante!, soli.cTipoSolicitud!);
                                                     if (correo is not null)
                                                         correosPorEnviar.Add(correo);
@@ -1253,6 +1437,11 @@ namespace com.gsitcr.geotime.Data
 
                     _context.SolicitudesAutorizacion.Add(solicitudAut);
                     await _context.SaveChangesAsync();
+
+                    if (soli.EstadoId == vEstadoFinal)
+                    {
+                        await AplicaSolitud(soli, solicitudAutorizar.IdNumero);
+                    }
 
 
                 }
@@ -1345,5 +1534,78 @@ namespace com.gsitcr.geotime.Data
 
         }
 
+        private async Task AplicaSolitud(cSolicitud soli, string autorizante)
+        {
+            try
+            {
+                switch (soli.cTipoSolicitud!.TipoConfiguracion)
+                {
+                    case "ST": //Solicitud de Tiempo
+                        await RegistrarHoraExtra(soli, autorizante);
+                        break;
+                    case "SD": //solicitud de distribución
+                        await RegistrarDistribucion(soli, autorizante);
+                        break;
+
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
+            }
+
+        }
+        private async Task RegistrarHoraExtra(cSolicitud soli, string autorizante)
+        {
+            List<cMarcaExtraApb> listaMarcasApb = new List<cMarcaExtraApb>() { 
+                new cMarcaExtraApb
+                    {
+                        fecha = soli.FechaInicio,
+                        idnumero = soli.IdNumero,
+                        idplanilla = soli.IdPlanilla,
+                        cantidad = soli.TotalHoras,
+                        estado = 'A',
+                        usuario = soli.IdUsuarioRegistra,
+                        hora = soli.HoraInicio,
+                        ccosto = soli.IdCCosto == "0"? null : soli.IdCCosto,
+                        cantidad_aprob_nivel1 = soli.TotalHoras,
+                        aprob_nivel1 = 'T',
+                        usuario_aprob_nivel1 = autorizante,
+                        fecha_aprob_nivel1 = DateTime.Now,
+                        comentario = soli.Comentario,
+                        comentario_aprob_nivel1 = $"MarcasWeb: Solicitud No.{soli.Id}",
+                    } 
+            };
+
+            await _geoServices.Sincronizar_MarcaExtraApb(listaMarcasApb);
+        }
+
+        private async Task RegistrarDistribucion(cSolicitud soli, string autorizante)
+        {
+            List<cMarcaDistribucionConcepto> listaMarcasDist = new List<cMarcaDistribucionConcepto>() {
+                new cMarcaDistribucionConcepto
+                    {
+                        IDREGISTRO = 0,
+                        IDPLANILLA = soli.IdPlanilla,
+                        IDNUMERO = soli.IdNumero,
+                        FECHA = soli.FechaInicio,
+                        IDCCOSTO = soli.IdCCosto!,
+                        PROYECTO = soli.proyecto,
+                        FASE = soli.fase,
+                        CANTIDAD = soli.Cantidad,
+                        INICIO = soli.HoraInicio,
+                        FIN = soli.HoraFin,
+                        ESTADO = 'A',
+                        IDDIST = 0,
+                        FECHA_DIST = DateTime.Now,
+                        LON_REG = null,
+                        LAT_REG = null,
+                        COMENTARIO = $"MarcasWeb: Solicitud No {soli.Id}, autorizada por: {autorizante}. {soli.Comentario} ",
+                    }
+            };
+
+            await _geoServices.Sincronizar_MarcaDtnConcepto(listaMarcasDist);
+        }
     }
+
 }

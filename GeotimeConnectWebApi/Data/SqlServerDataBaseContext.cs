@@ -102,6 +102,8 @@ namespace com.gsitcr.geotime.Data
         public DbSet<cPortal_DocMarca> Portal_DocsMarcas { get; set; }
         public DbSet<cPaletaColor> PaletaColores { get; set; }
         public DbSet<cPh_Nivel> Ph_Niveles { get; set; }
+
+        public DbSet<cPh_Distribucion_CCosto> Ph_Distribuciones_CCosto { get; set; }
         public DbSet<cMarcaDistribucionConcepto> Marcas_Distribuciones_Conceptos { get; set; }
         public DbSet<cMarcaTiempoAdicional> Marcas_Tiempo_Adicional { get; set; }
         public DbSet<cTemplateHID> TemplatesHID { get; set; }
@@ -262,6 +264,8 @@ namespace com.gsitcr.geotime.Data
                .HasKey(e => new { e.IDREGISTRO });
             builder.Entity<cMarcaTiempoAdicional>().ToTable("MARCAS_TIEMPO_ADICIONAL", Schema)
                .HasKey(e => new { e.IDREGISTRO });
+            builder.Entity<cPh_Distribucion_CCosto>().ToTable("PH_DISTRIBUCIONES_CCOSTO", Schema)
+              .HasKey(e => new { e.idregistro });
 
             builder.Entity<cTemplateHID>().ToTable("TEMPLATESHID", Schema)
               .HasKey(e => new { e.IDNUMERO,e.INDEXID });

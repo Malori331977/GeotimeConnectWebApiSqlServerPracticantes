@@ -2,6 +2,7 @@
 using com.gsitcr.geotime.Models;
 using com.gsitcr.geotime.Models.Response;
 using GeotimeFuncionesLib.Utiles;
+using GeotimeModelsLib.Models;
 using GeoTimeServiceReference;
 using JtSegEncrypta;
 using LibEncripta;
@@ -480,7 +481,7 @@ namespace com.gsitcr.geotime.Data
                 _logger.LogError($"GeoTimeConnectService.GetPhPlanilla: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}");
                 throw;
             }
-            return planilla;
+            return planilla!;
         }
 
         //Creado por: Allan Prieto Badilla
@@ -1552,7 +1553,7 @@ namespace com.gsitcr.geotime.Data
 
                         if (idPlanillaAnt != empleado.IdPlanilla)
                         {
-                            await EjecutaPostCambioPlanilla(empleado.IdNumero, idPlanillaAnt, empleado.IdPlanilla);
+                            await EjecutaPostCambioPlanilla(empleado.IdNumero!, idPlanillaAnt!, empleado.IdPlanilla!);
                         }
                     }
                     else
@@ -10508,13 +10509,44 @@ namespace com.gsitcr.geotime.Data
         public async Task<EventResponse> Sincronizar_MarcaDtnConcepto(IEnumerable<cMarcaDistribucionConcepto> marcasDtnConcepto)
         {
             EventResponse respuesta = new EventResponse();
-
+            
             try
             {
                 foreach (var item in marcasDtnConcepto)
                 {
+                    int IDDIST = 0;
+                    cPh_Distribucion_CCosto? distCCosto = await _context.Ph_Distribuciones_CCosto
+                                    .Where(e => e.idccosto == item.IDCCOSTO && e.proyecto == item.PROYECTO && e.fase==item.FASE)
+                                    .FirstOrDefaultAsync();
+                    //si el centro de costo existe se actualiza descripción
+                    //de lo contrario se agrega el registro
+                    if (distCCosto is not null)
+                    {
+                        IDDIST = distCCosto.idregistro;
+                    }
+                    else
+                    {
+                        cPh_Distribucion_CCosto dittNew = new cPh_Distribucion_CCosto
+                        {
+                            codigo = item.IDCCOSTO,
+                            descripcion = item.IDCCOSTO,
+                            idccosto = item.IDCCOSTO,
+                            idregistro = 0,
+                            proyecto = item.PROYECTO,
+                            fase = item.FASE
+                        };
+                        _context.Add(dittNew);
+                        await _context.SaveChangesAsync();
+                        //obtener el id de distribucion a costo recién creado
+                        IDDIST = await _context.Ph_Distribuciones_CCosto
+                                    .Where(e => e.codigo== item.IDCCOSTO &&  e.idccosto == item.IDCCOSTO && e.proyecto==item.PROYECTO && e.fase==item.FASE)
+                                    .Select(e => e.idregistro)
+                                    .FirstOrDefaultAsync();
+                    }
+
+
                     cMarcaDistribucionConcepto? marcaDC = await _context.Marcas_Distribuciones_Conceptos
-                                    .Where(e => e.IDNUMERO == item.IDNUMERO && e.FECHA == item.FECHA && e.IDPLANILLA == item.IDPLANILLA)
+                                    .Where(e => e.IDNUMERO == item.IDNUMERO && e.FECHA == item.FECHA && e.IDPLANILLA == item.IDPLANILLA && e.IDDIST== IDDIST)
                                     .FirstOrDefaultAsync();
                     //si el centro de costo existe se actualiza descripción
                     //de lo contrario se agrega el registro
@@ -10529,15 +10561,9 @@ namespace com.gsitcr.geotime.Data
                     else
                     {
                         item.IDREGISTRO = 0;
-                        item.PROYECTO = null;
-                        item.FASE = null;
-                        item.CANTIDAD = null;
                         item.ESTADO = 'A';
-                        item.IDDIST = 0;
-                        item.LON_REG = null;
-                        item.LAT_REG = null; 
-                        item.COMENTARIO = null;
-                        
+                        item.IDDIST = IDDIST;
+
                         _context.Add(item);
                     }
                 }
