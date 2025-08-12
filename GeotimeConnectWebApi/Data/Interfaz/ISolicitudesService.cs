@@ -72,6 +72,16 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         /// <returns>Instancia EventResponse con el resultado de la operación.</returns>
         public Task<EventResponse> AutorizaSolicitud(IEnumerable<cSolicitud> solicitudesPorAprobar);
 
+        /// <summary>
+        /// AutorizantesSolicitud: obtener lista de autorizantes de la solicitud
+        /// </summary>
+        /// <param name="IdGrupo"></param>
+        /// <param name="TipoSolicitudId"></param>
+        /// <param name="IdNumero"></param>
+        /// <param name="Id"></param>
+        /// <returns></returns>
+        public Task<IEnumerable<cAutorizante>> GetAutorizantesSolicitud(int IdGrupo, int TipoSolicitudId, string IdNumero, long Id);
+
 
     }
 }

@@ -31,6 +31,8 @@ namespace com.gsitcr.geotime.Models
         public int EstadoId { get; set; }
         public string IdUsuarioRegistra { get; set; }
         public DateTime FechaRegistro { get; set; }
+        public string IdUsuarioModifica { get; set; }
+        public DateTime FechaModifica { get; set; }
 
         public IEnumerable<cSolicitudAutorizacion>? cSolicitudAutorizacion { get; set; }
         public cEstado? cEstado { get; set; }

@@ -12,6 +12,8 @@
         public string? usuario { get; set; }
         public DateTime? fecha_reg { get; set; }
         public int? linea { get; set; }
+        public string? hentra2 { get; set; }
+        public bool estado_envio { get; set; }
 
         public cEmpleado? cEmpleado { get; set; }
         public cPh_Planilla? cPh_Planilla { get; set; }

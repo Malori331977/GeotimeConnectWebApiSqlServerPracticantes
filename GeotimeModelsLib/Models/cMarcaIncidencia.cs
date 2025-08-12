@@ -18,6 +18,8 @@
         public string? USUARIO { get; set; }
         public DateTime? FECHA_JUST { get; set; }
         public long? IDACC { get; set; }
+        public string? HENTRA2 { get; set; }
+        public bool ESTADO_ENVIO { get; set; }
 
         public cIncidencia? cIncidencia { get; set; }
         public cIncidencia? cIncidenciaJust { get; set; }
