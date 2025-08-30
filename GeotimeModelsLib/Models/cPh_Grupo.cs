@@ -11,6 +11,6 @@
         public string turno_continuo { get; set; }
         public int? OrganizacionId { get; set; }
 
-        
+        public IEnumerable<cEmpleado>? Empleado { get; set; }
     }
 }

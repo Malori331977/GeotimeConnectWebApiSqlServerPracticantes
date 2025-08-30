@@ -20,6 +20,12 @@ namespace GeoTimeConnectWebApi.Controllers.Procesos.Marcas
             _repoGT = repoGT;
         }
 
+        [HttpGet()]
+        public async Task<IEnumerable<cMarcaResumen>> Get() => await _repoGT.GetMarcasResumen();
+
+        [HttpGet("{idplanilla}")]
+        public async Task<IEnumerable<cMarcaResumen>> Get(string idplanilla) => await _repoGT.GetMarcasResumen(idplanilla);
+
         [HttpGet("{idplanilla}/{idperiodo}")]
         public async Task<IEnumerable<cMarcaResumen>> Get(string idplanilla, string idperiodo) => await _repoGT.GetMarcasResumen(idplanilla, idperiodo);
 

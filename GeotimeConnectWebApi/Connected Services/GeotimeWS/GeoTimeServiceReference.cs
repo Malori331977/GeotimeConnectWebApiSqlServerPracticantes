@@ -1207,6 +1207,7 @@ namespace GeoTimeServiceReference
         
         public actualizo_companiaResponse(string actualizo_companiaResult)
         {
+           
             this.actualizo_companiaResult = actualizo_companiaResult;
         }
     }
@@ -2110,6 +2111,7 @@ namespace GeoTimeServiceReference
                 result.ReaderQuotas = System.Xml.XmlDictionaryReaderQuotas.Max;
                 result.MaxReceivedMessageSize = int.MaxValue;
                 result.AllowCookies = true;
+                result.SendTimeout = new TimeSpan(0,5,0);
                 return result;
             }
             if ((endpointConfiguration == EndpointConfiguration.Service1Soap12))
@@ -2122,6 +2124,8 @@ namespace GeoTimeServiceReference
                 httpBindingElement.AllowCookies = true;
                 httpBindingElement.MaxBufferSize = int.MaxValue;
                 httpBindingElement.MaxReceivedMessageSize = int.MaxValue;
+                httpBindingElement.KeepAliveEnabled = true;
+
                 result.Elements.Add(httpBindingElement);
                 return result;
             }

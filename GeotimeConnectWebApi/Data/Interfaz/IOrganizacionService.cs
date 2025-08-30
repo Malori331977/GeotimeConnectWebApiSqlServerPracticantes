@@ -95,6 +95,17 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         /// <returns>Respuesta del evento con el resultado de la operación</returns>
         public Task<EventResponse> PostOrganizacionBaseResponsable(IEnumerable<cOrganizacionBaseResponsable> model);
 
+        public Task<List<cEmpleadoJefatura>> GetEmpleadoJefatura();
+        public Task<cEmpleadoJefatura> GetEmpleadoJefatura(string id);
+        /// <summary>
+        /// GetEmpleadoJefatura: muestra lista de empledos donde el id figura con autorizante
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="esJefe"></param>
+        /// <returns></returns>
+        public Task<IEnumerable<cEmpleadoJefatura>> GetEmpleadoJefatura(string id, bool esJefe);
+        public Task<EventResponse> PostEmpleadoJefatura(IEnumerable<cEmpleadoJefatura> empleadosJefaturas);
+        public Task<EventResponse> DeleteEmpleadoJefatura(string id);
 
 
 

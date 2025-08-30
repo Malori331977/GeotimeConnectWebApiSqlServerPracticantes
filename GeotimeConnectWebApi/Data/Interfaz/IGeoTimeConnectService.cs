@@ -40,6 +40,13 @@ namespace com.gsitcr.geotime.Data.Interfaz
         /// <param name="phCompanias"></param>
         /// <returns>una instancia EventResponse con el resultado de la operacion</returns>
         public Task<EventResponse> Sincronizar_PhCompania(IEnumerable<cPh_Compania> phCompanias);
+
+        /// <summary>
+        /// Sincronizar_PhCompania: metodo para sincronizar la compañia inicial 
+        /// </summary>
+        /// <param name="compania"></param>
+        /// <returns>una instancia EventResponse con el resultado de la operacion</returns>
+        public Task<EventResponse> Sincronizar_PhCompaniaInicial(cPh_Compania compania);
         public Task<IEnumerable<cPh_Planilla>> GetPhPlanilla();
         public Task<cPh_Planilla> GetPhPlanilla(string idplanilla);
         public Task<cPh_Planilla> GetPhPlanilla(string nomConector, string descPlanilla);
@@ -75,6 +82,14 @@ namespace com.gsitcr.geotime.Data.Interfaz
         /// </summary>
         /// <returns>Lista de cEmpleados</returns>
         public Task<List<cEmpleado>> GetEmpleadoProgramador(string idplanilla, string grupos);
+
+        //Creado por: Marlon Loria
+        //Fecha: 2025-08-26
+        /// <summary>
+        /// GetEmpleadoProgramadorByHorario: Método para obtener una lista de empleados asociados a un horarios y una planilla
+        /// </summary>
+        /// <returns>Lista de cEmpleados</returns>
+        public Task<List<cEmpleado>> GetEmpleadoProgramadorByHorario(string idplanilla, string horarios);
 
         //Creado por: Marlon Loria Solano
         //Fecha: 2022-10-30
@@ -373,6 +388,12 @@ namespace com.gsitcr.geotime.Data.Interfaz
         /// <param name="parametros">Recibe los datos de cExporto_Concepto</param>
         /// <returns>Instancia de EventResponse con el resultado de la operación</returns>
         public Task<EventResponse> Exporto_Concepto(IEnumerable<cExporto_Concepto> parametros);
+        /// <summary>
+        /// EvaluaFormula:  Se ejecuta el WebService Evalua_Formula.
+        /// </summary>
+        /// <param name="formula"></param>
+        /// <returns></returns>
+        public Task<EventResponse> EvaluaFormula(string formula);
 
         #endregion
 
@@ -434,8 +455,10 @@ namespace com.gsitcr.geotime.Data.Interfaz
  
         
         public Task<cIncidencia> GetIncidenciaByNomConector(string nom_conector);
-        public Task<List<cIncidencia>> GetIncidenciaReqAccPer();        
+        public Task<List<cIncidencia>> GetIncidenciaReqAccPer();
 
+        public Task<List<cMarcaResumen>> GetMarcasResumen();
+        public Task<List<cMarcaResumen>> GetMarcasResumen(string idPlanilla);
         public Task<List<cMarcaResumen>> GetMarcasResumen(string idPlanilla, string idPeriodo);
 
         /// <summary>
@@ -1337,6 +1360,28 @@ namespace com.gsitcr.geotime.Data.Interfaz
         /// </summary>
         /// <returns>cantidad de usuarios habilitados para el portal de marcas web</returns>
         public Task<int> VerificaUsuariosActivosPMW();
+
+        /// <summary>
+        /// ActualizarCompaniaBD:  Metodo que realiza la actualizacion de la estructura de la base de datos para una compañía
+        /// </summary>
+        /// <param name="compania"></param>
+        /// <returns>EventResponse con el detalle de la actualización</returns>
+        public Task<EventResponse> ActualizarCompaniaBD(cPh_Compania compania);
+
+        /// <summary>
+        /// GetPhCatalogoGenerico: lista de catalogos genericos
+        /// </summary>
+        /// <returns>lista de catalogos genericos</returns>
+        public Task<List<cPh_CatalogoGenerico>> GetPhCatalogoGenerico();
+
+        /// <summary>
+        /// GetPhCatalogoGenerico: lista de datos para un catalogo especifico
+        /// </summary>
+        /// <param name="id">id de catalogo</param>
+        /// <returns>lista de catalogos genericos</returns>
+        public Task<List<cPh_CatalogoGenerico>> GetPhCatalogoGenerico(string nombre);
+
+        public Task<cPh_CatalogoGenerico> GetPhCatalogoGenerico(string nombre, string id);
 
     }
 }

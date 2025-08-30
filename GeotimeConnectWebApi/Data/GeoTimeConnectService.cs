@@ -1,4 +1,5 @@
-﻿using com.gsitcr.geotime.Data.Interfaz;
+﻿using Azure.Core;
+using com.gsitcr.geotime.Data.Interfaz;
 using com.gsitcr.geotime.Models;
 using com.gsitcr.geotime.Models.Response;
 using GeotimeFuncionesLib.Utiles;
@@ -6,18 +7,22 @@ using GeotimeModelsLib.Models;
 using GeoTimeServiceReference;
 using JtSegEncrypta;
 using LibEncripta;
+using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using SourceAFIS;
 using System.Data;
+using System.Diagnostics;
 using System.Net;
 using System.Net.Mail;
 using System.Net.Mime;
 using System.Security;
 using System.Security.Claims;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using static com.gsitcr.geotime.Models.CalculoPeriodoParam;
 using static GeoTimeServiceReference.ServiceSoapClient;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace com.gsitcr.geotime.Data
 {
@@ -349,7 +354,7 @@ namespace com.gsitcr.geotime.Data
         public async Task<EventResponse> Sincronizar_PhCompania(IEnumerable<cPh_Compania> phCompanias)
         {
             EventResponse respuesta = new EventResponse();
-
+            bool IsNew = false;
             try
             {
                 foreach (var item in phCompanias)
@@ -360,6 +365,7 @@ namespace com.gsitcr.geotime.Data
                     //de lo contrario se agrega el registro
                     if (objetoBuscar is not null)
                     {
+                        IsNew = false;
                         objetoBuscar.COMPANIA = item.COMPANIA;
                         objetoBuscar.NOM_CONECTOR = item.NOM_CONECTOR;
                         objetoBuscar.STRING_SQL = item.STRING_SQL;
@@ -388,9 +394,11 @@ namespace com.gsitcr.geotime.Data
                         _logger.LogError($"GeoTimeConnectService.Sincronizar_PhCompania.Update: {item.APIURL!}-{item.APIDATABASE}-{item.APICLIENTID}");
 
                         _context.PH_COMPANIAS.Update(objetoBuscar);
+                        await _context.SaveChangesAsync();
                     }
                     else
                     {
+                        IsNew = true;
                         item.APICLIENTID = Encripta.getEncryptTripleDES(item.APICLIENTID!);
                         item.APIUSER = Encripta.getEncryptTripleDES(item.APIUSER!);
                         item.APIPASSWORD = Encripta.getEncryptTripleDES(item.APIPASSWORD!);
@@ -398,10 +406,22 @@ namespace com.gsitcr.geotime.Data
                         item.APIDATABASE = Encripta.getEncryptTripleDES(item.APIDATABASE!);
 
                         _context.Add(item);
-                    }
-                }
+                        await _context.SaveChangesAsync();
 
-                await _context.SaveChangesAsync();
+
+                    }
+                    if (IsNew)
+                    {
+                        var respCreaCompania = await PostCompaniaEnBD(item.IDCOMP);
+
+                        if (respCreaCompania.Id != "0")
+                        {
+                            _logger.LogError($"GeoTimeConnectService.Sincronizar_PhCompania.PostCompaniaEnBD: {respCreaCompania.Descripcion}");
+                            respuesta = respCreaCompania;
+                        }
+                    }
+                        
+                }
             }
             catch (Exception e)
             {                
@@ -414,6 +434,54 @@ namespace com.gsitcr.geotime.Data
 
                string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
                 _logger.LogError($"GeoTimeConnectService.Sincronizar_PhCompania: {respuesta.Descripcion}");
+
+
+            }
+
+            return respuesta;
+
+        }
+
+        /// <summary>
+        /// Sincronizar_PhCompania: metodo para sincronizar la compañia inicial 
+        /// </summary>
+        /// <param name="compania"></param>
+        /// <returns>una instancia EventResponse con el resultado de la operacion</returns>
+        public async Task<EventResponse> Sincronizar_PhCompaniaInicial(cPh_Compania compania)
+        {
+            EventResponse respuesta = new EventResponse();
+            try
+            {
+                var respCreaCompania = await PostCompaniaEnBD(compania.IDCOMP,true);
+
+                if (respCreaCompania.Id != "0")
+                {
+                    _logger.LogError($"GeoTimeConnectService.Sincronizar_PhCompania.PostCompaniaEnBD: {respCreaCompania.Descripcion}");
+                    respuesta = respCreaCompania;
+                }
+                else
+                {
+                    compania.APICLIENTID = Encripta.getEncryptTripleDES(compania.APICLIENTID!);
+                    compania.APIUSER = Encripta.getEncryptTripleDES(compania.APIUSER!);
+                    compania.APIPASSWORD = Encripta.getEncryptTripleDES(compania.APIPASSWORD!);
+                    compania.APIURL = Encripta.getEncryptTripleDES(compania.APIURL!);
+                    compania.APIDATABASE = Encripta.getEncryptTripleDES(compania.APIDATABASE!);
+
+                    _context.Add(compania);
+                    await _context.SaveChangesAsync();
+                }
+            }
+            catch (Exception e)
+            {
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo realizar la sincronización de la compañía inicial. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo realizar la sincronización de la compañía inicial. Detalle de Error: " + e.InnerException.Message;
+
+                string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.Sincronizar_PhCompaniaInicial: {respuesta.Descripcion}");
 
 
             }
@@ -926,6 +994,7 @@ namespace com.gsitcr.geotime.Data
                                     .Include(e => e.Departamento)
                                     .Include(e => e.CentroCosto)
                                     .Include(e => e.Ph_Planilla)
+                                    .Include(e => e.Ph_Grupo)
                                 .Where(e => e.Estado == 'T').OrderBy(e => e.Nombre).ToListAsync()
                             select new cEmpleado
                             {
@@ -1017,6 +1086,18 @@ namespace com.gsitcr.geotime.Data
                                                    tipo_adic = e.Ph_Planilla.tipo_adic,
                                                    nivel_aprob_ext = e.Ph_Planilla.nivel_aprob_ext,
                                                },
+                                Ph_Grupo = e.Ph_Grupo == null ? null :
+                                               new cPh_Grupo
+                                               {
+                                                   idgrupo = e.Ph_Grupo.idgrupo,
+                                                   descripcion = e.Ph_Grupo.descripcion,
+                                                   idcomp = e.Ph_Grupo.idcomp,
+                                                   idplanilla = e.Ph_Grupo.idplanilla,
+                                                   estado = e.Ph_Grupo.estado,
+                                                   idagrupamiento = e.Ph_Grupo.idagrupamiento,
+                                                   turno_continuo = e.Ph_Grupo.turno_continuo,
+                                                   OrganizacionId = e.Ph_Grupo.OrganizacionId,
+                                               },
 
                             }).ToList();
 
@@ -1044,6 +1125,7 @@ namespace com.gsitcr.geotime.Data
                                     .Include(e => e.Departamento)
                                     .Include(e => e.CentroCosto)
                                     .Include(e => e.Ph_Planilla)
+                                    .Include(e => e.Ph_Grupo)
                                     .OrderBy(e => e.Nombre).ToListAsync()
                             select new cEmpleado
                             {
@@ -1135,7 +1217,18 @@ namespace com.gsitcr.geotime.Data
                                                    tipo_adic = e.Ph_Planilla.tipo_adic,
                                                    nivel_aprob_ext = e.Ph_Planilla.nivel_aprob_ext,
                                                },
-
+                                Ph_Grupo = e.Ph_Grupo == null ? null :
+                                               new cPh_Grupo
+                                               {
+                                                   idgrupo = e.Ph_Grupo.idgrupo,
+                                                   descripcion = e.Ph_Grupo.descripcion,
+                                                   idcomp = e.Ph_Grupo.idcomp,
+                                                   idplanilla = e.Ph_Grupo.idplanilla,
+                                                   estado = e.Ph_Grupo.estado,
+                                                   idagrupamiento = e.Ph_Grupo.idagrupamiento,
+                                                   turno_continuo = e.Ph_Grupo.turno_continuo,
+                                                   OrganizacionId = e.Ph_Grupo.OrganizacionId,
+                                               },
                             }).ToList();
 
 
@@ -1159,6 +1252,7 @@ namespace com.gsitcr.geotime.Data
             List<cEmpleado> empleado = new();
             try
             {
+                
                 string[] ListGrupos = grupos.Split(',');
                 List<cPh_Grupo> phgrupos = new List<cPh_Grupo>();
 
@@ -1169,7 +1263,7 @@ namespace com.gsitcr.geotime.Data
                     });
                     
 
-                empleado = (from e in await _context.Empleados.Where(e => e.IdPlanilla == idplanilla && e.Estado == 'T').OrderBy(e => e.Nombre).ToListAsync()
+                empleado = (from e in await _context.Empleados.Where(e => e.IdPlanilla == idplanilla && e.Estado == 'T').ToListAsync()
                             join g in phgrupos on e.IdGrupo equals g.idgrupo                            
                             select new cEmpleado
                             {
@@ -1237,6 +1331,97 @@ namespace com.gsitcr.geotime.Data
             return empleado;
         }
 
+
+        //Creado por: Marlon Loria
+        //Fecha: 2025-08-26
+        /// <summary>
+        /// GetEmpleadoProgramadorByHorario: Método para obtener una lista de empleados asociados a un horarios y una planilla
+        /// </summary>
+        /// <returns>Lista de cEmpleados</returns>
+        public async Task<List<cEmpleado>> GetEmpleadoProgramadorByHorario(string idplanilla, string horarios)
+        {
+            List<cEmpleado> empleado = new();
+            try
+            {
+
+                string[] ListHorarios = horarios.Split(',');
+                List<cPh_Horarios> ph_Horarios = new List<cPh_Horarios>();
+
+                foreach (var valor in ListHorarios)
+                    ph_Horarios.Add(new cPh_Horarios
+                    {
+                        IDHORARIO = int.Parse(valor),
+                    });
+
+
+                empleado = (from e in await _context.Empleados.Where(e => e.IdPlanilla == idplanilla && e.Estado == 'T').ToListAsync()
+                            join g in ph_Horarios on e.IdHorario equals g.IDHORARIO
+                            select new cEmpleado
+                            {
+                                IdNumero = e.IdNumero,
+                                IdPlanilla = e.IdPlanilla,
+                                Nombre = e.Nombre,
+                                Tarjeta = e.Tarjeta,
+                                Identificacion = e.Identificacion,
+                                IdGrupo = e.IdGrupo,
+                                IdDepartamento = e.IdDepartamento,
+                                IdHorario = e.IdHorario,
+                                Estado = e.Estado,
+                                IdAgrupamiento = e.IdAgrupamiento,
+                                foto = e.foto,
+                                IdCCosto = e.IdCCosto,
+                                exporta = e.exporta,
+                                ubicacion = e.ubicacion,
+                                rubro1 = e.rubro1,
+                                rubro2 = e.rubro2,
+                                rubro3 = e.rubro3,
+                                rubro4 = e.rubro4,
+                                rubro5 = e.rubro5,
+                                rubro6 = e.rubro6,
+                                rubro7 = e.rubro7,
+                                rubro8 = e.rubro8,
+                                rubro9 = e.rubro9,
+                                rubro10 = e.rubro10,
+                                rubro11 = e.rubro11,
+                                rubro12 = e.rubro12,
+                                rubro13 = e.rubro13,
+                                rubro14 = e.rubro14,
+                                rubro15 = e.rubro15,
+                                rubro16 = e.rubro16,
+                                rubro17 = e.rubro17,
+                                rubro18 = e.rubro18,
+                                rubro19 = e.rubro19,
+                                rubro20 = e.rubro20,
+                                rubro21 = e.rubro21,
+                                rubro22 = e.rubro22,
+                                rubro23 = e.rubro23,
+                                rubro24 = e.rubro24,
+                                rubro25 = e.rubro25,
+                                Fecha_Ingreso = e.Fecha_Ingreso,
+                                Email = e.Email,
+                                Tipo_Marca = e.Tipo_Marca,
+                                inicio_rol = e.inicio_rol,
+                                web_pass = e.web_pass,
+                                id_transfo_conc = e.id_transfo_conc,
+                                widioma = e.widioma,
+                                global_clave = e.global_clave,
+                                def_fase = e.def_fase,
+                                def_py = e.def_py,
+                                def_cc = e.def_cc,
+                                Fecha_Salida = e.Fecha_Salida,
+                                global_code = e.global_code,
+                                fecha_act_code = e.fecha_act_code,
+                            }).ToList();
+            }
+            catch (Exception e)
+            {
+                string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+
+                _logger.LogError($"GeoTimeConnectService.GetEmpleadoProgramador: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
+            }
+            return empleado;
+        }
+
         //Creado por: Marlon Loria Solano
         //Fecha: 2022-10-30
         /// <summary>
@@ -1253,6 +1438,7 @@ namespace com.gsitcr.geotime.Data
                                     .Include(e => e.Departamento)
                                     .Include(e => e.CentroCosto)
                                     .Include(e => e.Ph_Planilla)
+                                    .Include(e => e.Ph_Grupo)
                                 .Where(e => e.IdNumero == idNumero).ToListAsync()
                             select new cEmpleado
                             {
@@ -1344,6 +1530,18 @@ namespace com.gsitcr.geotime.Data
                                                        tipo_adic = e.Ph_Planilla.tipo_adic,
                                                        nivel_aprob_ext = e.Ph_Planilla.nivel_aprob_ext,
                                                    },
+                                Ph_Grupo = e.Ph_Grupo == null ? null :
+                                               new cPh_Grupo
+                                               {
+                                                   idgrupo = e.Ph_Grupo.idgrupo,
+                                                   descripcion = e.Ph_Grupo.descripcion,
+                                                   idcomp = e.Ph_Grupo.idcomp,
+                                                   idplanilla = e.Ph_Grupo.idplanilla,
+                                                   estado = e.Ph_Grupo.estado,
+                                                   idagrupamiento = e.Ph_Grupo.idagrupamiento,
+                                                   turno_continuo = e.Ph_Grupo.turno_continuo,
+                                                   OrganizacionId = e.Ph_Grupo.OrganizacionId,
+                                               },
 
                             }).FirstOrDefault();
             }
@@ -2001,6 +2199,21 @@ namespace com.gsitcr.geotime.Data
 
             try
             {
+                var descansos = await _context.Ph_Descansos_Turnos.Where(e => e.IDTURNO == idturno).ToListAsync();
+
+                if (descansos is not null)
+                {
+                    _context.Ph_Descansos_Turnos.RemoveRange(descansos);
+                    await _context.SaveChangesAsync();
+                }
+
+                var rolesTurnos = await _context.Ph_Roles_Turnos.Where(e => e.IDTURNO == idturno).ToListAsync();
+
+                if (rolesTurnos is not null)
+                {
+                    _context.Ph_Roles_Turnos.RemoveRange(rolesTurnos);
+                    await _context.SaveChangesAsync();
+                }
 
                 cTurno? model = await _context.Ph_Turnos
                     .FirstOrDefaultAsync(e => e.IdTurno == idturno);
@@ -3673,10 +3886,10 @@ namespace com.gsitcr.geotime.Data
             List<cMarcaResumen> marcasResumen = new();
             try
             {
-                marcasResumen = await (from mr in _context.Marcas_Resumen.Where(mr=> mr.IdPlanilla == idPlanilla && mr.IdPeriodo == idPeriodo)
-                                       join emp in _context.Empleados.Where(e=>e.Estado == 'T') on mr.IdNumero equals emp.IdNumero
+                marcasResumen = (from mr in await _context.Marcas_Resumen.Where(mr=> mr.IdPlanilla == idPlanilla && mr.IdPeriodo == idPeriodo).ToListAsync()
+                                       join emp in await _context.Empleados.Where(e=>e.Estado == 'T').ToListAsync() on mr.IdNumero equals emp.IdNumero
                                        select mr
-                                       ).ToListAsync();
+                                       ).ToList();
             }
             catch (Exception e)
             {
@@ -3698,6 +3911,27 @@ namespace com.gsitcr.geotime.Data
                                        join emp in _context.Empleados.Where(e => e.Estado == 'T') on mr.IdNumero equals emp.IdNumero
                                        join c in _context.Ph_Conceptos.Where(e=>e.transferir=='T') on mr.IdConcepto equals c.id
                                        select mr).ToListAsync();
+            }
+            catch (Exception e)
+            {
+                string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetMarcasResumen: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
+            }
+            return marcasResumen;
+        }
+
+
+        //Creado por: Marlon Loria Solano
+        //Fecha: 2022-10-30
+        //Obtener lista de Marcas Resumen
+        public async Task<List<cMarcaResumen>> GetMarcasResumen()
+        {
+            List<cMarcaResumen> marcasResumen = new();
+            try
+            {
+                marcasResumen = await (from mr in _context.Marcas_Resumen                                      
+                                       select mr
+                                       ).ToListAsync();
             }
             catch (Exception e)
             {
@@ -7426,6 +7660,7 @@ namespace com.gsitcr.geotime.Data
                     usuarioBuscar.ORDEN_EMP = usuario.ORDEN_EMP;
                     usuarioBuscar.FILT_PRGT = usuario.FILT_PRGT;
                     usuarioBuscar.TIPO_EDT = usuario.TIPO_EDT;
+                    usuarioBuscar.PT_AGRUP = usuario.PT_AGRUP;
 
                     _context.Ph_Usuarios.Update(usuarioBuscar);
                 }
@@ -7515,6 +7750,7 @@ namespace com.gsitcr.geotime.Data
                     usuarioBuscar.ORDEN_EMP = usuario.ORDEN_EMP;
                     usuarioBuscar.FILT_PRGT = usuario.FILT_PRGT;
                     usuarioBuscar.TIPO_EDT = usuario.TIPO_EDT;
+                    usuarioBuscar.PT_AGRUP = usuario.PT_AGRUP;
 
                     _context.Ph_Usuarios.Update(usuarioBuscar);
                 }
@@ -11299,6 +11535,59 @@ namespace com.gsitcr.geotime.Data
             return respuesta;
         }
 
+        public async Task<List<cPh_CatalogoGenerico>> GetPhCatalogoGenerico()
+        {
+
+
+            List<cPh_CatalogoGenerico> catalogoGenerico = new();
+            try
+            {
+                catalogoGenerico = await _context.Ph_Catalogo_Generico
+                        .ToListAsync();
+            }
+            catch (Exception e)
+            {
+                string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetPhCatalogoGenerico: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
+            }
+            return catalogoGenerico;
+        }
+
+        public async Task<List<cPh_CatalogoGenerico>> GetPhCatalogoGenerico(string nombre)
+        {
+
+
+            List<cPh_CatalogoGenerico> catalogoGenerico = new();
+            try
+            {
+                catalogoGenerico = await _context.Ph_Catalogo_Generico.Where(e=>e.NombreCatalogo== nombre)
+                        .ToListAsync();
+            }
+            catch (Exception e)
+            {
+                string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetPhCatalogoGenerico: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
+            }
+            return catalogoGenerico;
+        }
+
+        public async Task<cPh_CatalogoGenerico> GetPhCatalogoGenerico(string nombre, string id)
+        {
+
+
+            cPh_CatalogoGenerico? catalogoGenerico = new();
+            try
+            {
+                catalogoGenerico = await _context.Ph_Catalogo_Generico.FirstOrDefaultAsync(e => e.NombreCatalogo == nombre && e.Id==id);
+            }
+            catch (Exception e)
+            {
+                string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetPhCatalogoGenerico: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
+            }
+            return catalogoGenerico!;
+        }
+
 
         #endregion
 
@@ -11714,6 +12003,45 @@ namespace com.gsitcr.geotime.Data
                     respuesta.Descripcion = "No se pudo realizar la Activación del Periodo. Detalle de Error: " + e.InnerException.Message;
             }
             return respuesta;
+        }
+
+        public async Task<EventResponse> EvaluaFormula(string formula)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+                    EndpointConfiguration endpointConfiguration = new();
+                    GeoTimeServiceReference.ServiceSoapClient geoWebService = new(endpointConfiguration);
+
+                evaluo_formulaRequest evaluaFormula = new evaluo_formulaRequest
+                {
+                    formula = formula,
+                };
+
+                var result = await geoWebService.evaluo_formulaAsync(evaluaFormula);
+                    if (result.evaluo_formulaResult != "")
+                    {
+                        respuesta.Id = "0";
+                        respuesta.Respuesta = "Ok";
+                        respuesta.Descripcion = $"Respuesta: {result.evaluo_formulaResult}";
+                        respuesta.ValorRetorno = result.evaluo_formulaResult;
+                }
+                
+            }
+            catch (Exception e)
+            {
+                string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"{error}");
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo realizar la Evaluación de la Fórmula. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo realizar la Evaluación de la Fórmula. Detalle de Error: " + e.InnerException.Message;
+            }
+            return respuesta;
+
         }
 
 
@@ -12404,10 +12732,149 @@ namespace com.gsitcr.geotime.Data
         }
         #endregion
 
-       
+
+        #region Creacion Automática de Compañía
+
+        private async Task<EventResponse> PostCompaniaEnBD(string compania, bool bCreateAdmin=false)
+        {
+            EventResponse resultado = new();
+            try
+            {
+                //se obtiene ruta fisica de la Api, para buscar carpeta con los scripts a ejecutar
+
+                var dirBase = Path.Combine(Directory.GetCurrentDirectory(), "scripts");
 
 
+                if (bCreateAdmin)
+                {
+                    //var resultUserAdmin = await _context.Database.ExecuteSqlRawAsync($"CREATE USER [CTADMIN] WITHOUT LOGIN WITH DEFAULT_SCHEMA=[CTADMIN]");
 
+                    //if (resultUserAdmin == -1)
+                    //{
+                    //    var resultSchema = await _context.Database.ExecuteSqlRawAsync($"CREATE SCHEMA [CTADMIN]");
+                    //}
+
+                    var resultSchema = await _context.Database.ExecuteSqlRawAsync($"CREATE SCHEMA [CTADMIN]");
+
+                    string scriptAdmin = File.ReadAllText(Path.Combine(dirBase, "MSSQL_CREATE_ADMIN_TABLES_000.sql"));
+                    IEnumerable<string> commandStringsTablesAdm = Regex.Split(scriptAdmin, @"^\s*GO\s*$", RegexOptions.Multiline | RegexOptions.IgnoreCase);
+                    foreach (string commandString in commandStringsTablesAdm)
+                    {
+                        if (commandString.Trim() != "")
+                        {
+                            var resultCommand = await _context.Database.ExecuteSqlRawAsync($"{commandString}");
+                        }
+                    }
+
+                    scriptAdmin = File.ReadAllText(Path.Combine(dirBase, "MSSQL_INIT_ADMIN_TABLES.sql"));
+                    IEnumerable<string> commandStringsINITTBADM = Regex.Split(scriptAdmin, @"^\s*GO\s*$", RegexOptions.Multiline | RegexOptions.IgnoreCase);
+                    foreach (string commandString in commandStringsINITTBADM)
+                    {
+                        if (commandString.Trim() != "")
+                        {
+                            var resultCommand = await _context.Database.ExecuteSqlRawAsync($"{commandString}");
+                        }
+                    }
+
+                }
+
+                var resultUser = await _context.Database.ExecuteSqlRawAsync($"CREATE USER [{compania}] WITHOUT LOGIN WITH DEFAULT_SCHEMA=[{compania}]");
+
+                if (resultUser == -1)
+                {
+                    var resultSchema = await _context.Database.ExecuteSqlRawAsync($"CREATE SCHEMA [{compania}]");
+                }
+
+                
+
+                string script = File.ReadAllText(Path.Combine(dirBase, "MSSQL_CREATE_TABLES_001.sql"));
+                script = script.Replace("[dbo].", "[" + compania + "].");
+                IEnumerable<string> commandStringsTables = Regex.Split(script, @"^\s*GO\s*$", RegexOptions.Multiline | RegexOptions.IgnoreCase);
+                foreach (string commandString in commandStringsTables)
+                {
+                    if (commandString.Trim() != "")
+                    {
+                        var resultCommand = await _context.Database.ExecuteSqlRawAsync($"{commandString}");
+                    }
+                }
+
+                script = File.ReadAllText(Path.Combine(dirBase, "MSSQL_CREATE_PROCEDURES_001.sql"));
+                script = script.Replace("[dbo].", "[" + compania + "].");
+                IEnumerable<string> commandStringsSP = Regex.Split(script, @"^\s*GO\s*$", RegexOptions.Multiline | RegexOptions.IgnoreCase);
+                foreach (string commandString in commandStringsSP)
+                {
+                    if (commandString.Trim() != "")
+                    {
+                        var resultCommand = await _context.Database.ExecuteSqlRawAsync($"{commandString}");
+                    }
+                }
+
+                script = File.ReadAllText(Path.Combine(dirBase, "MSSQL_INIT_TABLES.sql"));
+                script = script.Replace("[dbo].", "[" + compania + "].");
+                IEnumerable<string> commandStringsINITTB = Regex.Split(script, @"^\s*GO\s*$", RegexOptions.Multiline | RegexOptions.IgnoreCase);
+                foreach (string commandString in commandStringsINITTB)
+                {
+                    if (commandString.Trim() != "")
+                    {
+                        var resultCommand = await _context.Database.ExecuteSqlRawAsync($"{commandString}");
+                    }
+                }                    
+            }
+            catch (Exception e)
+            {
+                string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.PostCompaniaEnBD: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}");
+                resultado.Id = "1";
+                resultado.Respuesta = "Error";
+                resultado.Descripcion = $"GeoTimeConnectService.PostCompaniaEnBD: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}";
+            }
+            return resultado;
+        }
+        #endregion
+
+        #region Actualización de estructuras de la base de datos por compañía
+        public async Task<EventResponse> ActualizarCompaniaBD(cPh_Compania compania)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+                EndpointConfiguration endpointConfiguration = new();
+
+
+                GeoTimeServiceReference.ServiceSoapClient geoWebService = new(endpointConfiguration);
+
+                actualizo_companiaRequest companiaRequest = new actualizo_companiaRequest
+                {
+                    comp = compania.IDCOMP,
+                    sesion = "1",
+                    usuario = "1",
+                };
+                var result = await geoWebService.actualizo_companiaAsync(companiaRequest);
+                if (result.actualizo_companiaResult != "")
+                {
+                    respuesta.Id = "0";
+                    respuesta.Respuesta = "Ok";
+                    respuesta.Descripcion = $"Respuesta: {result.actualizo_companiaResult}";
+                    respuesta.ValorRetorno = result.actualizo_companiaResult;
+                }
+                
+            }
+            catch (Exception e)
+            {
+                string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"{error}");
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo realizar la actualización de la Compañía. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo realizar la actualización de la Compañía. Detalle de Error: " + e.InnerException.Message;
+            }
+            return respuesta;
+
+        }
+        #endregion
 
     }
 
