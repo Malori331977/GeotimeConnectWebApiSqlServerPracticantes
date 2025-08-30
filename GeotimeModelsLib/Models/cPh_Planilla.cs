@@ -1,4 +1,6 @@
-﻿namespace com.gsitcr.geotime.Models
+﻿using GeotimeModelsLib.Models;
+
+namespace com.gsitcr.geotime.Models
 {
     public class cPh_Planilla
     {
@@ -23,5 +25,6 @@
 
         public IEnumerable<cEmpleado>? Empleado { get; set; }
         public IEnumerable<cMarcaMovTurno>? cMarcaMovTurno { get; set; }
+        public IEnumerable<cMarcaMovTurnoBitacora>? cMarcaMovTurnoBitacora { get; set; }
     }
 }

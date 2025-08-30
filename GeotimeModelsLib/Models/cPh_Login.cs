@@ -29,6 +29,5 @@
         public string? GLOBAL_CLAVE { get; set; }
         public string? ROLUSUARIO { get; set; }
 
-
     }
 }

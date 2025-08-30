@@ -1,4 +1,6 @@
-﻿namespace com.gsitcr.geotime.Models
+﻿using GeotimeModelsLib.Models;
+
+namespace com.gsitcr.geotime.Models
 {
     public class cEmpleado
     {
@@ -59,12 +61,15 @@
         public cDepartamento? Departamento { get; set; }
         public cCentroCosto? CentroCosto { get; set; }
         public cPh_Planilla? Ph_Planilla { get; set; }
+        public cPh_Grupo? Ph_Grupo { get; set; }
 
         public IEnumerable<cAccionPersonal>? cAccionPersonal { get; set; }
         public IEnumerable<cMarcaProceso>? cMarcaProcesos { get; set; }
         public IEnumerable<cMarcaTiempoAdicional>? cMarcaTiempoAdicionals { get; set; }
 
         public IEnumerable<cMarcaMovTurno>? cMarcaMovTurno { get; set; }
+        public IEnumerable<cMarcaMovTurnoBitacora>? cMarcaMovTurnoBitacora { get; set; }
+        
 
 
     }

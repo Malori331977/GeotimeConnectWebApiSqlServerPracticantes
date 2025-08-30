@@ -1,4 +1,6 @@
-﻿namespace com.gsitcr.geotime.Models
+﻿using GeotimeModelsLib.Models;
+
+namespace com.gsitcr.geotime.Models
 {
     public class cPh_Usuario
     {
@@ -16,6 +18,10 @@
         public int? NIVEL_APROB_EXT { get; set; }
         public int? FCANT_MESES { get; set; }
         public DateTime? FFECHA_EVALUAR { get; set; }
-       
+        public char? PT_AGRUP { get; set; }
+        
+
+
+
     }
 }

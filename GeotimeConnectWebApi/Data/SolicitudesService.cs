@@ -80,6 +80,7 @@ namespace com.gsitcr.geotime.Data
                              .Include(e => e.cSolicitudAutorizacion)
                              .Include(e => e.cEstado)
                              .Include(e => e.cTipoSolicitud)
+                             .Include(e => e.cCentroCosto)
                               .ToListAsync()
                          select new cSolicitud
                          {
@@ -131,6 +132,15 @@ namespace com.gsitcr.geotime.Data
                                     IdUsuarioModifica = e.cTipoSolicitud.IdUsuarioModifica,
                                     Activa = e.cTipoSolicitud.Activa,
                                     TipoConfiguracion = e.cTipoSolicitud.TipoConfiguracion
+                                },
+                             cCentroCosto = e.cCentroCosto == null ? null :
+                                new cCentroCosto
+                                {
+                                    IdCCosto = e.cCentroCosto.IdCCosto,
+                                    Descripcion = e.cCentroCosto.Descripcion,
+                                    Alias_CCosto = e.cCentroCosto.Alias_CCosto,
+                                    Distribuye = e.cCentroCosto.Distribuye,                                    
+
                                 }
                          }).ToList();
             }
@@ -157,6 +167,7 @@ namespace com.gsitcr.geotime.Data
                                  .Include(e => e.cSolicitudAutorizacion)
                                  .Include(e => e.cEstado)
                                  .Include(e => e.cTipoSolicitud)
+                                 .Include(e => e.cCentroCosto)
                             .Where(e => e.Id == id)
                             .ToListAsync()
                          select new cSolicitud
@@ -208,6 +219,15 @@ namespace com.gsitcr.geotime.Data
                                     FlujoAutorizacionId = e.cTipoSolicitud.FlujoAutorizacionId,
                                     IdUsuarioModifica = e.cTipoSolicitud.IdUsuarioModifica,
                                     TipoConfiguracion = e.cTipoSolicitud.TipoConfiguracion
+                                },
+                             cCentroCosto = e.cCentroCosto == null ? null :
+                                new cCentroCosto
+                                {
+                                    IdCCosto = e.cCentroCosto.IdCCosto,
+                                    Descripcion = e.cCentroCosto.Descripcion,
+                                    Alias_CCosto = e.cCentroCosto.Alias_CCosto,
+                                    Distribuye = e.cCentroCosto.Distribuye,
+
                                 }
                          }).FirstOrDefault();
             }
@@ -240,6 +260,7 @@ namespace com.gsitcr.geotime.Data
                                      .Include(e => e.cSolicitudAutorizacion)
                                      .Include(e => e.cEstado)
                                      .Include(e => e.cTipoSolicitud)
+                                     .Include(e => e.cCentroCosto)
                                 .Where(e => e.IdNumero == idnumero && e.FechaInicio >= fechaini && e.FechaFin <= fechafin
                                      && e.TipoSolicitudId == (tipoSolicitud == 0 ? e.TipoSolicitudId : tipoSolicitud)).ToListAsync()
                                select new cSolicitud
@@ -291,7 +312,16 @@ namespace com.gsitcr.geotime.Data
                                                FlujoAutorizacionId = e.cTipoSolicitud.FlujoAutorizacionId,
                                                IdUsuarioModifica = e.cTipoSolicitud.IdUsuarioModifica,
                                                TipoConfiguracion = e.cTipoSolicitud.TipoConfiguracion
-                                           }
+                                           },
+                                   cCentroCosto = e.cCentroCosto == null ? null :
+                                        new cCentroCosto
+                                        {
+                                            IdCCosto = e.cCentroCosto.IdCCosto,
+                                            Descripcion = e.cCentroCosto.Descripcion,
+                                            Alias_CCosto = e.cCentroCosto.Alias_CCosto,
+                                            Distribuye = e.cCentroCosto.Distribuye,
+
+                                        }
                                }).ToList();
             }
             catch (Exception e)
@@ -323,6 +353,7 @@ namespace com.gsitcr.geotime.Data
                                      .Include(e => e.cSolicitudAutorizacion)
                                      .Include(e => e.cEstado)
                                      .Include(e => e.cTipoSolicitud)
+                                     .Include(e => e.cCentroCosto)
                                 .Where(e => e.IdUsuarioRegistra == idnumero && e.IdNumero != idnumero && e.FechaInicio >= fechaini && e.FechaFin <= fechafin
                                      && e.TipoSolicitudId == (tipoSolicitud == 0 ? e.TipoSolicitudId : tipoSolicitud)).ToListAsync()
                                select new cSolicitud
@@ -374,7 +405,16 @@ namespace com.gsitcr.geotime.Data
                                                FlujoAutorizacionId = e.cTipoSolicitud.FlujoAutorizacionId,
                                                IdUsuarioModifica = e.cTipoSolicitud.IdUsuarioModifica,
                                                TipoConfiguracion = e.cTipoSolicitud.TipoConfiguracion
-                                           }
+                                           },
+                                   cCentroCosto = e.cCentroCosto == null ? null :
+                                        new cCentroCosto
+                                        {
+                                            IdCCosto = e.cCentroCosto.IdCCosto,
+                                            Descripcion = e.cCentroCosto.Descripcion,
+                                            Alias_CCosto = e.cCentroCosto.Alias_CCosto,
+                                            Distribuye = e.cCentroCosto.Distribuye,
+
+                                        }
                                }).ToList();
             }
             catch (Exception e)
@@ -401,6 +441,7 @@ namespace com.gsitcr.geotime.Data
                                                             .Include(e => e.cSolicitudAutorizacion)
                                                             .Include(e => e.cEstado)
                                                             .Include(e => e.cTipoSolicitud)
+                                                            .Include(e => e.cCentroCosto)
                                                        .Where(e => e.EstadoId >= 1 && e.EstadoId < vEstadoFinal)
                                                        .ToListAsync()
                                              select new cSolicitud
@@ -452,7 +493,16 @@ namespace com.gsitcr.geotime.Data
                                                          FlujoAutorizacionId = e.cTipoSolicitud.FlujoAutorizacionId,
                                                          IdUsuarioModifica = e.cTipoSolicitud.IdUsuarioModifica,
                                                          TipoConfiguracion = e.cTipoSolicitud.TipoConfiguracion
-                                                     }
+                                                     },
+                                                 cCentroCosto = e.cCentroCosto == null ? null :
+                                                    new cCentroCosto
+                                                    {
+                                                        IdCCosto = e.cCentroCosto.IdCCosto,
+                                                        Descripcion = e.cCentroCosto.Descripcion,
+                                                        Alias_CCosto = e.cCentroCosto.Alias_CCosto,
+                                                        Distribuye = e.cCentroCosto.Distribuye,
+
+                                                    }
 
                                              }).ToList();
 
@@ -641,6 +691,7 @@ namespace com.gsitcr.geotime.Data
                         regNew = true;
                         item.cEstado = null;
                         item.cTipoSolicitud = null;
+                        item.cCentroCosto = null;
                         item.cSolicitudAutorizacion = null;
                         item.Id = 0;
                         item.FechaRegistro = DateTime.Now;
@@ -883,7 +934,7 @@ namespace com.gsitcr.geotime.Data
                         $"Este mensaje se generó de forma automática.  Por favor no contestar.</footer></html>";
 
 
-                    email.Asunto = $"Solicitud de Autorización de {tipoSolicitud}.";
+                    email.Asunto = $"Solicitud de Autorización de {tipoSolicitud.Descripcion}.";
                     email.Cuerpo = cuerpoHtml;
                     email.Para = empleado.Email!;
                     email.Adjunto = "";

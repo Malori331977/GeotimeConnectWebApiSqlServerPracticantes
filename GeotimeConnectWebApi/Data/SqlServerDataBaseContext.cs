@@ -102,6 +102,7 @@ namespace com.gsitcr.geotime.Data
         public DbSet<cPortal_DocMarca> Portal_DocsMarcas { get; set; }
         public DbSet<cPaletaColor> PaletaColores { get; set; }
         public DbSet<cPh_Nivel> Ph_Niveles { get; set; }
+        public DbSet<cPh_CatalogoGenerico> Ph_Catalogo_Generico { get; set; }
 
         public DbSet<cPh_Distribucion_CCosto> Ph_Distribuciones_CCosto { get; set; }
         public DbSet<cMarcaDistribucionConcepto> Marcas_Distribuciones_Conceptos { get; set; }
@@ -138,6 +139,13 @@ namespace com.gsitcr.geotime.Data
 
         //storeprocedure
         public virtual DbSet<cInMarcaWeb> InMarcaWeb { get; set; }
+
+        //vistas para reportes
+
+        public virtual DbSet<cVHoraExtraXTurno> VHorasExtrasXTurno { get; set; }
+        public virtual DbSet<cVHoraLaboradaEmpleado> VHorasLaboradasEmpleado { get; set; }
+        public virtual DbSet<cMarcaMovTurnoBitacora> Marcas_Mov_Turnos_Bitacora { get; set; }
+
 
 
 
@@ -179,6 +187,8 @@ namespace com.gsitcr.geotime.Data
 
             builder.Entity<cInMarcaWeb>().HasNoKey();
 
+            builder.Entity<cPh_CatalogoGenerico>().ToTable("PH_CATALOGO_GENERICO", schemaAdmin)
+                .HasKey(e => new { e.NombreCatalogo, e.Id });
 
             #endregion
 
@@ -202,8 +212,12 @@ namespace com.gsitcr.geotime.Data
                 .HasKey(e => new { e.IdTurno });
             builder.Entity<cMarca>().ToTable("MARCAS", Schema)
                 .HasKey(e => new { e.registro });
-            builder.Entity<cMarcaMovTurno>().ToTable("MARCAS_MOV_TURNOS", Schema)
-               .HasKey(e => new { e.idregistro });
+            builder.Entity<cMarcaMovTurno>()
+                .ToTable("MARCAS_MOV_TURNOS", Schema, e => e.HasTrigger("MARCAS_MOV_TURNOSIup"))
+                .ToTable("MARCAS_MOV_TURNOS", Schema, e => e.HasTrigger("MARCAS_MOV_TURNOSdel"))
+                .HasKey(e => new { e.idregistro });
+            builder.Entity<cMarcaMovTurnoBitacora>().ToTable("MARCAS_MOV_TURNOS_BITACORA", Schema)
+               .HasKey(e => new { e.idbitacora });
             builder.Entity<cMarcaMovHorario>().ToTable("MARCAS_MOV_HORARIOS", Schema)
                .HasKey(e => new { e.IDREGISTRO });
             builder.Entity<cPh_Grupo>().ToTable("PH_GRUPOS", Schema)
@@ -334,6 +348,21 @@ namespace com.gsitcr.geotime.Data
                   .HasKey(e => new { e.SolicitudId,e.EstadoId });
             #endregion
 
+            #region Vistas para reportes
+
+            builder.Entity<cVHoraExtraXTurno>(eb =>
+            {
+                eb.HasNoKey();
+                eb.ToView("V_HORAS_EXTRA_X_TURNO", Schema);
+            });
+
+            builder.Entity<cVHoraLaboradaEmpleado>(eb =>
+            {
+                eb.HasNoKey();
+                eb.ToView("V_HORAS_LABORADAS_EMPLEADOS_RESUMEN", Schema);
+            });
+            #endregion
+
             #region LLaves foraneas
 
             builder.Entity<cEmpleado>()
@@ -351,6 +380,11 @@ namespace com.gsitcr.geotime.Data
                  .HasOne(e => e.Ph_Planilla)
                  .WithMany(d => d.Empleado)
                  .HasForeignKey(e => new { e.IdPlanilla });
+            builder.Entity<cEmpleado>()
+                 .ToTable("EMPLEADOS", Schema)
+                 .HasOne(e => e.Ph_Grupo)
+                 .WithMany(d => d.Empleado)
+                 .HasForeignKey(e => new { e.IdGrupo });
 
             builder.Entity<cPh_HorarioTurno>()
                 .ToTable("PH_HORARIO_TURNO", Schema)
@@ -457,22 +491,39 @@ namespace com.gsitcr.geotime.Data
               .HasForeignKey(e => new { e.ROLSISTEMAID });
 
             builder.Entity<cMarcaMovTurno>()
-               .ToTable("MARCAS_MOV_TURNOS", Schema)
-               .HasOne(e => e.cEmpleado)
-               .WithMany(d => d.cMarcaMovTurno)
-               .HasForeignKey(e => new { e.idnumero });
+                .ToTable("MARCAS_MOV_TURNOS", Schema)
+                .HasOne(e => e.cEmpleado)
+                .WithMany(d => d.cMarcaMovTurno)
+                .HasForeignKey(e => new { e.idnumero });            
 
             builder.Entity<cMarcaMovTurno>()
-              .ToTable("MARCAS_MOV_TURNOS", Schema)
-              .HasOne(e => e.cTurno)
-              .WithMany(d => d.cMarcaMovTurno)
-              .HasForeignKey(e => new { e.turno });
+                .ToTable("MARCAS_MOV_TURNOS", Schema)
+                .HasOne(e => e.cTurno)
+                .WithMany(d => d.cMarcaMovTurno)
+                .HasForeignKey(e => new { e.turno });
 
             builder.Entity<cMarcaMovTurno>()
-              .ToTable("MARCAS_MOV_TURNOS", Schema)
-              .HasOne(e => e.cPh_Planilla)
-              .WithMany(d => d.cMarcaMovTurno)
-              .HasForeignKey(e => new { e.idplanilla });
+                .ToTable("MARCAS_MOV_TURNOS", Schema)
+                .HasOne(e => e.cPh_Planilla)
+                .WithMany(d => d.cMarcaMovTurno)
+                .HasForeignKey(e => new { e.idplanilla });
+
+
+            builder.Entity<cMarcaMovTurnoBitacora>()
+                .ToTable("MARCAS_MOV_TURNOS_BITACORA", Schema)
+                .HasOne(e => e.cEmpleado)
+                .WithMany(d => d.cMarcaMovTurnoBitacora)
+                .HasForeignKey(e => new { e.idnumero });
+            builder.Entity<cMarcaMovTurnoBitacora>()
+                .ToTable("MARCAS_MOV_TURNOS_BITACORA", Schema)
+                .HasOne(e => e.cTurno)
+                .WithMany(d => d.cMarcaMovTurnoBitacora)
+                .HasForeignKey(e => new { e.turno });
+            builder.Entity<cMarcaMovTurnoBitacora>()
+                .ToTable("MARCAS_MOV_TURNOS_BITACORA", Schema)
+                .HasOne(e => e.cPh_Planilla)
+                .WithMany(d => d.cMarcaMovTurnoBitacora)
+                .HasForeignKey(e => new { e.idplanilla });           
 
 
             builder.Entity<cOrganizacion>()
@@ -509,6 +560,11 @@ namespace com.gsitcr.geotime.Data
               .HasOne(e => e.cTipoSolicitud)
               .WithMany(d => d.cSolicitud)
               .HasForeignKey(e => new { e.TipoSolicitudId });
+            builder.Entity<cSolicitud>()
+              .ToTable("Solicitudes", Schema)
+              .HasOne(e => e.cCentroCosto)
+              .WithMany(d => d.cSolicitud)
+              .HasForeignKey(e => new { e.IdCCosto });
 
             builder.Entity<cSolicitudAutorizacion>()
              .ToTable("SolicitudesAutorizaciones", Schema)

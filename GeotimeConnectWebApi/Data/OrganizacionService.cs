@@ -634,7 +634,158 @@ namespace com.gsitcr.geotime.Data
 
         }
 
-       
+
+
+        //Creado por: Marlon Loria Solano
+        //Fecha: 2023-12-05
+        //Obtener lista de empleados y sus jefaturas responsables
+        public async Task<List<cEmpleadoJefatura>> GetEmpleadoJefatura()
+        {
+            List<cEmpleadoJefatura> empleadoJefatura = new();
+            try
+            {
+                empleadoJefatura = await _context.EmpleadosJefaturas
+                                       .ToListAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
+            return empleadoJefatura;
+        }
+
+        //Creado por: Marlon Loria Solano
+        //Fecha: 2023-12-05
+        //Obtener un empleado y sus jefaturas 
+        public async Task<cEmpleadoJefatura> GetEmpleadoJefatura(string id)
+        {
+            cEmpleadoJefatura? empleadoJefatura = new();
+            try
+            {
+                empleadoJefatura = await _context.EmpleadosJefaturas.FirstOrDefaultAsync(e => e.IdNumero == id);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
+            return empleadoJefatura!;
+        }
+
+        /// <summary>
+        /// GetEmpleadoJefatura: muestra lista de empledos donde el id figura con autorizante
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="esJefe"></param>
+        /// <returns></returns>
+        public async Task<IEnumerable<cEmpleadoJefatura>> GetEmpleadoJefatura(string id, bool esJefe)
+        {
+            List<cEmpleadoJefatura>? empleadoJefatura = new();
+            try
+            {
+                if (esJefe)
+                    empleadoJefatura = await _context.EmpleadosJefaturas.Where(e => e.IdNumeroResponsable == id || e.IdNumeroSuplente == id)
+                                        .ToListAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message); throw;
+            }
+            return empleadoJefatura!;
+        }
+
+        //Creado por: Marlon Loria Solano
+        //Fecha: 2023-12-05
+        //Sincronizar Empleados y Jefaturas
+        //Parametro: Recibe un registro de EmpleadoJefatura, se verifica si existen en cuyo caso
+        //actualiza el registro, de lo contrario lo crea.
+        public async Task<EventResponse> PostEmpleadoJefatura(IEnumerable<cEmpleadoJefatura> empleadosJefaturas)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+                foreach (var item in empleadosJefaturas)
+                {
+                    cEmpleadoJefatura? empJefatura = await _context.EmpleadosJefaturas
+                                            .Where(e => e.IdNumero == item.IdNumero)
+                                            .FirstOrDefaultAsync();
+
+                    if (empJefatura is not null)
+                    {
+                        empJefatura.FechaUltModifica = DateTime.Now;
+                        empJefatura.IdNumeroResponsable = item.IdNumeroResponsable;
+                        empJefatura.IdNumeroSuplente = item.IdNumeroSuplente;
+
+                        _context.EmpleadosJefaturas.Update(empJefatura);
+                        await _context.SaveChangesAsync();
+                    }
+                    else
+                    {
+                        item.FechaUltModifica = DateTime.Now;
+                        _context.Add(item);
+                        await _context.SaveChangesAsync();
+                    }
+
+                }
+
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo realizar la sincronización de Empleados y Jefaturas. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo realizar la sincronización de Empleados y Jefaturas. Detalle de Error: " + e.InnerException.Message;
+
+            }
+
+            return respuesta;
+
+        }
+
+        //Creado por: Marlon Loria Solano
+        //Fecha: 2022-12-05
+        //Eliminar Empleado Jefatura
+        //Parametro: Recibe un registro de cEmpleadoJefatura, se verifica si existen en cuyo caso
+        //se elimina.
+        public async Task<EventResponse> DeleteEmpleadoJefatura(string id)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+
+                cEmpleadoJefatura? aux = await _context.EmpleadosJefaturas
+                                            .Where(e => e.IdNumero == id)
+                                            .FirstOrDefaultAsync();
+
+                if (aux is not null)
+                {
+                    _context.EmpleadosJefaturas.Remove(aux);
+                    await _context.SaveChangesAsync();
+                }
+
+
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo eliminar el Empleado y sus Jefaturas. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo eliminar el Empleado y sus Jefaturas. Detalle de Error: " + e.InnerException.Message;
+
+            }
+
+            return respuesta;
+
+        }
+
+
 
     }
 }

@@ -9,6 +9,8 @@
 
         public IEnumerable<cEmpleado>? Empleado { get; set; }
         public IEnumerable<cMarcaTiempoAdicional>? cMarcaTiempoAdicionals { get; set; }
+        public IEnumerable<cSolicitud>? cSolicitud { get; set; }
+        
 
     }
 }

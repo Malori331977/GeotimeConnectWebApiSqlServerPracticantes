@@ -12,6 +12,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using GeoTimeConnectWebApi.Data.Interfaz;
+using GeoTimeConnectWebApi.Data;
 
 namespace RelojesApi.DependencyInjection
 {
@@ -85,6 +86,7 @@ namespace RelojesApi.DependencyInjection
             Services.AddScoped<IFlujosAutorizacionService, FlujosAutorizacionService>();
             Services.AddScoped<ISolicitudesService, SolicitudesService>();
             Services.AddScoped<IMarcasService, MarcasService>();
+            Services.AddScoped<IReportesServices, ReportesServices>();
 
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             Services.AddEndpointsApiExplorer();

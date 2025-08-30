@@ -37,6 +37,7 @@ namespace com.gsitcr.geotime.Models
         public IEnumerable<cSolicitudAutorizacion>? cSolicitudAutorizacion { get; set; }
         public cEstado? cEstado { get; set; }
         public cTipoSolicitud? cTipoSolicitud { get; set; }
+        public cCentroCosto? cCentroCosto { get; set; }
 
     }
 }

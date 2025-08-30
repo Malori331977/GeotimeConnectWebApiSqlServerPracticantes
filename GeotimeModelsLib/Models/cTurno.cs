@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using GeotimeModelsLib.Models;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace com.gsitcr.geotime.Models
 {
@@ -97,8 +98,8 @@ namespace com.gsitcr.geotime.Models
         public int? idRegistro { get; set; }
 
         public IEnumerable<cMarcaProceso>? cMarcaProcesos { get; set; }
-
         public IEnumerable<cMarcaMovTurno>? cMarcaMovTurno { get; set; }
+        public IEnumerable<cMarcaMovTurnoBitacora>? cMarcaMovTurnoBitacora { get; set; }
 
     }
 }
