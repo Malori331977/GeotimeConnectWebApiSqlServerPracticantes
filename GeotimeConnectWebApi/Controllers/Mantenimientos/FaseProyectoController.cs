@@ -23,6 +23,9 @@ namespace GeoTimeConnectWebApi.Controllers.Mantenimientos
         [HttpGet]
         public async Task<IEnumerable<cPh_FaseProyecto>> Get() => await _repoGT.GetFaseProyecto();
 
+        [HttpGet("{idproyecto}")]
+        public async Task<IEnumerable<cPh_FaseProyecto>> Get(string idproyecto) => await _repoGT.GetFaseProyecto(idproyecto);
+
 
         [HttpGet("{idproyecto}/{fase}")]
         public async Task<cPh_FaseProyecto> Get(string idproyecto, string fase) => await _repoGT.GetFaseProyecto(idproyecto,fase);

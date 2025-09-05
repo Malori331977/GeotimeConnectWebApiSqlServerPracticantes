@@ -34,9 +34,7 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         public Task<cEstado> GetEstado(int id);
         public Task<EventResponse> PostEstado(cEstado estado);
         public Task<EventResponse> DeleteEstado(string estadoid);
-        public Task<List<cTipoSolicitud>> GetTipoSolicitud();
-        public Task<cTipoSolicitud> GetTipoSolicitud(int id);
-        public Task<EventResponse> PostTipoSolicitud(cTipoSolicitud tipoSolicitud);
-        public Task<EventResponse> DeleteTipoSolicitud(string Id);
+       
+       
     }
 }

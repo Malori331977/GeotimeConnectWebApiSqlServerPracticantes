@@ -4,7 +4,7 @@ using GeoTimeConnectWebApi.Data.Interfaz;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace GeoTimeConnectWebApi.Controllers.Mantenimientos
+namespace GeoTimeConnectWebApi.Controllers.Procesos.Solicitudes
 {
     
     [ApiController]
@@ -12,8 +12,8 @@ namespace GeoTimeConnectWebApi.Controllers.Mantenimientos
     [Authorize]
     public class TipoSolicitudController : Controller
     {
-        private readonly IFlujosAutorizacionService _repoGT;
-        public TipoSolicitudController(IFlujosAutorizacionService repoGT)
+        private readonly ISolicitudesService _repoGT;
+        public TipoSolicitudController(ISolicitudesService repoGT)
         {
             _repoGT = repoGT;
         }

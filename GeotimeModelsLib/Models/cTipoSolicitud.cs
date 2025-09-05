@@ -10,5 +10,7 @@
         public bool Activa { get; set; }
         public string? TipoConfiguracion { get; set; }
         public IEnumerable<cSolicitud>? cSolicitud { get; set; }
+
+        public cSolicitudConfiguracion? cSolicitudConfiguracion { get; set; }
     }
 }
