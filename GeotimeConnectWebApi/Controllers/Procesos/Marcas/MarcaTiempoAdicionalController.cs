@@ -18,11 +18,15 @@ namespace GeoTimeConnectWebApi.Controllers.Procesos.Marcas
         }
 
         [HttpGet("{idRegistro}")]
-        public async Task<IEnumerable<cMarcaTiempoAdicional>> Get(string idRegistro) => await _repoGT.GetMarcasTiempoAdicional(idRegistro);
+        public async Task<cMarcaTiempoAdicional> Get(long idRegistro) => await _repoGT.GetMarcasTiempoAdicional(idRegistro);
 
-        // GET para Edición Condiciones especiales
         [HttpGet("{idplanilla}/{idPeriodo}/{fecha}/{idconcepto}/{idgrupo}")]
-        public async Task<IEnumerable<cMarcaTiempoAdicional>> Get(string idplanilla, string idPeriodo, string fecha, int idconcepto , string idgrupo) => await _repoGT.GetMarcasTiempoAdicional(idplanilla, idPeriodo , fecha, idconcepto, idgrupo);
+        public async Task<IEnumerable<cMarcaTiempoAdicional>> Get(string idplanilla, string idPeriodo, string fecha, int idconcepto, string idgrupo) => await _repoGT.GetMarcasTiempoAdicional(idplanilla, idPeriodo, fecha, idconcepto, idgrupo);
+
+
+
+        [HttpGet("{idplanilla}/{idPeriodo}/{idnumero}")]
+        public async Task<IEnumerable<cMarcaTiempoAdicional>> Get(string idplanilla, string idPeriodo, string idnumero) => await _repoGT.GetMarcasTiempoAdicional(idplanilla, idPeriodo , idnumero);
 
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] IEnumerable<cMarcaTiempoAdicional> marcasTiempoAdicional)

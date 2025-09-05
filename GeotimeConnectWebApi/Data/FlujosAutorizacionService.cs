@@ -1,10 +1,11 @@
-﻿using com.gsitcr.geotime.Models;
+﻿using com.gsitcr.geotime.Data;
+using com.gsitcr.geotime.Models;
 using com.gsitcr.geotime.Models.Response;
 using GeoTimeConnectWebApi.Data.Interfaz;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 
-namespace com.gsitcr.geotime.Data
+namespace GeoTimeConnectWebApi.Data
 {
     public class FlujosAutorizacionService: IFlujosAutorizacionService
     {
@@ -454,117 +455,6 @@ namespace com.gsitcr.geotime.Data
         }
 
 
-        //Creado por: Marlon Loria Solano
-        //Fecha: 2025-07-24
-        //Obtener lista de tipos de Solicitudes
-        public async Task<List<cTipoSolicitud>> GetTipoSolicitud()
-        {
-            List<cTipoSolicitud> tipoSolicitud = new();
-            try
-            {
-                tipoSolicitud = await _context.TiposSolicitudes.ToListAsync();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.Message);
-            }
-            return tipoSolicitud;
-        }
-        public async Task<cTipoSolicitud> GetTipoSolicitud(int id)
-        {
-            cTipoSolicitud? tipoSolicitud = new();
-            try
-            {
-                tipoSolicitud = await _context.TiposSolicitudes.FirstOrDefaultAsync(e => e.Id == id);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.Message);
-            }
-            return tipoSolicitud!;
-        }
-
-        public async Task<EventResponse> PostTipoSolicitud(cTipoSolicitud tipoSolicitud)
-        {
-            EventResponse respuesta = new EventResponse();
-
-            try
-            {
-
-                cTipoSolicitud? modelBuscar = await _context.TiposSolicitudes
-                                            .Where(e => e.Id == tipoSolicitud.Id)
-                                            .FirstOrDefaultAsync();
-
-                if (modelBuscar is not null)
-                {
-                    modelBuscar.Descripcion = tipoSolicitud.Descripcion;
-                    modelBuscar.FechaModifica = DateTime.Now;
-                    modelBuscar.IdUsuarioModifica = tipoSolicitud.IdUsuarioModifica;
-                    modelBuscar.FlujoAutorizacionId = tipoSolicitud.FlujoAutorizacionId;
-                    modelBuscar.Activa = tipoSolicitud.Activa;
-                    modelBuscar.TipoConfiguracion = tipoSolicitud.TipoConfiguracion;
-                    _context.TiposSolicitudes.Update(modelBuscar);
-                }
-                else
-                {
-                    _context.Add(tipoSolicitud);
-                }
-                await _context.SaveChangesAsync();
-            }
-            catch (Exception e)
-            {
-                string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
-                _logger.LogError($"{error}");
-                respuesta.Id = "1";
-                respuesta.Respuesta = "Error";
-                if (e.InnerException == null)
-                    respuesta.Descripcion = "No se pudo realizar la actualización del TipoSolicitud. Detalle de Error: " + e.Message;
-                else
-                    respuesta.Descripcion = "No se pudo realizar la actualización del TipoSolicitud. Detalle de Error: " + e.InnerException.Message;
-
-            }
-
-            return respuesta;
-
-        }
-
-        //Creado por: Marlon Loria Solano
-        //Fecha: 2022-12-23
-        //Eliminar  TipoSolicitud
-        //Parametro: Recibe un registro de Tipo de Solicitud, se verifica si existen en cuyo caso
-        //se elimina.
-        public async Task<EventResponse> DeleteTipoSolicitud(string id)
-        {
-            EventResponse respuesta = new EventResponse();
-
-            try
-            {
-
-                cTipoSolicitud? modelBorrar = await _context.TiposSolicitudes
-                                            .Where(e => e.Id == int.Parse(id))
-                                            .FirstOrDefaultAsync();
-
-                if (modelBorrar is not null)
-                {
-                    _context.TiposSolicitudes.Remove(modelBorrar);
-                }
-
-                await _context.SaveChangesAsync();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
-                respuesta.Id = "1";
-                respuesta.Respuesta = "Error";
-                if (e.InnerException == null)
-                    respuesta.Descripcion = "No se pudo eliminar el Tipo de Solicitud. Detalle de Error: " + e.Message;
-                else
-                    respuesta.Descripcion = "No se pudo eliminar el Tipo de Solicitud. Detalle de Error: " + e.InnerException.Message;
-
-            }
-
-            return respuesta;
-
-        }
+       
     }
 }

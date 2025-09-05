@@ -6051,6 +6051,21 @@ namespace com.gsitcr.geotime.Data
             return ph_Proyecto;
         }
 
+        public async Task<List<cPh_Proyecto>> GetProyectoByCCosto(string idccosto)
+        {
+            List<cPh_Proyecto> ph_Proyecto = new();
+            try
+            {
+                ph_Proyecto = await _context.Ph_Proyecto.Where(e=>e.CENTRO_COSTO == idccosto).ToListAsync();
+            }
+            catch (Exception e)
+            {
+                string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetProyectoByCCosto: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
+            }
+            return ph_Proyecto;
+        }
+
         //Creado por: Marlon Loria Solano
         //Fecha: 2023-08-23
         /// <summary>
@@ -6118,6 +6133,26 @@ namespace com.gsitcr.geotime.Data
             catch (Exception e)
             {
                string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetFaseProyecto: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
+            }
+            return phFaseProyecto;
+        }
+
+        /// <summary>
+        /// GetFaseProyecto: Obtener lista de Fase de Proyecto para un proyecto.
+        /// </summary>
+        /// <param name="idproyecto"> identificador del proyecto</param>
+        /// <returns>Una Instancia del objeto del tipo cPh_FaseProyecto</returns>
+        public async Task<List<cPh_FaseProyecto>> GetFaseProyecto(string idproyecto)
+        {
+            List<cPh_FaseProyecto> phFaseProyecto = new();
+            try
+            {
+                phFaseProyecto = await _context.Ph_FaseProyecto.Where(e=>e.PROYECTO== idproyecto).ToListAsync();
+            }
+            catch (Exception e)
+            {
+                string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
                 _logger.LogError($"GeoTimeConnectService.GetFaseProyecto: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
             return phFaseProyecto;
@@ -6698,16 +6733,16 @@ namespace com.gsitcr.geotime.Data
         //Creado por: Allan Prieto Badilla
         //Fecha: 2024-11-19
         //Obtener lista de Marcas Tiempo Adicional
-        public async Task<List<cMarcaTiempoAdicional>> GetMarcasTiempoAdicional(string IdRegistro)
+        public async Task<cMarcaTiempoAdicional> GetMarcasTiempoAdicional(long IdRegistro)
         {
-            List<cMarcaTiempoAdicional> accionPersonal = new();
+            cMarcaTiempoAdicional? accionPersonal = new();
             try
             {
                 var accionPersonalConsulta = await _context.Marcas_Tiempo_Adicional
                                         .Include(e => e.cEmpleado)
                                         .Include(e => e.cCentroCosto)
                                         .Include(e => e.cConcepto)
-                                        .Where(e => (e.IDREGISTRO).ToString() == IdRegistro).ToListAsync();
+                                        .Where(e => e.IDREGISTRO == IdRegistro).ToListAsync();
 
                 accionPersonal = accionPersonalConsulta.Select(ap => new cMarcaTiempoAdicional
                 {
@@ -6807,14 +6842,14 @@ namespace com.gsitcr.geotime.Data
                                                     adicional = ap.cConcepto.adicional,
                                                     nominaeq = ap.cConcepto.nominaeq
                                                 }
-                }).ToList();
+                }).FirstOrDefault();
             }
             catch (Exception e)
             {
                 string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
                 _logger.LogError($"GeoTimeConnectService.GetMarcasTiempoAdicional: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
-            return accionPersonal;
+            return accionPersonal!;
         }
 
         //Creado por: Allan Prieto Badilla
@@ -6954,6 +6989,132 @@ namespace com.gsitcr.geotime.Data
             return accionPersonal;
         }
 
+
+        public async Task<List<cMarcaTiempoAdicional>> GetMarcasTiempoAdicional(string IdPlanilla, string idPeriodo, string idnumero)
+        {
+            List<cMarcaTiempoAdicional> marcasTiempo = new();
+            try
+            {
+
+                marcasTiempo =  (from ap in  await _context.Marcas_Tiempo_Adicional
+                                        .Include(e => e.cEmpleado)
+                                        .Include(e => e.cCentroCosto)
+                                        .Include(e => e.cConcepto)
+                                        .Where(e => e.IDPLANILLA == IdPlanilla
+                                                    && e.PERIODO == idPeriodo
+                                                    && e.IDNUMERO == idnumero ).ToListAsync()
+                               select new cMarcaTiempoAdicional
+                                        {
+                                            IDREGISTRO = ap.IDREGISTRO,
+                                            IDPLANILLA = ap.IDPLANILLA,
+                                            IDNUMERO = ap.IDNUMERO,
+                                            PERIODO = ap.PERIODO,
+                                            IDCONCEPTO = ap.IDCONCEPTO,
+                                            CANTIDAD = ap.CANTIDAD,
+                                            FECHA_REFERENCIA = ap.FECHA_REFERENCIA,
+                                            USUARIO = ap.USUARIO,
+                                            FECHA_REGISTRO = ap.FECHA_REGISTRO,
+                                            FECHA_ACTUALIZA = ap.FECHA_ACTUALIZA,
+                                            CENTRO_COSTO = ap.CENTRO_COSTO,
+                                            COMENTARIO = ap.COMENTARIO,
+                                            USUARIO_ACTUALIZA = ap.USUARIO_ACTUALIZA,
+                                            ESTADO = ap.ESTADO,
+                                            TCANTIDAD = ap.TCANTIDAD,
+                                            PROYECTO = ap.PROYECTO,
+                                            FASE = ap.FASE,
+                                            cEmpleado = ap.cEmpleado == null ? null :
+                                                new cEmpleado
+                                                {
+                                                    IdNumero = ap.cEmpleado.IdNumero,
+                                                    IdPlanilla = ap.cEmpleado.IdPlanilla,
+                                                    Nombre = ap.cEmpleado.Nombre,
+                                                    Tarjeta = ap.cEmpleado.Tarjeta,
+                                                    Identificacion = ap.cEmpleado.Identificacion,
+                                                    IdGrupo = ap.cEmpleado.IdGrupo,
+                                                    IdDepartamento = ap.cEmpleado.IdDepartamento,
+                                                    IdHorario = ap.cEmpleado.IdHorario,
+                                                    Estado = ap.cEmpleado.Estado,
+                                                    IdAgrupamiento = ap.cEmpleado.IdAgrupamiento,
+                                                    foto = ap.cEmpleado.foto,
+                                                    IdCCosto = ap.cEmpleado.IdCCosto,
+                                                    exporta = ap.cEmpleado.exporta,
+                                                    ubicacion = ap.cEmpleado.ubicacion,
+                                                    rubro1 = ap.cEmpleado.rubro1,
+                                                    rubro2 = ap.cEmpleado.rubro2,
+                                                    rubro3 = ap.cEmpleado.rubro3,
+                                                    rubro4 = ap.cEmpleado.rubro4,
+                                                    rubro5 = ap.cEmpleado.rubro5,
+                                                    rubro6 = ap.cEmpleado.rubro6,
+                                                    rubro7 = ap.cEmpleado.rubro7,
+                                                    rubro8 = ap.cEmpleado.rubro8,
+                                                    rubro9 = ap.cEmpleado.rubro9,
+                                                    rubro10 = ap.cEmpleado.rubro10,
+                                                    rubro11 = ap.cEmpleado.rubro11,
+                                                    rubro12 = ap.cEmpleado.rubro12,
+                                                    rubro13 = ap.cEmpleado.rubro13,
+                                                    rubro14 = ap.cEmpleado.rubro14,
+                                                    rubro15 = ap.cEmpleado.rubro15,
+                                                    rubro16 = ap.cEmpleado.rubro16,
+                                                    rubro17 = ap.cEmpleado.rubro17,
+                                                    rubro18 = ap.cEmpleado.rubro18,
+                                                    rubro19 = ap.cEmpleado.rubro19,
+                                                    rubro20 = ap.cEmpleado.rubro20,
+                                                    rubro21 = ap.cEmpleado.rubro21,
+                                                    rubro22 = ap.cEmpleado.rubro22,
+                                                    rubro23 = ap.cEmpleado.rubro23,
+                                                    rubro24 = ap.cEmpleado.rubro24,
+                                                    rubro25 = ap.cEmpleado.rubro25,
+                                                    Fecha_Ingreso = ap.cEmpleado.Fecha_Ingreso,
+                                                    Email = ap.cEmpleado.Email,
+                                                    Tipo_Marca = ap.cEmpleado.Tipo_Marca,
+                                                    inicio_rol = ap.cEmpleado.inicio_rol,
+                                                    web_pass = ap.cEmpleado.web_pass,
+                                                    id_transfo_conc = ap.cEmpleado.id_transfo_conc,
+                                                    widioma = ap.cEmpleado.widioma,
+                                                    def_cc = ap.cEmpleado.def_cc,
+                                                    def_py = ap.cEmpleado.def_py,
+                                                    def_fase = ap.cEmpleado.def_fase,
+                                                    global_clave = ap.cEmpleado.global_clave,
+                                                    Fecha_Salida = ap.cEmpleado.Fecha_Salida,
+                                                    global_code = ap.cEmpleado.global_code,
+                                                    fecha_act_code = ap.cEmpleado.fecha_act_code,
+                                                },
+                                            cCentroCosto = ap.cCentroCosto == null ? null :
+                                                new cCentroCosto
+                                                {
+                                                    IdCCosto = ap.cCentroCosto.IdCCosto,
+                                                    Descripcion = ap.cCentroCosto.Descripcion,
+                                                },
+                                            cConcepto = ap.cConcepto == null ? null :
+                                                new cConcepto
+                                                {
+                                                    id = ap.cConcepto.id,
+                                                    Concepto = ap.cConcepto.Concepto,
+                                                    Descripcion = ap.cConcepto.Descripcion,
+                                                    tipo_j = ap.cConcepto.tipo_j,
+                                                    tipo_h = ap.cConcepto.tipo_h,
+                                                    columnar = ap.cConcepto.columnar,
+                                                    factor = ap.cConcepto.factor,
+                                                    tolerancia = ap.cConcepto.tolerancia,
+                                                    ordinario = ap.cConcepto.ordinario,
+                                                    autorizado = ap.cConcepto.autorizado,
+                                                    adicional = ap.cConcepto.adicional,
+                                                    nominaeq = ap.cConcepto.nominaeq
+                                                }
+                                        }).ToList();
+
+
+
+
+            }
+            catch (Exception e)
+            {
+                string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetMarcasTiempoAdicional: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
+            }
+            return marcasTiempo;
+        }
+
         //Creado por: Allan Prieto Badilla
         //Fecha: 2024-11-19
         //Sincronizar Marcas Tiempo Adicional
@@ -6966,18 +7127,25 @@ namespace com.gsitcr.geotime.Data
             {
                 foreach (var item in marcasTiempoAdicional)
                 {
-                    cMarcaTiempoAdicional? ceco = await _context.Marcas_Tiempo_Adicional
+                    cMarcaTiempoAdicional? marcaTA = await _context.Marcas_Tiempo_Adicional
                                     .Where(e => e.IDREGISTRO == item.IDREGISTRO)
                                     .FirstOrDefaultAsync();
                     //si el registro existe se actualizan los datos necesarios
                     //de lo contrario se agrega como nuevo registro
-                    if (ceco is not null)
+                    if (marcaTA is not null)
                     {
-                        ceco.FECHA_REGISTRO = item.FECHA_REGISTRO;
-                        ceco.IDCONCEPTO = item.IDCONCEPTO;
-                        ceco.CENTRO_COSTO = item.CENTRO_COSTO;
+                        marcaTA.FECHA_REGISTRO = item.FECHA_REGISTRO;
+                        marcaTA.IDCONCEPTO = item.IDCONCEPTO;
+                        marcaTA.CENTRO_COSTO = item.CENTRO_COSTO;
+                        marcaTA.PROYECTO = item.PROYECTO;
+                        marcaTA.FASE = item.FASE;
+                        marcaTA.COMENTARIO = item.COMENTARIO;
+                        marcaTA.CANTIDAD = item.CANTIDAD;
+                        marcaTA.TCANTIDAD = item.TCANTIDAD;
+                        marcaTA.FECHA_ACTUALIZA =  DateOnly.FromDateTime(DateTime.Now);
+                        marcaTA.USUARIO_ACTUALIZA = item.USUARIO_ACTUALIZA;
 
-                        _context.Marcas_Tiempo_Adicional.Update(ceco);
+                        _context.Marcas_Tiempo_Adicional.Update(marcaTA);
                     }
                     else
                     {

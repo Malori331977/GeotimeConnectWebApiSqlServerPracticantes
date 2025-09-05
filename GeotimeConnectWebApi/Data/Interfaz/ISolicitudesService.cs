@@ -6,7 +6,17 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
 {
     public interface ISolicitudesService
     {
-        
+
+        public Task<List<cSolicitudConfiguracion>> GetSolicitudConfiguracion();
+        public Task<cSolicitudConfiguracion> GetSolicitudConfiguracion(string id);
+        public Task<EventResponse> PostSolicitudConfiguracion(cSolicitudConfiguracion tipoSolicitud);
+        public Task<EventResponse> DeleteSolicitudConfiguracion(string Id);
+
+        public Task<List<cTipoSolicitud>> GetTipoSolicitud();
+        public Task<cTipoSolicitud> GetTipoSolicitud(int id);
+        public Task<EventResponse> PostTipoSolicitud(cTipoSolicitud tipoSolicitud);
+        public Task<EventResponse> DeleteTipoSolicitud(string Id);
+
         /// <summary>
         /// GetSolicitudes: obtener todos los registros de Solicitudes
         /// </summary>

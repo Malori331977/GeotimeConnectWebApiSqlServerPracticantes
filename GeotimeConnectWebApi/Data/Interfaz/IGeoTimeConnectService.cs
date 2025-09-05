@@ -694,6 +694,13 @@ namespace com.gsitcr.geotime.Data.Interfaz
         public Task<List<cPh_Proyecto>> GetProyecto();
 
         /// <summary>
+        /// GetProyectoByCCosto: Obtener lista de Proyectos asociados a un Centro de Costo
+        /// </summary>
+        /// <param name="idccosto"></param>
+        /// <returns></returns>
+        public Task<List<cPh_Proyecto>> GetProyectoByCCosto(string idccosto);
+
+        /// <summary>
         /// GetFaseProyecto: Obtener un Proyecto especifica
         /// </summary>
         /// <param name="idproyecto"> identificador del proyecto</param>
@@ -712,6 +719,13 @@ namespace com.gsitcr.geotime.Data.Interfaz
         /// </summary>
         /// <returns>Una lista de objetos del tipo cPh_FaseProyecto</returns>
         public Task<List<cPh_FaseProyecto>> GetFaseProyecto();
+
+        /// <summary>
+        /// GetFaseProyecto: Obtener lista de Fase de Proyecto para un proyecto.
+        /// </summary>
+        /// <param name="idproyecto"> identificador del proyecto</param>
+        /// <returns>Una Instancia del objeto del tipo cPh_FaseProyecto</returns>
+        public Task<List<cPh_FaseProyecto>> GetFaseProyecto(string idproyecto);
 
         /// <summary>
         /// GetFaseProyecto: Obtener una Fase de Proyecto especifica
@@ -759,7 +773,7 @@ namespace com.gsitcr.geotime.Data.Interfaz
         /// </summary>
         /// <param name="IdRegistro">Planilla</param>
         /// <returns>Un registro en particular de Marca Tiempo Adicional</returns>
-        public Task<List<cMarcaTiempoAdicional>> GetMarcasTiempoAdicional(string IdRegistro);
+        public Task<cMarcaTiempoAdicional> GetMarcasTiempoAdicional(long IdRegistro);
 
 
         /// <summary>
@@ -772,6 +786,15 @@ namespace com.gsitcr.geotime.Data.Interfaz
         /// <param name="idgrupo">Grupos a lo que pertenecen los empleados</param>
         /// <returns>Lista de Marcas Tiempos adicionales</returns>
         public Task<List<cMarcaTiempoAdicional>> GetMarcasTiempoAdicional(string IdPlanilla, string idPeriodo, string Fecha, int idconcepto, string idgrupo);
+
+        /// <summary>
+        /// GetMarcasTiempoAdicional: Obtener las marcas tiempo adicional para un empleado, planilla y un periodo especifico
+        /// </summary>
+        /// <param name="IdPlanilla"></param>
+        /// <param name="idPeriodo"></param>
+        /// <param name="idnumero"></param>
+        /// <returns></returns>
+        public Task<List<cMarcaTiempoAdicional>> GetMarcasTiempoAdicional(string IdPlanilla, string idPeriodo, string idnumero);
 
         /// <summary>
         /// Sincronizar_MarcasTiempoAdicional: Sincroniza las marcas tiempo adicional

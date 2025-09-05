@@ -132,6 +132,7 @@ namespace com.gsitcr.geotime.Data
         public DbSet<cFlujoAutorizacionDetalle> FlujosAutorizacionDetalle { get; set; }
         public DbSet<cEstado> Estados { get; set; }
         public DbSet<cTipoSolicitud> TiposSolicitudes { get; set; }
+        public DbSet<cSolicitudConfiguracion> SolicitudConfiguracion { get; set; }
         public DbSet<cSolicitud> Solicitudes { get; set; } 
         public DbSet<cSolicitudAutorizacion> SolicitudesAutorizacion { get; set; }
         public DbSet<cEmpleadoJefatura> EmpleadosJefaturas { get; set; }
@@ -346,6 +347,8 @@ namespace com.gsitcr.geotime.Data
                   .HasKey(e => new { e.Id });
             builder.Entity<cSolicitudAutorizacion>().ToTable("SolicitudesAutorizaciones", Schema)
                   .HasKey(e => new { e.SolicitudId,e.EstadoId });
+            builder.Entity<cSolicitudConfiguracion>().ToTable("SolicitudesConfiguracion", Schema)
+                 .HasKey(e => new { e.Id });
             #endregion
 
             #region Vistas para reportes
@@ -549,6 +552,11 @@ namespace com.gsitcr.geotime.Data
                .WithMany(d => d.cFlujoAutorizacionDetalle)
                .HasForeignKey(e => new { e.NivelOrganizacionId });
 
+            builder.Entity<cTipoSolicitud>()
+             .ToTable("TiposSolicitudes", Schema)
+             .HasOne(e => e.cSolicitudConfiguracion)
+             .WithMany(d => d.cTipoSolicitud)
+             .HasForeignKey(e => new { e.TipoConfiguracion });
 
             builder.Entity<cSolicitud>()
               .ToTable("Solicitudes", Schema)
