@@ -64,6 +64,7 @@ namespace com.gsitcr.geotime.Data
         public DbSet<cPh_Compania> PH_COMPANIAS { get; set; }
         public DbSet<cMarcaMovTurno> Marcas_Mov_Turnos { get; set; }
         public DbSet<cMarcaMovHorario> Marcas_Mov_Horarios { get; set; }
+        public DbSet<cMarcaReporte> Marcas_Reportes { get; set; }
         public DbSet<cPh_Grupo> Ph_Grupos { get; set; }
 		public DbSet<cPh_Periodos> Ph_Periodos { get; set; }
         public DbSet<cPh_Planilla> Ph_Planilla { get; set; }
@@ -103,6 +104,7 @@ namespace com.gsitcr.geotime.Data
         public DbSet<cPaletaColor> PaletaColores { get; set; }
         public DbSet<cPh_Nivel> Ph_Niveles { get; set; }
         public DbSet<cPh_CatalogoGenerico> Ph_Catalogo_Generico { get; set; }
+        public DbSet<cPh_Puesto> Ph_Puestos { get; set; }
 
         public DbSet<cPh_Distribucion_CCosto> Ph_Distribuciones_CCosto { get; set; }
         public DbSet<cMarcaDistribucionConcepto> Marcas_Distribuciones_Conceptos { get; set; }
@@ -133,7 +135,8 @@ namespace com.gsitcr.geotime.Data
         public DbSet<cEstado> Estados { get; set; }
         public DbSet<cTipoSolicitud> TiposSolicitudes { get; set; }
         public DbSet<cSolicitudConfiguracion> SolicitudConfiguracion { get; set; }
-        public DbSet<cSolicitud> Solicitudes { get; set; } 
+        public DbSet<cSolicitud> Solicitudes { get; set; }
+        public DbSet<cSolicitudDetalle> SolicitudesDetalles { get; set; }
         public DbSet<cSolicitudAutorizacion> SolicitudesAutorizacion { get; set; }
         public DbSet<cEmpleadoJefatura> EmpleadosJefaturas { get; set; }
         public DbSet<cOrganizacionBaseResponsable> OrganizacionBaseResponsables { get; set; }
@@ -146,6 +149,7 @@ namespace com.gsitcr.geotime.Data
         public virtual DbSet<cVHoraExtraXTurno> VHorasExtrasXTurno { get; set; }
         public virtual DbSet<cVHoraLaboradaEmpleado> VHorasLaboradasEmpleado { get; set; }
         public virtual DbSet<cMarcaMovTurnoBitacora> Marcas_Mov_Turnos_Bitacora { get; set; }
+        public virtual DbSet<cVMarcaComedor> VMarcas_Comedor { get; set; }
 
 
 
@@ -233,6 +237,8 @@ namespace com.gsitcr.geotime.Data
                 .HasKey(e => new { e.idregistro });
             builder.Entity<cMarcaProceso>().ToTable("MARCAS_PROCESO", Schema)
                 .HasKey(e => new { e.idregistro });
+            builder.Entity<cMarcaReporte>().ToTable("MARCAS_REPORTES", Schema)
+                .HasKey(e => new { e.idregistro });
             builder.Entity<cPh_Proyecto>().ToTable("PH_PROYECTO", Schema)
                 .HasKey(e => new { e.PROYECTO });
             builder.Entity<cPh_FaseProyecto>().ToTable("PH_FASEPROYECTO", Schema)
@@ -281,6 +287,8 @@ namespace com.gsitcr.geotime.Data
                .HasKey(e => new { e.IDREGISTRO });
             builder.Entity<cPh_Distribucion_CCosto>().ToTable("PH_DISTRIBUCIONES_CCOSTO", Schema)
               .HasKey(e => new { e.idregistro });
+            builder.Entity<cPh_Puesto>().ToTable("PH_PUESTOS", Schema)
+             .HasKey(e => new { e.Puesto });
 
             builder.Entity<cTemplateHID>().ToTable("TEMPLATESHID", Schema)
               .HasKey(e => new { e.IDNUMERO,e.INDEXID });
@@ -343,11 +351,13 @@ namespace com.gsitcr.geotime.Data
             #endregion
 
             #region Solicitudes y autorizaciones
-            builder.Entity<cSolicitud>().ToTable("Solicitudes", Schema)
+            builder.Entity<cSolicitud>().ToTable("SOLICITUDES", Schema)
                   .HasKey(e => new { e.Id });
-            builder.Entity<cSolicitudAutorizacion>().ToTable("SolicitudesAutorizaciones", Schema)
+            builder.Entity<cSolicitudDetalle>().ToTable("SOLICITUDESDETALLES", Schema)
+                  .HasKey(e => new { e.SolicitudId, e.IdRegistro });
+            builder.Entity<cSolicitudAutorizacion>().ToTable("SOLICITUDESAUTORIZACIONES", Schema)
                   .HasKey(e => new { e.SolicitudId,e.EstadoId });
-            builder.Entity<cSolicitudConfiguracion>().ToTable("SolicitudesConfiguracion", Schema)
+            builder.Entity<cSolicitudConfiguracion>().ToTable("SOLICITUDESCONFIGURACION", Schema)
                  .HasKey(e => new { e.Id });
             #endregion
 
@@ -363,6 +373,12 @@ namespace com.gsitcr.geotime.Data
             {
                 eb.HasNoKey();
                 eb.ToView("V_HORAS_LABORADAS_EMPLEADOS_RESUMEN", Schema);
+            });
+
+            builder.Entity<cVMarcaComedor>(eb =>
+            {
+                eb.HasNoKey();
+                eb.ToView("VMARCAS_COMEDOR", Schema);
             });
             #endregion
 
@@ -559,23 +575,29 @@ namespace com.gsitcr.geotime.Data
              .HasForeignKey(e => new { e.TipoConfiguracion });
 
             builder.Entity<cSolicitud>()
-              .ToTable("Solicitudes", Schema)
+              .ToTable("SOLICITUDES", Schema)
               .HasOne(e => e.cEstado)
               .WithMany(d => d.cSolicitud)
               .HasForeignKey(e => new { e.EstadoId });
             builder.Entity<cSolicitud>()
-              .ToTable("Solicitudes", Schema)
+              .ToTable("SOLICITUDES", Schema)
               .HasOne(e => e.cTipoSolicitud)
               .WithMany(d => d.cSolicitud)
               .HasForeignKey(e => new { e.TipoSolicitudId });
             builder.Entity<cSolicitud>()
-              .ToTable("Solicitudes", Schema)
+              .ToTable("SOLICITUDES", Schema)
               .HasOne(e => e.cCentroCosto)
               .WithMany(d => d.cSolicitud)
               .HasForeignKey(e => new { e.IdCCosto });
 
+            builder.Entity<cSolicitudDetalle>()
+              .ToTable("SOLICITUDESDETALLES", Schema)
+              .HasOne(e => e.cSolicitud)
+              .WithMany(d => d.cSolicitudDetalle)
+              .HasForeignKey(e => new { e.SolicitudId });
+
             builder.Entity<cSolicitudAutorizacion>()
-             .ToTable("SolicitudesAutorizaciones", Schema)
+             .ToTable("SOLICITUDESAUTORIZACIONES", Schema)
              .HasOne(e => e.cSolicitud)
              .WithMany(d => d.cSolicitudAutorizacion)
              .HasForeignKey(e => new { e.SolicitudId });

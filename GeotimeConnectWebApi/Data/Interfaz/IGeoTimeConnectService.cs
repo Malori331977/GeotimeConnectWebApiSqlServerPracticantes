@@ -78,7 +78,14 @@ namespace com.gsitcr.geotime.Data.Interfaz
         public Task<List<cEmpleado>> GetEmpleado();
 
         /// <summary>
-        /// GetEmpleado: Método para obtener una lista de empleados para programadores en procesos
+        /// GetEmpleadoProgramador: Método para obtener una lista de empleados para programadores en procesos
+        /// </summary>
+        /// <param name="grupos"></param>
+        /// <returns></returns>
+        public Task<List<cEmpleado>> GetEmpleadoProgramador(string grupos);
+
+        /// <summary>
+        /// GetEmpleadoProgramador: Método para obtener una lista de empleados para programadores en procesos
         /// </summary>
         /// <returns>Lista de cEmpleados</returns>
         public Task<List<cEmpleado>> GetEmpleadoProgramador(string idplanilla, string grupos);
@@ -338,6 +345,17 @@ namespace com.gsitcr.geotime.Data.Interfaz
         /// <returns>EventResponse</returns>
         public Task<EventResponse> Elimina_TemplateFACE(string IdNumero);
 
+        /// <summary>
+        /// GetPhPuesto: Obtener lista de puestos de colaboradores
+        /// </summary>
+        /// <returns></returns>
+        public Task<List<cPh_Puesto>> GetPhPuesto();
+        /// <summary>
+        /// GetPhPuesto: Obtener un puesto especifico de colaborador
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public Task<cPh_Puesto> GetPhPuesto(string id);
 
         #endregion
 

@@ -1,4 +1,5 @@
-﻿using Azure.Core;
+﻿using Azure;
+using Azure.Core;
 using com.gsitcr.geotime.Data.Interfaz;
 using com.gsitcr.geotime.Models;
 using com.gsitcr.geotime.Models.Response;
@@ -20,9 +21,10 @@ using System.Security;
 using System.Security.Claims;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using System.Xml;
 using static com.gsitcr.geotime.Models.CalculoPeriodoParam;
 using static GeoTimeServiceReference.ServiceSoapClient;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+
 
 namespace com.gsitcr.geotime.Data
 {
@@ -1051,6 +1053,7 @@ namespace com.gsitcr.geotime.Data
                                 Fecha_Salida = e.Fecha_Salida,
                                 global_code = e.global_code,
                                 fecha_act_code = e.fecha_act_code,
+                                puesto = e.puesto,
                                 Departamento = e.Departamento == null ? null :
                                                new cDepartamento
                                                {
@@ -1182,6 +1185,7 @@ namespace com.gsitcr.geotime.Data
                                 Fecha_Salida = e.Fecha_Salida,
                                 global_code = e.global_code,
                                 fecha_act_code = e.fecha_act_code,
+                                puesto = e.puesto,
                                 Departamento = e.Departamento == null ? null :
                                                new cDepartamento
                                                {
@@ -1237,6 +1241,91 @@ namespace com.gsitcr.geotime.Data
             {
                string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
                 _logger.LogError($"GeoTimeConnectService.GetEmpleadoTotal: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
+            }
+            return empleado;
+        }
+
+        public async Task<List<cEmpleado>> GetEmpleadoProgramador(string grupos)
+        {
+            List<cEmpleado> empleado = new();
+            try
+            {
+
+                string[] ListGrupos = grupos.Split(',');
+                List<cPh_Grupo> phgrupos = new List<cPh_Grupo>();
+
+                foreach (var valor in ListGrupos)
+                    phgrupos.Add(new cPh_Grupo
+                    {
+                        idgrupo = int.Parse(valor),
+                    });
+
+
+                empleado = (from e in await _context.Empleados.Where(e => e.Estado == 'T').ToListAsync()
+                            join g in phgrupos on e.IdGrupo equals g.idgrupo
+                            select new cEmpleado
+                            {
+                                IdNumero = e.IdNumero,
+                                IdPlanilla = e.IdPlanilla,
+                                Nombre = e.Nombre,
+                                Tarjeta = e.Tarjeta,
+                                Identificacion = e.Identificacion,
+                                IdGrupo = e.IdGrupo,
+                                IdDepartamento = e.IdDepartamento,
+                                IdHorario = e.IdHorario,
+                                Estado = e.Estado,
+                                IdAgrupamiento = e.IdAgrupamiento,
+                                foto = e.foto,
+                                IdCCosto = e.IdCCosto,
+                                exporta = e.exporta,
+                                ubicacion = e.ubicacion,
+                                rubro1 = e.rubro1,
+                                rubro2 = e.rubro2,
+                                rubro3 = e.rubro3,
+                                rubro4 = e.rubro4,
+                                rubro5 = e.rubro5,
+                                rubro6 = e.rubro6,
+                                rubro7 = e.rubro7,
+                                rubro8 = e.rubro8,
+                                rubro9 = e.rubro9,
+                                rubro10 = e.rubro10,
+                                rubro11 = e.rubro11,
+                                rubro12 = e.rubro12,
+                                rubro13 = e.rubro13,
+                                rubro14 = e.rubro14,
+                                rubro15 = e.rubro15,
+                                rubro16 = e.rubro16,
+                                rubro17 = e.rubro17,
+                                rubro18 = e.rubro18,
+                                rubro19 = e.rubro19,
+                                rubro20 = e.rubro20,
+                                rubro21 = e.rubro21,
+                                rubro22 = e.rubro22,
+                                rubro23 = e.rubro23,
+                                rubro24 = e.rubro24,
+                                rubro25 = e.rubro25,
+                                Fecha_Ingreso = e.Fecha_Ingreso,
+                                Email = e.Email,
+                                Tipo_Marca = e.Tipo_Marca,
+                                inicio_rol = e.inicio_rol,
+                                web_pass = e.web_pass,
+                                id_transfo_conc = e.id_transfo_conc,
+                                widioma = e.widioma,
+                                global_clave = e.global_clave,
+                                def_fase = e.def_fase,
+                                def_py = e.def_py,
+                                def_cc = e.def_cc,
+                                Fecha_Salida = e.Fecha_Salida,
+                                global_code = e.global_code,
+                                fecha_act_code = e.fecha_act_code,
+                                puesto = e.puesto,
+                            }).ToList();
+            }
+            catch (Exception e)
+            {
+                string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+
+                _logger.LogError($"GeoTimeConnectService.GetEmpleadoProgramador: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
             return empleado;
         }
@@ -1320,6 +1409,7 @@ namespace com.gsitcr.geotime.Data
                                 Fecha_Salida = e.Fecha_Salida,
                                 global_code = e.global_code,
                                 fecha_act_code = e.fecha_act_code,
+                                puesto = e.puesto,
                             }).ToList();
             }
             catch (Exception e)
@@ -1411,6 +1501,7 @@ namespace com.gsitcr.geotime.Data
                                 Fecha_Salida = e.Fecha_Salida,
                                 global_code = e.global_code,
                                 fecha_act_code = e.fecha_act_code,
+                                puesto = e.puesto,
                             }).ToList();
             }
             catch (Exception e)
@@ -1495,6 +1586,7 @@ namespace com.gsitcr.geotime.Data
                                 Fecha_Salida = e.Fecha_Salida,
                                 global_code = e.global_code,
                                 fecha_act_code = e.fecha_act_code,
+                                puesto = e.puesto,
                                 Departamento = e.Departamento == null ? null :
                                                new cDepartamento
                                                {
@@ -1745,7 +1837,7 @@ namespace com.gsitcr.geotime.Data
                         emp.Tarjeta = empleado.Tarjeta ?? emp.Tarjeta;
                         emp.exporta = (empleado.exporta != null) ? empleado.exporta : emp.exporta;
                         emp.id_transfo_conc = (empleado.id_transfo_conc != null && empleado.id_transfo_conc != 0) ? empleado.id_transfo_conc : emp.id_transfo_conc;
-
+                        emp.puesto = empleado.puesto ?? emp.puesto;
                         _context.Empleados.Update(emp);
                         await _context.SaveChangesAsync();
 
@@ -11297,6 +11389,48 @@ namespace com.gsitcr.geotime.Data
             return respuesta;
         }
 
+
+        /// <summary>
+        /// GetPhPuesto: Obtener lista de puestos de colaboradores
+        /// </summary>
+        /// <returns></returns>
+        public async Task<List<cPh_Puesto>> GetPhPuesto()
+        {
+            List<cPh_Puesto> model = new();
+            try
+            {
+                model = await _context.Ph_Puestos.ToListAsync();
+            }
+            catch (Exception e)
+            {
+                string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetPhPuesto: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}");
+                throw;
+            }
+            return model;
+        }
+
+        /// <summary>
+        /// GetPhPuesto: Obtener un puesto especifico de colaborador
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public async Task<cPh_Puesto> GetPhPuesto(string id)
+        {
+            cPh_Puesto? model = new();
+            try
+            {
+                model = await _context.Ph_Puestos.FirstOrDefaultAsync(e => e.Puesto == id);
+            }
+            catch (Exception e)
+            {
+                string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetPhPuesto: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}");
+                throw;
+            }
+            return model;
+        }
+
         #endregion
 
         #region SPMetodos
@@ -12922,27 +13056,27 @@ namespace com.gsitcr.geotime.Data
                     //    var resultSchema = await _context.Database.ExecuteSqlRawAsync($"CREATE SCHEMA [CTADMIN]");
                     //}
 
-                    var resultSchema = await _context.Database.ExecuteSqlRawAsync($"CREATE SCHEMA [CTADMIN]");
+                    //var resultSchema = await _context.Database.ExecuteSqlRawAsync($"CREATE SCHEMA [CTADMIN]");
 
-                    string scriptAdmin = File.ReadAllText(Path.Combine(dirBase, "MSSQL_CREATE_ADMIN_TABLES_000.sql"));
-                    IEnumerable<string> commandStringsTablesAdm = Regex.Split(scriptAdmin, @"^\s*GO\s*$", RegexOptions.Multiline | RegexOptions.IgnoreCase);
-                    foreach (string commandString in commandStringsTablesAdm)
-                    {
-                        if (commandString.Trim() != "")
-                        {
-                            var resultCommand = await _context.Database.ExecuteSqlRawAsync($"{commandString}");
-                        }
-                    }
+                    //string scriptAdmin = File.ReadAllText(Path.Combine(dirBase, "MSSQL_CREATE_ADMIN_TABLES_000.sql"));
+                    //IEnumerable<string> commandStringsTablesAdm = Regex.Split(scriptAdmin, @"^\s*GO\s*$", RegexOptions.Multiline | RegexOptions.IgnoreCase);
+                    //foreach (string commandString in commandStringsTablesAdm)
+                    //{
+                    //    if (commandString.Trim() != "")
+                    //    {
+                    //        var resultCommand = await _context.Database.ExecuteSqlRawAsync($"{commandString}");
+                    //    }
+                    //}
 
-                    scriptAdmin = File.ReadAllText(Path.Combine(dirBase, "MSSQL_INIT_ADMIN_TABLES.sql"));
-                    IEnumerable<string> commandStringsINITTBADM = Regex.Split(scriptAdmin, @"^\s*GO\s*$", RegexOptions.Multiline | RegexOptions.IgnoreCase);
-                    foreach (string commandString in commandStringsINITTBADM)
-                    {
-                        if (commandString.Trim() != "")
-                        {
-                            var resultCommand = await _context.Database.ExecuteSqlRawAsync($"{commandString}");
-                        }
-                    }
+                    //scriptAdmin = File.ReadAllText(Path.Combine(dirBase, "MSSQL_INIT_ADMIN_TABLES.sql"));
+                    //IEnumerable<string> commandStringsINITTBADM = Regex.Split(scriptAdmin, @"^\s*GO\s*$", RegexOptions.Multiline | RegexOptions.IgnoreCase);
+                    //foreach (string commandString in commandStringsINITTBADM)
+                    //{
+                    //    if (commandString.Trim() != "")
+                    //    {
+                    //        var resultCommand = await _context.Database.ExecuteSqlRawAsync($"{commandString}");
+                    //    }
+                    //}
 
                 }
 
@@ -13001,32 +13135,20 @@ namespace com.gsitcr.geotime.Data
         #endregion
 
         #region Actualización de estructuras de la base de datos por compañía
+
+        
         public async Task<EventResponse> ActualizarCompaniaBD(cPh_Compania compania)
         {
             EventResponse respuesta = new EventResponse();
 
             try
             {
-                EndpointConfiguration endpointConfiguration = new();
-
-
-                GeoTimeServiceReference.ServiceSoapClient geoWebService = new(endpointConfiguration);
-
-                actualizo_companiaRequest companiaRequest = new actualizo_companiaRequest
-                {
-                    comp = compania.IDCOMP,
-                    sesion = "1",
-                    usuario = "1",
-                };
-                var result = await geoWebService.actualizo_companiaAsync(companiaRequest);
-                if (result.actualizo_companiaResult != "")
-                {
-                    respuesta.Id = "0";
-                    respuesta.Respuesta = "Ok";
-                    respuesta.Descripcion = $"Respuesta: {result.actualizo_companiaResult}";
-                    respuesta.ValorRetorno = result.actualizo_companiaResult;
-                }
-                
+                await CretateNewTables(compania.IDCOMP);
+                await AlterTablesAdd(compania.IDCOMP);
+                await AlterTablesModify(compania.IDCOMP);
+                await AddRelations(compania.IDCOMP);
+                await CreateStoreProcedures(compania.IDCOMP);
+                await CreateNewViews(compania.IDCOMP);
             }
             catch (Exception e)
             {
@@ -13042,6 +13164,270 @@ namespace com.gsitcr.geotime.Data
             return respuesta;
 
         }
+
+        public async Task CretateNewTables(string companyName)
+        {
+
+            var dirBase = Path.Combine(Directory.GetCurrentDirectory(), "App_Data");
+            string fileSource = Path.Combine(dirBase, "create_tbl.xml");
+
+            if (System.IO.File.Exists(fileSource))
+            {
+                using (XmlReader reader = XmlReader.Create(fileSource))
+                {
+                    while (reader.Read())
+                    {
+                        if (reader.IsStartElement())
+                        {
+                            switch (reader.Name.ToString().ToUpper())
+                            {
+                                case "CATABLES":
+                                    break;
+                                case "TABLA":
+                                    var tabla = reader.GetAttribute("nombre");
+                                    break;
+                                case "COMANDOS":
+                                    var commandString = reader.GetAttribute("ejecuto");
+                                    commandString = commandString!.ToUpper().Replace("[GEOTIME]", $"[{companyName}]");
+                                    try
+                                    {
+                                        var resultCommand = await _context.Database.ExecuteSqlRawAsync($"{commandString}");
+
+                                    }
+                                    catch (Exception e)
+                                    {
+                                        _logger.LogError($"GeoTimeConnectService.CretateNewTables: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {e.Message}");
+                                    }
+                                    break;
+                            }
+                        }
+                    }
+                }
+
+            }
+        }
+
+        public async Task AlterTablesAdd(string companyName)
+        {
+
+            var dirBase = Path.Combine(Directory.GetCurrentDirectory(), "App_Data");
+            string fileSource = Path.Combine(dirBase, "alter_add.xml");
+
+            if (System.IO.File.Exists(fileSource))
+            {
+                using (XmlReader reader = XmlReader.Create(fileSource))
+                {
+                    while (reader.Read())
+                    {
+                        if (reader.IsStartElement())
+                        {
+                            switch (reader.Name.ToString().ToUpper())
+                            {
+                                case "CATABLES":
+                                    break;
+                                case "COLUMNA":
+                                    var tabla = reader.GetAttribute("tabla");
+                                    var nombre = reader.GetAttribute("nombre");
+                                    var tipo = reader.GetAttribute("tipo");
+                                    var nulo = reader.GetAttribute("nulo");
+                                    var defecto = reader.GetAttribute("defecto");
+
+                                    var commandString = $"alter table [{companyName}].{tabla} add {nombre} {tipo} {nulo} {(!String.IsNullOrEmpty(defecto)?defecto:"")}";
+                                    try
+                                    {
+                                        var resultCommand = await _context.Database.ExecuteSqlRawAsync($"{commandString}");
+
+                                    }
+                                    catch (Exception e)
+                                    {
+                                        _logger.LogError($"GeoTimeConnectService.AlterTablesAdd: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {e.Message}");
+                                    }
+                                    break;
+                            }
+                        }
+                    }
+                }
+
+            }
+        }
+
+        public async Task AlterTablesModify(string companyName)
+        {
+
+            var dirBase = Path.Combine(Directory.GetCurrentDirectory(), "App_Data");
+            string fileSource = Path.Combine(dirBase, "alter_modify.xml");
+
+            if (System.IO.File.Exists(fileSource))
+            {
+                using (XmlReader reader = XmlReader.Create(fileSource))
+                {
+                    while (reader.Read())
+                    {
+                        if (reader.IsStartElement())
+                        {
+                            switch (reader.Name.ToString().ToUpper())
+                            {
+                                case "CATABLES":
+                                    break;
+                                case "COLUMNA":
+                                    var tabla = reader.GetAttribute("tabla");
+                                    var nombre = reader.GetAttribute("nombre");
+                                    var tipo = reader.GetAttribute("tipo");
+                                    var nulo = reader.GetAttribute("nulo");
+                                    var defecto = reader.GetAttribute("defecto");
+
+                                    var commandString = $"alter table [{companyName}].{tabla} alter column {nombre} {tipo} {nulo} {(!String.IsNullOrEmpty(defecto) ? defecto : "")}";
+                                    try
+                                    {
+                                        var resultCommand = await _context.Database.ExecuteSqlRawAsync($"{commandString}");
+
+                                    }
+                                    catch (Exception e)
+                                    {
+                                        _logger.LogError($"GeoTimeConnectService.AlterTablesModify: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {e.Message}");
+                                    }
+                                    break;
+                            }
+                        }
+                    }
+                }
+
+            }
+        }
+
+        public async Task AddRelations(string companyName)
+        {
+
+            var dirBase = Path.Combine(Directory.GetCurrentDirectory(), "App_Data");
+            string fileSource = Path.Combine(dirBase, "create_fks.xml");
+
+            if (System.IO.File.Exists(fileSource))
+            {
+                using (XmlReader reader = XmlReader.Create(fileSource))
+                {
+                    while (reader.Read())
+                    {
+                        if (reader.IsStartElement())
+                        {
+                            switch (reader.Name.ToString().ToUpper())
+                            {
+                                case "CARELAT":
+                                    break;
+                                case "STORED":
+                                    break;
+                                case "COMANDOS":
+                                    var commandString = reader.GetAttribute("ejecuto");
+                                    commandString = commandString!.ToUpper().Replace("[GEOTIME]", $"[{companyName}]");
+
+                                    try
+                                    {
+                                        var resultCommand = await _context.Database.ExecuteSqlRawAsync($"{commandString.Split("%")[0]}");
+                                    }
+                                    catch (Exception e)
+                                    {
+                                        _logger.LogError($"GeoTimeConnectService.AddRelations: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {e.Message}");
+                                    }
+
+                                    try
+                                    {
+                                        var resultCommand = await _context.Database.ExecuteSqlRawAsync($"{commandString.Split("%")[1]}");
+                                    }
+                                    catch (Exception e)
+                                    {
+                                        _logger.LogError($"GeoTimeConnectService.AddRelations: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {e.Message}");
+                                    }
+                                    break;
+                            }
+                        }
+                    }
+                }
+
+            }
+        }
+
+        public async Task CreateStoreProcedures(string companyName)
+        {
+
+            var dirBase = Path.Combine(Directory.GetCurrentDirectory(), "App_Data");
+            string fileSource = Path.Combine(dirBase, "create_sps.xml");
+
+            if (System.IO.File.Exists(fileSource))
+            {
+                using (XmlReader reader = XmlReader.Create(fileSource))
+                {
+                    while (reader.Read())
+                    {
+                        if (reader.IsStartElement())
+                        {
+                            switch (reader.Name.ToString().ToUpper())
+                            {
+                                case "CASTORED":
+                                    break;
+                                case "STORED":
+                                    break;
+                                case "COMANDOS":
+                                    var commandString = reader.GetAttribute("ejecuto");
+                                    commandString = commandString!.ToUpper().Replace("[GEOTIME]", $"[{companyName}]");
+
+                                    try
+                                    {
+                                        var resultCommand = await _context.Database.ExecuteSqlRawAsync($"{commandString}");
+                                    }
+                                    catch (Exception e)
+                                    {
+                                        _logger.LogError($"GeoTimeConnectService.CreateStoreProcedures: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {e.Message}");
+                                    }
+                                    break;
+                            }
+                        }
+                    }
+                }
+
+            }
+        }
+
+        public async Task CreateNewViews(string companyName)
+        {
+
+            var dirBase = Path.Combine(Directory.GetCurrentDirectory(), "App_Data");
+            string fileSource = Path.Combine(dirBase, "create_vws.xml");
+
+            if (System.IO.File.Exists(fileSource))
+            {
+                using (XmlReader reader = XmlReader.Create(fileSource))
+                {
+                    while (reader.Read())
+                    {
+                        if (reader.IsStartElement())
+                        {
+                            switch (reader.Name.ToString().ToUpper())
+                            {
+                                case "CAVISTAS":
+                                    break;
+                                case "VISTA":
+                                    var tabla = reader.GetAttribute("nombre");
+                                    break;
+                                case "COMANDOS":
+                                    var commandString = reader.GetAttribute("ejecuto");
+                                    commandString = commandString!.ToUpper().Replace("[GEOTIME]", $"[{companyName}]");
+                                    try
+                                    {
+                                        var resultCommand = await _context.Database.ExecuteSqlRawAsync($"{commandString}");
+
+                                    }
+                                    catch (Exception e)
+                                    {
+                                        _logger.LogError($"GeoTimeConnectService.CretateNewViews: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {e.Message}");
+                                    }
+                                    break;
+                            }
+                        }
+                    }
+                }
+
+            }
+        }
+
         #endregion
 
     }

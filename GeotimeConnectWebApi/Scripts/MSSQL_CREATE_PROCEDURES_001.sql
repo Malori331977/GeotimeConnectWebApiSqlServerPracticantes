@@ -1406,3 +1406,139 @@ GO
 
 ALTER AUTHORIZATION ON [dbo].[agrego_marca_descanso] TO  SCHEMA OWNER 
 GO
+
+CREATE PROCEDURE [dbo].[in_marcas_web] 
+@idnumero varchar(25)
+AS
+BEGIN
+	
+	
+	declare @idplanilla varchar(8)
+	declare @fecha datetime
+	declare @hora varchar(5)
+	declare @tipo int
+	declare @terminal varchar(4)
+	declare @registro bigint
+	declare @idregistro bigint
+	declare @id varchar(5)
+	declare @fd varchar(5)
+	declare @desc_pro int
+	declare @fecha_reg datetime
+    declare @long_reg varchar(max)
+    declare @lat_reg varchar(max)
+	declare @gps char(1)
+	declare @fecha_hora datetime
+	declare @dir_ip varchar(50)
+	declare @host varchar(400)
+
+	
+	update marcas_in set idplanilla = e.idplanilla, idnumero = e.idnumero from empleados e where idtarjeta = e.idnumero and idtarjeta = @idnumero
+	
+	declare marca cursor for 
+	 select idplanilla, idnumero,fecha,hora,tipo,idterminal,fecha_reg,long_reg,lat_reg,gps_cell,dir_ip,host 
+		from marcas_in where idnumero = @idnumero order by idplanilla,idnumero,fecha,hora
+	 
+	 open marca
+	 
+	 Fetch next from marca into @idplanilla,@idnumero,@fecha,@hora,@tipo,@terminal,@fecha_reg,@long_reg,@lat_reg,@gps,@dir_ip,@host
+	 while @@FETCH_STATUS = 0
+	 begin
+	 
+	  set @registro = (select top 1 registro from marcas where idplanilla = @idplanilla and idnumero = @idnumero and fecha = @fecha and dbo.hrs_min(hora) between dbo.hrs_min(@hora) - 5  and dbo.hrs_min(@hora) + 5)
+	  if @registro is null
+	   begin
+
+	    set @fecha_hora = convert(datetime,convert(varchar(10),@fecha,120) + ' ' + @hora) 
+	    insert into marcas (idplanilla, idnumero, fecha, hora, tipo, idterminal,fecha_reg,long_reg,lat_reg,gps_cell,fecha_hora,dir_ip,host)
+	                 values (@idplanilla, @idnumero, @fecha, @hora, @tipo, @terminal,@fecha_reg,@long_reg,@lat_reg,@gps,@fecha_hora,@dir_ip,@host)
+
+        update marcas set imagen_reg = x.imagen_reg from marcas_in x where marcas.idplanilla = x.idplanilla and marcas.idnumero = x.idnumero and marcas.fecha_reg = x.fecha_reg
+	    
+	   end	  
+	 
+	 Fetch next from marca into @idplanilla,@idnumero,@fecha,@hora,@tipo,@terminal,@fecha_reg,@long_reg,@lat_reg,@gps,@dir_ip,@host
+	 end
+	 
+	 close marca
+	 deallocate marca
+	
+	 delete from marcas_in where idnumero = @idnumero
+
+	 declare marca_proc cursor for select registro, idplanilla, idnumero, fecha, hora, tipo from marcas where idnumero = @idnumero and estado = 'N' order by idplanilla, idnumero, fecha_hora
+	 open marca_proc
+	 
+	 fetch next from marca_proc into @idregistro, @idplanilla, @idnumero, @fecha, @hora, @tipo
+	 while @@FETCH_STATUS = 0
+	 begin
+	  if @tipo = 1 /*entrada*/
+	   begin
+	    set @registro = (select top 1 idregistro from marcas_proceso where  idplanilla = @idplanilla and idnumero = @idnumero and fecha_entra = @fecha and hora_entra = @hora)
+	    if @registro is null
+	     begin
+	       set @registro = (select top 1 idregistro from marcas_proceso where  idplanilla = @idplanilla and idnumero = @idnumero and fecha_entra = @fecha and hora_entra = '00:00' and (hora_sale > @hora or hora_sale = '00:00'))
+	       if @registro is null 
+		    begin
+			  insert into marcas_proceso (idplanilla,idnumero,fecha_entra,hora_entra,fecha_sale,hora_sale) values (@idplanilla,@idnumero,@fecha,@hora,@fecha,'00:00')
+			  set @registro = (select @@IDENTITY)
+            end
+	       else update marcas_proceso set hora_entra = @hora where idregistro = @registro    
+	     end
+		 update marcas_incidencias set idregistro = @registro,hentra = @hora where idplanilla = @idplanilla and idnumero = @idnumero and (idregistro = 0 OR idregistro = @registro) and hentra = '00:00'
+		 update marcas_mov_turnos set hora = @hora where  idplanilla = @idplanilla and idnumero = @idnumero and fecha = @fecha
+		 update marcas_extras_apb set hora = @hora where  idplanilla = @idplanilla and idnumero = @idnumero and fecha = @fecha
+	   end
+	   
+	    if @tipo = 2 /*salida*/
+	   begin
+	   set @registro = (select top 1 idregistro from marcas_proceso where  idplanilla = @idplanilla and idnumero = @idnumero and reg_sale = @idregistro)
+	   if @registro is null
+	    begin
+	      set @registro = (select top 1 idregistro from marcas_proceso where  idplanilla = @idplanilla and idnumero = @idnumero and fecha_entra = Dateadd(day,-1,@fecha) and hora_sale = '00:00' and (1440 - dbo.hrs_min(hora_entra) + dbo.hrs_min(@hora)) < 1080)  /*nocturno 18 horas para par*/
+		  if @registro is not null 
+		    begin
+			  update marcas_proceso set fecha_sale = @fecha, hora_sale = @hora,reg_sale = @idregistro where idregistro = @registro
+            end
+		  else
+		   begin
+		    set @registro = (select top 1 idregistro from marcas_proceso where idplanilla = @idplanilla and idnumero = @idnumero and fecha_entra = @fecha and hora_sale = '00:00' and hora_entra < @hora)
+			if @registro is null 
+			 begin 
+			   insert into marcas_proceso (idplanilla,idnumero,fecha_entra,hora_sale,fecha_sale,hora_entra,reg_sale) values (@idplanilla,@idnumero,@fecha,@hora,@fecha,'00:00',@idregistro)
+			   set @registro = (select @@IDENTITY)			   
+             end
+	        else update marcas_proceso set hora_sale = @hora,reg_sale = @idregistro where idregistro = @registro
+		   end
+	    end 
+		update marcas_incidencias set idregistro = @registro,hsale = @hora where  idplanilla = @idplanilla and idnumero = @idnumero and (idregistro = 0 OR idregistro = @registro) and hsale = '00:00'
+	   end
+
+     if @tipo = 3 /*descanso*/
+	 begin
+	  set @desc_pro = (select isnull((select top 1 iddesc from marcas_descansos where idplanilla = @idplanilla and idnumero = @idnumero and fecha = @fecha order by iddesc desc),0))
+	  set @desc_pro = @desc_pro + 1
+	  if @desc_pro = 1 
+	   begin
+	    insert into marcas_descansos (iddesc,  idplanilla, idnumero, fecha, inicio_desc, fin_desc) values (@desc_pro,@idplanilla,@idnumero,@fecha,@hora,'00:00')
+       end
+	  else 
+	   begin
+	    update marcas_descansos set fin_desc = @hora where  idplanilla = @idplanilla and idnumero = @idnumero and fecha = @fecha and inicio_desc <> '00:00' and fin_desc = '00:00'
+		if @@ROWCOUNT = 0 insert into marcas_descansos (iddesc,  idplanilla, idnumero, fecha, inicio_desc, fin_desc) values (@desc_pro,@idplanilla,@idnumero,@fecha,@hora,'00:00')
+	   end
+	 end  
+	 
+	 if @tipo = 4 /*marca comedor*/
+	  begin
+	   insert into marcas_comedor (idplanilla,idnumero,fecha,hora,idterminal) values (@idplanilla,@idnumero,@fecha,@hora,@terminal)
+	  end
+	 update marcas set estado = 'P' where registro = @idregistro
+	 
+	 fetch next from marca_proc into @idregistro, @idplanilla, @idnumero, @fecha, @hora, @tipo
+	 end
+	 
+	 close marca_proc
+	 deallocate marca_proc
+
+END
+GO
+ALTER AUTHORIZATION ON [dbo].[in_marcas_web] TO  SCHEMA OWNER 

@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<CATABLES>
+    <V3.1.0>
+        <tabla nombre ="ph_opciones">
+            <Comandos ejecuto="CREATE TABLE [geotime].[ph_opciones]([post_emp] [char](1) NOT NULL,	[post_sinc] [char](1) NOT NULL,	[num_alm] [int] NOT NULL,[ver_db] [varchar](5) NULL) ON [PRIMARY]" />
+            <Comandos ejecuto="ALTER TABLE [geotime].[ph_opciones] ADD  DEFAULT ('F') FOR [post_emp]"/>
+            <Comandos ejecuto="ALTER TABLE [geotime].[ph_opciones] ADD  DEFAULT ('F') FOR [post_sinc]"/>
+            <Comandos ejecuto="ALTER TABLE [geotime].[ph_opciones] ADD  DEFAULT ((3)) FOR [num_alm]"/>
+            <Comandos ejecuto="ALTER TABLE [geotime].[ph_opciones] ADD  DEFAULT ('3.0') FOR [ver_db]"/>
+        </tabla>
+        <tabla nombre ="relojes_dispositivo">
+            <Comandos ejecuto="CREATE TABLE [geotime].[relojes_dispositivo]([CLOCK_ID] [int] IDENTITY(1,1) NOT NULL,[CLOCK_DESCRIPTION] [varchar](40) NULL,[CLOCK_IP] [varchar](15) NULL,[CLOCK_PORT] [int] NULL,[CLOCK_STATE] [varchar](10) NULL,[CLOCK_COMM] [char](1) NULL,[CLOCK_COMMID] [smallint] NULL,[SITE_ID] [int] NOT NULL,[CLOCK_TYPE] [varchar](4) NULL,[CLOCK_USE_FUNCTION] [char](1) NULL,[CLOCK_FUNCTION] [varchar](2) NULL,[clock_pass] [varchar](4) NULL,[borro_m] [char](1) NULL,[idlocacion] [int] NULL,[FG_MODEL] [varchar](200) NULL) ON [PRIMARY]"/>
+            <Comandos ejecuto="ALTER TABLE [geotime].[relojes_dispositivo] ADD  CONSTRAINT [DF_TAC_CLOCK_clock_pass]  DEFAULT ('0000') FOR [clock_pass]"/>
+        </tabla>
+        <tabla nombre="ph_transformacion">
+            <Comandos ejecuto="CREATE TABLE [geotime].[ph_transformacion]([id_transformacion] [int] NOT NULL,[descripcion] [varchar](60) NOT NULL, CONSTRAINT [PK_ph_transformacion] PRIMARY KEY CLUSTERED (	[id_transformacion] ASC ) WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY] ) ON [PRIMARY]" />
+        </tabla>
+        <tabla nombre="ph_transformacion_conceptos">
+            <Comandos ejecuto="CREATE TABLE [geotime].[ph_transformacion_conceptos]([id_transformacion] [int] NOT NULL,[prioridad] [int] IDENTITY(1,1) NOT NULL,[concepto_orig] [int] NOT NULL,[concepto_cambio] [int] NOT NULL, CONSTRAINT [PK_ph_transformacion_conceptos] PRIMARY KEY CLUSTERED (	[id_transformacion] ASC,	[prioridad] ASC)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]) ON [PRIMARY]" />
+            <Comandos ejecuto="ALTER TABLE [geotime].[ph_transformacion_conceptos]  WITH CHECK ADD  CONSTRAINT [FK_transformacion] FOREIGN KEY([id_transformacion]) REFERENCES [geotime].[ph_transformacion] ([id_transformacion])" />
+            <Comandos ejecuto="ALTER TABLE [geotime].[ph_transformacion_conceptos] CHECK CONSTRAINT [FK_transformacion]" />
+            <Comandos ejecuto="ALTER TABLE [geotime].[ph_transformacion_conceptos]  WITH CHECK ADD  CONSTRAINT [FK_transformacion_ph_conceptos_cambio] FOREIGN KEY([concepto_cambio]) REFERENCES [geotime].[ph_conceptos] ([id])" />
+            <Comandos ejecuto="ALTER TABLE [geotime].[ph_transformacion_conceptos] CHECK CONSTRAINT [FK_transformacion_ph_conceptos_cambio]" />
+            <Comandos ejecuto="ALTER TABLE [geotime].[ph_transformacion_conceptos]  WITH CHECK ADD  CONSTRAINT [FK_transformacion_ph_conceptos_orig] FOREIGN KEY([concepto_orig]) REFERENCES [geotime].[ph_conceptos] ([id])" />
+            <Comandos ejecuto="ALTER TABLE [geotime].[ph_transformacion_conceptos] CHECK CONSTRAINT [FK_transformacion_ph_conceptos_orig]" />
+        </tabla>
+
+    </V3.1.0>
+    <V3.3.4>
+      <tabla nombre ="incidencias_enviadas">
+        <Comandos ejecuto="CREATE TABLE [geotime].[incidencias_enviadas](	[idplanilla] [varchar](8) NOT NULL,	[idnumero] [varchar](20) NOT NULL,	[fecha] [datetime] NOT NULL,	[idincidencia] [int] NOT NULL, CONSTRAINT [PK_incidencias_enviadas] PRIMARY KEY CLUSTERED (	[idplanilla] ASC,	[idnumero] ASC,	[fecha] ASC,	[idincidencia] ASC) ON [PRIMARY]) ON [PRIMARY]" />
+      </tabla>
+      <tabla nombre ="auditoria_sistema">
+        <Comandos ejecuto="CREATE TABLE [geotime].[auditoria_sistema]([fecha_registro] [datetime] NOT NULL Default(GETDATE()),[usuario] [varchar](100) NOT NULL,[tabla] [varchar](max) NULL,[mensaje] [varchar](max) NULL,[proceso] [varchar](400) NULL) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]" />
+      </tabla>
+    </V3.3.4>
+  <V3.3.5>
+    <tabla nombre ="marcas_extras_detalle">
+      <Comandos ejecuto="CREATE TABLE [geotime].[marcas_extras_detalle]([idplanilla] [varchar](8) NOT NULL,[idnumero] [varchar](20) NOT NULL,[fecha] [datetime] NOT NULL,[hora] [varchar](5) NOT NULL,[cantidad] [varchar](5) NOT NULL,[cantidad_aprob] [varchar](5) NOT NULL DEFAULT('00:00'),[comentario] [varchar](1024) NULL,[estado] [char](1) NOT NULL,[usuario] [varchar](100) NULL,[ccosto] [varchar](25) NULL,[idconcepto] [int] NULL) ON [PRIMARY]" />
+    </tabla>
+  </V3.3.5>
+  <V3.3.7>
+    <tabla nombre ="marcas_mov_horarios">
+      <Comandos ejecuto="CREATE TABLE [geotime].[marcas_mov_horarios]([idregistro] [bigint] IDENTITY(1,1) NOT NULL,[idplanilla] [varchar](8) NOT NULL,[idnumero] [varchar](20) NOT NULL,[fecha] [datetime] NOT NULL,[hora] [varchar](5) NOT NULL,[idhorario] [int] NOT NULL,[estado] [char](1) NOT NULL,[usuario] [varchar](100) NULL,[fecha_reg] [datetime] NULL) ON [PRIMARY]" />
+    </tabla>
+    <tabla nombre ="empleado_rostro">
+      <Comandos ejecuto="CREATE TABLE [geotime].[empleado_rostro]([idnumero] [varchar](20) NOT NULL,[idplanilla] [varchar](8) NOT NULL,[rostro] [image] NOT NULL,[miniatura] [image] NOT NULL) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]" />
+    </tabla>
+    <tabla nombre ="ParametrosEmail">
+      <Comandos ejecuto="CREATE TABLE [geotime].[ParametrosEmail]( [Id] [int] NOT NULL,[SmtpServer] [varchar](100) NOT NULL,[SmtpPort] [int] NOT NULL,[DefaultEmail] [varchar](50) NOT NULL,[DefaultPassWord] [varchar](255) NOT NULL,CONSTRAINT [PK_ParametrosEmail] PRIMARY KEY CLUSTERED ( [Id] ASC ) ON [PRIMARY] ) ON [PRIMARY]" />
+    </tabla>
+	<tabla nombre ="PaletaColores">
+      <Comandos ejecuto="CREATE TABLE [geotime].[PaletaColores]([ColorId] [int] IDENTITY(1,1) NOT NULL,[Descripcion] [varchar](30) NULL,[ColorFondo] [varchar](7) NOT NULL,[ColorFuente] [varchar](7) NOT NULL,CONSTRAINT [PK_PaletaColores] PRIMARY KEY CLUSTERED ([ColorId] ASC)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]) ON [PRIMARY]" />
+	  <Comandos ejecuto="ALTER TABLE [geotime].[PaletaColores] ADD  DEFAULT ('#FFFFFF') FOR [ColorFondo]" />
+	  <Comandos ejecuto="ALTER TABLE [geotime].[PaletaColores] ADD  DEFAULT ('#000000') FOR [ColorFuente]" />
+    </tabla>
+	<tabla nombre ="ph_puestos">
+      <Comandos ejecuto="CREATE TABLE [geotime].[ph_puestos]([Puesto] [varchar](8) NOT NULL,[Descripcion] [varchar](254) NOT NULL,[Activo] [varchar](1) NOT NULL,CONSTRAINT [PUESTOPKPUESTO] PRIMARY KEY NONCLUSTERED ([Puesto] ASC)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY])ON [PRIMARY]" />
+    </tabla>
+	<tabla nombre ="TemplatesFACES">
+      <Comandos ejecuto="CREATE TABLE [geotime].[TemplatesFACES]([IDNUMERO] [varchar](20) NOT NULL,[INDEXID] [int] IDENTITY(1,1) NOT NULL,[FACETEMPLATE] [varbinary](max) NOT NULL,CONSTRAINT [PK_TemplatesFACEID] PRIMARY KEY CLUSTERED ([IDNUMERO] ASC,[INDEXID] ASC)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]" />
+    </tabla>
+	<tabla nombre ="TemplatesHID">
+      <Comandos ejecuto="CREATE TABLE [geotime].[TemplatesHID]([IDNUMERO] [varchar](20) NOT NULL,[INDEXID] [int] IDENTITY(1,1) NOT NULL,[HID_TEMPLATE] [varbinary](max) NOT NULL, CONSTRAINT [PK_TemplatesHID] PRIMARY KEY CLUSTERED ([IDNUMERO] ASC,[INDEXID] ASC)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]" />
+    </tabla>
+	<tabla nombre ="Portal_DocsMarcas">
+      <Comandos ejecuto="CREATE TABLE [geotime].[Portal_DocsMarcas]([IdRegistro] [bigint] IDENTITY(1,1) NOT NULL,[IdNumero] [varchar](20) NOT NULL,[Fecha] [datetime2](7) NOT NULL,[Documento] [image] NULL,[Observaciones] [varchar](100) NULL,[Tipo] [char](3) NOT NULL,[FechaRegistro] [datetime2](7) NOT NULL, CONSTRAINT [PK_Portal_DocsMarcas] PRIMARY KEY CLUSTERED ([IdRegistro] ASC,[IdNumero] ASC,[Fecha] ASC)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]" />
+	  <Comandos ejecuto="ALTER TABLE [geotime].[Portal_DocsMarcas] ADD  DEFAULT (getdate()) FOR [FechaRegistro]" />
+    </tabla>
+	<tabla nombre ="Portal_Empleado">
+      <Comandos ejecuto="CREATE TABLE [geotime].[Portal_Empleado]([IdNumero] [varchar](20) NOT NULL,[PortalRolId] [varchar](4) NOT NULL,[Habilitado] [bit] NOT NULL, CONSTRAINT [PK_Portal_Empleado] PRIMARY KEY CLUSTERED ([IdNumero] ASC)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]) ON [PRIMARY]" />
+    </tabla>
+	<tabla nombre ="Portal_Menu">
+      <Comandos ejecuto="CREATE TABLE [geotime].[Portal_Menu]([Id] [varchar](4) NOT NULL,[MenuText] [varchar](50) NOT NULL,[Href] [varchar](255) NULL,[IconId] [int] NOT NULL, CONSTRAINT [PK_portal_menu] PRIMARY KEY CLUSTERED ([Id] ASC)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]) ON [PRIMARY]" />
+    </tabla>
+	<tabla nombre ="Portal_Opciones">
+      <Comandos ejecuto="CREATE TABLE [geotime].[Portal_Opciones]([Id] [varchar](4) NOT NULL,[Principal] [bit] NOT NULL,	[Href] [varchar](255) NULL,	[IconId] [int] NOT NULL,[MenuText] [varchar](50) NOT NULL,	[ParentId] [varchar](4) NULL, CONSTRAINT [PK_portal_opciones] PRIMARY KEY CLUSTERED ([Id] ASC)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]) ON [PRIMARY]" />
+    </tabla>
+	<tabla nombre ="Portal_Roles">
+      <Comandos ejecuto="CREATE TABLE [geotime].[Portal_Roles]([Id] [varchar](4) NOT NULL,[Descripcion] [varchar](50) NOT NULL,[RolDefault] [bit] NOT NULL,[Habilitado] [bit] NOT NULL, CONSTRAINT [PK_Rol] PRIMARY KEY CLUSTERED ([Id] ASC)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]) ON [PRIMARY]" />
+    </tabla>
+	<tabla nombre ="Portal_RolesDet">
+      <Comandos ejecuto="CREATE TABLE [geotime].[Portal_RolesDet]([PortalRolId] [varchar](4) NOT NULL,[PortalMenuId] [varchar](4) NOT NULL,[PortalOpcionId] [varchar](4) NOT NULL,[Habilitado] [bit] NOT NULL, CONSTRAINT [PK_RolDet] PRIMARY KEY CLUSTERED (	[PortalRolId] ASC,[PortalMenuId] ASC,[PortalOpcionId] ASC)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]) ON [PRIMARY]" />
+    </tabla>
+	<tabla nombre ="EmpleadosJefaturas">
+      <Comandos ejecuto="CREATE TABLE [geotime].[EmpleadosJefaturas]([IdNumero] [varchar](20) NOT NULL,[IdNumeroResponsable] [varchar](20) NOT NULL,[IdNumeroSuplente] [varchar](20) NULL,[IdUsuarioModifica] [varchar](20) NOT NULL,[FechaUltModifica] [datetime2](7) NOT NULL, CONSTRAINT [PK_EmpleadosJefaturas] PRIMARY KEY CLUSTERED ([IdNumero] ASC)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]) ON [PRIMARY]" />
+    </tabla>
+	<tabla nombre ="Estados">
+      <Comandos ejecuto="CREATE TABLE [geotime].[Estados]([Id] [int] NOT NULL,[Descripcion] [varchar](30) NULL,[FechaRegistro] [datetime2](7) NULL,CONSTRAINT [PK_Estados] PRIMARY KEY CLUSTERED ([Id] ASC)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]) ON [PRIMARY]" />
+    </tabla>
+	<tabla nombre ="FlujosAutorizacion">
+      <Comandos ejecuto="CREATE TABLE [geotime].[FlujosAutorizacion]([Id] [int] IDENTITY(1,1) NOT NULL,[Descripcion] [varchar](50) NOT NULL,[IdUsuarioModifica] [varchar](20) NOT NULL,[FechaModifica] [datetime2](7) NOT NULL, CONSTRAINT [PK_FlujosAutorizacion] PRIMARY KEY CLUSTERED ([Id] ASC)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]) ON [PRIMARY]" />
+    </tabla>
+	<tabla nombre ="FlujosAutorizacionDetalle">
+      <Comandos ejecuto="CREATE TABLE [geotime].[FlujosAutorizacionDetalle]([FlujoAutorizacionId] [int] NOT NULL,[NivelOrganizacionId] [varchar](2) NOT NULL,[OrdenPrioridad] [smallint] NOT NULL,[EstadoAnteriorId] [int] NOT NULL,[EstadoNuevoId] [int] NOT NULL,[EnvioSolicitud] [bit] NOT NULL,[OrganizacionEspecificaId] [int] NULL,[IdUsuarioModifica] [varchar](20) NOT NULL,[FechaModifica] [datetime2](7) NOT NULL, CONSTRAINT [PK_FlujosAutorizacionDetalle] PRIMARY KEY CLUSTERED ([FlujoAutorizacionId] ASC,[NivelOrganizacionId] ASC,[OrdenPrioridad] ASC)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]) ON [PRIMARY]" />
+	  <Comandos ejecuto="ALTER TABLE [geotime].[FlujosAutorizacionDetalle] ADD  DEFAULT ((0)) FOR [OrdenPrioridad]" />
+    </tabla>
+	<tabla nombre ="marcas_mov_turnos_bitacora">
+      <Comandos ejecuto="CREATE TABLE [geotime].[marcas_mov_turnos_bitacora]([idbitacora] [bigint] IDENTITY(1,1) NOT NULL,[fecha_modificacion] [datetime] NULL,[UsuarioModifica] [nvarchar](256) NOT NULL,[idregistro] [bigint] NOT NULL,[idplanilla] [varchar](8) NOT NULL,	[idnumero] [varchar](20) NOT NULL,[fecha] [datetime] NOT NULL,[hora] [varchar](5) NOT NULL,[turno] [int] NOT NULL,	[estado] [char](1) NOT NULL,[usuario] [varchar](100) NULL,[fecha_reg] [datetime] NULL,[linea] [int] NULL,[hentra2] [varchar](5) NULL,[estado_envio] [bit] NOT NULL,[Accion] [char](1) NOT NULL, CONSTRAINT [PK_marcas_mov_turnos_bitacora] PRIMARY KEY CLUSTERED ([idbitacora] ASC)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]) ON [PRIMARY]" />
+    </tabla>	
+	<tabla nombre ="OrganizacionNiveles">
+      <Comandos ejecuto="CREATE TABLE [geotime].[OrganizacionNiveles]([Id] [varchar](2) NOT NULL,[Descripcion] [varchar](50) NOT NULL,[IdUsuarioModifica] [varchar](20) NOT NULL,[FechaModifica] [datetime2](7) NOT NULL, CONSTRAINT [PK_NivelesOrganizacion] PRIMARY KEY CLUSTERED(	[Id] ASC)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]) ON [PRIMARY]" />
+    </tabla>	
+	<tabla nombre ="Organizacion">
+      <Comandos ejecuto="CREATE TABLE [geotime].[Organizacion]([Id] [int] IDENTITY(1,1) NOT NULL,[Descripcion] [varchar](50) NOT NULL,[NivelOrganizacionId] [varchar](2) NOT NULL,[IdUsuarioModifica] [varchar](20) NOT NULL,	[FechaModifica] [datetime2](7) NOT NULL,[OrganizacionSuperior] [int] NOT NULL, CONSTRAINT [PK_Organizacion] PRIMARY KEY CLUSTERED ([Id] ASC)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]) ON [PRIMARY]" />
+	  <Comandos ejecuto="ALTER TABLE [geotime].[Organizacion] ADD  DEFAULT ((0)) FOR [OrganizacionSuperior]" />
+    </tabla>	
+	<tabla nombre ="OrganizacionBaseResponsables">
+      <Comandos ejecuto="CREATE TABLE [geotime].[OrganizacionBaseResponsables]([IdOrgBase] [varchar](15) NOT NULL,[OrdenJerarquia] [int] NOT NULL,[IdNumeroResponsable] [varchar](20) NOT NULL,[IdUsuarioModifica] [varchar](20) NOT NULL,[FechaModifica] [datetime2](7) NOT NULL, CONSTRAINT [PK_DepartamentosResponsables] PRIMARY KEY CLUSTERED ([IdOrgBase] ASC,[OrdenJerarquia] ASC)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]) ON [PRIMARY]" />
+    </tabla>	
+	<tabla nombre ="OrganizacionResponsables">
+      <Comandos ejecuto="CREATE TABLE [geotime].[OrganizacionResponsables]([OrganizacionId] [int] NOT NULL,[OrdenJerarquia] [int] NOT NULL,[IdNumeroResponsable] [varchar](20) NOT NULL,[IdUsuarioModifica] [varchar](20) NOT NULL,	[FechaModifica] [datetime2](7) NOT NULL, CONSTRAINT [PK_OrganizacionResponsables] PRIMARY KEY CLUSTERED ([OrganizacionId] ASC,[OrdenJerarquia] ASC)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]) ON [PRIMARY]" />
+    </tabla>	
+	<tabla nombre ="SolicitudesConfiguracion">
+      <Comandos ejecuto="CREATE TABLE [geotime].[SolicitudesConfiguracion]([Id] [varchar](2) NOT NULL,[Descripcion] [varchar](50) NOT NULL,[FechaInicio] [bit] NOT NULL,[FechaFin] [bit] NOT NULL,[HoraInicio] [bit] NOT NULL,[HoraFin] [bit] NOT NULL,[CantidadHoras] [bit] NOT NULL,[CantidadNumerico] [bit] NOT NULL,[CentroCosto] [bit] NOT NULL,[MultipleCentroCosto] [bit] NOT NULL,[FiltrarPuesto] [bit] NOT NULL,[PuestosHabilitados] [varchar](max) NULL,[Concepto] [int] NULL,[Destino] [varchar](50) NOT NULL,[MostrarCantidadHoras] [bit] NOT NULL,[MostrarCantidadNum] [bit] NOT NULL,[CalcularHoras] [bit] NOT NULL,[CalcularHorasNum] [bit] NOT NULL,[CalcularDias] [bit] NOT NULL,	[MaxCantidadDiasPasados] [int] NOT NULL,[MaxCantidadDiasFuturos] [int] NOT NULL, CONSTRAINT [PK_Tipos_ConfiguracionSol] PRIMARY KEY NONCLUSTERED (	[Id] ASC) WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]" />
+      <Comandos ejecuto="ALTER TABLE [geotime].[SolicitudesConfiguracion] ADD  DEFAULT ((0)) FOR [MostrarCantidadHoras]" />
+      <Comandos ejecuto="ALTER TABLE [geotime].[SolicitudesConfiguracion] ADD  DEFAULT ((0)) FOR [MostrarCantidadNum]" />
+      <Comandos ejecuto="ALTER TABLE [geotime].[SolicitudesConfiguracion] ADD  DEFAULT ((0)) FOR [CalcularHoras]" />
+      <Comandos ejecuto="ALTER TABLE [geotime].[SolicitudesConfiguracion] ADD  DEFAULT ((0)) FOR [CalcularHorasNum]" />
+      <Comandos ejecuto="ALTER TABLE [geotime].[SolicitudesConfiguracion] ADD  DEFAULT ((0)) FOR [CalcularDias]" />
+      <Comandos ejecuto="ALTER TABLE [geotime].[SolicitudesConfiguracion] ADD  DEFAULT ((0)) FOR [MaxCantidadDiasPasados]" />
+      <Comandos ejecuto="ALTER TABLE [geotime].[SolicitudesConfiguracion] ADD  DEFAULT ((0)) FOR [MaxCantidadDiasFuturos]" />
+    </tabla>
+	<tabla nombre ="TiposSolicitudes">
+      <Comandos ejecuto="CREATE TABLE [geotime].[TiposSolicitudes]([Id] [int] IDENTITY(1,1) NOT NULL,[Descripcion] [varchar](50) NOT NULL,[FlujoAutorizacionId] [int] NOT NULL,[IdUsuarioModifica] [varchar](20) NOT NULL,	[FechaModifica] [datetime2](7) NULL,[Activa] [bit] NOT NULL,[TipoConfiguracion] [varchar](3) NULL,CONSTRAINT [PK_TiposSolicitudes] PRIMARY KEY CLUSTERED ([Id] ASC)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]) ON [PRIMARY]" />
+	  <Comandos ejecuto="ALTER TABLE [geotime].[TiposSolicitudes] ADD  DEFAULT ((1)) FOR [Activa]" />
+    </tabla>
+	<tabla nombre ="Solicitudes">
+      <Comandos ejecuto="CREATE TABLE [geotime].[Solicitudes]([Id] [bigint] IDENTITY(1,1) NOT NULL,[IdPlanilla] [varchar](8) NOT NULL,[IdNumero] [varchar](20) NOT NULL,[FechaInicio] [datetime2](7) NOT NULL,[FechaFin] [datetime2](7) NOT NULL,[TipoSolicitudId] [int] NOT NULL,[IdDepart] [varchar](15) NULL,[IdGrupo] [int] NULL,[IdCCosto] [varchar](25) NULL,	[proyecto] [varchar](255) NULL,	[fase] [varchar](25) NULL,[HoraInicio] [varchar](5) NOT NULL,[HoraFin] [varchar](5) NOT NULL,[TotalHoras] [varchar](5) NOT NULL,	[Cantidad] [decimal](18, 2) NOT NULL,[Comentario] [varchar](2048) NULL,[EstadoId] [int] NOT NULL,[IdUsuarioRegistra] [varchar](20) NOT NULL,[FechaRegistro] [datetime2](7) NOT NULL,[IdUsuarioModifica] [varchar](20) NULL,[FechaModifica] [datetime2](7) NOT NULL, CONSTRAINT [PK_Solicitudes] PRIMARY KEY CLUSTERED ([Id] ASC)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]) ON [PRIMARY]" />
+	  <Comandos ejecuto="ALTER TABLE [geotime].[Solicitudes] ADD  DEFAULT (getdate()) FOR [FechaModifica]" />
+    </tabla>
+	<tabla nombre ="SolicitudesAutorizaciones">
+      <Comandos ejecuto="CREATE TABLE [geotime].[SolicitudesAutorizaciones]([SolicitudId] [bigint] NOT NULL,	[EstadoId] [int] NOT NULL,[IdNumero] [varchar](20) NOT NULL,[FechaRegistro] [datetime2](7) NOT NULL,[Comentario] [varchar](2048) NULL,CONSTRAINT [PK_SolicitudesAutorizaciones] PRIMARY KEY CLUSTERED ([SolicitudId] ASC,[EstadoId] ASC)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]) ON [PRIMARY]" />
+    </tabla>
+	<tabla nombre ="SolicitudesDetalles">
+      <Comandos ejecuto="CREATE TABLE [geotime].[SolicitudesDetalles]([SolicitudId] [bigint] NOT NULL,[IdRegistro] [int] IDENTITY(1,1) NOT NULL,[Fecha] [datetime2](7) NOT NULL,[IdCCosto] [varchar](25) NULL,[proyecto] [varchar](255) NULL,[fase] [varchar](25) NULL,[HoraInicio] [varchar](5) NOT NULL,[HoraFin] [varchar](5) NOT NULL,[TotalHoras] [varchar](5) NOT NULL,[Cantidad] [decimal](18, 2) NOT NULL,[IdUsuarioRegistra] [varchar](20) NOT NULL,[FechaRegistro] [datetime2](7) NOT NULL, CONSTRAINT [PK_SolicitudesDetalles] PRIMARY KEY CLUSTERED ([SolicitudId] ASC,[IdRegistro] ASC)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]) ON [PRIMARY]" />
+    </tabla>	
+  </V3.3.7>
+</CATABLES>
+

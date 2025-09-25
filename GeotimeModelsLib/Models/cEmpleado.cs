@@ -57,6 +57,7 @@ namespace com.gsitcr.geotime.Models
         public string? def_cc { get; set; }
         public string? def_py { get; set; }
         public string? def_fase { get; set; }
+        public string? puesto { get; set; }
 
         public cDepartamento? Departamento { get; set; }
         public cCentroCosto? CentroCosto { get; set; }

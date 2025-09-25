@@ -229,3 +229,15 @@ INSERT [ctadmin].[ph_sistema] ([data_01], [data_02], [data_03], [ver_db], [post_
 GO
 INSERT [ctadmin].[Ph_Usuarios_Roles] ([IdUsuario], [Rol], [IdUsuarioRegistra], [FechaRegistro], [IdUsuarioModifica], [FechaModifica]) VALUES (1, N'v03YnVDmetWGgh0WUcDFQJG2zPRvEnN15VoB65gDkPg=', 1, getdate(), 1, getdate())
 GO
+INSERT [ctadmin].[ph_catalogo_generico] ([NombreCatalogo], [Id], [Descripcion], [UsuarioCreacion], [FechaCreacion], [UsuarioUltModificacion], [FechaUltModificacion]) VALUES (N'DESTINO_SOLICITUD', N'DT', N'Distribucion Conceptos', N'admin',GETDATE(), N'admin', GETDATE())
+GO
+INSERT [ctadmin].[ph_catalogo_generico] ([NombreCatalogo], [Id], [Descripcion], [UsuarioCreacion], [FechaCreacion], [UsuarioUltModificacion], [FechaUltModificacion]) VALUES (N'DESTINO_SOLICITUD', N'HE', N'Horas Extra', N'admin', GETDATE(), N'admin', GETDATE())
+GO
+INSERT [ctadmin].[ph_catalogo_generico] ([NombreCatalogo], [Id], [Descripcion], [UsuarioCreacion], [FechaCreacion], [UsuarioUltModificacion], [FechaUltModificacion]) VALUES (N'DESTINO_SOLICITUD', N'TA', N'Tiempo Adicional', N'admin', GETDATE(), N'admin', GETDATE())
+GO
+INSERT [ctadmin].[ph_catalogo_generico] ([NombreCatalogo], [Id], [Descripcion], [UsuarioCreacion], [FechaCreacion], [UsuarioUltModificacion], [FechaUltModificacion]) VALUES (N'ESTADO_PERIODO_MARCA', N'C', N'Cierre Definitivo', N'admin', GETDATE(), N'admin', GETDATE())
+GO
+INSERT [ctadmin].[ph_catalogo_generico] ([NombreCatalogo], [Id], [Descripcion], [UsuarioCreacion], [FechaCreacion], [UsuarioUltModificacion], [FechaUltModificacion]) VALUES (N'ESTADO_PERIODO_MARCA', N'N', N'Creado', N'admin', GETDATE(), N'admin', GETDATE())
+GO
+INSERT [ctadmin].[ph_catalogo_generico] ([NombreCatalogo], [Id], [Descripcion], [UsuarioCreacion], [FechaCreacion], [UsuarioUltModificacion], [FechaUltModificacion]) VALUES (N'ESTADO_PERIODO_MARCA', N'T', N'Activo', N'admin', GETDATE(), N'admin', GETDATE())
+GO

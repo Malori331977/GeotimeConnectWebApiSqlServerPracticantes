@@ -8,7 +8,7 @@ namespace com.gsitcr.geotime.Controllers.ConexionServicioWeb
 {
     [ApiController]
     [Route("[controller]")]
-    [Authorize]
+    //[Authorize]
     public class WSActualizaCompaniaBDController : Controller
     {
         private readonly IGeoTimeConnectService _repoGT;
@@ -28,5 +28,17 @@ namespace com.gsitcr.geotime.Controllers.ConexionServicioWeb
 
             return Ok(respuesta);
         }
+
+        //[HttpPut]
+        //public async Task<IActionResult> Put()
+        //{
+        //    cPh_Compania comp = new();
+        //    EventResponse respuesta = await _repoGT.ActualizarCompaniaBD(comp);
+
+        //    if (respuesta.Id != "0")
+        //        return BadRequest(respuesta);
+
+        //    return Ok(respuesta);
+        //}
     }
 }

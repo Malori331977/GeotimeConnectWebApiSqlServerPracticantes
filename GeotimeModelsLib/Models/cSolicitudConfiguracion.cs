@@ -29,6 +29,9 @@ namespace com.gsitcr.geotime.Models
         public bool CalcularDias { get; set; }
         public int MaxCantidadDiasPasados { get; set; }
         public int MaxCantidadDiasFuturos { get; set; }
+        public bool FiltrarNomina { get; set; }
+        public string? NominasHabilitadas { get; set; }
+        public bool AdmiteDuplicados { get; set; }
         public IEnumerable<cTipoSolicitud>? cTipoSolicitud { get; set; }
     }
 }

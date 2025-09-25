@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<CAVISTAS>  
+  <V4_0_0>
+    <vista nombre ="marcas_mov_horarios">
+      <Comandos ejecuto="CREATE VIEW [geotime].[VMarcas_Comedor] AS SELECT x.idnumero, x.fecha_entra, x.fecha_sale, x.hora_entra, x.hora_sale, ISNULL(m1.inicio_desc, '00:00') AS desc1_ini, ISNULL(m1.fin_desc, '00:00') AS desc1_fin, ISNULL(m2.inicio_desc, '00:00') AS desc2_ini, ISNULL(m2.fin_desc,'00:00') AS desc2_fin, ISNULL(m3.inicio_desc, '00:00') AS desc3_ini, ISNULL(m3.fin_desc, '00:00') AS desc3_fin, y.idterminal FROM [geotime].marcas_proceso AS x LEFT OUTER JOIN [geotime].marcas_descansos AS m1 ON m1.idnumero = x.idnumero AND CONVERT(datetime, CONVERT(varchar(10), m1.fecha, 120) + ' ' + m1.inicio_desc) BETWEEN CONVERT(datetime, CONVERT(varchar(10), x.fecha_entra, 120) + ' ' + x.hora_entra) AND CONVERT(datetime, CONVERT(varchar(10), x.fecha_sale, 120) + ' ' + x.hora_sale) AND m1.iddesc = 1 LEFT OUTER JOIN [geotime].marcas_descansos AS m2 ON m2.idnumero = x.idnumero AND CONVERT(datetime, CONVERT(varchar(10), m2.fecha, 120) + ' ' + m2.inicio_desc) BETWEEN CONVERT(datetime, CONVERT(varchar(10), x.fecha_entra, 120) + ' ' + x.hora_entra) AND CONVERT(datetime, CONVERT(varchar(10), x.fecha_sale, 120) + ' ' + x.hora_sale) AND m2.iddesc = 2 LEFT OUTER JOIN [geotime].marcas_descansos AS m3 ON m3.idnumero = x.idnumero AND CONVERT(datetime, CONVERT(varchar(10), m3.fecha, 120) + ' ' + m3.inicio_desc) BETWEEN CONVERT(datetime, CONVERT(varchar(10), x.fecha_entra, 120) + ' ' + x.hora_entra) AND CONVERT(datetime, CONVERT(varchar(10), x.fecha_sale, 120) + ' ' + x.hora_sale) AND m3.iddesc = 3 INNER JOIN [geotime].marcas AS y ON y.idplanilla = x.idplanilla AND y.idnumero = x.idnumero AND y.fecha = x.fecha_entra AND y.hora = x.hora_entra" />
+    </vista>
+  </V4_0_0>
+</CAVISTAS>
+
