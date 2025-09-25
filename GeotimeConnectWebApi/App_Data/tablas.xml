@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<CATABLES>
+    <VERSION ID="3.1.0"
+        TABLAS="
+            ph_opciones,marcas_in,
+            marcas,
+            marcas_distribuciones_conceptos,
+            ph_distribuciones_ccosto,
+            marcas_distribuciones,
+            ph_turnos,
+            ph_planilla,
+            ph_grupo_periodo,
+            relojes_dispositivo,
+            ph_movile,
+            ph_transformacion,
+            ph_ccostos,
+            empleados,
+            ph_departamento,
+            ph_transformacion_conceptos"
+    />
+    <VERSION ID="3.2.0"
+             TABLAS="ph_grupos,ph_opciones"
+             />
+    <VERSION ID="3.3.0"
+             TABLAS=""
+             />
+    <VERSION ID="3.3.1"
+             TABLAS="marcas_extras_apb"
+             />
+    <VERSION ID="3.3.2"
+            TABLAS="ph_opciones,empleados"
+             />
+  <VERSION ID="3.3.3"
+            TABLAS="ph_opciones,empleados,ph_usuario,ph_planilla,ph_descansos_turnos,relojes_dispositivo,reloj_usuario,ph_transformacion"
+             />
+  <VERSION ID="3.3.4"
+            TABLAS="relojes_dispositivo,ph_turnos,incidencias_enviadas,auditoria_sistema,empleados"
+             />
+  <VERSION ID="3.3.5"
+            TABLAS="ph_turnos,marcas_distribuciones_conceptos,ph_planilla,marcas_extras_detalle,ph_conceptos,ph_opciones,marcas_tiempo_adicional,ph_formulacion"
+             />
+  <VERSION ID="3.3.6"
+          TABLAS="marcas_extras_apb,ph_planilla,ph_usuario,empleados"
+             />
+  <VERSION ID="3.3.7"
+           TABLAS="marcas_mov_horarios,empleado_rostro,empleados,ParametrosEmail,incidencias,relojes_dispositivo,reloj_usuario,PaletaColores,ph_puestos,TemplatesFACES,TemplatesHID,Portal_DocsMarcas,Portal_Empleado,Portal_Menu,Portal_Opciones,Portal_Roles,Portal_RolesDet,EmpleadosJefaturas,Estados,FlujosAutorizacion,FlujosAutorizacionDetalle,marcas_mov_turnos_bitacora,OrganizacionNiveles,Organizacion,OrganizacionBaseResponsables,OrganizacionResponsables,SolicitudesConfiguracion,TiposSolicitudes,Solicitudes,SolicitudesAutorizaciones,SolicitudesDetalles,ph_opciones,ph_ccostos,acciones_personal,reportes,ph_turnos"
+           />
+</CATABLES>

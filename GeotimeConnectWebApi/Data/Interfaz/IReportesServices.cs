@@ -1,4 +1,5 @@
 ﻿using com.gsitcr.geotime.Models;
+using com.gsitcr.geotime.Models.Response;
 using GeotimeModelsLib.Models;
 
 namespace com.gsitcr.geotime.Data.Interfaz
@@ -40,7 +41,37 @@ namespace com.gsitcr.geotime.Data.Interfaz
         /// <param name="FechaInicio"></param>
         /// <param name="FechaFin"></param>
         /// <returns>listado de movimientos de la bitacora Marcas_Mov_Turnos</returns>
-        public Task<IEnumerable<cMarcaMovTurnoBitacora>> GetMarcaMovTurnoBitacora(string FechaInicio, string FechaFin);
+        public Task<IEnumerable<cMarcaMovTurnoBitacora>> GetMarcaMovTurnoBitacora(string FechaInicio, string FechaFin, string idDepartamento);
+
+
+        /// <summary>
+        /// GetReporteHoraExtra:  Obtiene listado de horas extras por empleado para un rango de fechas
+        /// </summary>
+        /// <param name="filtro"></param>
+        /// <returns></returns>
+        public Task<EventResponse> GetReporteHoraExtra(cFiltroReporte filtro);
+
+        /// <summary>
+        /// GetReporteIncidencias:  Obtiene listado de marcas incidencias por empleado para un rango de fechas
+        /// </summary>
+        /// <param name="filtro"></param>
+        /// <returns></returns>
+        public Task<EventResponse> GetReporteIncidencias(cFiltroReporte filtro);
+
+        /// <summary>
+        /// GetReporteHistoricoMarca: Obtiene lsitado del registro de marcas para los colaboradores
+        /// </summary>
+        /// <param name="filtro"></param>
+        /// <returns></returns>
+        public Task<EventResponse> GetReporteHistoricoMarca(cFiltroReporte filtro);
+
+        /// <summary>
+        /// GetHistoricoCalculoTiempos: lista de calculos realizaods para los colaboradores en cada periodo de nomina
+        /// </summary>
+        /// <param name="filtro"></param>
+        /// <returns></returns>
+        public Task<EventResponse> GetHistoricoCalculoTiempos(cFiltroReporte filtro);
+
 
 
 

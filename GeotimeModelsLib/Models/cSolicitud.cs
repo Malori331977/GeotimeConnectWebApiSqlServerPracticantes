@@ -34,10 +34,12 @@ namespace com.gsitcr.geotime.Models
         public string IdUsuarioModifica { get; set; }
         public DateTime FechaModifica { get; set; }
 
+        public IEnumerable<cSolicitudDetalle>? cSolicitudDetalle { get; set; }
         public IEnumerable<cSolicitudAutorizacion>? cSolicitudAutorizacion { get; set; }
         public cEstado? cEstado { get; set; }
         public cTipoSolicitud? cTipoSolicitud { get; set; }
         public cCentroCosto? cCentroCosto { get; set; }
+
 
     }
 }

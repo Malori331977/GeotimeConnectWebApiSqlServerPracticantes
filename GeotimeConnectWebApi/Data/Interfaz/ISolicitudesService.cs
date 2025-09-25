@@ -35,6 +35,13 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         public Task<IEnumerable<cSolicitud>> GetSolicitudPorAprobarFlujoAut(string idnumero);
 
         /// <summary>
+        /// GetSolicitudAprobadaUsuario: lista de solicitudes aprobadas por usuario
+        /// </summary>
+        /// <param name="idnumero"></param>
+        /// <returns></returns>
+        public Task<IEnumerable<cSolicitud>> GetSolicitudAprobadaUsuario(string idnumero);
+
+        /// <summary>
         /// GetSolicitud: obtiene lista de solictudes para un colaborador según el id de número, fecha inicial, fecha final y tipo de solicitud.
         /// </summary>
         /// <param name="idnumero"></param>

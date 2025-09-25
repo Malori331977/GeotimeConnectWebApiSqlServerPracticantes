@@ -258,6 +258,21 @@ CREATE TABLE [ctadmin].[relojes_dispositivo](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
+CREATE TABLE [ctadmin].[ph_catalogo_generico](
+	[NombreCatalogo] [varchar](30) NOT NULL,
+	[Id] [varchar](10) NOT NULL,
+	[Descripcion] [varchar](255) NULL,
+	[UsuarioCreacion] [varchar](25) NULL,
+	[FechaCreacion] [datetime2](7) NULL,
+	[UsuarioUltModificacion] [varchar](25) NULL,
+	[FechaUltModificacion] [datetime2](7) NULL,
+ CONSTRAINT [PKCATALOGO_GENERICO] PRIMARY KEY CLUSTERED 
+(
+	[NombreCatalogo] ASC,
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
 ALTER TABLE [ctadmin].[ph_companias] ADD  DEFAULT ('F') FOR [auto_proceso]
 GO
 ALTER TABLE [ctadmin].[ph_companias] ADD  DEFAULT ('F') FOR [supervisor_acum]

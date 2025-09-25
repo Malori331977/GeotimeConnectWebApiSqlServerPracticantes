@@ -45,47 +45,32 @@ namespace com.gsitcr.geotime.Data
 
             var companias = await _repoGT.GetPhCompania();
 
-            foreach (var compania in companias)
+            if (companias is not null && companias.Count()>0)
             {
-                if (!string.IsNullOrEmpty(compania.APIUSER) && !string.IsNullOrEmpty(compania.APICLIENTID) 
-                 && !string.IsNullOrEmpty(compania.APIPASSWORD) && !string.IsNullOrEmpty(compania.APIDATABASE)
-                 && !string.IsNullOrEmpty(compania.APIURL))
+                foreach (var compania in companias)
                 {
-                    lista.Add(new UserRequest
+                    if (!string.IsNullOrEmpty(compania.APIUSER) && !string.IsNullOrEmpty(compania.APICLIENTID)
+                     && !string.IsNullOrEmpty(compania.APIPASSWORD) && !string.IsNullOrEmpty(compania.APIDATABASE)
+                     && !string.IsNullOrEmpty(compania.APIURL))
                     {
-                        User = compania.APIUSER!,
-                        Password = compania.APIPASSWORD!,
-                        ClientId = compania.APICLIENTID!
-                    });
+                        lista.Add(new UserRequest
+                        {
+                            User = compania.APIUSER!,
+                            Password = compania.APIPASSWORD!,
+                            ClientId = compania.APICLIENTID!
+                        });
+                    }
+
                 }
-                
             }
-
-            //lista.Add(new UserRequest
-            //{
-            //    User ="GSITCR",
-            //    Password = "c5bbf3d10de5c6dfdad016e6e948a27d343b5e22f35471324388460c4e14a27c",
-            //    ClientId = "197ac2e4bd0843c3974725a6544e1089c4a7dcae59087543ba6428c9914c35d9"
-            //});
-
-
-            //lista.Add(new UserRequest
-            //{
-            //    User = "FARMANOVA",
-            //    Password = "f0d81b01ad108987352b1cd7c1b9fc9b683635fe6b19598040f250430cbf863a",
-            //    ClientId = "6dc71b09e7f4885aeb3551eae81351f9c81d6dfc82d2042a064bc5165337fd98"
-            //});
-
-            //lista.Add(new UserRequest
-            //{
-            //    User = "DELOITTE",
-            //    Password = "9A4B229E90E51274B442B85D326882A3D3D6CE39A69081DFB8EF855074EEBA56",
-            //    ClientId = "73ED37A7547BC82D03A3E6AD5ED137677824BB59089FDC123A4D32892B4BE1B0"
-            //});
-
-
-
-            //CLAVE = C022367703rPCn
+            
+            lista.Add(new UserRequest
+            {
+                User = "GSITCR",
+                Password = "c5bbf3d10de5c6dfdad016e6e948a27d343b5e22f35471324388460c4e14a27c",
+                ClientId = "197ac2e4bd0843c3974725a6544e1089c4a7dcae59087543ba6428c9914c35d9"
+            });
+            
 
             return lista;
         }

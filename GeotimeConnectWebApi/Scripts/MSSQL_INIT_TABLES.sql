@@ -87,3 +87,5 @@ go
 insert into [dbo].[ph_opciones] (idopcion,post_emp,post_sinc,num_alm,ver_db) values (1,'F','F',3,'3.1')
 go
 insert into [dbo].[PaletaColores](Descripcion, ColorFondo, ColorFuente) values ('Blanco y Negro','#ffffff','#000000')
+go
+insert into [dbo].[ph_usuario] ([idusuario], [planillas], [nivel], [grupos], [estado], [fperiodo], [fplanilla], [turnos], [orden_emp], [tipo_edt], [nivel_aprob_ext], [filt_prgt], [ffecha_evaluar], [fcant_meses], [pt_agrup]) VALUES (1, N'°1°', 1, N'1', N'T', N'', N'1', NULL, N'A', N'D', 1, N'H', NULL, NULL, N'F')

@@ -21,6 +21,9 @@ namespace GeoTimeConnectWebApi.Controllers.Mantenimientos
             _repoGT = repoGT;
         }
 
+        [HttpGet("{grupos}")]
+        public async Task<IEnumerable<cEmpleado>> Get(string grupos) => await _repoGT.GetEmpleadoProgramador(grupos);
+
         [HttpGet("{idPlanilla}/{grupos}")]
         public async Task<IEnumerable<cEmpleado>> Get(string idPlanilla, string grupos) => await _repoGT.GetEmpleadoProgramador(idPlanilla, grupos);
 

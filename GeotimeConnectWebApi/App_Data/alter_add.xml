@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<CATABLES>
+	<V3.1.0>
+		<COLUMNA tabla="ph_opciones" nombre="ver_db" tipo="varchar(5)" nulo="NOT NULL" defecto="DEFAULT('3.0')" />
+		<COLUMNA tabla="marcas_in" nombre="fecha_reg" tipo="datetime" nulo="NULL" defecto=""/>
+		<COLUMNA tabla="marcas_in" nombre="long_reg" tipo="varchar(max)" nulo="NULL" defecto=""/>
+		<COLUMNA tabla="marcas_in" nombre="lat_reg" tipo="varchar(max)" nulo="NULL" defecto=""/>
+		<COLUMNA tabla="marcas_in" nombre="imagen_reg" tipo="image" nulo="NULL" defecto=""/>
+		<COLUMNA tabla="marcas_in" nombre="gps_cell" tipo="char(1)" nulo="NULL" defecto=""/>
+		<COLUMNA tabla="marcas" nombre="fecha_reg" tipo="datetime" nulo="NULL" defecto=""/>
+		<COLUMNA tabla="marcas" nombre="long_reg" tipo="varchar(max)" nulo="NULL" defecto=""/>
+		<COLUMNA tabla="marcas" nombre="lat_reg" tipo="varchar(max)" nulo="NULL" defecto=""/>
+		<COLUMNA tabla="marcas" nombre="imagen_reg" tipo="image" nulo="NULL" defecto=""/>
+		<COLUMNA tabla="marcas" nombre="gps_cell" tipo="char(1)" nulo="NULL" defecto=""/>
+		<COLUMNA tabla="marcas" nombre="img_verif" tipo="varchar(5)" nulo="NULL" defecto=""/>
+		<COLUMNA tabla="marcas_distribuciones_conceptos" nombre="proyecto" tipo="varchar(25)" nulo="NULL" defecto=""/>
+		<COLUMNA tabla="marcas_distribuciones_conceptos" nombre="fase" tipo="varchar(25)" nulo="NULL" defecto=""/>
+		<COLUMNA tabla="marcas_distribuciones_conceptos" nombre="fecha_dist" tipo="datetime" nulo="NULL" defecto=""/>
+		<COLUMNA tabla="marcas_distribuciones_conceptos" nombre="lon_reg" tipo="varchar(max)" nulo="NULL" defecto=""/>
+		<COLUMNA tabla="marcas_distribuciones_conceptos" nombre="lat_reg" tipo="varchar(max)" nulo="NULL" defecto=""/>
+		<COLUMNA tabla="ph_distribuciones_ccosto" nombre="proyecto" tipo="varchar(25)" nulo="NULL" defecto=""/>
+		<COLUMNA tabla="ph_distribuciones_ccosto" nombre="fase" tipo="varchar(25)" nulo="NULL" defecto=""/>
+		<COLUMNA tabla="marcas_distribuciones" nombre="proyecto" tipo="varchar(25)" nulo="NULL" defecto=""/>
+		<COLUMNA tabla="marcas_distribuciones" nombre="fase" tipo="varchar(25)" nulo="NULL" defecto=""/>
+		<COLUMNA tabla="ph_turnos" nombre="apl_trans_post" tipo="int" nulo="NULL" defecto=""/>
+		<COLUMNA tabla="ph_turnos" nombre="id_trans_post" tipo="int" nulo="NULL" defecto="" />
+		<COLUMNA tabla="ph_planilla" nombre="dia_inicio" tipo="int" nulo="NULL" defecto="DEFAULT ((0))"/>
+		<COLUMNA tabla="ph_turnos" nombre="con_6" tipo="int" nulo="NULL" defecto=""/>
+		<COLUMNA tabla="ph_ccostos" nombre="descripcion" tipo="varchar(200)" nulo="NULL" defecto=""/>
+		<COLUMNA tabla="empleados" nombre="iddepartamento" tipo="varchar(15)" nulo="NOT NULL" defecto=""/>
+		<COLUMNA tabla="ph_departamento" nombre="iddepart" tipo="varchar(15)" nulo="NOT NULL" defecto=""/>
+		<COLUMNA tabla="ph_turnos" nombre="cant_con_6" tipo="varchar(5)" nulo="NOT NULL" defecto="default('00:00')"/>
+		<COLUMNA tabla="ph_turnos" nombre="min_con_6" tipo="varchar(5)" nulo="NOT NULL" defecto="default('00:00')"/>
+	</V3.1.0>
+	<V3.2.0>
+		<COLUMNA tabla="ph_grupos" nombre="turno_continuo" tipo="varchar(5)" nulo="NOT NULL" defecto="DEFAULT('00:00')" />
+		<COLUMNA tabla="ph_opciones" nombre="utiliza_desc" tipo="char(1)" nulo="NOT NULL" defecto="DEFAULT('F')" />
+		<COLUMNA tabla="ph_opciones" nombre="desc_abiert" tipo="char(1)" nulo="NOT NULL" defecto="DEFAULT('F')" />
+		<COLUMNA tabla="ph_opciones" nombre="corte_diurno" tipo="varchar(5)" nulo="NOT NULL" defecto="DEFAULT('00:00')" />
+		<COLUMNA tabla="ph_opciones" nombre="corte_nocturno" tipo="varchar(5)" nulo="NOT NULL" defecto="DEFAULT('00:00')" />
+		<COLUMNA tabla="marcas_tiempo_adicional" nombre="usuario" tipo="varchar(100)" nulo="not null" defecto="" />
+		<COLUMNA tabla="marcas_tiempo_adicional" nombre="usuario_actualiza" tipo="varchar(100)" nulo="null" defecto="" />
+		<COLUMNA tabla="marcas_extras_apb" nombre="usuario" tipo="varchar(100)" nulo="null" defecto=""/>
+		<COLUMNA tabla="marcas_audit" nombre="usuario" tipo="varchar(100)" nulo="null" defecto=""/>
+		<COLUMNA tabla="marcas_mov_turnos" nombre="usuario" tipo="varchar(100)" nulo="null" defecto=""/>
+		<COLUMNA tabla="acciones_personal" nombre="usuario" tipo="varchar(100)" nulo="null" defecto=""/>
+	</V3.2.0>
+	<V3.3.1>
+		<COLUMNA tabla="marcas_extras_apb" nombre="ccosto" tipo="varchar(25)" nulo="NULL" defecto="" />
+  </V3.3.1>
+		<V3.3.2>
+		<COLUMNA tabla="ph_opciones" nombre="usa_alerta_exd" tipo="char(1)" nulo="NULL" defecto="" />
+		<COLUMNA tabla="ph_opciones" nombre="alerta_extras_diarias" tipo="varchar(5)" nulo="NULL" defecto="DEFAULT('00:00')" />
+		<COLUMNA tabla="ph_opciones" nombre="color_fondo_alertd" tipo="varchar(50)" nulo="NULL" defecto="" />
+		<COLUMNA tabla="ph_opciones" nombre="color_fuente_alertd" tipo="varchar(50)" nulo="NULL" defecto="" />
+		<COLUMNA tabla="empleados" nombre="web_pass" tipo="varchar(400)" nulo="NULL" defecto="" />      
+	</V3.3.2>
+	<V3.3.3>
+		<COLUMNA tabla="ph_planilla" nombre="auto_proceso" tipo="char(1)" nulo="NULL" defecto="DEFAULT('F')" />
+		<COLUMNA tabla="ph_planilla" nombre="tipo_dist" tipo="char(1)" nulo="NULL" defecto="DEFAULT('C')" />
+		<COLUMNA tabla="ph_planilla" nombre="ext_per_ant" tipo="char(1)" nulo="NULL" defecto="DEFAULT('F')" />
+		<COLUMNA tabla="ph_usuario" nombre="orden_emp" tipo="char(1)" nulo="NOT NULL" defecto="DEFAULT('A')" />
+		<COLUMNA tabla="ph_usuario" nombre="tipo_edt" tipo="char(1)" nulo="NOT NULL" defecto="DEFAULT('D')" />
+		<COLUMNA tabla="ph_descansos_turnos" nombre="tiemp_ext" tipo="char(1)" nulo="NULL" defecto="DEFAULT('F')" />
+		<COLUMNA tabla="ph_ccostos" nombre="descripcion" tipo="varchar(200)" nulo="NULL" defecto="" />
+		<COLUMNA tabla="ph_transformacion" nombre="usr_transf" tipo="char(1)" nulo="NULL" defecto="DEFAULT('F')" />
+		<COLUMNA tabla="empleados" nombre="id_transfo_conc" tipo="int" nulo="NULL" defecto="DEFAULT('0')" />
+		<COLUMNA tabla="ph_planilla" nombre="est_nomina" tipo="varchar(1)" nulo="NULL" defecto="DEFAULT('M')" />
+		<COLUMNA tabla="relojes_dispositivo" nombre="usa_face" tipo="char(1)" nulo="NOT NULL" defecto="DEFAULT('F')" />
+		<COLUMNA tabla="reloj_usuario" nombre="face" tipo="varchar(max)" nulo="NULL" defecto="" />
+		<COLUMNA tabla="reloj_usuario" nombre="face_leng" tipo="int" nulo="NULL" defecto="" />
+		<COLUMNA tabla="ph_usuario" nombre="filt_prgt" tipo="char(1)" nulo="NOT NULL" defecto="DEFAULT('G')" />
+		<COLUMNA tabla="ph_grupo_periodo" nombre="usuario_cierre" tipo="int" nulo="NULL" defecto="" />
+		<COLUMNA tabla="ph_grupo_periodo" nombre="fecha_cierre" tipo="datetime" nulo="NULL" defecto="" />
+		<COLUMNA tabla="ph_descansos_turnos" nombre="desc_exc" tipo="char(1)" nulo="NULL" defecto="DEFAULT('F')" />
+	</V3.3.3>
+	<V3.3.4>
+		<COLUMNA tabla="relojes_dispositivo" nombre="usuario_hik" tipo="varchar(200)" nulo="NULL" defecto="" />
+		<COLUMNA tabla="relojes_dispositivo" nombre="password_hik" tipo="varchar(200)" nulo="NULL" defecto="" />
+		<COLUMNA tabla="ph_turnos" nombre="auto_pan" tipo="char(1)" nulo="NULL" defecto="DEFAULT('F')" />
+		<COLUMNA tabla="ph_opciones" nombre="dist_lic_usr" tipo="varchar(1024)" nulo="NULL" defecto="" />
+		<COLUMNA tabla="ph_opciones" nombre="dist_lic_emp" tipo="varchar(1024)" nulo="NULL" defecto="" />
+		<COLUMNA tabla="ph_opciones" nombre="tipo_dist" tipo="char(1)" nulo="NULL" defecto="DEFAULT('C')" />
+		<COLUMNA tabla="empleados" nombre="widioma" tipo="varchar(5)" nulo="NULL" defecto="DEFAULT('esp')" />    
+	</V3.3.4>
+	<V3.3.5>
+		<COLUMNA tabla="ph_turnos" nombre="apl_redond_entrada" tipo="char(1)" nulo="NULL" defecto="DEFAULT('F')" />
+		<COLUMNA tabla="ph_turnos" nombre="cant_redond_entrada" tipo="varchar(5)" nulo="NULL" defecto="DEFAULT('00:00')" />
+		<COLUMNA tabla="marcas_distribuciones_conceptos" nombre="comentario" tipo="text" nulo="NULL" defecto="" />
+		<COLUMNA tabla="ph_planilla" nombre="ext_det" tipo="char(1)" nulo="NULL" defecto="DEFAULT('F')" />
+		<COLUMNA tabla="ph_planilla" nombre="agrup_salida" tipo="char(1)" nulo="NULL" defecto="DEFAULT('F')" />
+		<COLUMNA tabla="ph_planilla" nombre="tipo_adic" tipo="char(1)" nulo="NULL" defecto="DEFAULT('H')" />
+		<COLUMNA tabla="ph_conceptos" nombre="tipo_ext_alm" tipo="char(1)" nulo="NULL" defecto="DEFAULT('D')" />
+		<COLUMNA tabla="ph_conceptos" nombre="muestra_resumen" tipo="char(1)" nulo="NULL" defecto="DEFAULT('D')" />
+		<COLUMNA tabla="ph_opciones" nombre="dist_tadic" tipo="char(1)" nulo="NULL" defecto="DEFAULT('F')" />
+		<COLUMNA tabla="marcas_tiempo_adicional" nombre="tcantidad" tipo="decimal(18,2)" nulo="NULL" defecto="" />
+		<COLUMNA tabla="marcas_tiempo_adicional" nombre="proyecto" tipo="varchar(25)" nulo="NULL" defecto="" />
+		<COLUMNA tabla="marcas_tiempo_adicional" nombre="fase" tipo="varchar(25)" nulo="NULL" defecto="" />
+		<COLUMNA tabla="ph_formulacion" nombre="formula" tipo="varchar(4096)" nulo="" defecto="" />
+	</V3.3.5>
+	<V3.3.6>
+		<COLUMNA tabla="ph_planilla" nombre="nivel_aprob_ext" tipo="int" nulo="NULL" defecto="DEFAULT(0)" />
+		<COLUMNA tabla="ph_planilla" nombre="agrup_salida" tipo="char(1)" nulo="NULL" defecto="DEFAULT('F')" />
+		<COLUMNA tabla="ph_usuario" nombre="nivel_aprob_ext" tipo="int" nulo="NULL" defecto="DEFAULT(0)" />
+		<COLUMNA tabla="marcas_extras_apb" nombre="aprob_nivel1" tipo="char(1)" nulo="NULL" defecto="DEFAULT('F')" />
+		<COLUMNA tabla="marcas_extras_apb" nombre="aprob_nivel2" tipo="char(1)" nulo="NULL" defecto="DEFAULT('F')" />
+		<COLUMNA tabla="marcas_extras_apb" nombre="aprob_nivel3" tipo="char(1)" nulo="NULL" defecto="DEFAULT('F')" />
+		<COLUMNA tabla="marcas_extras_apb" nombre="usuario_aprob_nivel1" tipo="varchar(100)" nulo="NULL" defecto="" />
+		<COLUMNA tabla="marcas_extras_apb" nombre="usuario_aprob_nivel2" tipo="varchar(100)" nulo="NULL" defecto="" />
+		<COLUMNA tabla="marcas_extras_apb" nombre="usuario_aprob_nivel3" tipo="varchar(100)" nulo="NULL" defecto="" />
+		<COLUMNA tabla="marcas_extras_apb" nombre="comentario_aprob_nivel1" tipo="varchar(4096)" nulo="NULL" defecto="" />
+		<COLUMNA tabla="marcas_extras_apb" nombre="comentario_aprob_nivel2" tipo="varchar(4096)" nulo="NULL" defecto="" />
+		<COLUMNA tabla="marcas_extras_apb" nombre="comentario_aprob_nivel3" tipo="varchar(4096)" nulo="NULL" defecto="" />
+		<COLUMNA tabla="empleados" nombre="def_cc" tipo="varchar(25)" nulo="NULL" defecto="" />
+		<COLUMNA tabla="empleados" nombre="def_py" tipo="varchar(25)" nulo="NULL" defecto="" />
+		<COLUMNA tabla="empleados" nombre="def_fase" tipo="varchar(25)" nulo="NULL" defecto="" />
+		<COLUMNA tabla="empleados" nombre="global_clave" tipo="varchar(250)" nulo="NULL" defecto="" />
+		<COLUMNA tabla="marcas_extras_apb" nombre="fecha_aprob_nivel1" tipo="datetime" nulo="NULL" defecto="" />
+		<COLUMNA tabla="marcas_extras_apb" nombre="fecha_aprob_nivel2" tipo="datetime" nulo="NULL" defecto="" />
+		<COLUMNA tabla="marcas_extras_apb" nombre="fecha_aprob_nivel3" tipo="datetime" nulo="NULL" defecto="" />
+		<COLUMNA tabla="marcas_extras_apb" nombre="cantidad_aprob_nivel1" tipo="varchar(5)" nulo="NULL" defecto="DEFAULT('00:00')" />
+		<COLUMNA tabla="marcas_extras_apb" nombre="cantidad_aprob_nivel2" tipo="varchar(5)" nulo="NULL" defecto="DEFAULT('00:00')" />
+		<COLUMNA tabla="marcas_extras_apb" nombre="cantidad_aprob_nivel3" tipo="varchar(5)" nulo="NULL" defecto="DEFAULT('00:00')" />    
+	</V3.3.6>
+	<V3.3.7>
+    <COLUMNA tabla="acciones_personal" nombre="solicitudid" tipo="bigint" nulo="NULL" defecto="" />
+		<COLUMNA tabla="empleados" nombre="fecha_salida" tipo="datetime" nulo="NULL" defecto="" />
+		<COLUMNA tabla="empleados" nombre="nit_empresa" tipo="varchar(255)" nulo="NULL" defecto="" />
+		<COLUMNA tabla="empleados" nombre="global_code" tipo="varchar(10)" nulo="NULL" defecto="" />
+		<COLUMNA tabla="empleados" nombre="fecha_act_code" tipo="datetime" nulo="NULL" defecto="" />
+		<COLUMNA tabla="empleados" nombre="valor_hora" tipo="decimal(18,2)" nulo="NULL" defecto="" />
+		<COLUMNA tabla="empleados" nombre="ubicacion_dgt2" tipo="varchar(60)" nulo="NULL" defecto="" />
+		<COLUMNA tabla="empleados" nombre="puesto" tipo="varchar(8)" nulo="NULL" defecto="" />
+		<COLUMNA tabla="incidencias" nombre="marca_web" tipo="char(1)" nulo="NULL" defecto="" />
+		<COLUMNA tabla="relojes_dispositivo" nombre="CLOCK_SERIE" tipo="varchar(200)" nulo="NULL" defecto="" />
+		<COLUMNA tabla="relojes_dispositivo" nombre="alerta_mascarilla" tipo="char(1)" nulo="NULL" defecto="" />
+		<COLUMNA tabla="relojes_dispositivo" nombre="alerta_temperatura" tipo="char(1)" nulo="NULL" defecto="" />
+		<COLUMNA tabla="relojes_dispositivo" nombre="corte_temperatura" tipo="varchar(5)" nulo="NULL" defecto="" />
+		<COLUMNA tabla="relojes_dispositivo" nombre="direcciones_alerta" tipo="varchar(max)" nulo="NULL" defecto="" />
+		<COLUMNA tabla="relojes_dispositivo" nombre="ACC" tipo="char(1)" nulo="NULL" defecto="" />
+		<COLUMNA tabla="relojes_dispositivo" nombre="ultimo_estado" tipo="datetime" nulo="NULL" defecto="" />
+		<COLUMNA tabla="reloj_usuario" nombre="face" tipo="varchar(max)" nulo="NULL" defecto="" />
+		<COLUMNA tabla="reloj_usuario" nombre="face_leng" tipo="int" nulo="NULL" defecto="" />
+		<COLUMNA tabla="reloj_usuario" nombre="ivms_face" tipo="varchar(max)" nulo="NULL" defecto="" />
+		<COLUMNA tabla="reloj_usuario" nombre="ivms_palma" tipo="varchar(max)" nulo="NULL" defecto="" />
+		<COLUMNA tabla="reloj_usuario" nombre="idreloj_enroll" tipo="int" nulo="NULL" defecto="" />
+		<COLUMNA tabla="reloj_usuario" nombre="idgrupo" tipo="int" nulo="NULL" defecto="" />
+		<COLUMNA tabla="reloj_usuario" nombre="ivms_face_leng" tipo="int" nulo="NULL" defecto="" />
+		<COLUMNA tabla="reloj_usuario" nombre="ivms_palma_leng" tipo="int" nulo="NULL" defecto="" />
+		<COLUMNA tabla="ph_opciones" nombre="idopcion" tipo="int" nulo="NOT NULL" defecto="DEFAULT ((1))" />
+		<COLUMNA tabla="ph_ccostos" nombre="alias_ccosto" tipo="varchar(200)" nulo="NULL" defecto="" />
+		<COLUMNA tabla="ParametrosEmail" nombre="UserName" tipo="varchar(50)" nulo="NULL" defecto="" />
+		<COLUMNA tabla="ParametrosEmail" nombre="TipoServicio" tipo="int" nulo="NOT NULL" defecto="DEFAULT ((0))" />
+		<COLUMNA tabla="ParametrosEmail" nombre="ClientId" tipo="varchar(50)" nulo="NULL" defecto="" />
+		<COLUMNA tabla="ParametrosEmail" nombre="TenantId" tipo="varchar(50)" nulo="NULL" defecto="" />
+		<COLUMNA tabla="ParametrosEmail" nombre="ClientSecret" tipo="varchar(250)" nulo="NULL" defecto="" />
+		<COLUMNA tabla="reportes" nombre="tipo" tipo="char(1)" nulo="NULL" defecto="DEFAULT('R')" />
+		<COLUMNA tabla="ph_turnos" nombre="ColorId" tipo="int" nulo="NULL" defecto="" />
+    <COLUMNA tabla="ph_usuario" nombre="ffecha_evaluar" tipo="datetime" nulo="NULL" defecto="" />
+    <COLUMNA tabla="ph_usuario" nombre="fcant_meses" tipo="int" nulo="NULL" defecto="" />
+    <COLUMNA tabla="marcas_incidencias" nombre="estado_envio" tipo="bit" nulo="not NULL" defecto="DEFAULT ((0))" />
+    <COLUMNA tabla="marcas_mov_turnos" nombre="estado_envio" tipo="bit" nulo="not NULL" defecto="DEFAULT ((0))" />
+    <COLUMNA tabla="ph_opciones" nombre="org_base" tipo="varchar(2)" nulo="NULL" defecto="" />
+    <COLUMNA tabla="ph_grupos" nombre="OrganizacionId" tipo="int" nulo="NULL" defecto="" />
+    <COLUMNA tabla="SolicitudesConfiguracion" nombre="FiltrarNomina" tipo="bit" nulo="not NULL" defecto="DEFAULT ((0))" />
+    <COLUMNA tabla="SolicitudesConfiguracion" nombre="NominasHabilitadas" tipo="varchar(max)" nulo="NULL" defecto="DEFAULT('')" />
+    <COLUMNA tabla="SolicitudesConfiguracion" nombre="AdmiteDuplicados" tipo="bit" nulo="not NULL" defecto="DEFAULT ((0))" />
+    <COLUMNA tabla="marcas" nombre="host" tipo="varchar(400)" nulo="NULL" defecto="DEFAULT('')" />
+    <COLUMNA tabla="marcas" nombre="dir_ip" tipo="varchar(200)" nulo="NULL" defecto="DEFAULT('')" />
+    <COLUMNA tabla="marcas" nombre="fecha_hora" tipo="DateTime" nulo="NULL" defecto="" />
+    <COLUMNA tabla="marcas_in" nombre="host" tipo="varchar(400)" nulo="NULL" defecto="DEFAULT('')" />
+    <COLUMNA tabla="marcas_in" nombre="dir_ip" tipo="varchar(200)" nulo="NULL" defecto="DEFAULT('')" />
+	</V3.3.7>
+</CATABLES>
+
+[NominasHabilitadas] [varchar](max) NULL,[] [] NOT NULL,

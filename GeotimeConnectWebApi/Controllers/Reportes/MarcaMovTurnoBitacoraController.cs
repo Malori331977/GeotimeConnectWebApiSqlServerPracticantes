@@ -16,7 +16,7 @@ namespace GeoTimeConnectWebApi.Controllers.Reportes
             _repoGT = repoGT;
         }
 
-        [HttpGet("{fechaInicio}/{fechaFinal}")]
-        public async Task<IEnumerable<cMarcaMovTurnoBitacora>> Get(string fechaInicio, string fechaFinal) => await _repoGT.GetMarcaMovTurnoBitacora(fechaInicio, fechaFinal);
+        [HttpGet("{fechaInicio}/{fechaFinal}/{idDepartamento}")]
+        public async Task<IEnumerable<cMarcaMovTurnoBitacora>> Get(string fechaInicio, string fechaFinal, string idDepartamento) => await _repoGT.GetMarcaMovTurnoBitacora(fechaInicio, fechaFinal, idDepartamento);
     }
 }

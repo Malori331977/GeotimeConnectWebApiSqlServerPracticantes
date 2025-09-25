@@ -1,0 +1,49 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<CARELAT>
+    <V3.1.0>
+        <!-- Utilizo % para separar las intrucciones de la llave foranea -->
+        <stored nombre="FK_ph_turnos_ph_conceptos5">
+            <Comandos ejecuto="ALTER TABLE [geotime].[ph_turnos]  WITH CHECK ADD  CONSTRAINT [FK_ph_turnos_ph_conceptos5] FOREIGN KEY([con_6]) REFERENCES [GEOTIME].[ph_conceptos] ([id]) % ALTER TABLE [GEOTIME].[ph_turnos] CHECK CONSTRAINT [FK_ph_turnos_ph_conceptos5]" />
+        </stored>
+    </V3.1.0>
+  <V3.3.5>
+    <stored nombre="FK_marcas_extras_detalle_empleados">
+      <Comandos ejecuto="ALTER TABLE [geotime].[marcas_extras_detalle]  WITH CHECK ADD  CONSTRAINT [FK_marcas_extras_detalle_empleados] FOREIGN KEY([idnumero]) REFERENCES [geotime].[empleados] ([idnumero])%ALTER TABLE [geotime].[marcas_extras_detalle] CHECK CONSTRAINT [FK_marcas_extras_detalle_empleados]%CREATE NONCLUSTERED INDEX [IX_marcas_extras_detalle] ON [geotime].[marcas_extras_detalle] ([idplanilla] ASC,[idnumero] ASC,[fecha] ASC,[hora] ASC) WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]" />
+    </stored>
+  </V3.3.5>
+  <V3.3.7>
+    <stored nombre="FK_empleado_rostro_empleados">
+      <Comandos ejecuto="ALTER TABLE [geotime].[empleado_rostro]  WITH CHECK ADD  CONSTRAINT [FK_empleado_rostro_empleados] FOREIGN KEY([idnumero]) REFERENCES [geotime].[empleados] ([idnumero])%ALTER TABLE [geotime].[empleado_rostro] CHECK CONSTRAINT [FK_empleado_rostro_empleados]" />
+    </stored>    
+	<stored nombre="FK_phturnos_paletacolores">
+      <Comandos ejecuto="ALTER TABLE [geotime].[ph_turnos]  WITH CHECK ADD  CONSTRAINT [FK_phturnos_paletacolores] FOREIGN KEY([ColorId]) REFERENCES [geotime].[PaletaColores] ([ColorId])%ALTER TABLE [geotime].[ph_turnos] CHECK CONSTRAINT [FK_phturnos_paletacolores]" />
+    </stored>
+	<stored nombre="FK_PortalOpcionesMenu">
+      <Comandos ejecuto="ALTER TABLE [geotime].[Portal_Opciones]  WITH CHECK ADD  CONSTRAINT [FK_PortalOpcionesMenu] FOREIGN KEY([ParentId]) REFERENCES [geotime].[Portal_Menu] ([Id])%ALTER TABLE [geotime].[Portal_Opciones] CHECK CONSTRAINT [FK_PortalOpcionesMenu]" />
+    </stored> 
+	<stored nombre="FK_PortalRolesDet_Roles">
+      <Comandos ejecuto="ALTER TABLE [geotime].[Portal_RolesDet]  WITH CHECK ADD  CONSTRAINT [FK_PortalRolesDet_Roles] FOREIGN KEY([PortalRolId]) REFERENCES [geotime].[Portal_Roles] ([Id])%ALTER TABLE [geotime].[Portal_RolesDet] CHECK CONSTRAINT [FK_PortalRolesDet_Roles]" />
+    </stored> 
+	<stored nombre="FK_FlujosAutorizacionDetalle_EstadoAnt">
+      <Comandos ejecuto="ALTER TABLE [geotime].[FlujosAutorizacionDetalle]  WITH CHECK ADD  CONSTRAINT [FK_FlujosAutorizacionDetalle_EstadoAnt] FOREIGN KEY([EstadoAnteriorId]) REFERENCES [geotime].[Estados] ([Id])%ALTER TABLE [geotime].[FlujosAutorizacionDetalle] CHECK CONSTRAINT [FK_FlujosAutorizacionDetalle_EstadoAnt]" />
+    </stored> 	
+	<stored nombre="FK_FlujosAutorizacionDetalle_EstadoNue">
+      <Comandos ejecuto="ALTER TABLE [geotime].[FlujosAutorizacionDetalle]  WITH CHECK ADD  CONSTRAINT [FK_FlujosAutorizacionDetalle_EstadoNue] FOREIGN KEY([EstadoNuevoId]) REFERENCES [geotime].[Estados] ([Id])%ALTER TABLE [geotime].[FlujosAutorizacionDetalle] CHECK CONSTRAINT [FK_FlujosAutorizacionDetalle_EstadoNue]" />
+    </stored> 	
+	<stored nombre="FK_FlujosAutorizacionDetalle_FlujosAutorizacion">
+      <Comandos ejecuto="ALTER TABLE [geotime].[FlujosAutorizacionDetalle]  WITH CHECK ADD  CONSTRAINT [FK_FlujosAutorizacionDetalle_FlujosAutorizacion] FOREIGN KEY([FlujoAutorizacionId]) REFERENCES [geotime].[FlujosAutorizacion] ([Id])%ALTER TABLE [geotime].[FlujosAutorizacionDetalle] CHECK CONSTRAINT [FK_FlujosAutorizacionDetalle_FlujosAutorizacion]" />
+    </stored> 	
+	<stored nombre="FK_FlujosAutorizacionDetalle_OrganizacionNiveles">
+      <Comandos ejecuto="ALTER TABLE [geotime].[FlujosAutorizacionDetalle]  WITH CHECK ADD  CONSTRAINT [FK_FlujosAutorizacionDetalle_OrganizacionNiveles] FOREIGN KEY([NivelOrganizacionId]) REFERENCES [geotime].[OrganizacionNiveles] ([Id])%ALTER TABLE [geotime].[FlujosAutorizacionDetalle] CHECK CONSTRAINT [FK_FlujosAutorizacionDetalle_OrganizacionNiveles]" />
+    </stored> 	
+	<stored nombre="FK_Organizacion_OrganizacionNiveles">
+      <Comandos ejecuto="ALTER TABLE [geotime].[Organizacion]  WITH CHECK ADD  CONSTRAINT [FK_Organizacion_OrganizacionNiveles] FOREIGN KEY([NivelOrganizacionId]) REFERENCES [geotime].[OrganizacionNiveles] ([Id])%ALTER TABLE [geotime].[Organizacion] CHECK CONSTRAINT [FK_Organizacion_OrganizacionNiveles]" />
+    </stored> 
+    <stored nombre="FK_OrganizacionResponsables_Organizacion">
+      <Comandos ejecuto="ALTER TABLE [geotime].[OrganizacionResponsables]  WITH CHECK ADD  CONSTRAINT [FK_OrganizacionResponsables_Organizacion] FOREIGN KEY([OrganizacionId]) REFERENCES [geotime].[Organizacion] ([Id])%ALTER TABLE [geotime].[OrganizacionResponsables] CHECK CONSTRAINT [FK_OrganizacionResponsables_Organizacion]" />
+    </stored> 	
+	<stored nombre="FK_SolicitudesAutorizaciones_Solicitudes">
+      <Comandos ejecuto="ALTER TABLE [geotime].[SolicitudesAutorizaciones]  WITH CHECK ADD  CONSTRAINT [FK_SolicitudesAutorizaciones_Solicitudes] FOREIGN KEY([SolicitudId]) REFERENCES [geotime].[Solicitudes] ([Id])%ALTER TABLE [geotime].[SolicitudesAutorizaciones] CHECK CONSTRAINT [FK_SolicitudesAutorizaciones_Solicitudes]" />
+    </stored> 		
+  </V3.3.7>
+</CARELAT>

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<CATABLES>	
+	<V3.3.7>
+		<COLUMNA tabla="acciones_personal" nombre="dias" tipo="decimal(28,8)" nulo="NULL" defecto="" />
+	</V3.3.7>
+</CATABLES>
+
