@@ -19,7 +19,8 @@ namespace com.gsitcr.geotime.Data
         private string InterfaceName = "ReportesServices";
 
         public ReportesServices(IHttpContextAccessor httpContextAccessor, 
-                                     ILogger<ReportesServices> logger)
+                                     ILogger<ReportesServices> logger,
+                                     IGeoTimeConnectService geoService)
         {
             _httpContextAccessor = httpContextAccessor;
             IEnumerable<Claim> claims = _httpContextAccessor.HttpContext!.User.Claims;
@@ -441,6 +442,113 @@ namespace com.gsitcr.geotime.Data
 
                 string error = e.InnerException is null ? e.Message : e.InnerException.Message;
                 error = $"{InterfaceName}.GetHistoricoCalculoTiempos: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}";
+                respuesta.Descripcion = error;
+
+                _logger.LogError(error);
+                throw;
+            }
+            return respuesta;
+        }
+
+        public async Task<EventResponse> GetHistoricoConcepto(cFiltroReporte filtro)
+        {
+            EventResponse respuesta = new EventResponse();
+            try
+            {
+                var periodos = from a in _context.Ph_Periodos
+                                 join b in _context.Ph_Planilla on a.tipo_planilla equals b.tipo_planilla                                 
+                                 where filtro.inicio >= a.inicio && filtro.inicio <= a.fin
+                                    && (filtro.Planillas == null ? true : filtro.Planillas!.Contains(b.idplanilla))
+                                 select new
+                                 {
+                                     IdPeriodo=a.idperiodo,
+                                     TipoPlanilla = a.tipo_planilla,
+                                     IdPlanilla = b.idplanilla,
+                                     Planilla = b.planilla,
+                                 };
+
+                var model = await (from mr in _context.Marcas_Resumen.Include(e=>e.cConcepto)
+                                   join emp in _context.Empleados.Include(e => e.Ph_Grupo).Include(e => e.Ph_Planilla).Include(e => e.Departamento) on mr.IdNumero equals emp.IdNumero
+                                   join p in periodos on new { IdPeriodo = mr.IdPeriodo, IdPlanilla = mr.IdPlanilla } equals new { IdPeriodo = p.IdPeriodo, IdPlanilla = p.IdPlanilla } 
+                                   where (filtro.Departamentos == null ? true : filtro.Departamentos!.Contains(emp.IdDepartamento))
+                                      && (filtro.Empleados == null ? true : filtro.Empleados!.Contains(emp.IdNumero))
+                                      && mr.Cantidad > 0
+                                   select new cVHistoricoConcepto
+                                   {
+                                       Inicio = filtro.inicio,
+                                       Fin = filtro.fin,
+                                       IdNumero = mr.IdNumero,
+                                       Nombre = emp.Nombre,
+                                       DescGrupo = emp.Ph_Grupo == null ? "" : emp.Ph_Grupo.descripcion,
+                                       DescDepartamento = emp.Departamento == null ? "" : emp.Departamento.DESCRIPCION,
+                                       DescPlanilla = emp.Ph_Planilla == null ? "" : emp.Ph_Planilla.planilla,
+                                       IdConcepto = mr.IdConcepto,
+                                       Codigo = mr.cConcepto == null ? "" : mr.cConcepto.Concepto,
+                                       DescConcepto = mr.cConcepto == null ? "" : mr.cConcepto.Descripcion,
+                                       Cantidad = mr.Cantidad,
+                                       CCosto = mr.IdCCosto,
+                                       Proyecto = mr.Proyecto,
+                                       Fase = mr.Fase,
+                                   }).ToListAsync();
+                respuesta.Data = System.Text.Json.JsonSerializer.Serialize<IEnumerable<cVHistoricoConcepto>>(model);
+
+            }
+            catch (Exception e)
+            {
+                respuesta.Respuesta = "Error";
+
+                string error = e.InnerException is null ? e.Message : e.InnerException.Message;
+                error = $"{InterfaceName}.GetHistoricoConcepto: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}";
+                respuesta.Descripcion = error;
+
+                _logger.LogError(error);
+                throw;
+            }
+            return respuesta;
+        }
+
+        public async Task<EventResponse> GetHistoricoConceptoResumen(cFiltroReporte filtro)
+        {
+            EventResponse respuesta = new EventResponse();
+            try
+            {
+                var periodos = from a in _context.Ph_Periodos
+                                      join b in _context.Ph_Planilla on a.tipo_planilla equals b.tipo_planilla
+                                      where filtro.inicio >= a.inicio && filtro.inicio <= a.fin
+                                         && (filtro.Planillas == null ? true : filtro.Planillas!.Contains(b.idplanilla))
+                                      select new
+                                      {
+                                          IdPeriodo = a.idperiodo,
+                                          TipoPlanilla = a.tipo_planilla,
+                                          IdPlanilla = b.idplanilla,
+                                          Planilla = b.planilla,
+                                      };
+
+
+                var model = await (from mr in _context.Marcas_Resumen.Include(e => e.cConcepto)
+                                   join emp in _context.Empleados on mr.IdNumero equals emp.IdNumero
+                                   join p in periodos on new { IdPeriodo = mr.IdPeriodo, IdPlanilla = mr.IdPlanilla } equals new { IdPeriodo = p.IdPeriodo, IdPlanilla = p.IdPlanilla }
+                                   where (filtro.Departamentos == null ? true : filtro.Departamentos!.Contains(emp.IdDepartamento))
+                                      && (filtro.Empleados == null ? true : filtro.Empleados!.Contains(emp.IdNumero))
+                                      && mr.Cantidad>0
+                                   group mr by new { mr.IdConcepto, mr.cConcepto!.Concepto, mr.cConcepto.Descripcion } into g
+                                   select new cVHistoricoConceptoResumen
+                                   {
+                                       IdConcepto = g.Key.IdConcepto,
+                                       Codigo = g.Key.Concepto,
+                                       DescConcepto = g.Key.Descripcion,
+                                       Cantidad = g.Sum(x => x.Cantidad),
+                                   }).ToListAsync();
+
+                respuesta.Data = System.Text.Json.JsonSerializer.Serialize<IEnumerable<cVHistoricoConceptoResumen>>(model);
+
+            }
+            catch (Exception e)
+            {
+                respuesta.Respuesta = "Error";
+
+                string error = e.InnerException is null ? e.Message : e.InnerException.Message;
+                error = $"{InterfaceName}.GetHistoricoConceptoResumen: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}";
                 respuesta.Descripcion = error;
 
                 _logger.LogError(error);

@@ -29,5 +29,6 @@ namespace GeoTimeConnectWebApi.Controllers.Procesos.Periodos
             return Ok(respuesta);
         }
 
+        
     }
 }

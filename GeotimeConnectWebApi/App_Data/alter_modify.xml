@@ -2,6 +2,6 @@
 <CATABLES>	
 	<V3.3.7>
 		<COLUMNA tabla="acciones_personal" nombre="dias" tipo="decimal(28,8)" nulo="NULL" defecto="" />
-	</V3.3.7>
+    <COLUMNA tabla="Solicitudes" nombre="TotalHoras" tipo="varchar(8)" nulo="not null" defecto="" />
+  </V3.3.7>
 </CATABLES>
-

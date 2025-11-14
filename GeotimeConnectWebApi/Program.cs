@@ -1,5 +1,6 @@
 using com.gsitcr.geotime.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using RelojesApi.DependencyInjection;
 
 
@@ -15,6 +16,8 @@ IConfiguration config = new ConfigurationBuilder()
 var appSettingsSection = config.GetSection("AppSettings");
 string withCors = config.GetConnectionString("WithCors")!;
 string Modo = config.GetConnectionString("Modo")!;
+string WithOrigins = config.GetConnectionString("WithOrigins")!;
+string UrlApi = config.GetConnectionString("UrlApi")!;
 
 builder.Services.AddApplicationService();
 
@@ -41,13 +44,42 @@ if (Modo == "PRD")
 if (withCors is not null)
 {
     if (withCors == "S")
-        builder.Services.AddCors(options =>
+    {
+        if (!String.IsNullOrEmpty(WithOrigins))
         {
-            options.AddPolicy("CorsPolicy",
-                builder => builder.AllowAnyOrigin()
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("CorsPolicy",
+                builder => builder.SetIsOriginAllowed(origin =>
+                {
+                    // Permitir localhost en cualquier puerto
+                    return origin.StartsWith("http://localhost") ||
+                            origin.StartsWith("https://localhost") ||
+                            origin.StartsWith("http://127.0.0.1") ||
+                            origin.StartsWith(WithOrigins);
+                })
                 .WithMethods("GET", "POST", "PUT", "DELETE")
-                .AllowAnyHeader());
-        });
+                .AllowAnyHeader()
+                .AllowCredentials()
+                .WithExposedHeaders("Authorization"));
+            });
+        }
+        else
+        {
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("CorsPolicy",
+                builder => builder
+                            .SetIsOriginAllowed(origin => true)
+                            .WithMethods("GET", "POST", "PUT", "DELETE")
+                            .AllowAnyHeader()
+                            .AllowCredentials()                              
+                            .WithExposedHeaders("Authorization"));
+            });
+        }
+        
+    }
+        
 }
 
 
@@ -63,20 +95,24 @@ if (!app.Environment.IsDevelopment())
 
         // Add other security headers
         app.UseMiddleware<SecurityHeadersMiddleware>();
+
+        app.UseHttpsRedirection();
     }
 }
+
+    
 
 app.UseSwagger();
 
 string urlApi = appSettingsSection.GetValue<string>("UrlApi")!;
 
 app.UseSwaggerUI(c => { c.SwaggerEndpoint($"{urlApi}swagger/v1/swagger.json", "com.gsitcr.geotime"); });
-app.UseHttpsRedirection();
-
 
 if (withCors is not null)
     if (withCors == "S")
         app.UseCors("CorsPolicy");
+
+app.UseRouting();
 
 app.UseAuthentication();
 

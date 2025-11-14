@@ -148,6 +148,7 @@
 		<COLUMNA tabla="reloj_usuario" nombre="ivms_face_leng" tipo="int" nulo="NULL" defecto="" />
 		<COLUMNA tabla="reloj_usuario" nombre="ivms_palma_leng" tipo="int" nulo="NULL" defecto="" />
 		<COLUMNA tabla="ph_opciones" nombre="idopcion" tipo="int" nulo="NOT NULL" defecto="DEFAULT ((1))" />
+    <COLUMNA tabla="ph_opciones" nombre="acc_bloc_pt" tipo="char(1)" nulo="NULL" defecto="" />
 		<COLUMNA tabla="ph_ccostos" nombre="alias_ccosto" tipo="varchar(200)" nulo="NULL" defecto="" />
 		<COLUMNA tabla="ParametrosEmail" nombre="UserName" tipo="varchar(50)" nulo="NULL" defecto="" />
 		<COLUMNA tabla="ParametrosEmail" nombre="TipoServicio" tipo="int" nulo="NOT NULL" defecto="DEFAULT ((0))" />
@@ -170,7 +171,7 @@
     <COLUMNA tabla="marcas" nombre="fecha_hora" tipo="DateTime" nulo="NULL" defecto="" />
     <COLUMNA tabla="marcas_in" nombre="host" tipo="varchar(400)" nulo="NULL" defecto="DEFAULT('')" />
     <COLUMNA tabla="marcas_in" nombre="dir_ip" tipo="varchar(200)" nulo="NULL" defecto="DEFAULT('')" />
+    <COLUMNA tabla="ph_usuario" nombre="pt_agrup" tipo="char(1)" nulo="NULL" defecto="DEFAULT('')" />
 	</V3.3.7>
 </CATABLES>
 
-[NominasHabilitadas] [varchar](max) NULL,[] [] NOT NULL,

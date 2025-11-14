@@ -19,7 +19,8 @@ namespace com.gsitcr.geotime.Models
         public int? FCANT_MESES { get; set; }
         public DateTime? FFECHA_EVALUAR { get; set; }
         public char? PT_AGRUP { get; set; }
-        
+       
+
 
 
 

@@ -11,41 +11,49 @@ namespace com.gsitcr.geotime.Data
     {
         public static SqlServerDataBaseContext GetSchemaChangeDbContext(string? schema = null, string? DBName = null)
         {
+            try
+            {
+                // Build a config object, using env vars and JSON providers.
+                IConfiguration config = new ConfigurationBuilder()
+                    .AddJsonFile("appsettings.json")
+                    .AddEnvironmentVariables()
+                    .Build();
 
-            // Build a config object, using env vars and JSON providers.
-            IConfiguration config = new ConfigurationBuilder()
-                .AddJsonFile("appsettings.json")
-                .AddEnvironmentVariables()
-                .Build();
+                //se desencriptan los datos de conexion a las base de datos y se pasa la cadena de conexion con los datos
+                //correctos.
 
-            //se desencriptan los datos de conexion a las base de datos y se pasa la cadena de conexion con los datos
-            //correctos.
+                string SQLConnectionString = config.GetConnectionString("SqlServerDataBaseContext");
+                string userSQL = Encripta.getDecryptTripleDES(config.GetConnectionString("UserSQL"));
+                string passSQL = Encripta.getDecryptTripleDES(config.GetConnectionString("PassSQL"));
 
-            string SQLConnectionString = config.GetConnectionString("SqlServerDataBaseContext");
-            string userSQL = Encripta.getDecryptTripleDES(config.GetConnectionString("UserSQL"));
-            string passSQL = Encripta.getDecryptTripleDES(config.GetConnectionString("PassSQL"));
+                //string userSQL = config.GetConnectionString("UserSQL");
+                //string passSQL = config.GetConnectionString("PassSQL");
 
-            //string userSQL = config.GetConnectionString("UserSQL");
-            //string passSQL = config.GetConnectionString("PassSQL");
+                string basedatos = (DBName is null || DBName == "") ? config.GetConnectionString("DBName") : DBName;
 
-            string basedatos = (DBName is null || DBName == "") ? config.GetConnectionString("DBName") : DBName;
+                SQLConnectionString = SQLConnectionString.Replace("UsuarioBDSQL", userSQL)
+                                                         .Replace("PassBDSQL", passSQL)
+                                                         .Replace("BaseDatos", basedatos);
 
-            SQLConnectionString = SQLConnectionString.Replace("UsuarioBDSQL", userSQL)
-                                                     .Replace("PassBDSQL", passSQL)
-                                                     .Replace("BaseDatos", basedatos);
+                var services = new ServiceCollection()
+                   .AddDbContext<SqlServerDataBaseContext>(
+                        builder => builder.UseSqlServer(SQLConnectionString)
+                                          .ReplaceService<IModelCacheKeyFactory, DbSchemaAwareModelCacheKeyFactory>()
+                                          .EnableServiceProviderCaching(false));
 
-            var services = new ServiceCollection()
-               .AddDbContext<SqlServerDataBaseContext>(
-                    builder => builder.UseSqlServer(SQLConnectionString)
-                                      .ReplaceService<IModelCacheKeyFactory, DbSchemaAwareModelCacheKeyFactory>()
-                                      .EnableServiceProviderCaching(false));
+                if (schema != null)
+                    services.AddSingleton<IDbContextSchema>(new DbContextSchema(schema, DateTime.Now, ""));
 
-            if (schema != null)
-                services.AddSingleton<IDbContextSchema>(new DbContextSchema(schema, DateTime.Now, ""));
+                var serviceProvider = services.BuildServiceProvider();
 
-            var serviceProvider = services.BuildServiceProvider();
+                return serviceProvider.GetRequiredService<SqlServerDataBaseContext>();
 
-            return serviceProvider.GetRequiredService<SqlServerDataBaseContext>();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("GetSchemaChangeDbContext: Error al crear el contexto de la base de datos con esquema dinámico: " + ex.Message);
+            }
+
         }
     }
 }

@@ -1,6 +1,4 @@
-﻿using Azure;
-using Azure.Core;
-using com.gsitcr.geotime.Data.Interfaz;
+﻿using com.gsitcr.geotime.Data.Interfaz;
 using com.gsitcr.geotime.Models;
 using com.gsitcr.geotime.Models.Response;
 using GeotimeFuncionesLib.Utiles;
@@ -8,12 +6,11 @@ using GeotimeModelsLib.Models;
 using GeoTimeServiceReference;
 using JtSegEncrypta;
 using LibEncripta;
-using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using SourceAFIS;
 using System.Data;
-using System.Diagnostics;
+using System.Globalization;
 using System.Net;
 using System.Net.Mail;
 using System.Net.Mime;
@@ -22,8 +19,8 @@ using System.Security.Claims;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Xml;
-using static com.gsitcr.geotime.Models.CalculoPeriodoParam;
 using static GeoTimeServiceReference.ServiceSoapClient;
+using static com.gsitcr.geotime.Models.CalculoPeriodoParam;
 
 
 namespace com.gsitcr.geotime.Data
@@ -153,6 +150,28 @@ namespace com.gsitcr.geotime.Data
         }
 
         /// <summary>
+        /// GetPhLoginById: Método para obtener un ph_login por nombre de usuario
+        /// </summary>
+        /// <returns>Una instancia de la clase cPhLogin</returns>
+        /// ///<param name="id">Id del usuario requerido</param>
+        public async Task<cPh_Login> GetPhLoginById(int id)
+        {
+            cPh_Login? phlogin = new();
+
+            try
+            {
+                phlogin = await _context.PH_LOGIN.FirstOrDefaultAsync(e => e.idusuario == id);
+            }
+            catch (Exception e)
+            {
+                string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetPhLoginById: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}");
+                throw;
+            }
+            return phlogin;
+        }
+
+        /// <summary>
         /// PutPhLogin: metodo para actualizar campos de filtros del ph_login
         /// </summary>
         /// <param name="phLogin"></param>
@@ -173,11 +192,11 @@ namespace com.gsitcr.geotime.Data
                     loginBuscar.descripcion = phLogin.descripcion;
                     loginBuscar.usa_wusuario = phLogin.usa_wusuario;
                     loginBuscar.OMITE_LIC = phLogin.OMITE_LIC;
-                    //loginBuscar.fcomp = phLogin.fcomp;
+                    loginBuscar.fcomp = phLogin.fcomp != loginBuscar.fcomp && !string.IsNullOrEmpty(phLogin.fcomp!)? phLogin.fcomp : loginBuscar.fcomp;
                     loginBuscar.idsesion = 0; // se reinicia la sesion
                     
                     // Verifica que sea necesario cambiar la clave
-                    loginBuscar.clave = ("0" == Pas) ? loginBuscar.clave : FuncionesGlobales.Global_encrypt(Encripta.getDecryptTripleDES(phLogin.clave));
+                    loginBuscar.clave = ("0" == Pas) ? loginBuscar.clave : FuncionesGlobales.Global_encrypt(Encripta.getDecryptTripleDES(phLogin.GLOBAL_CLAVE!));
                     // Verifica que sea necesario cambiar la clave
                     loginBuscar.GLOBAL_CLAVE = ("0" == Pas) ? loginBuscar.GLOBAL_CLAVE : FuncionesGlobales.Global_encrypt(Encripta.getDecryptTripleDES(phLogin.GLOBAL_CLAVE!));
 
@@ -436,6 +455,54 @@ namespace com.gsitcr.geotime.Data
 
                string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
                 _logger.LogError($"GeoTimeConnectService.Sincronizar_PhCompania: {respuesta.Descripcion}");
+
+
+            }
+
+            return respuesta;
+
+        }
+
+
+        /// <summary>
+        /// PutPhCompania: metodo para actualizar campos de la api en todos los registros de ph_compania
+        /// </summary>
+        /// <param name="phCompanias"></param>
+        /// <returns>EventResponse, con el resultado del proceso</returns>
+        public async Task<EventResponse> PutPhCompania(cPh_Compania phCompanias)
+        {
+            EventResponse respuesta = new EventResponse();
+            
+            try
+            {
+                await UpgradeTablesBD(phCompanias.IDCOMP);
+
+                var companias = await _context.PH_COMPANIAS.ToListAsync();
+                //actualizar datos de api para todas las compañias
+
+                foreach(var comp in companias)
+                {
+                    comp.APICLIENTID = Encripta.getEncryptTripleDES(phCompanias.APICLIENTID!);
+                    comp.APIUSER = Encripta.getEncryptTripleDES(phCompanias.APIUSER!);
+                    comp.APIPASSWORD = Encripta.getEncryptTripleDES(phCompanias.APIPASSWORD!);
+                    comp.APIURL = Encripta.getEncryptTripleDES(phCompanias.APIURL!);
+                    comp.APIDATABASE = Encripta.getEncryptTripleDES(phCompanias.APIDATABASE!);
+                    _context.PH_COMPANIAS.Update(comp);
+                }
+                await _context.SaveChangesAsync();
+
+            }
+            catch (Exception e)
+            {
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo realizar la actualización de los datos del API. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo realizar la actualización de los datos del API. Detalle de Error: " + e.InnerException.Message;
+
+                string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.PutPhCompania: {respuesta.Descripcion}");
 
 
             }
@@ -1336,90 +1403,172 @@ namespace com.gsitcr.geotime.Data
         /// GetEmpleado: Método para obtener una lista de empleados 
         /// </summary>
         /// <returns>Lista de cEmpleados</returns>
+        //public async Task<List<cEmpleado>> GetEmpleadoProgramador(string idplanilla, string grupos)
+        //{
+        //    List<cEmpleado> empleado = new();
+        //    try
+        //    {
+                
+        //        string[] ListGrupos = grupos.Split(',');
+        //        List<cPh_Grupo> phgrupos = new List<cPh_Grupo>();
+
+        //        foreach (var valor in ListGrupos)
+        //            phgrupos.Add(new cPh_Grupo
+        //            {
+        //                idgrupo = int.Parse(valor),
+        //            });
+                    
+
+        //        empleado = (from e in await _context.Empleados.Where(e => e.IdPlanilla == idplanilla && e.Estado == 'T').ToListAsync()
+        //                    join g in phgrupos on e.IdGrupo equals g.idgrupo                            
+        //                    select new cEmpleado
+        //                    {
+        //                        IdNumero = e.IdNumero,
+        //                        IdPlanilla = e.IdPlanilla,
+        //                        Nombre = e.Nombre,
+        //                        Tarjeta = e.Tarjeta,
+        //                        Identificacion = e.Identificacion,
+        //                        IdGrupo = e.IdGrupo,
+        //                        IdDepartamento = e.IdDepartamento,
+        //                        IdHorario = e.IdHorario,
+        //                        Estado = e.Estado,
+        //                        IdAgrupamiento = e.IdAgrupamiento,
+        //                        foto = e.foto,
+        //                        IdCCosto = e.IdCCosto,
+        //                        exporta = e.exporta,
+        //                        ubicacion = e.ubicacion,
+        //                        rubro1 = e.rubro1,
+        //                        rubro2 = e.rubro2,
+        //                        rubro3 = e.rubro3,
+        //                        rubro4 = e.rubro4,
+        //                        rubro5 = e.rubro5,
+        //                        rubro6 = e.rubro6,
+        //                        rubro7 = e.rubro7,
+        //                        rubro8 = e.rubro8,
+        //                        rubro9 = e.rubro9,
+        //                        rubro10 = e.rubro10,
+        //                        rubro11 = e.rubro11,
+        //                        rubro12 = e.rubro12,
+        //                        rubro13 = e.rubro13,
+        //                        rubro14 = e.rubro14,
+        //                        rubro15 = e.rubro15,
+        //                        rubro16 = e.rubro16,
+        //                        rubro17 = e.rubro17,
+        //                        rubro18 = e.rubro18,
+        //                        rubro19 = e.rubro19,
+        //                        rubro20 = e.rubro20,
+        //                        rubro21 = e.rubro21,
+        //                        rubro22 = e.rubro22,
+        //                        rubro23 = e.rubro23,
+        //                        rubro24 = e.rubro24,
+        //                        rubro25 = e.rubro25,
+        //                        Fecha_Ingreso = e.Fecha_Ingreso,
+        //                        Email = e.Email,
+        //                        Tipo_Marca = e.Tipo_Marca,
+        //                        inicio_rol = e.inicio_rol,
+        //                        web_pass = e.web_pass,
+        //                        id_transfo_conc = e.id_transfo_conc,
+        //                        widioma = e.widioma,
+        //                        global_clave = e.global_clave,
+        //                        def_fase = e.def_fase,
+        //                        def_py = e.def_py,
+        //                        def_cc = e.def_cc,
+        //                        Fecha_Salida = e.Fecha_Salida,
+        //                        global_code = e.global_code,
+        //                        fecha_act_code = e.fecha_act_code,
+        //                        puesto = e.puesto,
+        //                    }).ToList();
+        //    }
+        //    catch (Exception e)
+        //    {
+        //       string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+
+        //        _logger.LogError($"GeoTimeConnectService.GetEmpleadoProgramador: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
+        //    }
+        //    return empleado;
+        //}
+
         public async Task<List<cEmpleado>> GetEmpleadoProgramador(string idplanilla, string grupos)
         {
             List<cEmpleado> empleado = new();
             try
             {
-                
-                string[] ListGrupos = grupos.Split(',');
-                List<cPh_Grupo> phgrupos = new List<cPh_Grupo>();
+                // Convertir la cadena de grupos a una lista de enteros
+                var grupoIds = grupos.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                                     .Select(g => int.Parse(g.Trim()))
+                                     .ToList();
 
-                foreach (var valor in ListGrupos)
-                    phgrupos.Add(new cPh_Grupo
+                // Filtrar directamente en la base de datos
+                empleado = await _context.Empleados
+                    .Where(e => e.IdPlanilla == idplanilla && e.Estado == 'T' && grupoIds.Contains(e.IdGrupo ?? 0))
+                    .Select(e => new cEmpleado
                     {
-                        idgrupo = int.Parse(valor),
-                    });
-                    
-
-                empleado = (from e in await _context.Empleados.Where(e => e.IdPlanilla == idplanilla && e.Estado == 'T').ToListAsync()
-                            join g in phgrupos on e.IdGrupo equals g.idgrupo                            
-                            select new cEmpleado
-                            {
-                                IdNumero = e.IdNumero,
-                                IdPlanilla = e.IdPlanilla,
-                                Nombre = e.Nombre,
-                                Tarjeta = e.Tarjeta,
-                                Identificacion = e.Identificacion,
-                                IdGrupo = e.IdGrupo,
-                                IdDepartamento = e.IdDepartamento,
-                                IdHorario = e.IdHorario,
-                                Estado = e.Estado,
-                                IdAgrupamiento = e.IdAgrupamiento,
-                                foto = e.foto,
-                                IdCCosto = e.IdCCosto,
-                                exporta = e.exporta,
-                                ubicacion = e.ubicacion,
-                                rubro1 = e.rubro1,
-                                rubro2 = e.rubro2,
-                                rubro3 = e.rubro3,
-                                rubro4 = e.rubro4,
-                                rubro5 = e.rubro5,
-                                rubro6 = e.rubro6,
-                                rubro7 = e.rubro7,
-                                rubro8 = e.rubro8,
-                                rubro9 = e.rubro9,
-                                rubro10 = e.rubro10,
-                                rubro11 = e.rubro11,
-                                rubro12 = e.rubro12,
-                                rubro13 = e.rubro13,
-                                rubro14 = e.rubro14,
-                                rubro15 = e.rubro15,
-                                rubro16 = e.rubro16,
-                                rubro17 = e.rubro17,
-                                rubro18 = e.rubro18,
-                                rubro19 = e.rubro19,
-                                rubro20 = e.rubro20,
-                                rubro21 = e.rubro21,
-                                rubro22 = e.rubro22,
-                                rubro23 = e.rubro23,
-                                rubro24 = e.rubro24,
-                                rubro25 = e.rubro25,
-                                Fecha_Ingreso = e.Fecha_Ingreso,
-                                Email = e.Email,
-                                Tipo_Marca = e.Tipo_Marca,
-                                inicio_rol = e.inicio_rol,
-                                web_pass = e.web_pass,
-                                id_transfo_conc = e.id_transfo_conc,
-                                widioma = e.widioma,
-                                global_clave = e.global_clave,
-                                def_fase = e.def_fase,
-                                def_py = e.def_py,
-                                def_cc = e.def_cc,
-                                Fecha_Salida = e.Fecha_Salida,
-                                global_code = e.global_code,
-                                fecha_act_code = e.fecha_act_code,
-                                puesto = e.puesto,
-                            }).ToList();
+                        IdNumero = e.IdNumero,
+                        IdPlanilla = e.IdPlanilla,
+                        Nombre = e.Nombre,
+                        Tarjeta = e.Tarjeta,
+                        Identificacion = e.Identificacion,
+                        IdGrupo = e.IdGrupo,
+                        IdDepartamento = e.IdDepartamento,
+                        IdHorario = e.IdHorario,
+                        Estado = e.Estado,
+                        IdAgrupamiento = e.IdAgrupamiento,
+                        foto = e.foto,
+                        IdCCosto = e.IdCCosto,
+                        exporta = e.exporta,
+                        ubicacion = e.ubicacion,
+                        rubro1 = e.rubro1,
+                        rubro2 = e.rubro2,
+                        rubro3 = e.rubro3,
+                        rubro4 = e.rubro4,
+                        rubro5 = e.rubro5,
+                        rubro6 = e.rubro6,
+                        rubro7 = e.rubro7,
+                        rubro8 = e.rubro8,
+                        rubro9 = e.rubro9,
+                        rubro10 = e.rubro10,
+                        rubro11 = e.rubro11,
+                        rubro12 = e.rubro12,
+                        rubro13 = e.rubro13,
+                        rubro14 = e.rubro14,
+                        rubro15 = e.rubro15,
+                        rubro16 = e.rubro16,
+                        rubro17 = e.rubro17,
+                        rubro18 = e.rubro18,
+                        rubro19 = e.rubro19,
+                        rubro20 = e.rubro20,
+                        rubro21 = e.rubro21,
+                        rubro22 = e.rubro22,
+                        rubro23 = e.rubro23,
+                        rubro24 = e.rubro24,
+                        rubro25 = e.rubro25,
+                        Fecha_Ingreso = e.Fecha_Ingreso,
+                        Email = e.Email,
+                        Tipo_Marca = e.Tipo_Marca,
+                        inicio_rol = e.inicio_rol,
+                        web_pass = e.web_pass,
+                        id_transfo_conc = e.id_transfo_conc,
+                        widioma = e.widioma,
+                        global_clave = e.global_clave,
+                        def_fase = e.def_fase,
+                        def_py = e.def_py,
+                        def_cc = e.def_cc,
+                        Fecha_Salida = e.Fecha_Salida,
+                        global_code = e.global_code,
+                        fecha_act_code = e.fecha_act_code,
+                        puesto = e.puesto,
+                    })
+                    .ToListAsync();
             }
             catch (Exception e)
             {
-               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
-
-                _logger.LogError($"GeoTimeConnectService.GetEmpleadoProgramador: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
+                string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetEmpleadoProgramador: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}");
+                throw;
             }
             return empleado;
         }
+
 
 
         //Creado por: Marlon Loria
@@ -4362,6 +4511,32 @@ namespace com.gsitcr.geotime.Data
                         respuesta.Descripcion = "La contraseña indicada no es válida.";
                     }
 
+                    int sesion= Random.Shared.Next();
+                    int conteo_intentos = 0;
+                    int c_sesiones = 1;
+                    do
+                    {
+                        if (await _context.PH_LOGIN.AnyAsync(e => e.idsesion == sesion && e.idusuario != user.idusuario))
+                            sesion = Random.Shared.Next();
+                        else
+                            break;
+                        conteo_intentos++;                
+                        if (conteo_intentos > 5) c_sesiones = 0;
+                    } while (c_sesiones > 0);
+                    if (conteo_intentos > 5)
+                    {
+                        respuesta.Id = "1";
+                        respuesta.Respuesta = "Error";
+                        respuesta.Descripcion = "No se pudo generar crear la sesión, por favor intente nuevamente.";
+                        return respuesta;
+                    }
+
+                    user.idsesion = sesion;
+                    user.ultimo_login = DateTime.Now;
+                    user.proceso = 0;
+                    _context.PH_LOGIN.Update(user);
+                    await _context.SaveChangesAsync();
+
                 }
                 else
                 {
@@ -4375,6 +4550,119 @@ namespace com.gsitcr.geotime.Data
             catch (Exception e)
             {
                string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"{error}");
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo validar los datos del usuario. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo validar los datos del usuario. Detalle de Error: " + e.InnerException.Message;
+
+            }
+
+            return respuesta;
+
+        }
+
+        /// <summary>
+        /// ValidarLicencia: validar datos de la licencia
+        /// </summary>
+        /// <param name="login"></param>
+        /// <returns></returns>
+        public async Task<EventResponse> ValidarLicencia(cLogin login)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+                var usuario = await _context.PH_LOGIN.FirstAsync(e => e.usuario.ToLower() == login.Usuario!.ToLower());
+                bool verifica_cant = true;
+                DateTime fecha_control;
+                cLicenciaGeo licencia = new cLicenciaGeo();
+                int usuarios_lic = 1;
+                int cat_omite_lic = 0;
+                cat_omite_lic = await _context.PH_LOGIN.CountAsync(e => e.OMITE_LIC.Equals('T'));
+
+                if (usuario is not null)
+                {
+                    if (usuario.OMITE_LIC.Equals('T') && cat_omite_lic == 1) verifica_cant = false;
+                }
+                
+                var phSistema = await _context.Ph_Sistema.FirstOrDefaultAsync();
+
+                if (phSistema is null)
+                {
+                    respuesta.Id = "1";
+                    respuesta.Respuesta = "Error";
+                    respuesta.Descripcion = "No se encontraron los datos de la licencia, por favor contacte al administrador del sistema.";
+                    return respuesta;
+                }
+
+                try
+                {
+                    fecha_control = phSistema.F_CONTROL==null?DateTime.ParseExact(GeotimeFuncionesLib.Utiles.FuncionesGlobales.Decrypt(GeotimeFuncionesLib.Utiles.FuncionesGlobales.HexadecimalToString(phSistema.F_CONTROL!.ToString())), "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture) : DateTime.Now.AddDays(100);
+                }
+                catch (Exception q)
+                {
+                    fecha_control = DateTime.Now.AddDays(100);
+                }
+                try
+                {
+                    licencia.nom_comp = GeotimeFuncionesLib.Utiles.FuncionesGlobales.Decrypt(GeotimeFuncionesLib.Utiles.FuncionesGlobales.HexadecimalToString(phSistema.DATA_01));
+                }
+                catch (Exception q)
+                {
+                    licencia.nom_comp = "";
+                }
+                try
+                {
+                    licencia.ven_lic = GeotimeFuncionesLib.Utiles.FuncionesGlobales.Decrypt(GeotimeFuncionesLib.Utiles.FuncionesGlobales.HexadecimalToString(phSistema.DATA_02));
+                }
+                catch (Exception q)
+                {
+                    licencia.ven_lic = "";
+                }
+                
+                
+                licencia.dist_lic = "F";
+                licencia.dist_lic_emp = "F";
+                bool distribuye_lic_ususario = false;
+
+
+                //validar si distribuye licencias                    
+                if (licencia.dist_lic.Equals('T'))
+                {
+                    usuarios_lic = Convert.ToInt32(GeotimeFuncionesLib.Utiles.FuncionesGlobales.Decrypt(GeotimeFuncionesLib.Utiles.FuncionesGlobales.HexadecimalToString(phSistema.DATA_01))) + 1;
+                }
+                //else
+                //{
+                //    Session["dist_lic"] = "T";
+                //    distribuye_lic_ususario = true;
+                //    OleDbCommand nq = new OleDbCommand("select * from " + Funciones.funciones_geo.usuario_global + ".ph_companias where idcomp = '" + Session["comp_sel"].ToString() + "'", con);
+                //    DataTable c_comp = new DataTable();
+                //    OleDbDataAdapter adap_ccomp = new OleDbDataAdapter(nq);
+                //    adap_ccomp.Fill(c_comp);
+                //    OleDbConnection nc = new OleDbConnection((c_comp.Rows[0]["string_sql"] != DBNull.Value) ? seguridad.decripto(c_comp.Rows[0]["string_sql"].ToString()) : GeoTime.Properties.Settings.Default.conexion);
+                //    nc.Open();
+                //    OleDbCommand lic_q = new OleDbCommand("select * from " + Session["comp_sel"].ToString() + ".ph_opciones", nc);
+                //    DataTable c_opc = new DataTable();
+                //    OleDbDataAdapter c_opc_adap = new OleDbDataAdapter(lic_q);
+                //    c_opc_adap.Fill(c_opc);
+                //    usuarios_lic = Convert.ToInt32(seg.Decrypt(hex.HexadecimalToString(c_opc.Rows[0]["dist_lic_usr"].ToString()))) + 1;
+                //    nc.Close();
+                //}
+
+
+
+
+
+
+
+
+            }
+            catch (Exception e)
+            {
+                string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
                 _logger.LogError($"{error}");
                 respuesta.Id = "1";
                 respuesta.Respuesta = "Error";
@@ -6391,28 +6679,32 @@ namespace com.gsitcr.geotime.Data
         //Obtener lista de Marcas procesos para Entrada - Salida
         public async Task<List<cMarcaProceso>> GetMarcasProceso(string IdPlanilla, string FechaInicio, string FechaFin, string idgrupo)
         {
-            List<cMarcaProceso> accionPersonal = new();
+            List<cMarcaProceso> marcasProceso = new();
             try
             {
+
                 DateTime fechaMovInicio = DateTime.Parse($"{FechaInicio.Substring(0, 4)}-{FechaInicio.Substring(4, 2)}-{FechaInicio.Substring(6, 2)}");
                 DateTime fechaMovFinal = DateTime.Parse($"{FechaFin.Substring(0, 4)}-{FechaFin.Substring(4, 2)}-{FechaFin.Substring(6, 2)}");
 
-                string[] ListGrupos = idgrupo?.Split(',');
-                List<int> groupIds = ListGrupos
-                    .Select(int.Parse)
-                    .ToList();
+                var grupoIds = idgrupo.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                              .Select(g => int.Parse(g.Trim()))
+                              .ToList();
 
-                var accionPersonalConsulta = await _context.Marcas_Proceso
-                                        .Include(e => e.cEmpleado)
-                                        .Include(e => e.cTurno)
-                                        .Where(e => e.idplanilla == IdPlanilla &&
-                                            e.fecha_entra == fechaMovInicio ).ToListAsync();
 
-                var filteredAccionesPersonal = (from ap in accionPersonalConsulta
-                                                join g in groupIds on ap.cEmpleado.IdGrupo equals g
-                                                select ap).OrderBy(e => e.cEmpleado.Nombre).ToList();
+                var query = _context.Marcas_Proceso
+                            .Include(e => e.cEmpleado)
+                            .Include(e => e.cTurno)
+                    .Where(m =>
+                        m.idplanilla == IdPlanilla &&
+                        m.fecha_entra >= fechaMovInicio &&
+                        m.fecha_entra <= fechaMovFinal);
+                   
 
-                accionPersonal = filteredAccionesPersonal.Select(ap => new cMarcaProceso
+                var filteredMarcas = (from ap in query
+                                      join g in grupoIds on ap.cEmpleado!.IdGrupo equals g
+                                      select ap);
+
+                marcasProceso = await filteredMarcas.Select(ap => new cMarcaProceso
                 {
                     idregistro = ap.idregistro,
                     idplanilla = ap.idplanilla,
@@ -6422,7 +6714,6 @@ namespace com.gsitcr.geotime.Data
                     hora_entra = ap.hora_entra,
                     hora_sale = ap.hora_sale,
                     idturno = ap.idturno,
-
                     ORDC = ap.ORDC,
                     EXTC = ap.EXTC,
                     ORDT = ap.ORDT,
@@ -6596,14 +6887,14 @@ namespace com.gsitcr.geotime.Data
                                                     auto_pan = ap.cTurno.auto_pan,
                                                     ColorId = ap.cTurno.ColorId,
                                                 }
-                }).ToList();
+                }).ToListAsync();
             }
             catch (Exception e)
             {
                 string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
                 _logger.LogError($"GeoTimeConnectService.GetMarcasProceso: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
             }
-            return accionPersonal;
+            return marcasProceso;
         }
 
         /// <summary>
@@ -6947,12 +7238,13 @@ namespace com.gsitcr.geotime.Data
         //Creado por: Allan Prieto Badilla
         //Fecha: 2024-09-2
         //Obtener lista de Marcas Tiempo Adicional
-        public async Task<List<cMarcaTiempoAdicional>> GetMarcasTiempoAdicional(string IdPlanilla, string idPeriodo, string Fecha, int idConcepto, string idgrupo)
+        public async Task<List<cMarcaTiempoAdicional>> GetMarcasTiempoAdicional(string IdPlanilla, string idPeriodo, string FechaInicio, string FechaFin, int idConcepto, string idgrupo)
         {
             List<cMarcaTiempoAdicional> accionPersonal = new();
             try
             {
-                DateTime fechaMovInicio = DateTime.Parse($"{Fecha.Substring(0, 4)}-{Fecha.Substring(4, 2)}-{Fecha.Substring(6, 2)}");
+                DateTime fechaMovInicio = DateTime.Parse($"{FechaInicio.Substring(0, 4)}-{FechaInicio.Substring(4, 2)}-{FechaInicio.Substring(6, 2)}");
+                DateTime fechaMovFinal = DateTime.Parse($"{FechaFin.Substring(0, 4)}-{FechaFin.Substring(4, 2)}-{FechaFin.Substring(6, 2)}");
 
                 string[] ListGrupos = idgrupo?.Split(',');
                 List<int> groupIds = ListGrupos
@@ -6965,7 +7257,7 @@ namespace com.gsitcr.geotime.Data
                                         .Include(e => e.cConcepto)
                                         .Where(e => e.IDPLANILLA == IdPlanilla
                                                     && e.PERIODO == idPeriodo
-                                                    && e.FECHA_REFERENCIA>=fechaMovInicio
+                                                    && e.FECHA_REFERENCIA >= fechaMovInicio && e.FECHA_REFERENCIA <= fechaMovFinal
                                                     && e.IDCONCEPTO == (idConcepto == -1 ? e.IDCONCEPTO : idConcepto))
                                         .ToListAsync();
 
@@ -8082,11 +8374,13 @@ namespace com.gsitcr.geotime.Data
                                     FACETEXT = e.FACETEXT,
                                     VERLOGMARCAS = e.VERLOGMARCAS,
                                     ORGANIZACIONBASEID = "00",
+                                    AUTOREGISTROROSTRO = e.AUTOREGISTROROSTRO,
+                                    CANTMAXPLANTILLAS = e.CANTMAXPLANTILLAS,
                                 }).FirstOrDefault();
 
                 var opciones = await _context.Ph_Opciones.FirstOrDefaultAsync();
                 if (opciones is not null && portalConfig is not null)
-                    portalConfig!.ORGANIZACIONBASEID = opciones.ORG_BASE!;
+                    portalConfig!.ORGANIZACIONBASEID = opciones.ORG_BASE!??"03";
                 
 
             }
@@ -8134,6 +8428,8 @@ namespace com.gsitcr.geotime.Data
                     objetoBuscar.FACEDIST = portalConfig.FACEDIST;
                     objetoBuscar.FACETEXT = portalConfig.FACETEXT;
                     objetoBuscar.VERLOGMARCAS = portalConfig.VERLOGMARCAS;
+                    objetoBuscar.AUTOREGISTROROSTRO = portalConfig.AUTOREGISTROROSTRO;
+                    objetoBuscar.CANTMAXPLANTILLAS = portalConfig.CANTMAXPLANTILLAS;
 
                     _context.Portal_Config.Update(objetoBuscar);
                 }
@@ -9965,10 +10261,14 @@ namespace com.gsitcr.geotime.Data
 
                 }
 
+            
+
                 foreach (var empleado in listaEmpleados)
                 {
                     var planilla = phplanillas.FirstOrDefault(e => e.idplanilla == empleado.idplanilla);
                     var periodo = periodos.FirstOrDefault(e => e.tipo_planilla == planilla!.tipo_planilla);
+
+                    
                     calculo_periodo_empleadoRequest calculoPlanilla = new calculo_periodo_empleadoRequest
                     {
                         comp = compania!.IDCOMP!,
@@ -10103,6 +10403,8 @@ namespace com.gsitcr.geotime.Data
                     await _context.SaveChangesAsync();
 
                 }
+
+
 
                 calculo_periodo_empleadoRequest calculoPlanilla = new calculo_periodo_empleadoRequest
                 {
@@ -11042,7 +11344,7 @@ namespace com.gsitcr.geotime.Data
 
 
                     cMarcaDistribucionConcepto? marcaDC = await _context.Marcas_Distribuciones_Conceptos
-                                    .Where(e => e.IDNUMERO == item.IDNUMERO && e.FECHA == item.FECHA && e.IDPLANILLA == item.IDPLANILLA && e.IDDIST== IDDIST)
+                                    .Where(e => e.IDNUMERO == item.IDNUMERO && e.FECHA == item.FECHA && e.IDPLANILLA == item.IDPLANILLA && e.IDDIST== IDDIST && e.INICIO==item.INICIO)
                                     .FirstOrDefaultAsync();
                     //si el centro de costo existe se actualiza descripción
                     //de lo contrario se agrega el registro
@@ -11462,6 +11764,7 @@ namespace com.gsitcr.geotime.Data
                     {
                         
                         command.CommandText = $"{schemaAdmin}.VerificaCompaniaUsuarioWeb @IdNumero='{idnumero}',@DataBase='{Encripta.getEncryptTripleDES(_dataBase)}'";
+                        _logger.LogError($"GeoTimeConnectService.GetPhCompaniaUsuario: Data: {command.CommandText}");
                         System.Data.Common.DbDataReader result = command.ExecuteReader();
 
                         table = new DataTable();
@@ -11793,9 +12096,112 @@ namespace com.gsitcr.geotime.Data
                 respuesta.Id = "1";
                 respuesta.Respuesta = "Error";
                 if (e.InnerException == null)
-                    respuesta.Descripcion = "No se pudo realizar la Sincronización de ERP. Detalle de Error: " + e.Message;
+                    respuesta.Descripcion = "No se pudo realizar la autorización de las horas extra. Detalle de Error: " + e.Message;
                 else
-                    respuesta.Descripcion = "No se pudo realizar la Sincronización de ERP. Detalle de Error: " + e.InnerException.Message;
+                    respuesta.Descripcion = "No se pudo realizar la autorización de las horas extra. Detalle de Error: " + e.InnerException.Message;
+
+            }
+            return respuesta;
+        }
+
+        /// <summary>
+        /// AutorizarExtrasMasiva: proceso para autorizar extras de varios empleados.
+        /// </summary>
+        /// <param name="parametros"></param>
+        /// <returns></returns>
+
+        public async Task<EventResponse> AutorizarExtrasMasiva(IEnumerable<cExtraAprobacion> parametros)
+        {
+            EventResponse respuesta = new EventResponse();
+            try
+            {
+                int maxConcurrency = 5; // Cambia este valor según tus necesidades
+                using var semaphore = new SemaphoreSlim(maxConcurrency);
+
+                var tasks = parametros.Select(async param =>
+                {
+                    await semaphore.WaitAsync();
+                    try
+                    {
+                        string commandString = _schema + $".apruebo_extra_masiva @REGISTRO={param.IdRegistro}, @CANTIDAD='{param.Cantidad}', @COMENTARIO='{param.Comentario}',@USUARIO='{param.Usuario}'";
+                        await _context.Database.ExecuteSqlRawAsync(commandString);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError($"Error procesando parámetro {param.IdNumero}: {ex.Message}");
+                    }
+                    finally
+                    {
+                        semaphore.Release();
+                    }
+                });
+
+                await Task.WhenAll(tasks);
+               
+            }
+            catch (Exception e)
+            {
+                string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"{error}");
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "AutorizarExtrasMasiva: Ocurrió un error al autorizar las horas extra. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "AutorizarExtrasMasiva: Ocurrió un error al autorizar las horas extra. Detalle de Error: " + e.InnerException.Message;
+
+            }
+            return respuesta;
+        }
+
+        /// <summary>
+        /// PreAutorizarExtrasMasiva: proceso para autorizar extras de varios empleados.
+        /// </summary>
+        /// <param name="parametros"></param>
+        /// <returns></returns>
+        public async Task<EventResponse> PreAutorizarExtrasMasiva(IEnumerable<cExtraAprobacion> parametros)
+        {
+            EventResponse respuesta = new EventResponse();
+            try
+            {
+
+                int maxConcurrency = 5; // Cambia este valor según tus necesidades
+                using var semaphore = new SemaphoreSlim(maxConcurrency);
+
+                var tasks = parametros.Select(async param =>
+                {
+                    await semaphore.WaitAsync();
+                    try
+                    {
+                        string fecha = $"{param.Inicio!.Substring(0, 4)}-{param.Inicio.Substring(4, 2)}-{param.Inicio.Substring(6, 2)}";
+                        string commandString = _schema + $".apruebo_preextra_masiva @PLANILLA={param.IdPlanilla},@IDNUMERO='{param.IdNumero}',@FECHA='{fecha}',@CANTIDAD='{param.Cantidad}', @COMENTARIO='{param.Comentario}',@USUARIO='{param.Usuario}'";
+                        await _context.Database.ExecuteSqlRawAsync(commandString);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError($"Error procesando parámetro {param.IdNumero}: {ex.Message}");
+                    }
+                    finally
+                    {
+                        semaphore.Release();
+                    }
+                });
+
+                await Task.WhenAll(tasks);
+
+
+
+            }
+            catch (Exception e)
+            {
+                string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"{error}");
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "PreAutorizarExtrasMasiva: Ocurrió un error al autorizar las horas extra. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "PreAutorizarExtrasMasiva: Ocurrió un error al autorizar las horas extra. Detalle de Error: " + e.InnerException.Message;
 
             }
             return respuesta;
@@ -11952,6 +12358,7 @@ namespace com.gsitcr.geotime.Data
 
                 foreach (var item in parametros)
                 {
+
                     sincronizo_accionesRequest sincronizoAcciones = new sincronizo_accionesRequest
                     {
                         comp = item.IdComp,
@@ -12071,7 +12478,7 @@ namespace com.gsitcr.geotime.Data
                     };
 
                     EndpointConfiguration endpointConfiguration = new();
-                    GeoTimeServiceReference.ServiceSoapClient geoWebService = new(endpointConfiguration);
+                    ServiceSoapClient geoWebService = new(endpointConfiguration);
 
                     var result = await geoWebService.calculo_periodo_planillaAsync(CalculoPariodoP);
                     if (result.calculo_periodo_planillaResult != "")
@@ -12307,7 +12714,7 @@ namespace com.gsitcr.geotime.Data
             return respuesta;
         }
 
-        public async Task<EventResponse> EvaluaFormula(string formula)
+        public async Task<EventResponse> EvaluaFormula(cPh_Formulacion formula)
         {
             EventResponse respuesta = new EventResponse();
 
@@ -12318,7 +12725,7 @@ namespace com.gsitcr.geotime.Data
 
                 evaluo_formulaRequest evaluaFormula = new evaluo_formulaRequest
                 {
-                    formula = formula,
+                    formula = formula.FORMULA,
                 };
 
                 var result = await geoWebService.evaluo_formulaAsync(evaluaFormula);
@@ -12341,6 +12748,38 @@ namespace com.gsitcr.geotime.Data
                     respuesta.Descripcion = "No se pudo realizar la Evaluación de la Fórmula. Detalle de Error: " + e.Message;
                 else
                     respuesta.Descripcion = "No se pudo realizar la Evaluación de la Fórmula. Detalle de Error: " + e.InnerException.Message;
+            }
+            return respuesta;
+
+        }
+
+
+        public async Task<string> GetNivelesAutorizacion(string encriptado)
+        {
+            string respuesta = "";
+
+            try
+            {
+                EndpointConfiguration endpointConfiguration = new();
+                GeoTimeServiceReference.ServiceSoapClient geoWebService = new(endpointConfiguration);
+
+                retorno_perfilRequest retorno_perfil = new retorno_perfilRequest
+                {
+                    datos = encriptado,
+                    idsesion = 1
+                };
+
+                var result = await geoWebService.retorno_perfilAsync(retorno_perfil);
+                if (result.retorno_perfilResult != "")
+                {
+                    respuesta= result.retorno_perfilResult;
+                }
+
+            }
+            catch (Exception e)
+            {
+                string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"{error}");
             }
             return respuesta;
 
@@ -12647,6 +13086,7 @@ namespace com.gsitcr.geotime.Data
                                   ID = e.ID,
                                   DESCRIPCION = e.DESCRIPCION,
                                   HABILITADO = e.HABILITADO,
+                                  IDCOMP = e.IDCOMP,
                                   cPh_RolSistemaDet = e.cPh_RolSistemaDet == null ? null :
                                                   (from det in e.cPh_RolSistemaDet
                                                    select new cPh_RolSistemaDet
@@ -12692,6 +13132,7 @@ namespace com.gsitcr.geotime.Data
                                   ID = e.ID,
                                   DESCRIPCION = e.DESCRIPCION,
                                   HABILITADO = e.HABILITADO,
+                                  IDCOMP = e.IDCOMP,
                                   cPh_RolSistemaDet = e.cPh_RolSistemaDet == null ? null :
                                                   (from det in e.cPh_RolSistemaDet
                                                    select new cPh_RolSistemaDet
@@ -12742,6 +13183,7 @@ namespace com.gsitcr.geotime.Data
                     {
                         objetoBuscar.DESCRIPCION = item.DESCRIPCION;
                         objetoBuscar.HABILITADO = item.HABILITADO;
+                        objetoBuscar.IDCOMP = item.IDCOMP;
 
                         _context.Ph_Roles_Sistema.Update(objetoBuscar);
                     }
@@ -12830,6 +13272,7 @@ namespace com.gsitcr.geotime.Data
                                     ID = e.cPh_RolSistema.ID,
                                     DESCRIPCION = e.cPh_RolSistema.DESCRIPCION,
                                     HABILITADO = e.cPh_RolSistema.HABILITADO,
+                                    IDCOMP = e.cPh_RolSistema.IDCOMP,
                                 }
                          }
                             ).ToList();
@@ -12876,6 +13319,7 @@ namespace com.gsitcr.geotime.Data
                                     ID = e.cPh_RolSistema.ID,
                                     DESCRIPCION = e.cPh_RolSistema.DESCRIPCION,
                                     HABILITADO = e.cPh_RolSistema.HABILITADO,
+                                    IDCOMP = e.cPh_RolSistema.IDCOMP,
                                 }
                          }).ToList();
 
@@ -12968,8 +13412,7 @@ namespace com.gsitcr.geotime.Data
 
                 foreach (var usuarioRol in usuariosRoles)
                 {
-                    cPh_UsuarioRol? objetoBuscar = await _context.Ph_Usuarios_Roles.FirstOrDefaultAsync(e => e.IDUSUARIO == usuarioRol.IDUSUARIO 
-                                                                                                        && e.IDREGISTRO==usuarioRol.IDREGISTRO);
+                    cPh_UsuarioRol? objetoBuscar = await _context.Ph_Usuarios_Roles.FirstOrDefaultAsync(e => e.IDUSUARIO == usuarioRol.IDUSUARIO && e.IDREGISTRO == usuarioRol.IDREGISTRO);
 
                     if (objetoBuscar is not null)
                     {
@@ -12981,22 +13424,26 @@ namespace com.gsitcr.geotime.Data
                         objetoBuscar.ROL = Encripta.getEncryptTripleDES(rol);
 
                         _context.Ph_Usuarios_Roles.Update(objetoBuscar!);
+                        await _context.SaveChangesAsync();
                     }
                     else
                     {
-                        
-                        usuarioRol.FECHAREGISTRO = DateTime.Now;
-                        usuarioRol.FECHAMODIFICA = DateTime.Now;
+                        var rolesExistentes = await GetPhUsuarioRol(usuarioRol.IDUSUARIO);
 
-                        string fechaRegistro = usuarioRol.FECHAREGISTRO.ToString("HHmmssddMMyyyy");
-                        string rol = $"{fechaRegistro}|{usuarioRol.IDUSUARIOREGISTRA}|{usuarioRol.IDUSUARIO}|{usuarioRol.ROLID}|{usuarioRol.HABILITADO}";
-                        usuarioRol.ROL=Encripta.getEncryptTripleDES(rol);
+                        if (!rolesExistentes.Any(e => e.ROLID == usuarioRol.ROLID))
+                        {
+                            usuarioRol.FECHAREGISTRO = DateTime.Now;
+                            usuarioRol.FECHAMODIFICA = DateTime.Now;
 
-                        _context.Add(usuarioRol);
+                            string fechaRegistro = usuarioRol.FECHAREGISTRO.ToString("HHmmssddMMyyyy");
+                            string rol = $"{fechaRegistro}|{usuarioRol.IDUSUARIOREGISTRA}|{usuarioRol.IDUSUARIO}|{usuarioRol.ROLID}|{usuarioRol.HABILITADO}";
+                            usuarioRol.ROL = Encripta.getEncryptTripleDES(rol);
+
+                            _context.Add(usuarioRol);
+                            await _context.SaveChangesAsync();
+                        }
                     }
                 }
-                await _context.SaveChangesAsync();
-
             }
             catch (Exception e)
             {
@@ -13037,7 +13484,9 @@ namespace com.gsitcr.geotime.Data
 
         #region Creacion Automática de Compañía
 
-        private async Task<EventResponse> PostCompaniaEnBD(string compania, bool bCreateAdmin=false)
+       
+
+        private async Task<EventResponse> PostCompaniaEnBD(string compania, bool bCreateAdmin = false)
         {
             EventResponse resultado = new();
             try
@@ -13087,7 +13536,7 @@ namespace com.gsitcr.geotime.Data
                     var resultSchema = await _context.Database.ExecuteSqlRawAsync($"CREATE SCHEMA [{compania}]");
                 }
 
-                
+
 
                 string script = File.ReadAllText(Path.Combine(dirBase, "MSSQL_CREATE_TABLES_001.sql"));
                 script = script.Replace("[dbo].", "[" + compania + "].");
@@ -13120,7 +13569,7 @@ namespace com.gsitcr.geotime.Data
                     {
                         var resultCommand = await _context.Database.ExecuteSqlRawAsync($"{commandString}");
                     }
-                }                    
+                }
             }
             catch (Exception e)
             {
@@ -13136,19 +13585,29 @@ namespace com.gsitcr.geotime.Data
 
         #region Actualización de estructuras de la base de datos por compañía
 
-        
-        public async Task<EventResponse> ActualizarCompaniaBD(cPh_Compania compania)
+
+        public async Task<EventResponse> ActualizarCompaniaBD(cPh_Compania compania, bool migrate)
         {
             EventResponse respuesta = new EventResponse();
 
             try
             {
+
+                await UpgradeTablesBD(compania.IDCOMP);
                 await CretateNewTables(compania.IDCOMP);
                 await AlterTablesAdd(compania.IDCOMP);
                 await AlterTablesModify(compania.IDCOMP);
                 await AddRelations(compania.IDCOMP);
                 await CreateStoreProcedures(compania.IDCOMP);
+                await UpgradeStoreProcedureBD(compania.IDCOMP);
                 await CreateNewViews(compania.IDCOMP);
+                await UpgradeInitTablesBD(compania.IDCOMP);
+                await ActualizaPwdsUsuariosBD();
+                if (migrate)
+                {
+                    await CreaNivelesSeguridad(compania.IDCOMP);
+                }
+                    
             }
             catch (Exception e)
             {
@@ -13164,6 +13623,148 @@ namespace com.gsitcr.geotime.Data
             return respuesta;
 
         }
+
+        private async Task<EventResponse> UpgradeTablesBD(string compania)
+        {
+            EventResponse resultado = new();
+            try
+            {
+                //se obtiene ruta fisica de la Api, para buscar carpeta con los scripts a ejecutar
+
+                var dirBase = Path.Combine(Directory.GetCurrentDirectory(), "scripts");
+
+                
+                string script = File.ReadAllText(Path.Combine(dirBase, "MSSQL_CREATE_ADMIN_TABLES_UPGRADE.sql"));
+                IEnumerable<string> commandStringsTables = Regex.Split(script, @"^\s*GO\s*$", RegexOptions.Multiline | RegexOptions.IgnoreCase);
+                foreach (string commandString in commandStringsTables)
+                {
+                    if (commandString.Trim() != "")
+                    {
+                        try
+                        {
+                            var resultCommand = await _context.Database.ExecuteSqlRawAsync($"{commandString}");
+
+                        }
+                        catch (Exception e)
+                        {
+                            _logger.LogError($"GeoTimeConnectService.UpgradeTablesBD: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {e.Message}");
+                        }
+                        
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.UpgradeTablesBD: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}");
+                resultado.Id = "1";
+                resultado.Respuesta = "Error";
+                resultado.Descripcion = $"GeoTimeConnectService.UpgradeTablesBD: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}";
+            }
+            return resultado;
+        }
+        private async Task<EventResponse> UpgradeStoreProcedureBD(string compania)
+        {
+            EventResponse resultado = new();
+            try
+            {
+                //se obtiene ruta fisica de la Api, para buscar carpeta con los scripts a ejecutar
+
+                var dirBase = Path.Combine(Directory.GetCurrentDirectory(), "scripts");
+
+
+                string script = File.ReadAllText(Path.Combine(dirBase, "MSSQL_CREATE_PROCEDURES_UPGRADE.sql"));
+                script = script.Replace("[dbo].", "[" + compania + "].");
+                IEnumerable<string> commandStringsTables = Regex.Split(script, @"^\s*GO\s*$", RegexOptions.Multiline | RegexOptions.IgnoreCase);
+                foreach (string commandString in commandStringsTables)
+                {
+                    if (commandString.Trim() != "")
+                    {
+                        try
+                        {
+                            var resultCommand = await _context.Database.ExecuteSqlRawAsync($"{commandString}");
+
+                        }
+                        catch (Exception e)
+                        {
+                            _logger.LogError($"GeoTimeConnectService.UpgradeStoreProcedureBD: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {e.Message}");
+                        }
+                        
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.UpgradeStoreProcedureBD: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}");
+                resultado.Id = "1";
+                resultado.Respuesta = "Error";
+                resultado.Descripcion = $"GeoTimeConnectService.UpgradeStoreProcedureBD: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}";
+            }
+            return resultado;
+        }
+        private async Task<EventResponse> UpgradeInitTablesBD(string compania)
+        {
+            EventResponse resultado = new();
+            try
+            {
+                //se obtiene ruta fisica de la Api, para buscar carpeta con los scripts a ejecutar
+
+                var dirBase = Path.Combine(Directory.GetCurrentDirectory(), "scripts");
+
+
+                string script = File.ReadAllText(Path.Combine(dirBase, "MSSQL_INIT_ADMIN_TABLES_UPGRADE.sql"));
+                script = script.Replace("[dbo].", "[" + compania + "].");
+                IEnumerable<string> commandStringsTables = Regex.Split(script, @"^\s*GO\s*$", RegexOptions.Multiline | RegexOptions.IgnoreCase);
+                foreach (string commandString in commandStringsTables)
+                {
+                    if (commandString.Trim() != "")
+                    {
+                        try
+                        {
+                            var resultCommand = await _context.Database.ExecuteSqlRawAsync($"{commandString}");
+
+                        }
+                        catch (Exception e)
+                        {
+                            _logger.LogError($"GeoTimeConnectService.UpgradeInitTablesBD: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {e.Message}");
+                        }
+
+                        
+                    }
+                }
+
+                script = File.ReadAllText(Path.Combine(dirBase, "MSSQL_INIT_TABLES_UPGRADE.sql"));
+                script = script.Replace("[dbo].", "[" + compania + "].");
+                IEnumerable<string> commandStringsINITTB = Regex.Split(script, @"^\s*GO\s*$", RegexOptions.Multiline | RegexOptions.IgnoreCase);
+                foreach (string commandString in commandStringsINITTB)
+                {
+                    if (commandString.Trim() != "")
+                    {
+                        try
+                        {
+                            var resultCommand = await _context.Database.ExecuteSqlRawAsync($"{commandString}");
+
+                        }
+                        catch (Exception e)
+                        {
+                            _logger.LogError($"GeoTimeConnectService.UpgradeInitTablesBD: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {e.Message}");
+                        }
+
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.UpgradeInitTablesBD: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}");
+                resultado.Id = "1";
+                resultado.Respuesta = "Error";
+                resultado.Descripcion = $"GeoTimeConnectService.UpgradeInitTablesBD: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}";
+            }
+            return resultado;
+        }
+
 
         public async Task CretateNewTables(string companyName)
         {
@@ -13385,7 +13986,6 @@ namespace com.gsitcr.geotime.Data
 
             }
         }
-
         public async Task CreateNewViews(string companyName)
         {
 
@@ -13428,9 +14028,967 @@ namespace com.gsitcr.geotime.Data
             }
         }
 
+        public async Task<EventResponse> ActualizaPwdsUsuariosBD()
+        {
+            EventResponse resultado = new EventResponse();
+
+            try
+            {
+                var phLogins = await _context.PH_LOGIN.Where(e => String.IsNullOrEmpty(e.GLOBAL_CLAVE) == true).ToListAsync();
+
+                foreach (var login in phLogins)
+                {
+                    string claveNueva = await CambioEncriptacion(login.clave);
+
+                    if (claveNueva != "")
+                    {
+                        var commandString = $"update ctadmin.ph_login set global_clave='{claveNueva}' where IDUSUARIO={login.idusuario}";
+                        try
+                        {
+                            var resultCommand = await _context.Database.ExecuteSqlRawAsync($"{commandString}");
+                        }
+                        catch (Exception e)
+                        {
+                            _logger.LogError($"GeoTimeConnectService.ActualizaUsuariosBD: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {e.Message}");
+                        }
+                    }
+
+                    
+                }
+            }
+            catch (Exception e)
+            {
+                string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.ActualizaPwdsUsuariosBD: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}");
+                resultado.Id = "1";
+                resultado.Respuesta = "Error";
+                resultado.Descripcion = $"GeoTimeConnectService.ActualizaPwdsUsuariosBD: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}";
+            }
+
+            return resultado;
+        }
+
+        private async Task<string> CambioEncriptacion(string dato)
+        {
+            cambio_encryptRequest param = new cambio_encryptRequest
+            {
+                dato = dato               
+            };
+
+            EndpointConfiguration endpointConfiguration = new();
+            GeoTimeServiceReference.ServiceSoapClient geoWebService = new(endpointConfiguration);
+
+            var result = await geoWebService.cambio_encryptAsync(param);
+            if (result.cambio_encryptResult != "" && result.cambio_encryptResult != "Error procesando el Dato")
+                return result.cambio_encryptResult;
+
+            return "";
+        }
+
+        private async Task CreaNivelesSeguridad(string compania)
+        {
+            try
+            {
+               
+                var newContext = SchemaChangeDbContext.GetSchemaChangeDbContext(compania, _dataBase);
+
+                if (newContext is not null)
+                    _logger.LogWarning($"GeoTimeConnectService.CreaNivelesSeguridad, NewContext is not null");
+                else
+                {
+                    _logger.LogError($"GeoTimeConnectService.CreaNivelesSeguridad, NewContext is null");
+                    return;
+                }
+
+                var niveles = await newContext.Ph_Niveles.ToListAsync();
+                List<cPhNivelesDet> nivelDetalle = new();
+
+                
+                foreach (var nivel in niveles)
+                {
+                    _logger.LogWarning($"GeoTimeConnectService.CreaNivelesSeguridad, Id nivel: {nivel.IDNIVEL}");
+
+
+                    if (newContext.Ph_Usuarios is null)
+                    {
+                        _logger.LogError($"GeoTimeConnectService.CreaNivelesSeguridad, newContext.Ph_Usuarios is null");
+                        return;
+                    }
+
+
+                    var phUsuarios = await newContext.Ph_Usuarios.ToListAsync();
+
+                    _logger.LogWarning($"GeoTimeConnectService.CreaNivelesSeguridad, PhUsuarios: {phUsuarios.Count()}");
+
+
+                    if (phUsuarios is not null)
+                    {
+                        _logger.LogWarning($"GeoTimeConnectService.CreaNivelesSeguridad, Usuarios nivel {nivel.IDNIVEL}: {phUsuarios.Count()}");
+
+                        if (nivel.IDNIVEL > 1)
+                        {
+                            phUsuarios = phUsuarios.Where(e => e.NIVEL == nivel.IDNIVEL).ToList();
+
+                            var variables = await GetNivelesAutorizacion(nivel.VARIABLES);
+
+                            _logger.LogWarning($"GeoTimeConnectService.CreaNivelesSeguridad, Variables: {variables}");
+
+                            if (!String.IsNullOrEmpty(variables))
+                            {
+                                var opciones = variables.Split("°");
+
+                                foreach (string item in opciones)
+                                {
+                                    _logger.LogWarning($"GeoTimeConnectService.CreaNivelesSeguridad, items: {item}");
+                                    var det = item.Split("*");
+
+                                    if (det.Length == 2)
+                                    {
+                                        nivelDetalle.Add(new cPhNivelesDet
+                                        {
+                                            IdNivelDet = det[0],
+                                            Activo = det[1] == "T" ? true : false
+                                        });
+                                    }
+
+                                }
+                            }
+
+                            await TranformarNivelSeguridad(nivelDetalle, nivel, compania, phUsuarios);
+                        }
+                        else
+                        {
+                            phUsuarios = phUsuarios.Where(e => e.NIVEL == nivel.IDNIVEL).ToList();
+
+                            foreach (var usuario in phUsuarios!)
+                            {
+                                _logger.LogWarning($"GeoTimeConnectService.CreaNivelesSeguridad, Usuario: {usuario.IDUSUARIO}");
+                                cPh_UsuarioRol usuarioRol = new cPh_UsuarioRol
+                                {
+                                    IDUSUARIO = usuario.IDUSUARIO,
+                                    ROLID = "0001",
+                                    IDUSUARIOMODIFICA = 1,
+                                    IDUSUARIOREGISTRA = 1,
+                                    FECHAREGISTRO = DateTime.Now,
+                                    FECHAMODIFICA = DateTime.Now,
+                                    IDREGISTRO = 0,
+                                    HABILITADO = true,
+                                    ROL = ""
+                                };
+                                var resp = await Sincronizar_PhUsuarioRol(new List<cPh_UsuarioRol>() { usuarioRol });
+                            }
+
+                        }
+                        
+
+                         
+
+                    }
+                    else
+                    {
+                        _logger.LogError($"GeoTimeConnectService.CreaNivelesSeguridad, PhUsuarios is null");
+                    }
+
+
+                }
+
+
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"GeoTimeConnectService.CreaNivelesSeguridad: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {e.Message}");
+            }
+            
+        }
+
+        private async Task TranformarNivelSeguridad(List<cPhNivelesDet> nivelDetalle, cPh_Nivel nivel, string compania,List<cPh_Usuario> usuarios)
+        {
+            try
+            {
+                string RolId = "";
+
+                /*
+
+                    200	Mantenimientos	213	/paletacolorlist	Administración_de_Colores                
+                    100	Procesos	108	/pprogramadorhorarios	Programador_de_Horarios
+                    400	Configuracion	408	/transformaciontipomarcalist	Transformaciones_Funcion_Tipo                
+
+                 */
+
+                var phRolesCreados = await _context.Ph_Roles_Sistema.ToListAsync();
+
+                phRolesCreados = phRolesCreados.Where(e => e.ID !="0001" ).ToList();
+
+                if (phRolesCreados.Count() == 0)
+                {
+                    RolId = "0002";
+
+                    cPh_RolSistema rol = new cPh_RolSistema
+                    {
+                        ID = RolId,
+                        DESCRIPCION = $"{nivel.DESCRIPCION} ({compania})",
+                        HABILITADO = true,
+                        IDCOMP = compania,
+                    };
+
+                    rol.cPh_RolSistemaDet = await GetDetalleOpciones(nivelDetalle, rol);
+
+                    var resp = await Sincronizar_PhRolSistema(new List<cPh_RolSistema>() { rol });
+
+                    foreach (var usuario in usuarios.Where(e => e.NIVEL == nivel.IDNIVEL))
+                    {
+                        cPh_UsuarioRol usuarioRol = new cPh_UsuarioRol
+                        {
+                            IDUSUARIO = usuario.IDUSUARIO,
+                            ROLID = RolId,
+                            IDUSUARIOMODIFICA = 1,
+                            IDUSUARIOREGISTRA = 1,
+                            FECHAREGISTRO = DateTime.Now,
+                            FECHAMODIFICA = DateTime.Now,
+                            IDREGISTRO = 0,
+                            HABILITADO = true,
+                            ROL = ""
+                        };
+                        var respUsu = await Sincronizar_PhUsuarioRol(new List<cPh_UsuarioRol>() { usuarioRol });
+                    }
+                }
+                   
+                else
+                {
+                    var rolExiste = phRolesCreados.FirstOrDefault(e => e.IDCOMP == compania && e.DESCRIPCION == $"{nivel.DESCRIPCION} ({compania})");
+
+                    if (rolExiste is null)
+                    {
+                        //si no existe el rol para la compañia, se crea uno nuevo
+                        //se debe buscar el maximo id y sumarle 1
+                        var maxId = phRolesCreados.Max(e => int.Parse(e.ID));
+                        RolId = (maxId + 1).ToString("0000");
+
+                        cPh_RolSistema rol = new cPh_RolSistema
+                        {
+                            ID = RolId,
+                            DESCRIPCION = $"{nivel.DESCRIPCION} ({compania})",
+                            HABILITADO = true,
+                            IDCOMP = compania,
+                        };
+
+                        
+
+                        rol.cPh_RolSistemaDet = await GetDetalleOpciones(nivelDetalle,rol);
+
+                        var resp = await Sincronizar_PhRolSistema(new List<cPh_RolSistema>() { rol });
+
+                        foreach (var usuario in usuarios.Where(e => e.NIVEL == nivel.IDNIVEL))
+                        {
+                            cPh_UsuarioRol usuarioRol = new cPh_UsuarioRol
+                            {
+                                IDUSUARIO = usuario.IDUSUARIO,
+                                ROLID = RolId,
+                                IDUSUARIOMODIFICA = 1,
+                                IDUSUARIOREGISTRA = 1,
+                                FECHAREGISTRO = DateTime.Now,
+                                FECHAMODIFICA = DateTime.Now,
+                                IDREGISTRO = 0,
+                                HABILITADO = true,
+                                ROL = ""
+                            };
+                            var respUsu = await Sincronizar_PhUsuarioRol(new List<cPh_UsuarioRol>() { usuarioRol });
+                        }
+
+                    }
+
+                   
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"GeoTimeConnectService.TranformarNivelSeguridad: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {e.Message}");
+            }
+        }
+
+        private async Task<List<cPh_RolSistemaDet>> GetDetalleOpciones(List<cPhNivelesDet> nivelDetalle, cPh_RolSistema rol)
+        {
+            List<cPh_RolSistemaDet> rolesDet = new();
+            var nivelesActivos = nivelDetalle.Where(e => e.Activo == true).ToList();
+            foreach (var item in nivelesActivos)
+            {
+                switch (item.IdNivelDet)
+                {
+                    case "cmp_v": //mantenimiento/companias
+                                  //200	Mantenimientos	201	/companialist	Compañias
+                        rolesDet.Add(new cPh_RolSistemaDet
+                        {
+                            ROLSISTEMAID = rol.ID,
+                            MENUSISTEMAID = "200",
+                            OPCIONSISTEMAID = "201",
+                            HABILITADO = true,
+                            AGREGA = nivelDetalle.Any(e => e.IdNivelDet == "cmp_e"),
+                            MODIFICA = nivelDetalle.Any(e => e.IdNivelDet == "cmp_e"),
+                            ELIMINA = nivelDetalle.Any(e => e.IdNivelDet == "cmp_e"),
+                            CONSULTA = true
+                        });
+                        break;
+                    case "pln_v": //mantenimiento/planilla
+                                  //200	Mantenimientos	202	/planillalist	Nómina
+                        rolesDet.Add(new cPh_RolSistemaDet
+                        {
+                            ROLSISTEMAID = rol.ID,
+                            MENUSISTEMAID = "200",
+                            OPCIONSISTEMAID = "202",
+                            HABILITADO = true,
+                            AGREGA = nivelDetalle.Any(e => e.IdNivelDet == "pln_e"),
+                            MODIFICA = nivelDetalle.Any(e => e.IdNivelDet == "pln_e"),
+                            ELIMINA = nivelDetalle.Any(e => e.IdNivelDet == "pln_e"),
+                            CONSULTA = true
+                        });
+                        break;
+                    case "dep_v": //mantenimiento/departamento
+                                  //200	Mantenimientos	203	/departamentolist	Departamentos
+                        rolesDet.Add(new cPh_RolSistemaDet
+                        {
+                            ROLSISTEMAID = rol.ID,
+                            MENUSISTEMAID = "200",
+                            OPCIONSISTEMAID = "203",
+                            HABILITADO = true,
+                            AGREGA = nivelDetalle.Any(e => e.IdNivelDet == "dep_e"),
+                            MODIFICA = nivelDetalle.Any(e => e.IdNivelDet == "dep_e"),
+                            ELIMINA = nivelDetalle.Any(e => e.IdNivelDet == "dep_e"),
+                            CONSULTA = true,
+                        });
+                        break;
+                    case "grp_v": //mantenimiento/grupos
+                                  //200	Mantenimientos	204	/grupolist	Grupo
+                        rolesDet.Add(new cPh_RolSistemaDet
+                        {
+                            ROLSISTEMAID = rol.ID,
+                            MENUSISTEMAID = "200",
+                            OPCIONSISTEMAID = "204",
+                            HABILITADO = true,
+                            AGREGA = nivelDetalle.Any(e => e.IdNivelDet == "grp_e"),
+                            MODIFICA = nivelDetalle.Any(e => e.IdNivelDet == "grp_e"),
+                            ELIMINA = nivelDetalle.Any(e => e.IdNivelDet == "grp_e"),
+                            CONSULTA = true,
+                        });
+                        break;
+                    case "emp_v": //mantenimiento/empleados
+                                  //200 Mantenimientos  205 / empleadolist   Empleado
+                        rolesDet.Add(new cPh_RolSistemaDet
+                        {
+                            ROLSISTEMAID = rol.ID,
+                            MENUSISTEMAID = "200",
+                            OPCIONSISTEMAID = "205",
+                            HABILITADO = true,
+                            AGREGA = nivelDetalle.Any(e => e.IdNivelDet == "emp_e"),
+                            MODIFICA = nivelDetalle.Any(e => e.IdNivelDet == "emp_e"),
+                            ELIMINA = nivelDetalle.Any(e => e.IdNivelDet == "emp_e"),
+                            CONSULTA = true,
+                        });
+                        break;
+                    case "turn_v": //mantenimiento/turnos
+                                   //200	Mantenimientos	206	/turnolist	Turnos
+                        rolesDet.Add(new cPh_RolSistemaDet
+                        {
+                            ROLSISTEMAID = rol.ID,
+                            MENUSISTEMAID = "200",
+                            OPCIONSISTEMAID = "206",
+                            HABILITADO = true,
+                            AGREGA = nivelDetalle.Any(e => e.IdNivelDet == "turn_e"),
+                            MODIFICA = nivelDetalle.Any(e => e.IdNivelDet == "turn_e"),
+                            ELIMINA = nivelDetalle.Any(e => e.IdNivelDet == "turn_e"),
+                            CONSULTA = true,
+                        });
+                        break;
+                    case "hor_v": //mantenimiento/horarios  o hor_v = mantenimiento/roles
+                                  // 200	Mantenimientos	207	/horarioturnoList	Horarios
+                        rolesDet.Add(new cPh_RolSistemaDet
+                        {
+                            ROLSISTEMAID = rol.ID,
+                            MENUSISTEMAID = "200",
+                            OPCIONSISTEMAID = "207",
+                            HABILITADO = true,
+                            AGREGA = nivelDetalle.Any(e => e.IdNivelDet == "hor_e"),
+                            MODIFICA = nivelDetalle.Any(e => e.IdNivelDet == "hor_e"),
+                            ELIMINA = nivelDetalle.Any(e => e.IdNivelDet == "hor_e"),
+                            CONSULTA = true,
+                        });
+
+                        //200 Mantenimientos  208 / rollist    Roles
+                        rolesDet.Add(new cPh_RolSistemaDet
+                        {
+                            ROLSISTEMAID = rol.ID,
+                            MENUSISTEMAID = "200",
+                            OPCIONSISTEMAID = "208",
+                            HABILITADO = true,
+                            AGREGA = nivelDetalle.Any(e => e.IdNivelDet == "hor_e"),
+                            MODIFICA = nivelDetalle.Any(e => e.IdNivelDet == "hor_e"),
+                            ELIMINA = nivelDetalle.Any(e => e.IdNivelDet == "hor_e"),
+                            CONSULTA = true,
+                        });
+
+                        break;
+                    case "tipo_distribuye_cc": //"L" = mantenimiento/Labores
+
+                        break;
+                    case "inci_v": //Mantenimiento/incidencias
+                                   //200	Mantenimientos	209	/incidlist	Incidencias
+                        rolesDet.Add(new cPh_RolSistemaDet
+                        {
+                            ROLSISTEMAID = rol.ID,
+                            MENUSISTEMAID = "200",
+                            OPCIONSISTEMAID = "209",
+                            HABILITADO = true,
+                            AGREGA = nivelDetalle.Any(e => e.IdNivelDet == "inci_e"),
+                            MODIFICA = nivelDetalle.Any(e => e.IdNivelDet == "inci_e"),
+                            ELIMINA = nivelDetalle.Any(e => e.IdNivelDet == "inci_e"),
+                            CONSULTA = true,
+                        });
+                        break;
+                    case "ccost_v":
+                        //200	Mantenimientos	212	/centrocostolist	Centro_de_Costo
+                        rolesDet.Add(new cPh_RolSistemaDet
+                        {
+                            ROLSISTEMAID = rol.ID,
+                            MENUSISTEMAID = "200",
+                            OPCIONSISTEMAID = "212",
+                            HABILITADO = true,
+                            AGREGA = nivelDetalle.Any(e => e.IdNivelDet == "ccost_e"),
+                            MODIFICA = nivelDetalle.Any(e => e.IdNivelDet == "ccost_e"),
+                            ELIMINA = nivelDetalle.Any(e => e.IdNivelDet == "ccost_e"),
+                            CONSULTA = true,
+                        });
+                        break;
+                    case "tc_erp_v": //erp/erp_sinc
+                                     // 700	Integracion_ERP	701	/sincronizaerp	Sincronizar_ERP
+                        rolesDet.Add(new cPh_RolSistemaDet
+                        {
+                            ROLSISTEMAID = rol.ID,
+                            MENUSISTEMAID = "700",
+                            OPCIONSISTEMAID = "701",
+                            HABILITADO = true,
+                            AGREGA = false,
+                            MODIFICA = true,
+                            ELIMINA = false,
+                            CONSULTA = false,
+                        });
+                        break;
+                    case "im_acp_v": //erp/erp_ac_sinc
+                                     //700    Integracion_ERP 703 /sincroniza acciones Importar_Acciones_Personal
+                        rolesDet.Add(new cPh_RolSistemaDet
+                        {
+                            ROLSISTEMAID = rol.ID,
+                            MENUSISTEMAID = "700",
+                            OPCIONSISTEMAID = "703",
+                            HABILITADO = true,
+                            AGREGA = false,
+                            MODIFICA = true,
+                            ELIMINA = false,
+                            CONSULTA = false,
+                        });
+                        break;
+                    case "crp_v": //mantenimiento/periodos
+                                  //100	Procesos	101	/periodomarcalist	Períodos_de_Marcas
+                        rolesDet.Add(new cPh_RolSistemaDet
+                        {
+                            ROLSISTEMAID = rol.ID,
+                            MENUSISTEMAID = "100",
+                            OPCIONSISTEMAID = "101",
+                            HABILITADO = true,
+                            AGREGA = nivelDetalle.Any(e => e.IdNivelDet == "crp_e"),
+                            MODIFICA = nivelDetalle.Any(e => e.IdNivelDet == "crp_e"),
+                            ELIMINA = nivelDetalle.Any(e => e.IdNivelDet == "crp_e"),
+                            CONSULTA = false,
+                        });
+                        break;
+                    case "acp_v": //procesos/filtro_inicio_periodo
+                                  //100	Procesos	102	/actperiodoproceso	Activar_Período
+                        rolesDet.Add(new cPh_RolSistemaDet
+                        {
+                            ROLSISTEMAID = rol.ID,
+                            MENUSISTEMAID = "100",
+                            OPCIONSISTEMAID = "102",
+                            HABILITADO = true,
+                            AGREGA = nivelDetalle.Any(e => e.IdNivelDet == "acp_e"),
+                            MODIFICA = nivelDetalle.Any(e => e.IdNivelDet == "acp_e"),
+                            ELIMINA = nivelDetalle.Any(e => e.IdNivelDet == "acp_e"),
+                            CONSULTA = false,
+                        });
+                        break;
+                    case "ccap_v": //procesos/filtro_calc
+                                   //100	Procesos	103	/clperiodomarca	Calcular_Período_de_Marca
+                        rolesDet.Add(new cPh_RolSistemaDet
+                        {
+                            ROLSISTEMAID = rol.ID,
+                            MENUSISTEMAID = "100",
+                            OPCIONSISTEMAID = "103",
+                            HABILITADO = true,
+                            AGREGA = nivelDetalle.Any(e => e.IdNivelDet == "ccap_e"),
+                            MODIFICA = nivelDetalle.Any(e => e.IdNivelDet == "ccap_e"),
+                            ELIMINA = nivelDetalle.Any(e => e.IdNivelDet == "ccap_e"),
+                            CONSULTA = false,
+                        });
+                        break;
+                    case "edt_v": //procesos/filtro_editot
+                                  //100	Procesos	104	/empleadomarcafiltro	Editar_Marcas_del_Periodo
+                        rolesDet.Add(new cPh_RolSistemaDet
+                        {
+                            ROLSISTEMAID = rol.ID,
+                            MENUSISTEMAID = "100",
+                            OPCIONSISTEMAID = "104",
+                            HABILITADO = true,
+                            AGREGA = nivelDetalle.Any(e => e.IdNivelDet == "edt_e"),
+                            MODIFICA = nivelDetalle.Any(e => e.IdNivelDet == "edt_e"),
+                            ELIMINA = nivelDetalle.Any(e => e.IdNivelDet == "edt_e"),
+                            CONSULTA = true,
+                        });
+                        break;
+                    case "cnd_esp": //cond_esp/fit_cond_esp
+                                    //100	Procesos	105	/pcondicionesespeciales	Edición_Condiciones_Especiales
+                        rolesDet.Add(new cPh_RolSistemaDet
+                        {
+                            ROLSISTEMAID = rol.ID,
+                            MENUSISTEMAID = "100",
+                            OPCIONSISTEMAID = "105",
+                            HABILITADO = true,
+                            AGREGA = nivelDetalle.Any(e => e.IdNivelDet == "cnd_esp"),
+                            MODIFICA = nivelDetalle.Any(e => e.IdNivelDet == "cnd_esp"),
+                            ELIMINA = nivelDetalle.Any(e => e.IdNivelDet == "cnd_esp"),
+                            CONSULTA = true,
+                        });
+                        break;
+                    case "accp_v": //acc_personal/fit_acc
+                                   //100	Procesos	106	/paccionpersonal	Acciones_de_Personal
+                        rolesDet.Add(new cPh_RolSistemaDet
+                        {
+                            ROLSISTEMAID = rol.ID,
+                            MENUSISTEMAID = "100",
+                            OPCIONSISTEMAID = "106",
+                            HABILITADO = true,
+                            AGREGA = nivelDetalle.Any(e => e.IdNivelDet == "accp_e"),
+                            MODIFICA = nivelDetalle.Any(e => e.IdNivelDet == "accp_e"),
+                            ELIMINA = nivelDetalle.Any(e => e.IdNivelDet == "accp_e"),
+                            CONSULTA = true,
+                        });
+                        break;
+                    case "prgt_v": //procesos/filtro_prog_tur
+                                   //100	Procesos	107	/pprogramadorturnos	Programador_de_Turnos
+                        rolesDet.Add(new cPh_RolSistemaDet
+                        {
+                            ROLSISTEMAID = rol.ID,
+                            MENUSISTEMAID = "100",
+                            OPCIONSISTEMAID = "107",
+                            HABILITADO = true,
+                            AGREGA = nivelDetalle.Any(e => e.IdNivelDet == "prgt_e"),
+                            MODIFICA = nivelDetalle.Any(e => e.IdNivelDet == "prgt_e"),
+                            ELIMINA = nivelDetalle.Any(e => e.IdNivelDet == "prgt_e"),
+                            CONSULTA = true,
+                        });
+
+                        // 200	Mantenimientos	214	/programacionturnoscmlist	Carga_Masiva_Turnos    
+                        rolesDet.Add(new cPh_RolSistemaDet
+                        {
+                            ROLSISTEMAID = rol.ID,
+                            MENUSISTEMAID = "200",
+                            OPCIONSISTEMAID = "214",
+                            HABILITADO = true,
+                            AGREGA = nivelDetalle.Any(e => e.IdNivelDet == "prgt_e"),
+                            MODIFICA = nivelDetalle.Any(e => e.IdNivelDet == "prgt_e"),
+                            ELIMINA = nivelDetalle.Any(e => e.IdNivelDet == "prgt_e"),
+                            CONSULTA = true,
+                        });
+                        break;
+                    case "mapb_v": //aprobaciones/filt_apb_ext
+                                   //100 Procesos    109 / pamasivaextras Aprobacion_Masiva_de_Extras
+                        rolesDet.Add(new cPh_RolSistemaDet
+                        {
+                            ROLSISTEMAID = rol.ID,
+                            MENUSISTEMAID = "100",
+                            OPCIONSISTEMAID = "109",
+                            HABILITADO = true,
+                            AGREGA = false,
+                            MODIFICA = nivelDetalle.Any(e => e.IdNivelDet == "mapb_e"),
+                            ELIMINA = false,
+                            CONSULTA = true,
+                        });
+                        break;
+                    case "caex_v": //procesos/filtro_cambio_io_masivo
+                                   //100	Procesos	110	/pcambiomasivo	Cambio_Masivo_de_Entrada_y_Salida
+                        rolesDet.Add(new cPh_RolSistemaDet
+                        {
+                            ROLSISTEMAID = rol.ID,
+                            MENUSISTEMAID = "100",
+                            OPCIONSISTEMAID = "110",
+                            HABILITADO = true,
+                            AGREGA = false,
+                            MODIFICA = nivelDetalle.Any(e => e.IdNivelDet == "caex_v"),
+                            ELIMINA = false,
+                            CONSULTA = true,
+                        });
+                        break;
+                    case "exp_acc_v": //erp/erp_exp_acc
+                                      //700	Integracion_ERP	704	/exportaraccionespersonal	Exportar_Acciones_de_Personal
+                        rolesDet.Add(new cPh_RolSistemaDet
+                        {
+                            ROLSISTEMAID = rol.ID,
+                            MENUSISTEMAID = "700",
+                            OPCIONSISTEMAID = "704",
+                            HABILITADO = true,
+                            AGREGA = false,
+                            MODIFICA = nivelDetalle.Any(e => e.IdNivelDet == "exp_acc_v"),
+                            ELIMINA = false,
+                            CONSULTA = true,
+                        });
+                        break;
+                    case "exp_conc_v": //erp/erp_exp_conc
+                                       //700	Integracion_ERP	705	/exportarconceptos	Exportar_Conceptos
+                        rolesDet.Add(new cPh_RolSistemaDet
+                        {
+                            ROLSISTEMAID = rol.ID,
+                            MENUSISTEMAID = "700",
+                            OPCIONSISTEMAID = "705",
+                            HABILITADO = true,
+                            AGREGA = false,
+                            MODIFICA = nivelDetalle.Any(e => e.IdNivelDet == "exp_conc_v"),
+                            ELIMINA = false,
+                            CONSULTA = true,
+                        });
+                        break;
+                    case "clc_v": //procesos/filtro_cierre
+                                  //100	Procesos	113	/pcierreperiodo	Cierre_de_Periodo
+                        rolesDet.Add(new cPh_RolSistemaDet
+                        {
+                            ROLSISTEMAID = rol.ID,
+                            MENUSISTEMAID = "100",
+                            OPCIONSISTEMAID = "113",
+                            HABILITADO = true,
+                            AGREGA = false,
+                            MODIFICA = nivelDetalle.Any(e => e.IdNivelDet == "clc_v"),
+                            ELIMINA = false,
+                            CONSULTA = true,
+                        });
+                        break;
+                    case "tc_con_v": //erp/conc_shw
+                                     //700	Integracion_ERP	702	/importarconcepto	Importar_Concepto 
+                        rolesDet.Add(new cPh_RolSistemaDet
+                        {
+                            ROLSISTEMAID = rol.ID,
+                            MENUSISTEMAID = "700",
+                            OPCIONSISTEMAID = "702",
+                            HABILITADO = true,
+                            AGREGA = false,
+                            MODIFICA = nivelDetalle.Any(e => e.IdNivelDet == "tc_con_v"),
+                            ELIMINA = false,
+                            CONSULTA = true,
+                        });
+                        break;
+                    case "tc_acp_v": //erp/accp_shw                        
+                                     //400	Configuracion	402	/importartipoaccion	Importar_Definición_Acciones_Per
+                        rolesDet.Add(new cPh_RolSistemaDet
+                        {
+                            ROLSISTEMAID = rol.ID,
+                            MENUSISTEMAID = "400",
+                            OPCIONSISTEMAID = "402",
+                            HABILITADO = true,
+                            AGREGA = false,
+                            MODIFICA = nivelDetalle.Any(e => e.IdNivelDet == "tc_acp_v"),
+                            ELIMINA = false,
+                            CONSULTA = true,
+                        });
+                        break;
+                    case "tipoh_v": //mantenimiento/conceptos
+                                    // 400	Configuracion	403	/conceptolist	Tipos_de_Hora
+                        rolesDet.Add(new cPh_RolSistemaDet
+                        {
+                            ROLSISTEMAID = rol.ID,
+                            MENUSISTEMAID = "400",
+                            OPCIONSISTEMAID = "403",
+                            HABILITADO = true,
+                            AGREGA = nivelDetalle.Any(e => e.IdNivelDet == "tipoh_e"),
+                            MODIFICA = nivelDetalle.Any(e => e.IdNivelDet == "tipoh_e"),
+                            ELIMINA = nivelDetalle.Any(e => e.IdNivelDet == "tipoh_e"),
+                            CONSULTA = true,
+                        });
+                        break;
+                    case "form_v": //mantenimiento/formulas
+                                   //400	Configuracion	404	/formulacionlist	Formulas
+                        rolesDet.Add(new cPh_RolSistemaDet
+                        {
+                            ROLSISTEMAID = rol.ID,
+                            MENUSISTEMAID = "400",
+                            OPCIONSISTEMAID = "404",
+                            HABILITADO = true,
+                            AGREGA = nivelDetalle.Any(e => e.IdNivelDet == "form_e"),
+                            MODIFICA = nivelDetalle.Any(e => e.IdNivelDet == "form_e"),
+                            ELIMINA = nivelDetalle.Any(e => e.IdNivelDet == "form_e"),
+                            CONSULTA = true,
+                        });
+                        break;
+                    case "trnt_v": //mantenimiento/transf_turn
+                                   //400	Configuracion	405	/transformacionlist	Transformaciones_en_Turnos
+                        rolesDet.Add(new cPh_RolSistemaDet
+                        {
+                            ROLSISTEMAID = rol.ID,
+                            MENUSISTEMAID = "400",
+                            OPCIONSISTEMAID = "405",
+                            HABILITADO = true,
+                            AGREGA = nivelDetalle.Any(e => e.IdNivelDet == "trnt_e"),
+                            MODIFICA = nivelDetalle.Any(e => e.IdNivelDet == "trnt_e"),
+                            ELIMINA = nivelDetalle.Any(e => e.IdNivelDet == "trnt_e"),
+                            CONSULTA = true,
+                        });
+                        break;
+                    case "trntcto_v": //mantenimiento/transformacion_conceptos
+
+                        break;
+                    case "trnp_v": //mantenimiento/transf_glob
+                                   //400	Configuracion	406	/transformaciongloballist	Transformaciones_Post_Calculo
+                        rolesDet.Add(new cPh_RolSistemaDet
+                        {
+                            ROLSISTEMAID = rol.ID,
+                            MENUSISTEMAID = "400",
+                            OPCIONSISTEMAID = "406",
+                            HABILITADO = true,
+                            AGREGA = nivelDetalle.Any(e => e.IdNivelDet == "trnp_e"),
+                            MODIFICA = nivelDetalle.Any(e => e.IdNivelDet == "trnp_e"),
+                            ELIMINA = nivelDetalle.Any(e => e.IdNivelDet == "trnp_e"),
+                            CONSULTA = true,
+                        });
+                        break;
+                    case "cinc_v": //mantenimiento/pag_inci
+                                   // 400	Configuracion	407	/incidenciaconfpagolist	Configuracion_Pago_Incidencias
+                        rolesDet.Add(new cPh_RolSistemaDet
+                        {
+                            ROLSISTEMAID = rol.ID,
+                            MENUSISTEMAID = "400",
+                            OPCIONSISTEMAID = "407",
+                            HABILITADO = true,
+                            AGREGA = nivelDetalle.Any(e => e.IdNivelDet == "cinc_e"),
+                            MODIFICA = nivelDetalle.Any(e => e.IdNivelDet == "cinc_e"),
+                            ELIMINA = nivelDetalle.Any(e => e.IdNivelDet == "cinc_e"),
+                            CONSULTA = true,
+                        });
+                        break;
+                    case "usr_v": //usuarios/usr_gui
+                                  //600	Seguridad	602	/usuariosistemalist	Usuarios_del_Sistema
+                        rolesDet.Add(new cPh_RolSistemaDet
+                        {
+                            ROLSISTEMAID = rol.ID,
+                            MENUSISTEMAID = "600",
+                            OPCIONSISTEMAID = "602",
+                            HABILITADO = true,
+                            AGREGA = nivelDetalle.Any(e => e.IdNivelDet == "usr_e"),
+                            MODIFICA = nivelDetalle.Any(e => e.IdNivelDet == "usr_e"),
+                            ELIMINA = nivelDetalle.Any(e => e.IdNivelDet == "usr_e"),
+                            CONSULTA = true,
+                        });
+                        break;
+                    case "pfs_v": // niveles_acc/niveles_gui
+                                  //600 Seguridad   601 / rolsistemalist Perfiles_de_seguridad
+                        rolesDet.Add(new cPh_RolSistemaDet
+                        {
+                            ROLSISTEMAID = rol.ID,
+                            MENUSISTEMAID = "600",
+                            OPCIONSISTEMAID = "601",
+                            HABILITADO = true,
+                            AGREGA = nivelDetalle.Any(e => e.IdNivelDet == "pfs_e"),
+                            MODIFICA = nivelDetalle.Any(e => e.IdNivelDet == "pfs_e"),
+                            ELIMINA = nivelDetalle.Any(e => e.IdNivelDet == "pfs_e"),
+                            CONSULTA = true,
+                        });
+                        break;
+                    case "usrc_v": //usuarios/usr_comp_gui
+                                   // 600	Seguridad	603	/usuariocompanialist	Usuarios_Compañia
+                        rolesDet.Add(new cPh_RolSistemaDet
+                        {
+                            ROLSISTEMAID = rol.ID,
+                            MENUSISTEMAID = "600",
+                            OPCIONSISTEMAID = "603",
+                            HABILITADO = true,
+                            AGREGA = nivelDetalle.Any(e => e.IdNivelDet == "usrc_e"),
+                            MODIFICA = nivelDetalle.Any(e => e.IdNivelDet == "usrc_e"),
+                            ELIMINA = nivelDetalle.Any(e => e.IdNivelDet == "usrc_e"),
+                            CONSULTA = true,
+                        });
+                        break;
+                    case "lic_v": //licencias
+                                  //500	Configuracion_Adicional	508	/cargarlicencia	Cargar_Licencia
+                        rolesDet.Add(new cPh_RolSistemaDet
+                        {
+                            ROLSISTEMAID = rol.ID,
+                            MENUSISTEMAID = "500",
+                            OPCIONSISTEMAID = "508",
+                            HABILITADO = true,
+                            AGREGA = nivelDetalle.Any(e => e.IdNivelDet == "lic_e"),
+                            MODIFICA = nivelDetalle.Any(e => e.IdNivelDet == "lic_e"),
+                            ELIMINA = nivelDetalle.Any(e => e.IdNivelDet == "lic_e"),
+                            CONSULTA = true,
+                        });
+                        break;
+                    case "dist_lic": // = licencias/dist_lic.aspx
+
+                        break;
+                    case "main_mn_opc": //mantenimiento/sistema/opc_sis
+                                        //400	Configuracion	409	/opcionessistema	Opciones_del_Sistema
+                        rolesDet.Add(new cPh_RolSistemaDet
+                        {
+                            ROLSISTEMAID = rol.ID,
+                            MENUSISTEMAID = "400",
+                            OPCIONSISTEMAID = "409",
+                            HABILITADO = true,
+                            AGREGA = nivelDetalle.Any(e => e.IdNivelDet == "main_mn_opc"),
+                            MODIFICA = nivelDetalle.Any(e => e.IdNivelDet == "main_mn_opc"),
+                            ELIMINA = nivelDetalle.Any(e => e.IdNivelDet == "main_mn_opc"),
+                            CONSULTA = true,
+                        });
+                        break;
+                    case "usr_pref_lng": //mantenimiento/sistema/pref_usr_gui
+                                         // 400	Configuracion	410	/preferenciausuario	Preferencias_de_Usuarios
+                        rolesDet.Add(new cPh_RolSistemaDet
+                        {
+                            ROLSISTEMAID = rol.ID,
+                            MENUSISTEMAID = "400",
+                            OPCIONSISTEMAID = "410",
+                            HABILITADO = true,
+                            AGREGA = nivelDetalle.Any(e => e.IdNivelDet == "usr_pref_lng"),
+                            MODIFICA = nivelDetalle.Any(e => e.IdNivelDet == "usr_pref_lng"),
+                            ELIMINA = nivelDetalle.Any(e => e.IdNivelDet == "usr_pref_lng"),
+                            CONSULTA = true,
+                        });
+                        break;
+                    case "est_v": //ayuda
+                                  //  999 Ayuda   998 NULL Ayuda
+                        rolesDet.Add(new cPh_RolSistemaDet
+                        {
+                            ROLSISTEMAID = rol.ID,
+                            MENUSISTEMAID = "999",
+                            OPCIONSISTEMAID = "998",
+                            HABILITADO = true,
+                            AGREGA = nivelDetalle.Any(e => e.IdNivelDet == "est_v"),
+                            MODIFICA = nivelDetalle.Any(e => e.IdNivelDet == "est_v"),
+                            ELIMINA = nivelDetalle.Any(e => e.IdNivelDet == "est_v"),
+                            CONSULTA = true,
+                        });
+                        break;
+                    case "rep_v": //reportes
+                                  //300	Reportes	301	/historicohorasextras	Historico_Horas_Extra
+                        rolesDet.Add(new cPh_RolSistemaDet
+                        {
+                            ROLSISTEMAID = rol.ID,
+                            MENUSISTEMAID = "300",
+                            OPCIONSISTEMAID = "301",
+                            HABILITADO = true,
+                            AGREGA = false,
+                            MODIFICA = false,
+                            ELIMINA = false,
+                            CONSULTA = true,
+                        });
+
+                        //300	Reportes	302	/historicoincidencias	Historico_Incidencias
+
+                        rolesDet.Add(new cPh_RolSistemaDet
+                        {
+                            ROLSISTEMAID = rol.ID,
+                            MENUSISTEMAID = "300",
+                            OPCIONSISTEMAID = "302",
+                            HABILITADO = true,
+                            AGREGA = false,
+                            MODIFICA = false,
+                            ELIMINA = false,
+                            CONSULTA = true,
+                        });
+                        //300 Reportes    303 / historicomarcas    Historico_Marcas
+
+                        rolesDet.Add(new cPh_RolSistemaDet
+                        {
+                            ROLSISTEMAID = rol.ID,
+                            MENUSISTEMAID = "300",
+                            OPCIONSISTEMAID = "303",
+                            HABILITADO = true,
+                            AGREGA = false,
+                            MODIFICA = false,
+                            ELIMINA = false,
+                            CONSULTA = true,
+                        });
+                        //300 Reportes    304 / historicocalculostiempos   Historico_Calculo_Tiempo
+                        rolesDet.Add(new cPh_RolSistemaDet
+                        {
+                            ROLSISTEMAID = rol.ID,
+                            MENUSISTEMAID = "300",
+                            OPCIONSISTEMAID = "304",
+                            HABILITADO = true,
+                            AGREGA = false,
+                            MODIFICA = false,
+                            ELIMINA = false,
+                            CONSULTA = true,
+                        });
+
+                        //300 Reportes    305 / historicoconceptosresumen  ResumenConceptos
+                        rolesDet.Add(new cPh_RolSistemaDet
+                        {
+                            ROLSISTEMAID = rol.ID,
+                            MENUSISTEMAID = "300",
+                            OPCIONSISTEMAID = "305",
+                            HABILITADO = true,
+                            AGREGA = false,
+                            MODIFICA = false,
+                            ELIMINA = false,
+                            CONSULTA = true,
+                        });
+                        //300 Reportes    306 / historicoconceptos ResumenConceptosEmpleado
+                        rolesDet.Add(new cPh_RolSistemaDet
+                        {
+                            ROLSISTEMAID = rol.ID,
+                            MENUSISTEMAID = "300",
+                            OPCIONSISTEMAID = "306",
+                            HABILITADO = true,
+                            AGREGA = false,
+                            MODIFICA = false,
+                            ELIMINA = false,
+                            CONSULTA = true,
+                        });
+                        break;
+                }
+            }
+            return rolesDet;
+        }
+
+
+
         #endregion
 
     }
 
 
 }
+
+/*
+ * 
+
+ed_dist_cc  = distribuciones
+pcf_e
+lb_anul
+per_c_tip
+c_acp_v
+d_acp_v
+ma_acp_v
+mn_acp_v
+a_acp_v
+ff_acp_v
+fa_acp_v
+ae_edt_e
+ar_edt_e
+at_edt_e
+cap_edt_e
+cm_edt_e
+ct_edt_e
+er_edt_e
+et_edt_e
+ji_edt_e
+mt_edt_e
+edt_mapv
+trntcto_e
+trntcto_v mantenimiento/transformacion_conceptos
+emp_hor_v
+emp_hor_e
+t_hor_v
+t_hor_e
+dist_lic_edt*/

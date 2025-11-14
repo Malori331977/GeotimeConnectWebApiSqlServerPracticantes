@@ -21,6 +21,8 @@ namespace com.gsitcr.geotime.Models
         public DateTime FECHAULTMODIFICA { get; set; }
         public string IDUSUARIOMODIFICA { get; set; }
         public bool VERLOGMARCAS { get; set; }
+        public bool AUTOREGISTROROSTRO { get; set; }
+        public int CANTMAXPLANTILLAS { get; set; }
 
         [NotMapped]
         public string ORGANIZACIONBASEID { get; set; }

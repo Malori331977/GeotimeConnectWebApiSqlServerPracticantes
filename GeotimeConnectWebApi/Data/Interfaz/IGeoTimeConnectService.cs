@@ -23,6 +23,13 @@ namespace com.gsitcr.geotime.Data.Interfaz
         public Task<cPh_Login> GetPhLoginByUsuario(string id);
 
         /// <summary>
+        /// GetPhLoginById: Método para obtener un ph_login por nombre de usuario
+        /// </summary>
+        /// <returns>Una instancia de la clase cPhLogin</returns>
+        /// ///<param name="id">Id del usuario requerido</param>
+        public Task<cPh_Login> GetPhLoginById(int id);
+
+        /// <summary>
         /// PutPhLogin: metodo para actualizar campos de filtros del ph_login
         /// </summary>
         /// <param name="phLogin"></param>
@@ -33,6 +40,13 @@ namespace com.gsitcr.geotime.Data.Interfaz
 
         public Task<List<cPh_Compania>> GetPhCompania();
         public Task<cPh_Compania> GetPhCompania(string idcomp);
+
+        /// <summary>
+        /// PutPhCompania: metodo para actualizar campos de la api en todos los registros de ph_compania
+        /// </summary>
+        /// <param name="phCompanias"></param>
+        /// <returns>EventResponse, con el resultado del proceso</returns>
+        public Task<EventResponse> PutPhCompania(cPh_Compania phCompanias);
 
         /// <summary>
         /// Sincronizar_PhCompania: metodo para sincronizar las compañias 
@@ -411,7 +425,7 @@ namespace com.gsitcr.geotime.Data.Interfaz
         /// </summary>
         /// <param name="formula"></param>
         /// <returns></returns>
-        public Task<EventResponse> EvaluaFormula(string formula);
+        public Task<EventResponse> EvaluaFormula(cPh_Formulacion formula);
 
         #endregion
 
@@ -530,6 +544,13 @@ namespace com.gsitcr.geotime.Data.Interfaz
         /// <param name="login">datos del usuario a validar</param>
         /// <returns>Instancia de EventResponse con el resultado de la operación</returns>
         public Task<EventResponse> ValidarClaveAdm(cLogin login);
+
+        // <summary>
+        /// ValidarLicencia: validar datos de la licencia
+        /// </summary>
+        /// <param name="login"></param>
+        /// <returns></returns>
+        public Task<EventResponse> ValidarLicencia(cLogin login);
         public Task<EventResponse> CambiarClaveEmpleado(cEmpleado empleado);
 
 
@@ -803,7 +824,7 @@ namespace com.gsitcr.geotime.Data.Interfaz
         /// <param name="idconcepto">fecha para determinar periodo</param>
         /// <param name="idgrupo">Grupos a lo que pertenecen los empleados</param>
         /// <returns>Lista de Marcas Tiempos adicionales</returns>
-        public Task<List<cMarcaTiempoAdicional>> GetMarcasTiempoAdicional(string IdPlanilla, string idPeriodo, string Fecha, int idconcepto, string idgrupo);
+        public Task<List<cMarcaTiempoAdicional>> GetMarcasTiempoAdicional(string IdPlanilla, string idPeriodo, string FechaInicio, string FechaFin, int idconcepto, string idgrupo);
 
         /// <summary>
         /// GetMarcasTiempoAdicional: Obtener las marcas tiempo adicional para un empleado, planilla y un periodo especifico
@@ -1261,11 +1282,25 @@ namespace com.gsitcr.geotime.Data.Interfaz
 
 
         /// <summary>
-        /// AutorizarExtrasPeriodo: proceso para autorizar extras del periodo de un empleado.
+        /// AutorizarExtrasPeriodo: proceso para autorizar extras del periodo de empleados.
         /// </summary>
         /// <param name="parametros"></param>
         /// <returns></returns>
         public Task<EventResponse> AutorizarExtrasPeriodo(cExtraAprobacion parametros);
+
+        /// <summary>
+        /// PreAutorizarExtrasMasiva: proceso para pre-autorizar extras del periodo de empleados
+        /// </summary>
+        /// <param name="parametros"></param>
+        /// <returns></returns>
+        public Task<EventResponse> PreAutorizarExtrasMasiva(IEnumerable<cExtraAprobacion> parametros);
+
+        /// <summary>
+        /// AutorizarExtrasMasiva: proceso para autorizar extras de varios empleados.
+        /// </summary>
+        /// <param name="parametros"></param>
+        /// <returns></returns>
+        public Task<EventResponse> AutorizarExtrasMasiva(IEnumerable<cExtraAprobacion> parametros);
 
         /// <summary>
         /// AutorizarExtras: proceso para autorizar un registro de extras
@@ -1407,7 +1442,7 @@ namespace com.gsitcr.geotime.Data.Interfaz
         /// </summary>
         /// <param name="compania"></param>
         /// <returns>EventResponse con el detalle de la actualización</returns>
-        public Task<EventResponse> ActualizarCompaniaBD(cPh_Compania compania);
+        public Task<EventResponse> ActualizarCompaniaBD(cPh_Compania compania, bool migrate);
 
         /// <summary>
         /// GetPhCatalogoGenerico: lista de catalogos genericos
@@ -1423,6 +1458,8 @@ namespace com.gsitcr.geotime.Data.Interfaz
         public Task<List<cPh_CatalogoGenerico>> GetPhCatalogoGenerico(string nombre);
 
         public Task<cPh_CatalogoGenerico> GetPhCatalogoGenerico(string nombre, string id);
+
+        public Task<EventResponse> ActualizaPwdsUsuariosBD();
 
     }
 }
