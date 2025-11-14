@@ -8,6 +8,12 @@ using System.Net.Mime;
 using System.Security;
 using System.Text;
 using System.Text.Json;
+using static System.Net.Mime.MediaTypeNames;
+using MailKit.Net.Smtp;
+using MimeKit;
+using Multipart = MimeKit.Multipart;
+using ContentDisposition = MimeKit.ContentDisposition;
+using SmtpClient = MailKit.Net.Smtp.SmtpClient;
 
 
 namespace com.gsitcr.geotime.Data
@@ -153,9 +159,7 @@ namespace com.gsitcr.geotime.Data
 
                             var contentType = new MediaTypeWithQualityHeaderValue("application/json");
                             client.DefaultRequestHeaders.Accept.Add(contentType);
-                            //Permite que el sistema operativo escoja la version de TLS a utilizar.
-                            System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.SystemDefault;
-
+                            
                             var postData = JsonSerializer.Serialize(email_msg);
                             var contentData = new StringContent(postData, Encoding.UTF8, "application/json");
 
@@ -188,6 +192,62 @@ namespace com.gsitcr.geotime.Data
             return respuesta;
         }
 
+        public EventResponse EnviarCorreoElectronicoWithMailKit(IEnumerable<Email> correos, cParametroEmail parametrosCorreo)
+        {
+            EventResponse respuesta = new EventResponse();
+
+
+
+            foreach (var correo in correos)
+            {
+                var message = new MimeMessage();
+                message.From.Add(new MailboxAddress(parametrosCorreo.DefaultEmail, parametrosCorreo.DefaultEmail));
+                message.To.Add(new MailboxAddress(correo.Para, correo.Para));
+                message.Subject = correo.Asunto;
+
+                // create our message text, just like before (except don't set it as the message.Body)
+                var body = new TextPart("html")
+                {
+                    Text = correo.Cuerpo
+
+                };
+
+                var multipart = new Multipart("mixed");
+                if (correo.Adjunto != "")
+                {
+                    var attachment = new MimePart("application", "pdf")
+                    {
+                        Content = new MimeContent(new MemoryStream(correo.StreamAdjunto!), ContentEncoding.Default),
+                        ContentDisposition = new ContentDisposition(ContentDisposition.Attachment),
+                        ContentTransferEncoding = ContentEncoding.Base64,
+                        FileName = correo.Adjunto
+                    };
+
+                    multipart.Add(attachment);
+                }
+
+
+                multipart.Add(body);
+
+                // now set the multipart/mixed as the message body
+                message.Body = multipart;
+
+                using (var client = new SmtpClient())
+                {
+                    client.Connect(parametrosCorreo.SmtpServer, parametrosCorreo.SmtpPort, MailKit.Security.SecureSocketOptions.SslOnConnect, System.Threading.CancellationToken.None);
+
+                    // Note: only needed if the SMTP server requires authentication
+                    client.Authenticate(parametrosCorreo.DefaultEmail, parametrosCorreo.DefaultPassWord);
+
+                    client.Send(message);
+                    client.Disconnect(true);
+                }
+
+            }
+
+            return respuesta;
+        }
+
         public EventResponse SendMailSMTP(IEnumerable<Email> correos, cParametroEmail parametrosCorreo)
         {
             EventResponse respuesta = new EventResponse();
@@ -195,12 +255,6 @@ namespace com.gsitcr.geotime.Data
             try
             {
                 string password = parametrosCorreo.DefaultPassWord;
-                SecureString secureString = new SecureString();
-                foreach (char c in password.ToCharArray())
-                {
-                    secureString.AppendChar(c);
-                }
-
 
                 var task = new Task(() =>
                 {
@@ -210,30 +264,48 @@ namespace com.gsitcr.geotime.Data
                         {
                             try
                             {
-                                correo.De = parametrosCorreo.DefaultEmail;
-                                correo.SmtpServer = parametrosCorreo.SmtpServer;
-                                correo.SmtpPort = parametrosCorreo.SmtpPort;
-                                correo.UserName = (parametrosCorreo.UserName is null || parametrosCorreo.UserName == "") ? null : parametrosCorreo.UserName;
+                                var message = new MimeMessage();
+                                message.From.Add(new MailboxAddress(parametrosCorreo.DefaultEmail, parametrosCorreo.DefaultEmail));
+                                message.To.Add(new MailboxAddress(correo.Para, correo.Para));
+                                message.Subject = correo.Asunto;
 
-                                MailMessage message = new MailMessage(correo.De, correo.Para, correo.Asunto, correo.Cuerpo);
-                                message.IsBodyHtml = true;
+                                // create our message text, just like before (except don't set it as the message.Body)
+                                var body = new TextPart("html")
+                                {
+                                    Text = correo.Cuerpo
 
+                                };
+
+                                var multipart = new Multipart("mixed");
                                 if (correo.Adjunto != "")
                                 {
-                                    Stream stream = new MemoryStream(correo.StreamAdjunto);
-                                    System.Net.Mail.Attachment data = new System.Net.Mail.Attachment(stream, correo.Adjunto, MediaTypeNames.Application.Octet);
-                                    message.Attachments.Add(data);
+                                    var attachment = new MimePart("application", "pdf")
+                                    {
+                                        Content = new MimeContent(new MemoryStream(correo.StreamAdjunto!), ContentEncoding.Default),
+                                        ContentDisposition = new ContentDisposition(ContentDisposition.Attachment),
+                                        ContentTransferEncoding = ContentEncoding.Base64,
+                                        FileName = correo.Adjunto
+                                    };
+
+                                    multipart.Add(attachment);
                                 }
 
-                                SmtpClient client = new SmtpClient(correo.SmtpServer, correo.SmtpPort);
+                                multipart.Add(body);
 
-                                client.EnableSsl = true;
-                                client.DeliveryMethod = SmtpDeliveryMethod.Network;
+                                // now set the multipart/mixed as the message body
+                                message.Body = multipart;
 
+                                using (var client = new SmtpClient())
+                                {
+                                    client.Connect(parametrosCorreo.SmtpServer, parametrosCorreo.SmtpPort, MailKit.Security.SecureSocketOptions.SslOnConnect, System.Threading.CancellationToken.None);
 
-                                var Credentials = new NetworkCredential(correo.UserName ?? correo.De, secureString);
-                                client.Credentials = Credentials;
-                                client.Send(message);
+                                    // Note: only needed if the SMTP server requires authentication
+                                    client.Authenticate(parametrosCorreo.DefaultEmail, parametrosCorreo.DefaultPassWord);
+
+                                    client.Send(message);
+                                    client.Disconnect(true);
+                                }
+                                
                             }
                             catch (Exception ex1)
                             {
@@ -269,6 +341,105 @@ namespace com.gsitcr.geotime.Data
 
 
             }
+            return respuesta;
+        }
+        public async Task<EventResponse> SendMailMSGraphAsync(IEnumerable<Email> Mensajes, cParametroEmail parametrosCorreo)
+        {
+            EventResponse respuesta = new();
+            clientId = parametrosCorreo.ClientId!;
+            tenantId = parametrosCorreo.TenantId!;
+            clientSecret = parametrosCorreo.ClientSecret!;
+
+            var tasks = Mensajes.Select(async Mensaje =>
+            {
+                try
+                {
+                    object email_msg;
+                    if (string.IsNullOrEmpty(Mensaje.Adjunto))
+                    {
+                        email_msg = new
+                        {
+                            message = new
+                            {
+                                subject = Mensaje.Asunto,
+                                body = new
+                                {
+                                    contentType = "HTML",
+                                    content = Mensaje.Cuerpo
+                                },
+                                toRecipients = new[]
+                                {
+                                    new {
+                                        emailAddress = new {
+                                            address = Mensaje.Para
+                                        }
+                                    }
+                                }
+                            }
+                        };
+                    }
+                    else
+                    {
+                        var adjunto = new Dictionary<string, string>
+                        {
+                            { "name", Mensaje.Adjunto },
+                            { "contentBytes", Convert.ToBase64String(Mensaje.StreamAdjunto) },
+                            { "contentType", "application/pdf" },
+                            { "@odata.type", "#microsoft.graph.fileAttachment" }
+                        };
+
+                        email_msg = new
+                        {
+                            message = new
+                            {
+                                subject = Mensaje.Asunto,
+                                body = new
+                                {
+                                    contentType = "HTML",
+                                    content = Mensaje.Cuerpo
+                                },
+                                toRecipients = new[]
+                                {
+                                    new {
+                                        emailAddress = new {
+                                            address = Mensaje.Para
+                                        }
+                                    }
+                                },
+                                attachments = new[] { adjunto }
+                            }
+                        };
+                    }
+
+                    apiName = apiName.Replace("Remitente", parametrosCorreo.DefaultEmail);
+                    using var client = new HttpClient();
+                    client.BaseAddress = new Uri(apiName);
+                    var token = await GenerateToken();
+                    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                    client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+                    var postData = JsonSerializer.Serialize(email_msg);
+                    var contentData = new StringContent(postData, Encoding.UTF8, "application/json");
+
+                    var response = await client.PostAsync(apiName, contentData);
+
+                    if (!response.IsSuccessStatusCode)
+                    {
+                        respuesta.Id = response.StatusCode.ToString();
+                        respuesta.Descripcion = $"Error al enviar el correo. Detalle de error: {response.StatusCode} {response.ReasonPhrase}";
+                        respuesta.Respuesta = "Error";
+                        _logger.LogError($"GraphSendMail.SendMailMSGraph: Error al enviar correo a {Mensaje.Para}. Detalle: {response.StatusCode} {response.ReasonPhrase}");
+                    }
+                }
+                catch (Exception e)
+                {
+                    string error = e.InnerException is null ? e.Message : e.InnerException.Message;
+                    _logger.LogError($"GraphSendMail.SendMailMSGraph: Error al enviar correo a {Mensaje.Para}. Detalle: {error}");
+                }
+            });
+
+            await Task.WhenAll(tasks);
+
             return respuesta;
         }
     }

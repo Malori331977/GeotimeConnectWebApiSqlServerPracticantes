@@ -72,6 +72,20 @@ namespace com.gsitcr.geotime.Data.Interfaz
         /// <returns></returns>
         public Task<EventResponse> GetHistoricoCalculoTiempos(cFiltroReporte filtro);
 
+        /// <summary>
+        /// GetHistoricoConcepto:  Historico de Conceptos por empleado
+        /// </summary>
+        /// <param name="filtro"></param>
+        /// <returns></returns>
+        public Task<EventResponse> GetHistoricoConcepto(cFiltroReporte filtro);
+
+        /// <summary>
+        /// GetHistoricoConceptoResumen: resumen de conceptos por periodo
+        /// </summary>
+        /// <param name="filtro"></param>
+        /// <returns></returns>
+        public Task<EventResponse> GetHistoricoConceptoResumen(cFiltroReporte filtro);
+
 
 
 

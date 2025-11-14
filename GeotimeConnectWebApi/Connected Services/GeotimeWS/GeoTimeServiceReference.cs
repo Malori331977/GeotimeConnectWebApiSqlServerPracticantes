@@ -159,8 +159,16 @@ namespace GeoTimeServiceReference
         System.Threading.Tasks.Task<GeoTimeServiceReference.prueba_hcmResponse> prueba_hcmAsync(GeoTimeServiceReference.prueba_hcmRequest request);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://geotime.ddns.net/UploadClock", ReplyAction="*")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
+        [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]        
         System.Threading.Tasks.Task<GeoTimeServiceReference.UploadClockResponse> UploadClockAsync(GeoTimeServiceReference.UploadClockRequest request);
+
+        [System.ServiceModel.OperationContractAttribute(Action = "http://geotime.ddns.net/retorno_perfil", ReplyAction = "*")]
+        [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults = true)]
+        System.Threading.Tasks.Task<GeoTimeServiceReference.retorno_perfilResponse> retorno_perfilAsync(GeoTimeServiceReference.retorno_perfilRequest request);
+
+        [System.ServiceModel.OperationContractAttribute(Action = "http://geotime.ddns.net/cambio_encrypt", ReplyAction = "*")]
+        [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults = true)]
+        System.Threading.Tasks.Task<GeoTimeServiceReference.cambio_encryptResponse> cambio_encryptAsync(GeoTimeServiceReference.cambio_encryptRequest request);
     }
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
@@ -1863,7 +1871,92 @@ namespace GeoTimeServiceReference
             this.UploadClockResult = UploadClockResult;
         }
     }
-    
+
+    /*********************************************************/
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
+    [System.ServiceModel.MessageContractAttribute(WrapperName = "cambio_encrypt", WrapperNamespace = "http://geotime.ddns.net/", IsWrapped = true)]
+    public partial class cambio_encryptRequest
+    {
+
+        [System.ServiceModel.MessageBodyMemberAttribute(Namespace = "http://geotime.ddns.net/", Order = 0)]
+        public string dato;
+
+        
+        public cambio_encryptRequest()
+        {
+        }
+
+        public cambio_encryptRequest(string dato)
+        {
+            this.dato = dato;
+            
+        }
+    }
+
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
+    [System.ServiceModel.MessageContractAttribute(WrapperName = "cambio_encryptResponse", WrapperNamespace = "http://geotime.ddns.net/", IsWrapped = true)]
+    public partial class cambio_encryptResponse
+    {
+
+        [System.ServiceModel.MessageBodyMemberAttribute(Namespace = "http://geotime.ddns.net/", Order = 0)]
+        public string cambio_encryptResult;
+
+        public cambio_encryptResponse()
+        {
+        }
+
+        public cambio_encryptResponse(string cambio_encryptResult)
+        {
+            this.cambio_encryptResult = cambio_encryptResult;
+        }
+    }
+
+
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
+    [System.ServiceModel.MessageContractAttribute(WrapperName = "retorno_perfil", WrapperNamespace = "http://geotime.ddns.net/", IsWrapped = true)]
+    public partial class retorno_perfilRequest
+    {
+
+        [System.ServiceModel.MessageBodyMemberAttribute(Namespace = "http://geotime.ddns.net/", Order = 0)]
+        public string datos;
+        public int idsesion;
+
+        public retorno_perfilRequest()
+        {
+        }
+
+        public retorno_perfilRequest(string datos,int idsesion)
+        {
+            this.datos = datos;
+            this.idsesion = idsesion;
+
+        }
+    }
+
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
+    [System.ServiceModel.MessageContractAttribute(WrapperName = "retorno_perfilResponse", WrapperNamespace = "http://geotime.ddns.net/", IsWrapped = true)]
+    public partial class retorno_perfilResponse
+    {
+
+        [System.ServiceModel.MessageBodyMemberAttribute(Namespace = "http://geotime.ddns.net/", Order = 0)]
+        public string retorno_perfilResult;
+
+        public retorno_perfilResponse()
+        {
+        }
+
+        public retorno_perfilResponse(string retorno_perfilResult)
+        {
+            this.retorno_perfilResult = retorno_perfilResult;
+        }
+    }
+
+    /*********************************************************/
+
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
     public interface ServiceSoapChannel : GeoTimeServiceReference.ServiceSoap, System.ServiceModel.IClientChannel
     {
@@ -2101,7 +2194,18 @@ namespace GeoTimeServiceReference
         {
             return System.Threading.Tasks.Task.Factory.FromAsync(((System.ServiceModel.ICommunicationObject)(this)).BeginOpen(null, null), new System.Action<System.IAsyncResult>(((System.ServiceModel.ICommunicationObject)(this)).EndOpen));
         }
-        
+
+        public Task<retorno_perfilResponse> retorno_perfilAsync(retorno_perfilRequest request)
+        {
+            return base.Channel.retorno_perfilAsync(request);
+        }
+
+        public Task<cambio_encryptResponse> cambio_encryptAsync(cambio_encryptRequest request)
+        {
+            return base.Channel.cambio_encryptAsync(request);
+        }
+
+
         private static System.ServiceModel.Channels.Binding GetBindingForEndpoint(EndpointConfiguration endpointConfiguration)
         {
             if ((endpointConfiguration == EndpointConfiguration.Service1Soap))
@@ -2154,7 +2258,8 @@ namespace GeoTimeServiceReference
             }
             throw new System.InvalidOperationException(string.Format("No se pudo encontrar un punto de conexión con el nombre \"{0}\".", endpointConfiguration));
         }
-        
+
+       
         public enum EndpointConfiguration
         {
             

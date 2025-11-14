@@ -1,27 +1,27 @@
 ﻿using com.gsitcr.geotime.Data.Interfaz;
 using com.gsitcr.geotime.Models;
 using com.gsitcr.geotime.Models.Response;
+using GeotimeModelsLib.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace com.gsitcr.geotime.Controllers.ConexionServicioWeb
+namespace GeoTimeConnectWebApi.Controllers.Reportes
 {
     [ApiController]
     [Route("[controller]")]
     [Authorize]
-    public class WSEvaluaFormulaController : Controller
+    public class HistoricoConceptoResumenController : Controller
     {
-        private readonly IGeoTimeConnectService _repoGT;
-        public WSEvaluaFormulaController(IGeoTimeConnectService repoGT)
+        private readonly IReportesServices _repoGT;
+        public HistoricoConceptoResumenController(IReportesServices repoGT)
         {
-
             _repoGT = repoGT;
         }
 
-        [HttpPost]
-        public async Task<IActionResult> Post([FromBody] cPh_Formulacion formula)
+        [HttpPut]
+        public async Task<IActionResult> Post([FromBody] cFiltroReporte filtro)
         {
-            EventResponse respuesta = await _repoGT.EvaluaFormula(formula);
+            EventResponse respuesta = await _repoGT.GetHistoricoConceptoResumen(filtro);
 
             if (respuesta.Id != "0")
                 return BadRequest(respuesta);

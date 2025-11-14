@@ -52,6 +52,16 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         public Task<IEnumerable<cSolicitud>> GetSolicitud(string idnumero, string fechaInicial, string fechaFinal, int tipoSolicitud);
 
         /// <summary>
+        /// GetSolicitud: obtiene lista de solictudes para un colaborador según el estado, tipo de solicitud, fecha inicial, fecha final 
+        /// </summary>
+        /// <param name="estado"></param>
+        /// <param name="fechaInicial"></param>
+        /// <param name="fechaFinal"></param>
+        /// <param name="tipoSolicitud"></param>
+        /// <returns></returns>
+        public Task<IEnumerable<cSolicitud>> GetSolicitud(int estado, int tipoSolicitud, string fechaInicial, string fechaFinal);
+
+        /// <summary>
         /// GetSolicitud: obtiene lista de solictudes para un colaborador según el id de número, fecha inicial, fecha final y tipo de solicitud.
         /// </summary>
         /// <param name="idnumero"></param>
@@ -74,6 +84,8 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         /// <param name="model"></param>
         /// <returns>Respuesta del evento con el resultado de la operación</returns>
         public Task<EventResponse> PutSolicitud(IEnumerable<cSolicitud> model);
+
+        public Task<EventResponse> PutSolicitudActGrupo(IEnumerable<cSolicitud> model);
 
         /// <summary>
         /// AnularSolicitud: anula un registro de solicitud según el id de parámetro indicado.
@@ -98,6 +110,9 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         /// <param name="Id"></param>
         /// <returns></returns>
         public Task<IEnumerable<cAutorizante>> GetAutorizantesSolicitud(int IdGrupo, int TipoSolicitudId, string IdNumero, long Id);
+
+        public Task<EventResponse> ReAplicarSolicitudesAprobadas(string fechas);
+        public Task<EventResponse> ReAplicarSolicitudesAprobadasById(int Id);
 
 
     }

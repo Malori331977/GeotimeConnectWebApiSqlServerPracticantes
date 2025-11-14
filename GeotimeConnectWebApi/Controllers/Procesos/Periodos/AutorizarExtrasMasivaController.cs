@@ -4,25 +4,24 @@ using com.gsitcr.geotime.Models.Response;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace com.gsitcr.geotime.Controllers.ConexionServicioWeb
+namespace GeoTimeConnectWebApi.Controllers.Procesos.Periodos
 {
     [ApiController]
     [Route("[controller]")]
     [Authorize]
-    public class WSActualizaCompaniaBDController : Controller
+    public class AutorizarExtrasMasivaController : Controller
     {
         private readonly IGeoTimeConnectService _repoGT;
-        public WSActualizaCompaniaBDController(IGeoTimeConnectService repoGT)
+        public AutorizarExtrasMasivaController(IGeoTimeConnectService repoGT)
         {
 
             _repoGT = repoGT;
         }
 
         [HttpPost]
-       
-        public async Task<IActionResult> Post([FromBody] cPh_Compania compania)
+        public async Task<IActionResult> Post([FromBody] IEnumerable<cExtraAprobacion> parametros)
         {
-            EventResponse respuesta = await _repoGT.ActualizarCompaniaBD(compania, false);
+            EventResponse respuesta = await _repoGT.AutorizarExtrasMasiva(parametros);
 
             if (respuesta.Id != "0")
                 return BadRequest(respuesta);
@@ -31,14 +30,16 @@ namespace com.gsitcr.geotime.Controllers.ConexionServicioWeb
         }
 
         [HttpPut]
-        public async Task<IActionResult> Put([FromBody] cPh_Compania compania)
+        public async Task<IActionResult> Put([FromBody] IEnumerable<cExtraAprobacion> parametros)
         {
-            EventResponse respuesta = await _repoGT.ActualizarCompaniaBD(compania, true);
+            EventResponse respuesta = await _repoGT.PreAutorizarExtrasMasiva(parametros);
 
             if (respuesta.Id != "0")
                 return BadRequest(respuesta);
 
             return Ok(respuesta);
         }
+
+
     }
 }

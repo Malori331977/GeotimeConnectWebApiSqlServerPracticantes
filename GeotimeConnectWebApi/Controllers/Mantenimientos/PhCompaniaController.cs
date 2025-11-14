@@ -37,5 +37,17 @@ namespace GeoTimeConnectWebApi.Controllers.Mantenimientos
             return Ok(respuesta);
         }
 
+        [Authorize]
+        [HttpPut]
+        public async Task<IActionResult> Put([FromBody] cPh_Compania phCompanias)
+        {
+            EventResponse respuesta = await _repoGT.PutPhCompania(phCompanias);
+
+            if (respuesta.Id != "0")
+                return BadRequest(respuesta);
+
+            return Ok(respuesta);
+        }
+
     }
 }
