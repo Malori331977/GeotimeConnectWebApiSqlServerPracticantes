@@ -77,6 +77,9 @@ namespace com.gsitcr.geotime.Models
         [Display(Name = "Usuario que Modifica")]
         public string UsuarioModifica { get; set; }
 
+        [Display(Name = "Nombre Modifica")]
+        public string? NombreUsuarioModifica { get; set; }
+
         public cEmpleado? cEmpleado { get; set; }
         public cTurno? cTurno { get; set; }
         public cPh_Planilla? cPh_Planilla { get; set; }

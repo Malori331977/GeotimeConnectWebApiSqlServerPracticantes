@@ -21,6 +21,7 @@ using System.Text.RegularExpressions;
 using System.Xml;
 using static GeoTimeServiceReference.ServiceSoapClient;
 using static com.gsitcr.geotime.Models.CalculoPeriodoParam;
+using System.Web;
 
 
 namespace com.gsitcr.geotime.Data
@@ -301,7 +302,8 @@ namespace com.gsitcr.geotime.Data
                                  APIUSER = String.IsNullOrEmpty(e.APIUSER) ? "" : Encripta.getDecryptTripleDES(e.APIUSER!),
                                  APIPASSWORD = String.IsNullOrEmpty(e.APIPASSWORD) ? "" : Encripta.getDecryptTripleDES(e.APIPASSWORD!),
                                  APIDATABASE = String.IsNullOrEmpty(e.APIDATABASE) ? "" : Encripta.getDecryptTripleDES(e.APIDATABASE!),
-                                 APIURL = String.IsNullOrEmpty(e.APIURL) ? "" : Encripta.getDecryptTripleDES(e.APIURL!),                                
+                                 APIURL = String.IsNullOrEmpty(e.APIURL) ? "" : Encripta.getDecryptTripleDES(e.APIURL!), 
+                                 ZONAHORARIA = e.ZONAHORARIA,
                              }).ToList();
             }
             catch (Exception e)
@@ -354,6 +356,7 @@ namespace com.gsitcr.geotime.Data
                                  APIPASSWORD = String.IsNullOrEmpty(e.APIPASSWORD) ? "" : Encripta.getDecryptTripleDES(e.APIPASSWORD!),
                                  APIDATABASE = String.IsNullOrEmpty(e.APIDATABASE) ? "" : Encripta.getDecryptTripleDES(e.APIDATABASE!),
                                  APIURL = String.IsNullOrEmpty(e.APIURL) ? "" : Encripta.getDecryptTripleDES(e.APIURL!),
+                                 ZONAHORARIA = e.ZONAHORARIA,
                              }).FirstOrDefault();
 
                                 
@@ -411,6 +414,7 @@ namespace com.gsitcr.geotime.Data
                         objetoBuscar.APIPASSWORD = Encripta.getEncryptTripleDES(item.APIPASSWORD!);
                         objetoBuscar.APIURL = Encripta.getEncryptTripleDES(item.APIURL!); 
                         objetoBuscar.APIDATABASE = Encripta.getEncryptTripleDES(item.APIDATABASE!);
+                        objetoBuscar.ZONAHORARIA = item.ZONAHORARIA;
 
                         _logger.LogError($"GeoTimeConnectService.Sincronizar_PhCompania.Update: {item.APIURL!}-{item.APIDATABASE}-{item.APICLIENTID}");
 
@@ -1317,7 +1321,7 @@ namespace com.gsitcr.geotime.Data
             List<cEmpleado> empleado = new();
             try
             {
-
+                grupos = HttpUtility.UrlDecode(grupos);
                 string[] ListGrupos = grupos.Split(',');
                 List<cPh_Grupo> phgrupos = new List<cPh_Grupo>();
 
@@ -1397,102 +1401,13 @@ namespace com.gsitcr.geotime.Data
             return empleado;
         }
 
-        //Creado por: Allan Prieto Badilla
-        //Fecha: 2024-4-30
-        /// <summary>
-        /// GetEmpleado: Método para obtener una lista de empleados 
-        /// </summary>
-        /// <returns>Lista de cEmpleados</returns>
-        //public async Task<List<cEmpleado>> GetEmpleadoProgramador(string idplanilla, string grupos)
-        //{
-        //    List<cEmpleado> empleado = new();
-        //    try
-        //    {
-                
-        //        string[] ListGrupos = grupos.Split(',');
-        //        List<cPh_Grupo> phgrupos = new List<cPh_Grupo>();
-
-        //        foreach (var valor in ListGrupos)
-        //            phgrupos.Add(new cPh_Grupo
-        //            {
-        //                idgrupo = int.Parse(valor),
-        //            });
-                    
-
-        //        empleado = (from e in await _context.Empleados.Where(e => e.IdPlanilla == idplanilla && e.Estado == 'T').ToListAsync()
-        //                    join g in phgrupos on e.IdGrupo equals g.idgrupo                            
-        //                    select new cEmpleado
-        //                    {
-        //                        IdNumero = e.IdNumero,
-        //                        IdPlanilla = e.IdPlanilla,
-        //                        Nombre = e.Nombre,
-        //                        Tarjeta = e.Tarjeta,
-        //                        Identificacion = e.Identificacion,
-        //                        IdGrupo = e.IdGrupo,
-        //                        IdDepartamento = e.IdDepartamento,
-        //                        IdHorario = e.IdHorario,
-        //                        Estado = e.Estado,
-        //                        IdAgrupamiento = e.IdAgrupamiento,
-        //                        foto = e.foto,
-        //                        IdCCosto = e.IdCCosto,
-        //                        exporta = e.exporta,
-        //                        ubicacion = e.ubicacion,
-        //                        rubro1 = e.rubro1,
-        //                        rubro2 = e.rubro2,
-        //                        rubro3 = e.rubro3,
-        //                        rubro4 = e.rubro4,
-        //                        rubro5 = e.rubro5,
-        //                        rubro6 = e.rubro6,
-        //                        rubro7 = e.rubro7,
-        //                        rubro8 = e.rubro8,
-        //                        rubro9 = e.rubro9,
-        //                        rubro10 = e.rubro10,
-        //                        rubro11 = e.rubro11,
-        //                        rubro12 = e.rubro12,
-        //                        rubro13 = e.rubro13,
-        //                        rubro14 = e.rubro14,
-        //                        rubro15 = e.rubro15,
-        //                        rubro16 = e.rubro16,
-        //                        rubro17 = e.rubro17,
-        //                        rubro18 = e.rubro18,
-        //                        rubro19 = e.rubro19,
-        //                        rubro20 = e.rubro20,
-        //                        rubro21 = e.rubro21,
-        //                        rubro22 = e.rubro22,
-        //                        rubro23 = e.rubro23,
-        //                        rubro24 = e.rubro24,
-        //                        rubro25 = e.rubro25,
-        //                        Fecha_Ingreso = e.Fecha_Ingreso,
-        //                        Email = e.Email,
-        //                        Tipo_Marca = e.Tipo_Marca,
-        //                        inicio_rol = e.inicio_rol,
-        //                        web_pass = e.web_pass,
-        //                        id_transfo_conc = e.id_transfo_conc,
-        //                        widioma = e.widioma,
-        //                        global_clave = e.global_clave,
-        //                        def_fase = e.def_fase,
-        //                        def_py = e.def_py,
-        //                        def_cc = e.def_cc,
-        //                        Fecha_Salida = e.Fecha_Salida,
-        //                        global_code = e.global_code,
-        //                        fecha_act_code = e.fecha_act_code,
-        //                        puesto = e.puesto,
-        //                    }).ToList();
-        //    }
-        //    catch (Exception e)
-        //    {
-        //       string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
-
-        //        _logger.LogError($"GeoTimeConnectService.GetEmpleadoProgramador: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
-        //    }
-        //    return empleado;
-        //}
 
         public async Task<List<cEmpleado>> GetEmpleadoProgramador(string idplanilla, string grupos)
         {
             List<cEmpleado> empleado = new();
             try
             {
+                grupos = HttpUtility.UrlDecode(grupos);
                 // Convertir la cadena de grupos a una lista de enteros
                 var grupoIds = grupos.Split(',', StringSplitOptions.RemoveEmptyEntries)
                                      .Select(g => int.Parse(g.Trim()))
@@ -1582,7 +1497,7 @@ namespace com.gsitcr.geotime.Data
             List<cEmpleado> empleado = new();
             try
             {
-
+                horarios = HttpUtility.UrlDecode(horarios);
                 string[] ListHorarios = horarios.Split(',');
                 List<cPh_Horarios> ph_Horarios = new List<cPh_Horarios>();
 
@@ -2803,7 +2718,106 @@ namespace com.gsitcr.geotime.Data
             List<cPh_Rol> roles = new();
             try
             {
-                roles = await _context.Ph_Roles.ToListAsync();
+                roles = await (from r in _context.Ph_Roles
+                                .Include(r => r.cPh_RolTurno)!.ThenInclude(rt => rt.cTurno)
+                               select new cPh_Rol
+                               {
+                                   IDROL = r.IDROL,
+                                   DESCRIPCION = r.DESCRIPCION,
+                                   cPh_RolTurno = r.cPh_RolTurno == null ? null :
+                                   (from e in r.cPh_RolTurno.ToList()
+                                    select new cPh_RolTurno
+                                    {
+                                        IDREGISTRO = e.IDREGISTRO,
+                                        IDROL = e.IDROL,
+                                        IDTURNO = e.IDTURNO,
+                                        cTurno = e.cTurno == null ? null : new cTurno
+                                        {
+                                            IdTurno = e.cTurno.IdTurno,
+                                            Descripcion = e.cTurno.Descripcion,
+                                            HEntra = e.cTurno.HEntra,
+                                            HSale = e.cTurno.HSale,
+                                            tar_apl = e.cTurno.tar_apl,
+                                            ant_apl = e.cTurno.ant_apl,
+                                            des_1_in = e.cTurno.des_1_in,
+                                            des_1_out = e.cTurno.des_1_out,
+                                            des_2_in = e.cTurno.des_2_in,
+                                            des_2_out = e.cTurno.des_2_out,
+                                            des_3_in = e.cTurno.des_3_in,
+                                            des_3_out = e.cTurno.des_3_out,
+                                            apl_des_1 = e.cTurno.apl_des_1,
+                                            apl_des_2 = e.cTurno.apl_des_2,
+                                            apl_des_3 = e.cTurno.apl_des_3,
+                                            des_1_tiem = e.cTurno.des_1_tiem,
+                                            des_2_tiem = e.cTurno.des_2_tiem,
+                                            des_3_tiem = e.cTurno.des_3_tiem,
+                                            marca_des_1 = e.cTurno.marca_des_1,
+                                            marca_des_2 = e.cTurno.marca_des_2,
+                                            marca_des_3 = e.cTurno.marca_des_3,
+                                            tar_tiem = e.cTurno.tar_tiem,
+                                            ant_tiem = e.cTurno.ant_tiem,
+                                            con_1 = e.cTurno.con_1,
+                                            con_2 = e.cTurno.con_2,
+                                            con_3 = e.cTurno.con_3,
+                                            con_4 = e.cTurno.con_4,
+                                            con_5 = e.cTurno.con_5,
+                                            con_6 = e.cTurno.con_6,
+                                            cant_con_1 = e.cTurno.cant_con_1,
+                                            cant_con_2 = e.cTurno.cant_con_2,
+                                            cant_con_3 = e.cTurno.cant_con_3,
+                                            cant_con_4 = e.cTurno.cant_con_4,
+                                            cant_con_5 = e.cTurno.cant_con_5,
+                                            cant_con_6 = e.cTurno.cant_con_6,
+                                            min_con_1 = e.cTurno.min_con_1,
+                                            min_con_2 = e.cTurno.min_con_2,
+                                            min_con_3 = e.cTurno.min_con_3,
+                                            min_con_4 = e.cTurno.min_con_4,
+                                            min_con_5 = e.cTurno.min_con_5,
+                                            min_con_6 = e.cTurno.min_con_6,
+                                            Tipo = e.cTurno.Tipo,
+                                            Tipo_Jor = e.cTurno.Tipo_Jor,
+                                            fuerza_calc = e.cTurno.fuerza_calc,
+                                            idagrupamiento = e.cTurno.idagrupamiento,
+                                            apl_trans1 = e.cTurno.apl_trans1,
+                                            id_trans1 = e.cTurno.id_trans1,
+                                            apl_trans2 = e.cTurno.apl_trans2,
+                                            id_trans2 = e.cTurno.id_trans2,
+                                            apl_trans3 = e.cTurno.apl_trans3,
+                                            id_trans3 = e.cTurno.id_trans3,
+                                            apl_trans4 = e.cTurno.apl_trans4,
+                                            id_trans4 = e.cTurno.id_trans4,
+                                            apl_trans5 = e.cTurno.apl_trans5,
+                                            id_trans5 = e.cTurno.id_trans5,
+                                            apl_trans6 = e.cTurno.apl_trans6,
+                                            id_trans6 = e.cTurno.id_trans6,
+                                            apl_ben1 = e.cTurno.apl_ben1,
+                                            id_ben1 = e.cTurno.id_ben1,
+                                            apl_ben2 = e.cTurno.apl_ben2,
+                                            id_ben2 = e.cTurno.id_ben2,
+                                            apl_ben3 = e.cTurno.apl_ben3,
+                                            id_ben3 = e.cTurno.id_ben3,
+                                            apl_ben4 = e.cTurno.apl_ben4,
+                                            id_ben4 = e.cTurno.id_ben4,
+                                            apl_ben5 = e.cTurno.apl_ben5,
+                                            id_ben5 = e.cTurno.id_ben5,
+                                            apl_ben6 = e.cTurno.apl_ben6,
+                                            id_ben6 = e.cTurno.id_ben6,
+                                            conc_ben1 = e.cTurno.conc_ben1,
+                                            conc_ben2 = e.cTurno.conc_ben2,
+                                            conc_ben3 = e.cTurno.conc_ben3,
+                                            conc_ben4 = e.cTurno.conc_ben4,
+                                            conc_ben5 = e.cTurno.conc_ben5,
+                                            conc_ben6 = e.cTurno.conc_ben6,
+                                            apl_trans_post = e.cTurno.apl_trans_post,
+                                            id_trans_post = e.cTurno.id_trans_post,
+                                            apl_redond_entrada = e.cTurno.apl_redond_entrada,
+                                            cant_redond_entrada = e.cTurno.cant_redond_entrada,
+                                            auto_pan = e.cTurno.auto_pan,
+                                            ColorId = e.cTurno.ColorId,
+                                        }
+
+                                    }).ToList(),
+                               }).ToListAsync();
             }
             catch (Exception e)
             {
@@ -2824,20 +2838,105 @@ namespace com.gsitcr.geotime.Data
             try
             {
                 roles = await (from r in _context.Ph_Roles
+                                .Include(r => r.cPh_RolTurno)!.ThenInclude(rt => rt.cTurno)
                                where r.IDROL == idrol
                                select new cPh_Rol
                                {
                                    IDROL = r.IDROL,
                                    DESCRIPCION = r.DESCRIPCION,
-                                   Turno = (from rt in _context.Ph_Roles_Turnos
-                                            join t in _context.Ph_Turnos on rt.IDTURNO equals t.IdTurno
-                                            where rt.IDROL == idrol
-                                            select new cTurno
-                                            {
-                                                IdTurno = t.IdTurno,
-                                                Descripcion = t.Descripcion,
-                                                idRegistro = rt.IDREGISTRO
-                                            }).ToList()
+                                   cPh_RolTurno = r.cPh_RolTurno ==null? null:
+                                   (from e in r.cPh_RolTurno
+                                    select new cPh_RolTurno
+                                    {
+                                        IDREGISTRO = e.IDREGISTRO,
+                                        IDROL = e.IDROL,
+                                        IDTURNO = e.IDTURNO,
+                                        cTurno = e.cTurno == null ? null : new cTurno
+                                        {
+                                            IdTurno = e.cTurno.IdTurno,
+                                            Descripcion = e.cTurno.Descripcion,
+                                            HEntra = e.cTurno.HEntra,
+                                            HSale = e.cTurno.HSale,
+                                            tar_apl = e.cTurno.tar_apl,
+                                            ant_apl = e.cTurno.ant_apl,
+                                            des_1_in = e.cTurno.des_1_in,
+                                            des_1_out = e.cTurno.des_1_out,
+                                            des_2_in = e.cTurno.des_2_in,
+                                            des_2_out = e.cTurno.des_2_out,
+                                            des_3_in = e.cTurno.des_3_in,
+                                            des_3_out = e.cTurno.des_3_out,
+                                            apl_des_1 = e.cTurno.apl_des_1,
+                                            apl_des_2 = e.cTurno.apl_des_2,
+                                            apl_des_3 = e.cTurno.apl_des_3,
+                                            des_1_tiem = e.cTurno.des_1_tiem,
+                                            des_2_tiem = e.cTurno.des_2_tiem,
+                                            des_3_tiem = e.cTurno.des_3_tiem,
+                                            marca_des_1 = e.cTurno.marca_des_1,
+                                            marca_des_2 = e.cTurno.marca_des_2,
+                                            marca_des_3 = e.cTurno.marca_des_3,
+                                            tar_tiem = e.cTurno.tar_tiem,
+                                            ant_tiem = e.cTurno.ant_tiem,
+                                            con_1 = e.cTurno.con_1,
+                                            con_2 = e.cTurno.con_2,
+                                            con_3 = e.cTurno.con_3,
+                                            con_4 = e.cTurno.con_4,
+                                            con_5 = e.cTurno.con_5,
+                                            con_6 = e.cTurno.con_6,
+                                            cant_con_1 = e.cTurno.cant_con_1,
+                                            cant_con_2 = e.cTurno.cant_con_2,
+                                            cant_con_3 = e.cTurno.cant_con_3,
+                                            cant_con_4 = e.cTurno.cant_con_4,
+                                            cant_con_5 = e.cTurno.cant_con_5,
+                                            cant_con_6 = e.cTurno.cant_con_6,
+                                            min_con_1 = e.cTurno.min_con_1,
+                                            min_con_2 = e.cTurno.min_con_2,
+                                            min_con_3 = e.cTurno.min_con_3,
+                                            min_con_4 = e.cTurno.min_con_4,
+                                            min_con_5 = e.cTurno.min_con_5,
+                                            min_con_6 = e.cTurno.min_con_6,
+                                            Tipo = e.cTurno.Tipo,
+                                            Tipo_Jor = e.cTurno.Tipo_Jor,
+                                            fuerza_calc = e.cTurno.fuerza_calc,
+                                            idagrupamiento = e.cTurno.idagrupamiento,
+                                            apl_trans1 = e.cTurno.apl_trans1,
+                                            id_trans1 = e.cTurno.id_trans1,
+                                            apl_trans2 = e.cTurno.apl_trans2,
+                                            id_trans2 = e.cTurno.id_trans2,
+                                            apl_trans3 = e.cTurno.apl_trans3,
+                                            id_trans3 = e.cTurno.id_trans3,
+                                            apl_trans4 = e.cTurno.apl_trans4,
+                                            id_trans4 = e.cTurno.id_trans4,
+                                            apl_trans5 = e.cTurno.apl_trans5,
+                                            id_trans5 = e.cTurno.id_trans5,
+                                            apl_trans6 = e.cTurno.apl_trans6,
+                                            id_trans6 = e.cTurno.id_trans6,
+                                            apl_ben1 = e.cTurno.apl_ben1,
+                                            id_ben1 = e.cTurno.id_ben1,
+                                            apl_ben2 = e.cTurno.apl_ben2,
+                                            id_ben2 = e.cTurno.id_ben2,
+                                            apl_ben3 = e.cTurno.apl_ben3,
+                                            id_ben3 = e.cTurno.id_ben3,
+                                            apl_ben4 = e.cTurno.apl_ben4,
+                                            id_ben4 = e.cTurno.id_ben4,
+                                            apl_ben5 = e.cTurno.apl_ben5,
+                                            id_ben5 = e.cTurno.id_ben5,
+                                            apl_ben6 = e.cTurno.apl_ben6,
+                                            id_ben6 = e.cTurno.id_ben6,
+                                            conc_ben1 = e.cTurno.conc_ben1,
+                                            conc_ben2 = e.cTurno.conc_ben2,
+                                            conc_ben3 = e.cTurno.conc_ben3,
+                                            conc_ben4 = e.cTurno.conc_ben4,
+                                            conc_ben5 = e.cTurno.conc_ben5,
+                                            conc_ben6 = e.cTurno.conc_ben6,
+                                            apl_trans_post = e.cTurno.apl_trans_post,
+                                            id_trans_post = e.cTurno.id_trans_post,
+                                            apl_redond_entrada = e.cTurno.apl_redond_entrada,
+                                            cant_redond_entrada = e.cTurno.cant_redond_entrada,
+                                            auto_pan = e.cTurno.auto_pan,
+                                            ColorId = e.cTurno.ColorId,
+                                        }
+
+                                    }).ToList(),
                                }).FirstOrDefaultAsync();
             }
             catch (Exception e)
@@ -2856,11 +2955,15 @@ namespace com.gsitcr.geotime.Data
         public async Task<EventResponse> Sincronizar_PhRol(IEnumerable<cPh_Rol> phRoles)
         {
             EventResponse respuesta = new EventResponse();
-
             try
             {
+                await _context.Database.BeginTransactionAsync();
+
                 foreach (var item in phRoles)
                 {
+
+                    IEnumerable<cPh_RolTurno>? phRolTurnoList = item.cPh_RolTurno;
+
                     cPh_Rol? objetoBuscar = await _context.Ph_Roles
                                     .FirstOrDefaultAsync(e => e.IDROL == item.IDROL);
                     //si el rol existe se actualiza descripción
@@ -2876,12 +2979,30 @@ namespace com.gsitcr.geotime.Data
                     {
                         _context.Add(item);
                     }
+                    await _context.SaveChangesAsync();
+
+                    if (phRolTurnoList is not null)
+                    {
+                        var resp = await Sincronizar_RolTurno(phRolTurnoList);
+                        if (resp.Id != "0")
+                        {
+                            await _context.Database.RollbackTransactionAsync();
+                            respuesta.Id = "1";
+                            respuesta.Respuesta = "Error";
+                            respuesta.Descripcion = resp.Descripcion;
+                            return respuesta;
+                        }
+                    }
+
+
                 }
-                await _context.SaveChangesAsync();
+                
+                await _context.Database.CommitTransactionAsync();
             }
             catch (Exception e)
             {
-               string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                await _context.Database.RollbackTransactionAsync();
+                string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
                 _logger.LogError($"{error}");
                 respuesta.Id = "1";
                 respuesta.Respuesta = "Error";
@@ -2904,13 +3025,16 @@ namespace com.gsitcr.geotime.Data
 
             try
             {
-                cPh_Rol? model = await _context.Ph_Roles
-                    .FirstOrDefaultAsync(e => e.IDROL == idrol);
+                List<cPh_RolTurno>? listRolesTurnos = await _context.Ph_Roles_Turnos.Where(e => e.IDROL == idrol).ToListAsync();
+
+                if (listRolesTurnos is not null && listRolesTurnos.Count > 0)
+                    _context.Ph_Roles_Turnos.RemoveRange(listRolesTurnos);
+
+                cPh_Rol? model = await _context.Ph_Roles.FirstOrDefaultAsync(e => e.IDROL == idrol);
 
                 if (model is not null)
-                {
                     _context.Ph_Roles.Remove(model);
-                }
+
                 await _context.SaveChangesAsync();
             }
             catch (Exception e)
@@ -3230,6 +3354,7 @@ namespace com.gsitcr.geotime.Data
                 DateTime fechaMovInicio = DateTime.Parse($"{FechaInicio.Substring(0, 4)}-{FechaInicio.Substring(4, 2)}-{FechaInicio.Substring(6, 2)}");
                 DateTime fechaMovFinal = DateTime.Parse($"{FechaFin.Substring(0, 4)}-{FechaFin.Substring(4, 2)}-{FechaFin.Substring(6, 2)}");
 
+                idgrupo = HttpUtility.UrlDecode(idgrupo);
                 string[] ListGrupos = idgrupo?.Split(',');
                 List<int> groupIds = ListGrupos
                     .Select(int.Parse)
@@ -5282,6 +5407,7 @@ namespace com.gsitcr.geotime.Data
             List<cMarcaMovTurno> marcaMovTurno = new();
             try
             {
+                idgrupo = HttpUtility.UrlDecode(idgrupo);
                 var grupos = idgrupo.Split(",");
 
                 List<cPh_Grupo> phgrupos = new List<cPh_Grupo>();
@@ -6117,6 +6243,8 @@ namespace com.gsitcr.geotime.Data
             List<cMarcaExtraApb> marcaExtraApb = new();
             try
             {
+                idgrupo = HttpUtility.UrlDecode(idgrupo);
+
                 var grupos = idgrupo.Split(",");
 
                 List<cPh_Grupo> phgrupos = new List<cPh_Grupo>();
@@ -6213,6 +6341,8 @@ namespace com.gsitcr.geotime.Data
             List<cMarcaExtraApb> marcaExtraApb = new();
             try
             {
+                idsgrupos = HttpUtility.UrlDecode(idsgrupos);
+
                 var grupos = idsgrupos.Split(",");
 
                 List<cPh_Grupo> phgrupos = new List<cPh_Grupo>();
@@ -6686,6 +6816,8 @@ namespace com.gsitcr.geotime.Data
                 DateTime fechaMovInicio = DateTime.Parse($"{FechaInicio.Substring(0, 4)}-{FechaInicio.Substring(4, 2)}-{FechaInicio.Substring(6, 2)}");
                 DateTime fechaMovFinal = DateTime.Parse($"{FechaFin.Substring(0, 4)}-{FechaFin.Substring(4, 2)}-{FechaFin.Substring(6, 2)}");
 
+                idgrupo = HttpUtility.UrlDecode(idgrupo);
+
                 var grupoIds = idgrupo.Split(',', StringSplitOptions.RemoveEmptyEntries)
                               .Select(g => int.Parse(g.Trim()))
                               .ToList();
@@ -7146,6 +7278,7 @@ namespace com.gsitcr.geotime.Data
                     TCANTIDAD = ap.TCANTIDAD,
                     PROYECTO = ap.PROYECTO,
                     FASE = ap.FASE,
+                    idsolicitud = ap.idsolicitud,
                     cEmpleado = ap.cEmpleado == null ? null :
                                                 new cEmpleado
                                                 {
@@ -7246,6 +7379,8 @@ namespace com.gsitcr.geotime.Data
                 DateTime fechaMovInicio = DateTime.Parse($"{FechaInicio.Substring(0, 4)}-{FechaInicio.Substring(4, 2)}-{FechaInicio.Substring(6, 2)}");
                 DateTime fechaMovFinal = DateTime.Parse($"{FechaFin.Substring(0, 4)}-{FechaFin.Substring(4, 2)}-{FechaFin.Substring(6, 2)}");
 
+                idgrupo = HttpUtility.UrlDecode(idgrupo);
+
                 string[] ListGrupos = idgrupo?.Split(',');
                 List<int> groupIds = ListGrupos
                     .Select(int.Parse)
@@ -7284,6 +7419,7 @@ namespace com.gsitcr.geotime.Data
                     TCANTIDAD = ap.TCANTIDAD,
                     PROYECTO = ap.PROYECTO,
                     FASE = ap.FASE,
+                    idsolicitud = ap.idsolicitud,
                     cEmpleado = ap.cEmpleado == null ? null :
                                                 new cEmpleado
                                                 {
@@ -7406,6 +7542,7 @@ namespace com.gsitcr.geotime.Data
                                             TCANTIDAD = ap.TCANTIDAD,
                                             PROYECTO = ap.PROYECTO,
                                             FASE = ap.FASE,
+                                            idsolicitud = ap.idsolicitud,
                                             cEmpleado = ap.cEmpleado == null ? null :
                                                 new cEmpleado
                                                 {
@@ -12018,7 +12155,7 @@ namespace com.gsitcr.geotime.Data
             {
                 string fechaInicioExt = $"{FechaInicio.Substring(0, 4)}-{FechaInicio.Substring(4, 2)}-{FechaInicio.Substring(6, 2)}";
                 string fechaFinExt = $"{FechaFin.Substring(0, 4)}-{FechaFin.Substring(4, 2)}-{FechaFin.Substring(6, 2)}";
-
+                IdsGrupos = HttpUtility.UrlDecode(IdsGrupos);
                 using (var connection = _context.Database.GetDbConnection())
                 {
                     await connection.OpenAsync();
@@ -12450,7 +12587,7 @@ namespace com.gsitcr.geotime.Data
 
             try
             {
-                var phloginAdmin = await _context.PH_LOGIN.FirstOrDefaultAsync(e => e.usuario.ToUpper() == "Admin");
+                var phloginAdmin = await _context.PH_LOGIN.FirstOrDefaultAsync(e => e.usuario.ToUpper() == "ADMIN");
                 if (phloginAdmin is not null)
                 {
                     phloginAdmin.ultimo_login = DateTime.Now;
@@ -13602,9 +13739,10 @@ namespace com.gsitcr.geotime.Data
                 await UpgradeStoreProcedureBD(compania.IDCOMP);
                 await CreateNewViews(compania.IDCOMP);
                 await UpgradeInitTablesBD(compania.IDCOMP);
-                await ActualizaPwdsUsuariosBD();
+               
                 if (migrate)
                 {
+                    await ActualizaPwdsUsuariosBD();
                     await CreaNivelesSeguridad(compania.IDCOMP);
                 }
                     
@@ -14085,7 +14223,7 @@ namespace com.gsitcr.geotime.Data
             return "";
         }
 
-        private async Task CreaNivelesSeguridad(string compania)
+        public async Task CreaNivelesSeguridad(string compania)
         {
             try
             {
@@ -14118,11 +14256,13 @@ namespace com.gsitcr.geotime.Data
 
                     var phUsuarios = await newContext.Ph_Usuarios.ToListAsync();
 
-                    _logger.LogWarning($"GeoTimeConnectService.CreaNivelesSeguridad, PhUsuarios: {phUsuarios.Count()}");
+                    
 
 
                     if (phUsuarios is not null)
                     {
+                        _logger.LogWarning($"GeoTimeConnectService.CreaNivelesSeguridad, PhUsuarios: {phUsuarios.Count()}");
+
                         _logger.LogWarning($"GeoTimeConnectService.CreaNivelesSeguridad, Usuarios nivel {nivel.IDNIVEL}: {phUsuarios.Count()}");
 
                         if (nivel.IDNIVEL > 1)

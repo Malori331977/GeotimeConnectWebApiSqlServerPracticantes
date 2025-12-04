@@ -16,6 +16,7 @@ using ContentDisposition = MimeKit.ContentDisposition;
 using SmtpClient = MailKit.Net.Smtp.SmtpClient;
 
 
+
 namespace com.gsitcr.geotime.Data
 {
     public class GraphSendMail: IGraphSendMail
@@ -297,7 +298,26 @@ namespace com.gsitcr.geotime.Data
 
                                 using (var client = new SmtpClient())
                                 {
-                                    client.Connect(parametrosCorreo.SmtpServer, parametrosCorreo.SmtpPort, MailKit.Security.SecureSocketOptions.SslOnConnect, System.Threading.CancellationToken.None);
+                                    try
+                                    {
+                                        
+                                        client.Connect(parametrosCorreo.SmtpServer, parametrosCorreo.SmtpPort, MailKit.Security.SecureSocketOptions.SslOnConnect, System.Threading.CancellationToken.None);
+                                    }
+                                    catch (Exception ex1)
+                                    {
+                                        string error1 = (ex1.InnerException is null ? ex1.Message : ex1.InnerException.Message);
+                                        _logger.LogError($"GraphSendMail.SendMailSMTP: Se ha presentado un error al conectar con el servidor SMTP a traves de SslOnConnect . Detalle de Error: {error1}");
+                                    }
+
+                                    try
+                                    {
+                                        client.Connect(parametrosCorreo.SmtpServer, parametrosCorreo.SmtpPort, MailKit.Security.SecureSocketOptions.StartTls, System.Threading.CancellationToken.None);
+                                    }
+                                    catch (Exception ex2)
+                                    {
+                                        string error2 = (ex2.InnerException is null ? ex2.Message : ex2.InnerException.Message);
+                                        _logger.LogError($"GraphSendMail.SendMailSMTP: Se ha presentado un error al conectar con el servidor SMTP a traves de TLS . Detalle de Error: {error2}");
+                                    }
 
                                     // Note: only needed if the SMTP server requires authentication
                                     client.Authenticate(parametrosCorreo.DefaultEmail, parametrosCorreo.DefaultPassWord);

@@ -224,3 +224,149 @@ BEGIN
 	FROM @tData
 
 END
+go
+ALTER PROCEDURE [salvcr].[apruebo_extra] 
+    @CANTIDAD VARCHAR(5), 
+    @COMENTARIO VARCHAR(1024), 
+    @USUARIO VARCHAR(15), 
+    @IDREGISTRO BIGINT, 
+    @IDCCOSTO VARCHAR(25),
+	@CANTIDAD_COMPENSAR VARCHAR(5)
+AS 
+BEGIN 
+	
+    DECLARE @IDPLANILLA VARCHAR(8),
+		 @IDNUMERO VARCHAR(20),
+		 @FECHA DATETIME,
+		 @HORA VARCHAR(5),
+		 @EXTC VARCHAR(5),
+		 @NIVEL_APROB INT,
+		 @USA_COMPENSACION CHAR(1),
+		 @TCOMPENSADO_ANT VARCHAR(5)='00:00'
+
+    SELECT 
+        @IDPLANILLA = IDPLANILLA, 
+        @IDNUMERO = IDNUMERO, 
+        @FECHA = FECHA_ENTRA, 
+        @HORA = HORA_ENTRA,
+        @EXTC = EXTC 
+    FROM MARCAS_PROCESO 
+    WHERE IDREGISTRO = @IDREGISTRO
+
+	SELECT @USA_COMPENSACION=USA_COMPENSACION FROM PH_OPCIONES
+
+    SET @NIVEL_APROB = (
+        SELECT ISNULL(NIVEL_APROB_EXT, 1) 
+        FROM PH_USUARIO 
+        WHERE IDUSUARIO = (
+            SELECT IDUSUARIO 
+            FROM CTADMIN.PH_LOGIN 
+            WHERE USUARIO = @USUARIO
+        )
+    )
+
+    BEGIN TRY
+		
+		if (@USA_COMPENSACION='T')
+		begin
+			IF DBO.HRS_MIN(@EXTC) < (DBO.HRS_MIN(@CANTIDAD) +  DBO.HRS_MIN(@CANTIDAD_COMPENSAR))
+			begin
+				RAISERROR ('La suma de las horas extras aprobadas más las horas compensadas no debe ser mayor que las horas extras calculadas.', -- Message text.
+					16, -- Severity.
+					1 -- State.
+				);
+			end 				
+		end
+		else
+		begin
+			IF DBO.HRS_MIN(@EXTC) < DBO.HRS_MIN(@CANTIDAD)
+				SET @CANTIDAD = @EXTC
+		end 
+
+        IF @NIVEL_APROB = 1 
+        BEGIN
+			declare @CCosto varchar(25)
+
+			set @CCosto = case when @IDCCOSTO = 'NAP_' then null else  @IDCCOSTO end
+
+			if exists(select 1 from MARCAS_EXTRAS_APB 
+			          WHERE IDPLANILLA = @IDPLANILLA 
+						AND IDNUMERO = @IDNUMERO 
+						AND FECHA = @FECHA 
+						AND HORA = @HORA)
+			begin
+				set @TCOMPENSADO_ANT=(select top 1 cant_comp_aprob_nivel1 
+										from MARCAS_EXTRAS_APB 
+										WHERE IDPLANILLA = @IDPLANILLA 
+										AND IDNUMERO = @IDNUMERO 
+										AND FECHA = @FECHA 
+										AND HORA = @HORA)
+				print @TCOMPENSADO_ANT
+
+				UPDATE MARCAS_EXTRAS_APB 
+                SET 
+                    CANTIDAD = @CANTIDAD, 
+                    CANTIDAD_APROB_NIVEL1 = @CANTIDAD,
+                    COMENTARIO = @COMENTARIO, 
+                    USUARIO = @USUARIO,
+                    CCOSTO = @CCosto, 
+                    APROB_NIVEL1 = 'T', 
+                    USUARIO_APROB_NIVEL1 = @USUARIO, 
+                    COMENTARIO_APROB_NIVEL1 = @COMENTARIO,
+                    FECHA_APROB_NIVEL1 = GETDATE(),
+					CANT_COMP_APROB_NIVEL1 = @CANTIDAD_COMPENSAR
+                WHERE 
+                    IDPLANILLA = @IDPLANILLA 
+                    AND IDNUMERO = @IDNUMERO 
+                    AND FECHA = @FECHA 
+                    AND HORA = @HORA
+
+			end
+			else
+			begin
+				INSERT INTO MARCAS_EXTRAS_APB (
+                    IDPLANILLA, IDNUMERO, FECHA, HORA, CANTIDAD, 
+                    COMENTARIO, USUARIO, CCOSTO, APROB_NIVEL1, 
+                    USUARIO_APROB_NIVEL1, COMENTARIO_APROB_NIVEL1, 
+                    FECHA_APROB_NIVEL1, CANTIDAD_APROB_NIVEL1, CANT_COMP_APROB_NIVEL1
+                ) VALUES (
+                    @IDPLANILLA, @IDNUMERO, @FECHA, @HORA, @CANTIDAD, 
+                    @COMENTARIO, @USUARIO, @CCosto, 'T', @USUARIO, 
+                    @COMENTARIO, GETDATE(), @CANTIDAD,@CANTIDAD_COMPENSAR
+                )
+                    
+			end
+
+
+            UPDATE MARCAS_PROCESO 
+            SET EXTT = @CANTIDAD 
+            WHERE IDREGISTRO = @IDREGISTRO
+
+			if (@USA_COMPENSACION='T')
+			BEGIN
+				UPDATE empleados 
+				SET TCompensacionAprobado = dbo.min_hrs(DBO.HRS_MIN(isnull(TCompensacionAprobado,'00:00')) - DBO.HRS_MIN(@TCOMPENSADO_ANT) + DBO.HRS_MIN(@CANTIDAD_COMPENSAR))
+				where IDNUMERO = @IDNUMERO
+			END
+        END
+    END TRY
+    BEGIN CATCH
+        DECLARE @ErrorMessage NVARCHAR(4000);
+		DECLARE @ErrorSeverity INT;
+		DECLARE @ErrorState INT;
+
+    SELECT
+        @ErrorMessage = ERROR_MESSAGE(),
+        @ErrorSeverity = ERROR_SEVERITY(),
+        @ErrorState = ERROR_STATE();
+
+    -- Use RAISERROR inside the CATCH block to return error
+    -- information about the original error that caused
+    -- execution to jump to the CATCH block.
+    RAISERROR (@ErrorMessage, -- Message text.
+        @ErrorSeverity, -- Severity.
+        @ErrorState -- State.
+    );
+    END CATCH
+END
+

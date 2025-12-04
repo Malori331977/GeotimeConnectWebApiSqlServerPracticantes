@@ -27,6 +27,7 @@
         public string? cantidad_aprob_nivel1 { get; set; }
         public string? cantidad_aprob_nivel2 { get; set; }
         public string? cantidad_aprob_nivel3 { get; set; }
+        public long? idsolicitud { get; set; }
 
     }
 }

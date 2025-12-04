@@ -1002,6 +1002,124 @@ namespace com.gsitcr.geotime.Data
         }
 
         /// <summary>
+        /// GetSolicitud: obtiene lista de solictudes finalizadas en un periodo y tipo de solicitud.
+        /// </summary>
+        /// <param name="periodo"></param>
+        /// <param name="tipoSolicitud"></param>
+        /// <returns></returns>
+        public async Task<IEnumerable<cSolicitud>> GetSolicitud(string periodo, int tipoSolicitud)
+        {
+            List<cSolicitud> solicitudes = new();
+
+            var periodoBuscar = await _context.Ph_Periodos.FirstOrDefaultAsync(p => p.idperiodo == periodo);
+
+            if (periodoBuscar == null)
+                return solicitudes;
+
+            try
+            {
+
+                solicitudes = (from e in await _context.Solicitudes
+                            .Include(e => e.cSolicitudAutorizacion)
+                            .Include(e => e.cEstado)
+                            .Include(e => e.cTipoSolicitud)
+                            .Include(e => e.cCentroCosto)
+                            .Include(e => e.cSolicitudDetalle)
+                        .Where(e => e.EstadoId==99 
+                            && e.TipoSolicitudId == (tipoSolicitud == 0 ? e.TipoSolicitudId : tipoSolicitud)
+                            && e.cSolicitudAutorizacion!.FirstOrDefault(e => e.EstadoId == 99)!.FechaRegistro >= new DateTime(periodoBuscar.inicio.Year, periodoBuscar.inicio.Month, periodoBuscar.inicio.Day, 0, 0, 0)
+                            && e.cSolicitudAutorizacion!.FirstOrDefault(e => e.EstadoId == 99)!.FechaRegistro <= new DateTime(periodoBuscar.fin.Year, periodoBuscar.fin.Month, periodoBuscar.fin.Day, 23, 59, 59)
+                         ).ToListAsync()
+                                select new cSolicitud
+                                {
+                                    Id = e.Id,
+                                    IdPlanilla = e.IdPlanilla,
+                                    IdNumero = e.IdNumero,
+                                    FechaInicio = e.FechaInicio,
+                                    FechaFin = e.FechaFin,
+                                    TipoSolicitudId = e.TipoSolicitudId,
+                                    IdDepart = e.IdDepart,
+                                    IdGrupo = e.IdGrupo,
+                                    IdCCosto = e.IdCCosto,
+                                    proyecto = e.proyecto,
+                                    fase = e.fase,
+                                    HoraInicio = e.HoraInicio,
+                                    HoraFin = e.HoraFin,
+                                    TotalHoras = e.TotalHoras,
+                                    Cantidad = e.Cantidad,
+                                    Comentario = e.Comentario,
+                                    EstadoId = e.EstadoId,
+                                    IdUsuarioRegistra = e.IdUsuarioRegistra,
+                                    FechaRegistro = e.FechaRegistro,
+                                    FechaModifica = e.FechaModifica,
+                                    IdUsuarioModifica = e.IdUsuarioModifica,
+                                    cSolicitudAutorizacion = e.cSolicitudAutorizacion == null ? null :
+                                            (from sa in e.cSolicitudAutorizacion
+                                            select new cSolicitudAutorizacion
+                                            {
+                                                SolicitudId = sa.SolicitudId,
+                                                EstadoId = sa.EstadoId,
+                                                IdNumero = sa.IdNumero,
+                                                FechaRegistro = sa.FechaRegistro,
+                                                Comentario = sa.Comentario,
+                                            }).ToList(),
+                                    cEstado = e.cEstado == null ? null :
+                                            new cEstado
+                                            {
+                                                Id = e.cEstado.Id,
+                                                Descripcion = e.cEstado.Descripcion,
+                                                FechaRegistro = e.cEstado.FechaRegistro
+                                            },
+                                    cTipoSolicitud = e.cTipoSolicitud == null ? null :
+                                            new cTipoSolicitud
+                                            {
+                                                Id = e.cTipoSolicitud.Id,
+                                                Descripcion = e.cTipoSolicitud.Descripcion,
+                                                FechaModifica = e.cTipoSolicitud.FechaModifica,
+                                                FlujoAutorizacionId = e.cTipoSolicitud.FlujoAutorizacionId,
+                                                IdUsuarioModifica = e.cTipoSolicitud.IdUsuarioModifica,
+                                                TipoConfiguracion = e.cTipoSolicitud.TipoConfiguracion
+                                            },
+                                    cCentroCosto = e.cCentroCosto == null ? null :
+                                        new cCentroCosto
+                                        {
+                                            IdCCosto = e.cCentroCosto.IdCCosto,
+                                            Descripcion = e.cCentroCosto.Descripcion,
+                                            Alias_CCosto = e.cCentroCosto.Alias_CCosto,
+                                            Distribuye = e.cCentroCosto.Distribuye,
+
+                                        },
+                                    cSolicitudDetalle = e.cSolicitudDetalle == null ? null :
+                                        (from sd in e.cSolicitudDetalle
+                                            select new cSolicitudDetalle
+                                            {
+                                                IdRegistro = sd.IdRegistro,
+                                                SolicitudId = sd.SolicitudId,
+                                                Fecha = sd.Fecha,
+                                                HoraInicio = sd.HoraInicio,
+                                                HoraFin = sd.HoraFin,
+                                                TotalHoras = sd.TotalHoras,
+                                                Cantidad = sd.Cantidad,
+                                                IdCCosto = sd.IdCCosto,
+                                                Proyecto = sd.Proyecto,
+                                                Fase = sd.Fase,
+                                                IdUsuarioRegistra = sd.IdUsuarioRegistra,
+                                                FechaRegistro = sd.FechaRegistro,
+                                            }).ToList()
+                                }).ToList();
+                      
+
+            }
+            catch (Exception e)
+            {
+                string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"SolicitudesService.GetSolicitud: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}");
+                throw;
+            }
+            return solicitudes;
+        }
+
+        /// <summary>
         /// GetSolicitud: obtiene lista de solictudes para un colaborador según el id de número, fecha inicial, fecha final y tipo de solicitud.
         /// </summary>
         /// <param name="idnumero"></param>
@@ -1580,6 +1698,7 @@ namespace com.gsitcr.geotime.Data
             {
                 foreach (var item in model)
                 {
+                    cEmpleado? solicitante = new();
 
                     cSolicitud? modelBuscar = await _context.Solicitudes
                                                     .Where(e => e.Id == item.Id)
@@ -1591,30 +1710,51 @@ namespace com.gsitcr.geotime.Data
                         modelBuscar.Comentario = item.Comentario;
                         modelBuscar.FechaModifica = DateTime.Now;
                         modelBuscar.IdUsuarioModifica = item.IdUsuarioModifica;
+                        solicitante = await _context.Empleados.FirstOrDefaultAsync(e => e.IdNumero == modelBuscar.IdNumero!);
 
                         _context.Solicitudes.Update(modelBuscar);
                         await _context.SaveChangesAsync();
                     }
 
                     //enviar notificacion por correo si el estado es enviado a autorizacion
-
-                    if (item.EstadoId == 1)
+                    
+                    switch (item.EstadoId)
                     {
-                        List<Email> correosEnviar = new();
-                        var solicitante = await _context.Empleados.FirstOrDefaultAsync(e => e.IdNumero == item.IdNumero!);
-                        var tipoSolicitud = await _context.TiposSolicitudes.FirstOrDefaultAsync(e => e.Id == item.TipoSolicitudId);
-                        var correoSolicitante = await EnviaCorreoSolicitudASolicitante(item.Id,solicitante!, tipoSolicitud!);
+                        case 1:
+                            
+                            List<Email> correosEnviar = new();
+                            var tipoSolicitud = await _context.TiposSolicitudes.FirstOrDefaultAsync(e => e.Id == item.TipoSolicitudId);
+                            var correoSolicitante = await EnviaCorreoSolicitudASolicitante(item.Id,solicitante!, tipoSolicitud!);
 
-                        if (correoSolicitante is not null) correosEnviar.Add(correoSolicitante);
+                            if (correoSolicitante is not null) correosEnviar.Add(correoSolicitante);
 
+                            var correosJefaturas = await PostNotificaResponsables(modelBuscar!, item.Id, item.EstadoId);
+                            if (correosJefaturas.Count() > 0)                        
+                                correosEnviar.AddRange(correosJefaturas);
 
-                        var correosJefaturas = await PostNotificaResponsables(modelBuscar!, item.Id, item.EstadoId);
-                        if (correosJefaturas.Count() > 0)                        
-                            correosEnviar.AddRange(correosJefaturas);
+                            if (correosEnviar.Count() >0)
+                                await _geoServices.EnviarCorreo(correosEnviar);
 
-                        if (correosEnviar.Count() >0)
-                            await _geoServices.EnviarCorreo(correosEnviar);
-                        
+                            break;
+
+                        case 99:
+                            //enviar correo a solicitante de solicitud aprobada
+                            List<Email> correosAprobacion = new();
+                            var correoSolicitanteAprob = await EnviaCorreoSolicitudAutorizada(solicitante!, item.Id);
+                            if (correoSolicitanteAprob is not null) correosAprobacion.Add(correoSolicitanteAprob);
+                            if (correosAprobacion.Count() > 0)
+                                await _geoServices.EnviarCorreo(correosAprobacion);
+                            break;
+                        case 101:
+                            //enviar correo a solicitante de solicitud rechazada
+                            List<Email> correosRechazo = new();                           
+                            var tipoSolicitudRechazo = await _context.TiposSolicitudes.FirstOrDefaultAsync(e => e.Id == item.TipoSolicitudId);
+                            var correoSolicitanteRechazo = await EnviaCorreoSolicitudRechazada(solicitante!, item.Id, item.Comentario!);
+                            if (correoSolicitanteRechazo is not null) correosRechazo.Add(correoSolicitanteRechazo);
+                            if (correosRechazo.Count() > 0)
+                                await _geoServices.EnviarCorreo(correosRechazo);
+                            break;
+
                     }
 
 
@@ -1955,11 +2095,41 @@ namespace com.gsitcr.geotime.Data
                 if (!string.IsNullOrEmpty(empleado.Email))
                 {
                     string cuerpoHtml = $"<!DOCTYPE html>" +
-                        $"<html><head>Hola.</head>" +
+                        $"<html><head>Hola {empleado.Nombre}.</head>" +
                         $"<body><br><br>La solicitud No. {solicitud} que usted realizó, ha sido autorizada.  Por favor vaya al portal de marcas y verifique el documento.<br>" +
                         $"Este mensaje se generó de forma automática.  Por favor no contestar.</footer></html>";
 
                     email.Asunto = $"Solicitud de Acción de Personal No. {solicitud} ha sido Autorizada.";
+                    email.Cuerpo = cuerpoHtml;
+                    email.Para = empleado.Email;
+                    email.Adjunto = "";
+                    email.CC = "";
+                }
+                else
+                    email = null;
+            }
+            catch (Exception e)
+            {
+                email = null;
+            }
+            return email!;
+        }
+
+        public async Task<Email> EnviaCorreoSolicitudRechazada(cEmpleado empleado, long solicitud, string motivo)
+        {
+            Email? email = new();
+
+            try
+            {
+
+                if (!string.IsNullOrEmpty(empleado.Email))
+                {
+                    string cuerpoHtml = $"<!DOCTYPE html>" +
+                        $"<html><head>Hola {empleado.Nombre}.</head>" +
+                        $"<body><br><br>La solicitud No. {solicitud} que usted realizó, ha sido rechazada. {motivo}.<br>" +
+                        $"Este mensaje se generó de forma automática.  Por favor no contestar.</footer></html>";
+
+                    email.Asunto = $"Su solicitud de No. {solicitud} ha sido Rechazada.";
                     email.Cuerpo = cuerpoHtml;
                     email.Para = empleado.Email;
                     email.Adjunto = "";
@@ -2492,6 +2662,13 @@ namespace com.gsitcr.geotime.Data
                     if (soli.EstadoId == vEstadoFinal)
                     {
                         await AplicaSolitud(soli, solicitudAutorizar.IdNumero);
+
+                        //enviar correo a solicitante de solicitud aprobada
+                        List<Email> correosAprobacion = new();
+                        var correoSolicitanteAprob = await EnviaCorreoSolicitudAutorizada(solicitante!, soli.Id);
+                        if (correoSolicitanteAprob is not null) correosAprobacion.Add(correoSolicitanteAprob);
+                        if (correosAprobacion.Count() > 0)
+                            await _geoServices.EnviarCorreo(correosAprobacion);
                     }
 
 
@@ -2762,6 +2939,8 @@ namespace com.gsitcr.geotime.Data
                             LON_REG = null,
                             LAT_REG = null,
                             COMENTARIO = $"MarcasWeb: Solicitud No {soli.Id}, autorizada por: {autorizante}. {soli.Comentario} ",
+                            idsolicitud = soli.Id,
+
                         }
                 };
                 await _geoServices.Sincronizar_MarcaDtnConcepto(listaMarcasDist);
@@ -2789,6 +2968,7 @@ namespace com.gsitcr.geotime.Data
                         LON_REG = null,
                         LAT_REG = null,
                         COMENTARIO = $"MarcasWeb: Solicitud No {soli.Id}, autorizada por: {autorizante}. {soli.Comentario} ",
+                        idsolicitud = soli.Id,
                     });
                 }
                 await _geoServices.Sincronizar_MarcaDtnConcepto(listaMarcasDistMultiple);
@@ -2858,6 +3038,7 @@ namespace com.gsitcr.geotime.Data
                             LON_REG = null,
                             LAT_REG = null,
                             COMENTARIO = $"MarcasWeb: Solicitud No {soli.Id}, autorizada por: {autorizante}. {soli.Comentario} ",
+                            idsolicitud = soli.Id,
                         }
                     };
                         await _geoServices.Sincronizar_MarcaDtnConcepto(listaMarcasDist);
@@ -2907,6 +3088,7 @@ namespace com.gsitcr.geotime.Data
                             LON_REG = null,
                             LAT_REG = null,
                             COMENTARIO = $"MarcasWeb: Solicitud No {soli.Id}, autorizada por: {autorizante}. {soli.Comentario} ",
+                            idsolicitud = soli.Id,
                         });
                     }
                     await _geoServices.Sincronizar_MarcaDtnConcepto(listaMarcasDistMultiple);
@@ -3050,6 +3232,7 @@ namespace com.gsitcr.geotime.Data
                                 TCANTIDAD = soli.Cantidad,
                                 COMENTARIO = $"MarcasWeb: Solicitud No {soli.Id}, autorizada por: {autorizante}. {soli.Comentario} ",
                                 PERIODO = periodoActual.idperiodo,
+                                idsolicitud = soli.Id,
                             }
                     };
 
@@ -3079,6 +3262,7 @@ namespace com.gsitcr.geotime.Data
                             TCANTIDAD = detalle.Cantidad,
                             COMENTARIO = $"MarcasWeb: Solicitud No {soli.Id}, autorizada por: {autorizante}. {soli.Comentario} ",
                             PERIODO = periodoActual.idperiodo,
+                            idsolicitud = soli.Id,
                         });
                     }
                     await _geoServices.Sincronizar_MarcasTiempoAdicional(listaMarcastiempoadicionalMultiple);

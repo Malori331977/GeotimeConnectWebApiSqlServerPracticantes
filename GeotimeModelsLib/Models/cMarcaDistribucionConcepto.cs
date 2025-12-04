@@ -18,5 +18,6 @@
         public string? LON_REG { get; set; }
         public string? LAT_REG { get; set; }
         public string? COMENTARIO { get; set; }
+        public long? idsolicitud { get; set; }
     }
 }

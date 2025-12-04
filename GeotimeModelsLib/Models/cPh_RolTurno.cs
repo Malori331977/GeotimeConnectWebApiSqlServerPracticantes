@@ -11,5 +11,8 @@ namespace com.gsitcr.geotime.Models
         [Key]
         public int IDROL { get; set; }
         public int IDTURNO { get; set; }
+
+        public cPh_Rol? cPh_Rol { get; set; }
+        public cTurno? cTurno { get; set; }
     }
 }

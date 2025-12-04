@@ -20,7 +20,10 @@ namespace GeoTimeConnectWebApi.Controllers.Procesos.Solicitudes
         [HttpGet("{estado}/{tipoSolicitud}/{fechainicial}/{fechafinal}")]
         public async Task<IEnumerable<cSolicitud>> Get(int estado, int tipoSolicitud, string fechainicial, string fechafinal) => await _repoGT.GetSolicitud(estado, tipoSolicitud, fechainicial, fechafinal);
 
-       
+        [HttpGet("{periodo}/{tipoSolicitud}")]
+        public async Task<IEnumerable<cSolicitud>> Get(string periodo, int tipoSolicitud) => await _repoGT.GetSolicitud(periodo, tipoSolicitud);
+
+
 
     }
 }

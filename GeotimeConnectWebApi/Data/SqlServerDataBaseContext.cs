@@ -429,7 +429,19 @@ namespace com.gsitcr.geotime.Data
                 .WithMany(d => d.Turno)
                 .HasForeignKey(e => new { e.ColorId });
 
-           
+            builder.Entity<cPh_RolTurno>()
+               .ToTable("PH_ROLES_TURNOS", Schema)
+               .HasOne(e => e.cTurno)
+               .WithMany(d => d.cPh_RolTurno)
+               .HasForeignKey(e => new { e.IDTURNO });
+
+            builder.Entity<cPh_RolTurno>()
+              .ToTable("PH_ROLES_TURNOS", Schema)
+              .HasOne(e => e.cPh_Rol)
+              .WithMany(d => d.cPh_RolTurno)
+              .HasForeignKey(e => new { e.IDROL });
+
+
             builder.Entity<cMarcaIncidencia>()
                .ToTable("MARCAS_INCIDENCIAS", Schema)
                .HasOne(e => e.cIncidencia)
