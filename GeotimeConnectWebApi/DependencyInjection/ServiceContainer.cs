@@ -87,6 +87,8 @@ namespace RelojesApi.DependencyInjection
             Services.AddScoped<ISolicitudesService, SolicitudesService>();
             Services.AddScoped<IMarcasService, MarcasService>();
             Services.AddScoped<IReportesServices, ReportesServices>();
+            Services.AddScoped<ICrystalReportService, CrystalReportService>();
+            
 
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             Services.AddEndpointsApiExplorer();
