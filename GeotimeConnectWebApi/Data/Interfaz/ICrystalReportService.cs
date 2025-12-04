@@ -1,10 +1,16 @@
+using com.gsitcr.geotime.Data;
+using com.gsitcr.geotime.Models.Response;
+using GeotimeModelsLib.Models;
+
 public interface ICrystalReportService
 {
     /// <summary>
-    /// Genera un reporte PDF a partir de un archivo .rpt y parámetros opcionales.
+    /// Generates a PDF report based on the specified report name and filter criteria.
     /// </summary>
-    /// <param name="rptPath">Ruta física del archivo .rpt</param>
-    /// <param name="parameters">Diccionario de parámetros para el reporte</param>
-    /// <returns>Arreglo de bytes del PDF generado</returns>
-    byte[] GeneratePdfReport(string rptPath, Dictionary<string, object>? parameters = null);
+    /// <param name="rptName">The name of the report to generate. Cannot be null or empty.</param>
+    /// <param name="filtro">An optional filter object that specifies criteria to apply to the report data. If null, the report is generated
+    /// without additional filtering.</param>
+    /// <returns>An EventResponse object containing the result of the report generation, including the generated PDF data or
+    /// error information.</returns>
+    public Task<EventResponse> GeneratePdfReport(cFiltroReporte filtro);
 }

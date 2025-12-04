@@ -5,7 +5,9 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Azure.Identity" Version="1.16.0" />
+    <PackageReference Include="Azure.Identity" Version="1.17.1" />
+    <PackageReference Include="CrystalDecisions.CrystalReports.Engine" Version="1.0.0" />
+    <PackageReference Include="CrystalDecisions.Shared" Version="1.0.0" />
     <PackageReference Include="Dahomey.Cbor" Version="1.16.1" />
     <PackageReference Include="MailKit" Version="4.14.1" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.9" />
@@ -30,7 +32,7 @@
   </ItemGroup>
   <ItemGroup>
     <Reference Include="JtSegEncrypta">
-      <HintPath>..\..\..\..\JtSegEncrypta\JtSegEncrypta.dll</HintPath>
+      <HintPath>..\..\..\Librerias\JtSegEncrypta\JtSegEncrypta\bin\Release\net7.0\JtSegEncrypta.dll</HintPath>
     </Reference>
     <Reference Include="LibEncripta">
       <HintPath>..\..\..\..\LibEncripta\LibEncripta\bin\Release\net6.0\LibEncripta.dll</HintPath>

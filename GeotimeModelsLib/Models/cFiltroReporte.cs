@@ -16,5 +16,7 @@ namespace GeotimeModelsLib.Models
         public IEnumerable<int>? Incidencias { get; set; }
         public DateTime inicio { get; set; } = DateTime.Now;
         public DateTime fin { get; set; } = DateTime.Now;
+
+        public string RptName { get; set; } = string.Empty;
     }
 }
