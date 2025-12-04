@@ -17,31 +17,28 @@ namespace GeoTimeConnectWebApi.Controllers.Procesos.Marcas
     [ApiController]
     [Route("[controller]")]
     [Authorize]
-    public class MarcaMovTurnoByGrupoController : Controller
+    public class MarcaExtraApbByPlanillaGrupoController : Controller
     {
         private readonly IGeoTimeConnectService _repoGT;
-        public MarcaMovTurnoByGrupoController(IGeoTimeConnectService repoGT)
+        public MarcaExtraApbByPlanillaGrupoController(IGeoTimeConnectService repoGT)
         {
-
             _repoGT = repoGT;
         }
 
-        [HttpGet("{fechaPeriodo}/{idgrupo}")]
-        public async Task<IEnumerable<cMarcaMovTurno>> Get(string fechaPeriodo, string idgrupo)=> await _repoGT.GetMarcaMovTurnoByGrupo(fechaPeriodo, idgrupo);
+        [HttpGet("{idsgrupos}/{idplanilla}/{fechaInicio}/{fechaFinal}/{estado}")]
+        public async Task<IEnumerable<cMarcaExtraApb>> Get(string idsgrupos, string idplanilla, string fechaInicio, string fechaFinal, char estado) => await _repoGT.GetMarcaExtraApb(idsgrupos, idplanilla, fechaInicio, fechaFinal,estado);
 
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] cFiltroProceso filtro)
         {
-            IEnumerable<cMarcaMovTurno>? data;
-            data = await Get(filtro.fechaInicio!, filtro.idGrupos!);
+            IEnumerable<cMarcaExtraApb>? data;
+            data = await Get(filtro.idGrupos!,filtro.idplanilla!, filtro.fechaInicio!, filtro.fechaFin!, filtro.estado??'N');
 
             EventResponse respuesta = new();
             respuesta.Data = JsonSerializer.Serialize(data);
 
             return Ok(respuesta);
         }
-
-
 
     }
 }

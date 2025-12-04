@@ -61,6 +61,8 @@ namespace GeoTimeConnectWebApi.Data.Interfaz
         /// <returns></returns>
         public Task<IEnumerable<cSolicitud>> GetSolicitud(int estado, int tipoSolicitud, string fechaInicial, string fechaFinal);
 
+        public Task<IEnumerable<cSolicitud>> GetSolicitud(string periodo, int tipoSolicitud);
+
         /// <summary>
         /// GetSolicitud: obtiene lista de solictudes para un colaborador según el id de número, fecha inicial, fecha final y tipo de solicitud.
         /// </summary>

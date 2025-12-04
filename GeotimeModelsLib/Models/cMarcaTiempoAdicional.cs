@@ -26,6 +26,7 @@ namespace com.gsitcr.geotime.Models
         public decimal? TCANTIDAD { get; set; }
         public string? PROYECTO { get; set; }
         public string? FASE { get; set; }
+        public long? idsolicitud { get; set; }
 
         public cEmpleado? cEmpleado { get; set; }
         public cCentroCosto? cCentroCosto { get; set; }

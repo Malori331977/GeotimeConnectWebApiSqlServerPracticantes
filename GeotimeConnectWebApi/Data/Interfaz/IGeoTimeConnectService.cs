@@ -1460,6 +1460,7 @@ namespace com.gsitcr.geotime.Data.Interfaz
         public Task<cPh_CatalogoGenerico> GetPhCatalogoGenerico(string nombre, string id);
 
         public Task<EventResponse> ActualizaPwdsUsuariosBD();
+        public Task CreaNivelesSeguridad(string compania);
 
     }
 }

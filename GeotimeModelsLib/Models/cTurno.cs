@@ -89,14 +89,8 @@ namespace com.gsitcr.geotime.Models
         public char? auto_pan { get; set; }
         public int? ColorId { get; set; }
 
-        //public IEnumerable<cPh_RolTurno>? RolTurno { get; set; }
-        public IEnumerable<cPh_Rol>? Rol { get; set; }
         public cPaletaColor? PaletaColor { get; set; }
-
-        /* Para poder enviar el ideregistro de la tabla Ph_Rol_Turno */
-        [NotMapped]
-        public int? idRegistro { get; set; }
-
+        public IEnumerable<cPh_RolTurno>? cPh_RolTurno { get; set; }        
         public IEnumerable<cMarcaProceso>? cMarcaProcesos { get; set; }
         public IEnumerable<cMarcaMovTurno>? cMarcaMovTurno { get; set; }
         public IEnumerable<cMarcaMovTurnoBitacora>? cMarcaMovTurnoBitacora { get; set; }

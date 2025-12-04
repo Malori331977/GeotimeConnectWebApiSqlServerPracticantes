@@ -5,6 +5,6 @@
         public int IDROL { get; set; }
         public string DESCRIPCION { get; set; }
 
-        public List<cTurno>? Turno { get; set; }
+        public List<cPh_RolTurno>? cPh_RolTurno { get; set; }
     }
 }

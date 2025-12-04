@@ -135,3 +135,6 @@ GO
 SET IDENTITY_INSERT [dbo].[TiposSolicitudes] OFF
 GO
 update [dbo].[ph_turnos] set ColorId=1
+GO
+update [dbo].[ph_usuario] set filt_prgt='G' where filt_prgt is null
+GO

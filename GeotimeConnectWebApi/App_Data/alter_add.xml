@@ -173,5 +173,15 @@
     <COLUMNA tabla="marcas_in" nombre="dir_ip" tipo="varchar(200)" nulo="NULL" defecto="DEFAULT('')" />
     <COLUMNA tabla="ph_usuario" nombre="pt_agrup" tipo="char(1)" nulo="NULL" defecto="DEFAULT('')" />
 	</V3.3.7>
+  <V3.3.8>
+    <COLUMNA tabla="ph_opciones" nombre="usa_compensacion" tipo="char(1)" nulo="NOT NULL" defecto="DEFAULT('N')" />
+    <COLUMNA tabla="marcas_extras_apb" nombre="cant_comp_aprob_nivel1" tipo="varchar(5)" nulo="NULL" defecto="" />
+    <COLUMNA tabla="empleados" nombre="TCompensacionAprobado" tipo="varchar(5)" nulo="NULL" defecto="" />
+    <COLUMNA tabla="empleados" nombre="TCompensacionUtilizado" tipo="varchar(5)" nulo="NULL" defecto="" />
+    <COLUMNA tabla="marcas_distribuciones_conceptos" nombre="idsolicitud" tipo="int" nulo="NULL" defecto="" />
+    <COLUMNA tabla="marcas_extras_apb" nombre="idsolicitud" tipo="int" nulo="NULL" defecto="" />
+    <COLUMNA tabla="marcas_tiempo_adicional" nombre="idsolicitud" tipo="int" nulo="NULL" defecto="" />
+  </V3.3.8>
 </CATABLES>
+
 

@@ -58,6 +58,8 @@ alter table CTADMIN.ph_companias add hora_emp varchar(5) null
 go
 alter table CTADMIN.ph_companias add supervisor_acum char(1) null default('F')
 go
+alter table ctadmin.ph_companias add ZonaHoraria int not null default (1)
+go
 alter table ctadmin.ph_sistema add dist_lic char(1) null default('F')
 go
 alter table ctadmin.ph_sistema add dist_lic_emp char(1) null default('F')

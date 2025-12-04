@@ -1,8 +1,10 @@
 ﻿using com.gsitcr.geotime.Data.Interfaz;
 using com.gsitcr.geotime.Models;
 using com.gsitcr.geotime.Models.Response;
+using GeotimeModelsLib.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Text.Json;
 
 namespace GeoTimeConnectWebApi.Controllers.Procesos.Marcas
 {
@@ -27,6 +29,17 @@ namespace GeoTimeConnectWebApi.Controllers.Procesos.Marcas
         [HttpGet("{idplanilla}/{fechainicio}/{fechafin}/{idgrupo}")]
         public async Task<IEnumerable<cMarcaProceso>> Get(string idplanilla, string fechainicio, string fechafin, string idgrupo) => await _repoGT.GetMarcasProceso(idplanilla, fechainicio, fechafin, idgrupo);
 
+        [HttpPost]
+        public async Task<IActionResult> Post([FromBody] cFiltroProceso filtro)
+        {
+            IEnumerable<cMarcaProceso>? data;
+            data = await Get(filtro.idplanilla!, filtro.fechaInicio!, filtro.fechaFin!, filtro.idGrupos!);
+
+            EventResponse respuesta = new();
+            respuesta.Data = JsonSerializer.Serialize(data);
+
+            return Ok(respuesta);
+        }
 
         [HttpPut]
         public async Task<IActionResult> Put([FromBody] IEnumerable<cMarcaMovTurno> marcasMovTurno)

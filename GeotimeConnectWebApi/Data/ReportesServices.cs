@@ -180,6 +180,7 @@ namespace com.gsitcr.geotime.Data
                                             e.fecha_modificacion <= fechaMovFinal)
                                join e in _context.Empleados on m.idnumero equals e.IdNumero
                                join d in _context.Ph_Departamento on e.IdDepartamento equals d.IDDEPART
+                               join pl in _context.PH_LOGIN on m.usuario equals pl.usuario
                                where e.IdDepartamento == (idDepartamento == "-1" ? e.IdDepartamento : idDepartamento)
                                select new cMarcaMovTurnoBitacora
                                {
@@ -232,7 +233,9 @@ namespace com.gsitcr.geotime.Data
                                             {
                                                 idplanilla = m.cPh_Planilla.idplanilla,
                                                 planilla = m.cPh_Planilla.planilla,
-                                            }
+                                            },
+                                   NombreUsuarioModifica = pl == null ? "" : pl.descripcion
+
                                }).ToListAsync();
 
 
