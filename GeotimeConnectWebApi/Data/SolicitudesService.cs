@@ -1,7 +1,7 @@
 ﻿using com.gsitcr.geotime.Data.Interfaz;
 using com.gsitcr.geotime.Models;
 using com.gsitcr.geotime.Models.Response;
-using GeoTimeConnectWebApi.Data.Interfaz;
+using com.gsitcr.geotime.Data.Interfaz;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using Utility = com.gsitcr.geotime.Models.Utils.Utility;

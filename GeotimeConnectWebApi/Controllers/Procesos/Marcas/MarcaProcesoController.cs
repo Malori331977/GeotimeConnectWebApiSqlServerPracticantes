@@ -1,7 +1,7 @@
 ﻿using com.gsitcr.geotime.Data.Interfaz;
 using com.gsitcr.geotime.Models;
 using com.gsitcr.geotime.Models.Response;
-using GeotimeModelsLib.Models;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;

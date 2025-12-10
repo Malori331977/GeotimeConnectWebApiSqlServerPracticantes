@@ -1,6 +1,6 @@
 ﻿using com.gsitcr.geotime.Models;
 using com.gsitcr.geotime.Models.Response;
-using GeoTimeConnectWebApi.Data.Interfaz;
+using com.gsitcr.geotime.Data.Interfaz;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

@@ -2,7 +2,7 @@
 using com.gsitcr.geotime.Data.Interfaz;
 using com.gsitcr.geotime.Models;
 using com.gsitcr.geotime.Models.Response;
-using GeotimeModelsLib.Models;
+
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using static System.Runtime.InteropServices.JavaScript.JSType;

@@ -2,7 +2,7 @@
 using com.gsitcr.geotime.Models;
 using com.gsitcr.geotime.Models.Response;
 using GeotimeFuncionesLib.Utiles;
-using GeotimeModelsLib.Models;
+
 using GeoTimeServiceReference;
 using JtSegEncrypta;
 using LibEncripta;
@@ -13224,6 +13224,7 @@ namespace com.gsitcr.geotime.Data
                                   DESCRIPCION = e.DESCRIPCION,
                                   HABILITADO = e.HABILITADO,
                                   IDCOMP = e.IDCOMP,
+                                  IDNIVEL = e.IDNIVEL,
                                   cPh_RolSistemaDet = e.cPh_RolSistemaDet == null ? null :
                                                   (from det in e.cPh_RolSistemaDet
                                                    select new cPh_RolSistemaDet
@@ -13270,6 +13271,7 @@ namespace com.gsitcr.geotime.Data
                                   DESCRIPCION = e.DESCRIPCION,
                                   HABILITADO = e.HABILITADO,
                                   IDCOMP = e.IDCOMP,
+                                  IDNIVEL = e.IDNIVEL,
                                   cPh_RolSistemaDet = e.cPh_RolSistemaDet == null ? null :
                                                   (from det in e.cPh_RolSistemaDet
                                                    select new cPh_RolSistemaDet
@@ -13321,6 +13323,7 @@ namespace com.gsitcr.geotime.Data
                         objetoBuscar.DESCRIPCION = item.DESCRIPCION;
                         objetoBuscar.HABILITADO = item.HABILITADO;
                         objetoBuscar.IDCOMP = item.IDCOMP;
+                        objetoBuscar.IDNIVEL = item.IDNIVEL;
 
                         _context.Ph_Roles_Sistema.Update(objetoBuscar);
                     }
@@ -13410,6 +13413,7 @@ namespace com.gsitcr.geotime.Data
                                     DESCRIPCION = e.cPh_RolSistema.DESCRIPCION,
                                     HABILITADO = e.cPh_RolSistema.HABILITADO,
                                     IDCOMP = e.cPh_RolSistema.IDCOMP,
+                                    IDNIVEL = e.cPh_RolSistema.IDNIVEL,
                                 }
                          }
                             ).ToList();
@@ -13457,6 +13461,7 @@ namespace com.gsitcr.geotime.Data
                                     DESCRIPCION = e.cPh_RolSistema.DESCRIPCION,
                                     HABILITADO = e.cPh_RolSistema.HABILITADO,
                                     IDCOMP = e.cPh_RolSistema.IDCOMP,
+                                    IDNIVEL = e.cPh_RolSistema.IDNIVEL,
                                 }
                          }).ToList();
 
@@ -14369,6 +14374,7 @@ namespace com.gsitcr.geotime.Data
                         DESCRIPCION = $"{nivel.DESCRIPCION} ({compania})",
                         HABILITADO = true,
                         IDCOMP = compania,
+                        IDNIVEL = nivel.IDNIVEL,
                     };
 
                     rol.cPh_RolSistemaDet = await GetDetalleOpciones(nivelDetalle, rol);

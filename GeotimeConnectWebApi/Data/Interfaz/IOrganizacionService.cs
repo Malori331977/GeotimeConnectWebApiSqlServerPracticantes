@@ -1,7 +1,7 @@
 ﻿using com.gsitcr.geotime.Models.Response;
 using com.gsitcr.geotime.Models;
 
-namespace GeoTimeConnectWebApi.Data.Interfaz
+namespace com.gsitcr.geotime.Data.Interfaz
 {
     public interface IOrganizacionService
     {
