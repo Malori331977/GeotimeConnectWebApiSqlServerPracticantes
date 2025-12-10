@@ -6,6 +6,7 @@
         public string DESCRIPCION { get; set; }
         public bool HABILITADO { get; set; }
         public string? IDCOMP { get; set; }
+        public int? IDNIVEL { get; set; }
 
         public IEnumerable<cPh_RolSistemaDet>? cPh_RolSistemaDet { get; set; }
     }

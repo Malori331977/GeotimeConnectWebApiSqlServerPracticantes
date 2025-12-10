@@ -1,9 +1,7 @@
 ﻿using com.gsitcr.geotime.Data.Interfaz;
-using com.gsitcr.geotime.Models.Utils;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using LibEncripta;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace com.gsitcr.geotime.Data
 {

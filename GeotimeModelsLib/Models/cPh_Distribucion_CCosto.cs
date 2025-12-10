@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GeotimeModelsLib.Models
+namespace com.gsitcr.geotime.Models
 {
     public class cPh_Distribucion_CCosto
     {

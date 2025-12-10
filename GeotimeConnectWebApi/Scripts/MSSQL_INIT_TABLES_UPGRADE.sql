@@ -138,3 +138,5 @@ update [dbo].[ph_turnos] set ColorId=1
 GO
 update [dbo].[ph_usuario] set filt_prgt='G' where filt_prgt is null
 GO
+update [dbo].[ph_planilla] set [dia_inicio]=0 where [dia_inicio] is null
+GO

@@ -1,11 +1,11 @@
 ﻿using com.gsitcr.geotime.Data;
 using com.gsitcr.geotime.Models;
 using com.gsitcr.geotime.Models.Response;
-using GeoTimeConnectWebApi.Data.Interfaz;
+using com.gsitcr.geotime.Data.Interfaz;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 
-namespace GeoTimeConnectWebApi.Data
+namespace com.gsitcr.geotime.Data
 {
     public class FlujosAutorizacionService: IFlujosAutorizacionService
     {

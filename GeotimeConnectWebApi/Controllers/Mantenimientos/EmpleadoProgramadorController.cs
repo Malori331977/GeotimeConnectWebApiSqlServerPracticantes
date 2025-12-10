@@ -6,7 +6,7 @@ using com.gsitcr.geotime.Data.Interfaz;
 using com.gsitcr.geotime.Models;
 using System.Text.Json;
 using com.gsitcr.geotime.Models.Response;
-using GeotimeModelsLib.Models;
+
 using System.Collections.Generic;
 
 namespace GeoTimeConnectWebApi.Controllers.Mantenimientos

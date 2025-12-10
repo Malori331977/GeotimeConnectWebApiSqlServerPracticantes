@@ -10,7 +10,7 @@ using com.gsitcr.geotime.Models.Utils;
 using System.Text.Json;
 using com.gsitcr.geotime.Models.Request;
 using com.gsitcr.geotime.Models.Response;
-using GeotimeModelsLib.Models;
+
 
 namespace GeoTimeConnectWebApi.Controllers.Procesos.Marcas
 {

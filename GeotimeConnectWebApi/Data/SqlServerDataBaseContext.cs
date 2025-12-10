@@ -1,11 +1,8 @@
 
-using Microsoft.EntityFrameworkCore;
 using com.gsitcr.geotime.Data.Interfaz;
 using com.gsitcr.geotime.Models;
-using GeotimeModelsLib.Models;
-using System.Reflection.Emit;
-using System.Xml;
-using System.Runtime.InteropServices.Marshalling;
+using Microsoft.EntityFrameworkCore;
+
 
 namespace com.gsitcr.geotime.Data
 {

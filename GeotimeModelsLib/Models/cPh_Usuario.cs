@@ -1,4 +1,4 @@
-﻿using GeotimeModelsLib.Models;
+﻿using com.gsitcr.geotime.Models;
 
 namespace com.gsitcr.geotime.Models
 {

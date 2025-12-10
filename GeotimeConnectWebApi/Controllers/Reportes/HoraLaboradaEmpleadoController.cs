@@ -1,6 +1,6 @@
 ﻿using com.gsitcr.geotime.Data.Interfaz;
 using com.gsitcr.geotime.Models;
-using GeotimeModelsLib.Models;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
