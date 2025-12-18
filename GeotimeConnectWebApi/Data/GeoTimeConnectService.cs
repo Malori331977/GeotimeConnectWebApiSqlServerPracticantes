@@ -13726,7 +13726,7 @@ namespace com.gsitcr.geotime.Data
         #endregion
 
         #region Actualización de estructuras de la base de datos por compañía
-
+        
 
         public async Task<EventResponse> ActualizarCompaniaBD(cPh_Compania compania, bool migrate)
         {
@@ -13751,6 +13751,39 @@ namespace com.gsitcr.geotime.Data
                     await CreaNivelesSeguridad(compania.IDCOMP);
                 }
                     
+            }
+            catch (Exception e)
+            {
+                string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"{error}");
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo realizar la actualización de la Compañía. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo realizar la actualización de la Compañía. Detalle de Error: " + e.InnerException.Message;
+            }
+            return respuesta;
+
+        }
+
+
+        public async Task<EventResponse> ActualizarCompaniaDatosApi(cPh_Compania compania)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+                string commandString = "UPDATE ctadmin.PH_COMPANIAS SET " +
+                                       $"ApiClientId = '{Encripta.getEncryptTripleDES(compania.APICLIENTID!)}', " +
+                                       $"ApiPassword = '{Encripta.getEncryptTripleDES(compania.APIPASSWORD!)}', " +
+                                       $"ApiUser = '{Encripta.getEncryptTripleDES(compania.APIUSER!)}', " +
+                                       $"ApiDataBase = '{Encripta.getEncryptTripleDES(compania.APIDATABASE!)}', " +
+                                       $"ApiUrl = '{Encripta.getEncryptTripleDES(compania.APIURL!)}'," +
+                                       $"Zonahoraria = {compania.ZONAHORARIA} ";
+
+                var resultCommand = await _context.Database.ExecuteSqlRawAsync($"{commandString}");
+
             }
             catch (Exception e)
             {

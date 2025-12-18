@@ -19,6 +19,7 @@ string Modo = config.GetConnectionString("Modo")!;
 string WithOrigins = config.GetConnectionString("WithOrigins")!;
 string UrlApi = config.GetConnectionString("UrlApi")!;
 
+
 builder.Services.AddApplicationService();
 
 /*ajustes de Seguridad*/

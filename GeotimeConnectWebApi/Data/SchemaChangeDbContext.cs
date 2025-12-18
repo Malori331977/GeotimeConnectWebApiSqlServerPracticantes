@@ -20,16 +20,18 @@ namespace com.gsitcr.geotime.Data
                 //se desencriptan los datos de conexion a las base de datos y se pasa la cadena de conexion con los datos
                 //correctos.
 
-                string SQLConnectionString = config.GetConnectionString("SqlServerDataBaseContext");
-                string userSQL = Encripta.getDecryptTripleDES(config.GetConnectionString("UserSQL"));
-                string passSQL = Encripta.getDecryptTripleDES(config.GetConnectionString("PassSQL"));
+                string SQLConnectionString = config.GetConnectionString("SqlServerDataBaseContext")!;
+                string userSQL = Encripta.getDecryptTripleDES(config.GetConnectionString("UserSQL")!);
+                string passSQL = Encripta.getDecryptTripleDES(config.GetConnectionString("PassSQL")!);
+                string dataSourse = config.GetConnectionString("DataSource")!;
 
                 //string userSQL = config.GetConnectionString("UserSQL");
                 //string passSQL = config.GetConnectionString("PassSQL");
 
-                string basedatos = (DBName is null || DBName == "") ? config.GetConnectionString("DBName") : DBName;
+                string basedatos = (DBName is null || DBName == "") ? config.GetConnectionString("DBName")! : DBName!;
 
-                SQLConnectionString = SQLConnectionString.Replace("UsuarioBDSQL", userSQL)
+                SQLConnectionString = SQLConnectionString.Replace("ServerName", dataSourse)
+                                                         .Replace("UsuarioBDSQL", userSQL)
                                                          .Replace("PassBDSQL", passSQL)
                                                          .Replace("BaseDatos", basedatos);
 

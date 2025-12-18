@@ -30,6 +30,7 @@ namespace RelojesApi.DependencyInjection
 
             string userSQL = Encripta.getDecryptTripleDES(config.GetConnectionString("UserSQL")!);
             string passSQL = Encripta.getDecryptTripleDES(config.GetConnectionString("PassSQL")!);
+            string dataSourse = config.GetConnectionString("DataSource")!;
 
             //ctadmin=7kRtaIP/ktY=
             //7ah3xu0$oa=TKbHv5rsQ0LqZRYKmhjE3g==
@@ -38,7 +39,8 @@ namespace RelojesApi.DependencyInjection
             string schema = config.GetConnectionString("Schema")!;
             string basedatos = config.GetConnectionString("DBName")!;
 
-            SQLConnectionString = SQLConnectionString.Replace("UsuarioBDSQL", userSQL)
+            SQLConnectionString = SQLConnectionString.Replace("ServerName", dataSourse)
+                                                     .Replace("UsuarioBDSQL", userSQL)
                                                      .Replace("PassBDSQL", passSQL)
                                                      .Replace("BaseDatos", basedatos);
 

@@ -1444,6 +1444,10 @@ namespace com.gsitcr.geotime.Data.Interfaz
         /// <returns>EventResponse con el detalle de la actualización</returns>
         public Task<EventResponse> ActualizarCompaniaBD(cPh_Compania compania, bool migrate);
 
+        public Task<EventResponse> ActualizarCompaniaDatosApi(cPh_Compania compania);
+
+        
+
         /// <summary>
         /// GetPhCatalogoGenerico: lista de catalogos genericos
         /// </summary>
