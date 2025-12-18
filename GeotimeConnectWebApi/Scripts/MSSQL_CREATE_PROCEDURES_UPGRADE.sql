@@ -1,5 +1,5 @@
 
-Create procedure [dbo].[DM_CONSULTAR_MARCAS_PERIODO]
+create procedure [dbo].[DM_CONSULTAR_MARCAS_PERIODO]
 (
 	@IdsGrupos varchar(1000),
 	@IdPlanilla varchar(8),
@@ -22,7 +22,7 @@ begin
 
 	declare @tEmpleadosMarcas table (idnumero varchar(20) not null, nombre varchar(70) not null,
 	                                 fecha_entra datetime, hora_entra varchar(5), hora_sale varchar(5),
-	                                 idturno int, cantidad decimal(18,2), columna_concepto  varchar(10),
+	                                 idturno int, cantidad decimal(18,2), columna_concepto  varchar(15),
 									 tipo_extra varchar(10), estado char(1),manticipo varchar(5), mtardia varchar(5),
 									 fecha_sale datetime,reg_sale bigint,idregistro bigint, fecha_ingreso datetime, 
 									 iddepartamento varchar(15))
@@ -35,18 +35,76 @@ begin
 		mp.hora_entra,
 		mp.hora_sale,
 		mp.idturno,
+		sum(isnull(dbo.hrs_min(mp.ORDC),0)/60) as cantidad,
+		'Ordinario' as columna_concepto,
+		null as tipo_extra,
+		mp.estado as estado,
+		mp.manticipo,
+		mp.mtardia,
+		mp.fecha_sale,
+		mp.reg_sale,
+		mp.idregistro,
+	    e.fecha_ingreso as fecha_ingreso,
+		e.iddepartamento as iddepartamento
+		
+	FROM marcas_proceso mp
+	inner join empleados e on e.idnumero=mp.idnumero 
+		and e.idnumero=(case when @idnumero='-1' then e.idnumero else @idnumero end) 
+		and e.idgrupo in (select idgrupo FROM @tGrupos)
+		and e.estado='T'
+		and e.idplanilla = @IdPlanilla
+	WHERE mp.fecha_entra between @FechaInicio and @FechaFin	
+	group by mp.idnumero,e.nombre,mp.fecha_entra,mp.hora_entra,mp.hora_sale, mp.idturno,mp.estado,
+	         mp.manticipo,mp.mtardia,mp.fecha_sale,mp.reg_sale,mp.idregistro, e.fecha_ingreso, e.iddepartamento
+
+
+	insert into @tEmpleadosMarcas
+	SELECT mp.idnumero,
+	    e.nombre,
+		mp.fecha_entra,
+		mp.hora_entra,
+		mp.hora_sale,
+		mp.idturno,
+		sum(isnull(dbo.hrs_min(mp.EXTC),0)/60) as cantidad,
+		'HorasExtras' as columna_concepto,
+		null as tipo_extra,
+		mp.estado as estado,
+		mp.manticipo,
+		mp.mtardia,
+		mp.fecha_sale,
+		mp.reg_sale,
+		mp.idregistro,
+	    e.fecha_ingreso as fecha_ingreso,
+		e.iddepartamento as iddepartamento
+		
+	FROM marcas_proceso mp
+	inner join empleados e on e.idnumero=mp.idnumero 
+		and e.idnumero=(case when @idnumero='-1' then e.idnumero else @idnumero end) 
+		and e.idgrupo in (select idgrupo FROM @tGrupos)
+		and e.estado='T'
+		and e.idplanilla = @IdPlanilla
+	WHERE mp.fecha_entra between @FechaInicio and @FechaFin	
+	and mp.EXTC!='00:00'
+	group by mp.idnumero,e.nombre,mp.fecha_entra,mp.hora_entra,mp.hora_sale, mp.idturno,mp.estado,
+	         mp.manticipo,mp.mtardia,mp.fecha_sale,mp.reg_sale,mp.idregistro, e.fecha_ingreso, e.iddepartamento
+	
+
+	insert into @tEmpleadosMarcas
+
+	SELECT mp.idnumero,
+	    e.nombre,
+		mp.fecha_entra,
+		mp.hora_entra,
+		mp.hora_sale,
+		mp.idturno,
 		sum(isnull(m.cantidad,0)) as cantidad,
-		case when c.tipo_h=1 then 'Ordinario'
-			 when c.tipo_h=2 then case when c.ordinario='T' and c.autorizado='T' then 'Ordinario' else 'Extras' end 
-			 when c.tipo_h=3 then case when c.ordinario='T' and c.autorizado='T' then 'Ordinario' else 'Extras' end  
-			 when c.tipo_h=4 then case when c.ordinario='T' and c.autorizado='T' then 'Ordinario' else 'Extras' end
-			 else 'Ordinario'
+		case when c.tipo_h=2 then case when c.ordinario='T' and c.autorizado='T' then 'TOrdinario' else 'Extras' end 
+			 when c.tipo_h=3 then case when c.ordinario='T' and c.autorizado='T' then 'TOrdinario' else 'Extras' end  
+			 when c.tipo_h=4 then case when c.ordinario='T' and c.autorizado='T' then 'TOrdinario' else 'Extras' end
 	    end as columna_concepto,
-		case when c.tipo_h=1 then null
-			 when c.tipo_h=2 then 'Extras' 
+		case when c.tipo_h=2 then 'Extras' 
 			 when c.tipo_h=3 then 'Dobles'  
 			 when c.tipo_h=4 then 'Otros' 
-			 else null
 	    end as tipo_extra,
 		case when m.estado is not null then m.estado else mp.estado end as estado,
 		mp.manticipo,
@@ -58,30 +116,29 @@ begin
 		e.iddepartamento as iddepartamento
 		
 	FROM marcas_proceso mp
-	left join marcas_distribuciones m 
+	inner join marcas_distribuciones m 
 		on m.fecha=mp.fecha_entra and m.idplanilla=mp.idplanilla and m.idnumero=mp.idnumero and m.entrada=mp.hora_entra
-	left join ph_conceptos c on c.id=m.idconcepto and c.tipo_h in (1,2,3,4)	
+	inner join ph_conceptos c on c.id=m.idconcepto and c.tipo_h in (1,2,3,4)	
 	inner join empleados e on e.idnumero=mp.idnumero 
 		and e.idnumero=(case when @idnumero='-1' then e.idnumero else @idnumero end) 
 		and e.idgrupo in (select idgrupo FROM @tGrupos)
 		and e.estado='T'
 		and e.idplanilla = @IdPlanilla
 	WHERE mp.fecha_entra between @FechaInicio and @FechaFin	
+	and c.tipo_h in (2,3,4)
 	group by mp.idnumero,e.nombre,mp.fecha_entra,mp.hora_entra,mp.hora_sale, mp.idturno,m.estado,
 	         c.tipo_h,c.ordinario,c.autorizado,mp.manticipo,mp.mtardia,
 			 case when m.estado is not null then m.estado else mp.estado end,
 			 mp.fecha_sale,mp.reg_sale,mp.idregistro, e.fecha_ingreso, e.iddepartamento
 	
 
-	
-
-
 	if (@idnumero!='-1')
 	begin
 
 
 		select idnumero, nombre, fecha_entra, hora_entra, hora_sale, x.idturno,t.descripcion as turno, 
-			  sum(ordinario) as ordinario, sum(extras) as extras, sum(suma_extras) as suma_extras, 
+			  sum(ordinario) as ordinario, 
+			  sum(extras) as extras, sum(suma_extras) as suma_extras, 
 			  sum(suma_dobles) as suma_dobles, sum(suma_otros) as suma_otros, estado, 
 			  max(manticipo) as manticipo, min(mtardia) as mtardia,fecha_sale,isnull(reg_sale,0) as reg_sale,
 			  idregistro, fecha_ingreso, iddepartamento
@@ -90,12 +147,11 @@ begin
 			
 			select idnumero, nombre, fecha_entra, hora_entra, hora_sale, idturno,  
 				   case columna_concepto when 'Ordinario' then cantidad else 0 end as ordinario,
-				   case columna_concepto when 'Extras' then cantidad else 0 end as extras,
+				   case columna_concepto when 'HorasExtras' then cantidad else 0 end as extras,
 				   case tipo_extra when 'Extras' then cantidad else 0 end as suma_extras,
 				   case tipo_extra when 'Dobles' then cantidad else 0 end as suma_dobles,
 				   case tipo_extra when 'Otros' then cantidad else 0 end as suma_otros,
-				   estado, manticipo, mtardia, fecha_sale,reg_sale,idregistro, fecha_ingreso, iddepartamento
-		   
+				   estado, manticipo, mtardia, fecha_sale,reg_sale,idregistro, fecha_ingreso, iddepartamento		   
 			from @tEmpleadosMarcas) x inner join ph_turnos t on t.idturno=x.idturno
 		group by idnumero, nombre, fecha_entra, hora_entra, hora_sale, x.idturno,t.descripcion,estado,fecha_sale,isnull(reg_sale,0),idregistro, fecha_ingreso,iddepartamento  
 		order by nombre,fecha_entra 
@@ -114,7 +170,7 @@ begin
 			
 			select idnumero, nombre, fecha_entra, hora_entra, hora_sale, idturno,  
 				   case columna_concepto when 'Ordinario' then cantidad else 0 end as ordinario,
-				   case columna_concepto when 'Extras' then cantidad else 0 end as extras,
+				   case columna_concepto when 'HorasExtras' then cantidad else 0 end as extras,
 				   case tipo_extra when 'Extras' then cantidad else 0 end as suma_extras,
 				   case tipo_extra when 'Dobles' then cantidad else 0 end as suma_dobles,
 				   case tipo_extra when 'Otros' then cantidad else 0 end as suma_otros,
@@ -174,8 +230,8 @@ BEGIN
 	FROM @tCompaniasResp
 
 END
-
-
+go
+ALTER AUTHORIZATION ON [ctadmin].[VerificaCompaniaUsuarioWeb]  TO  SCHEMA OWNER 
 go 
 
 create PROCEDURE [ctadmin].[VerificaDatosPMW] 
@@ -225,148 +281,153 @@ BEGIN
 
 END
 go
-ALTER PROCEDURE [salvcr].[apruebo_extra] 
-    @CANTIDAD VARCHAR(5), 
-    @COMENTARIO VARCHAR(1024), 
-    @USUARIO VARCHAR(15), 
-    @IDREGISTRO BIGINT, 
-    @IDCCOSTO VARCHAR(25),
-	@CANTIDAD_COMPENSAR VARCHAR(5)
-AS 
-BEGIN 
+ALTER AUTHORIZATION ON [ctadmin].[VerificaDatosPMW]  TO  SCHEMA OWNER 
+
+GO
+
+CREATE PROCEDURE [dbo].[in_marcas_web] @idnumero varchar(25)
 	
-    DECLARE @IDPLANILLA VARCHAR(8),
-		 @IDNUMERO VARCHAR(20),
-		 @FECHA DATETIME,
-		 @HORA VARCHAR(5),
-		 @EXTC VARCHAR(5),
-		 @NIVEL_APROB INT,
-		 @USA_COMPENSACION CHAR(1),
-		 @TCOMPENSADO_ANT VARCHAR(5)='00:00'
+AS
+BEGIN
+	
+	
+	declare @idplanilla varchar(8)
+	declare @fecha datetime
+	declare @hora varchar(5)
+	declare @tipo int
+	declare @terminal varchar(4)
+	declare @registro bigint
+	declare @idregistro bigint
+	declare @id varchar(5)
+	declare @fd varchar(5)
+	declare @desc_pro int
+	declare @fecha_reg datetime
+    declare @long_reg varchar(max)
+    declare @lat_reg varchar(max)
+	declare @gps char(1)
+	declare @fecha_hora datetime
+	declare @dir_ip varchar(50)
+	declare @host varchar(400)
+	declare @tiempoEspera int = 5;
 
-    SELECT 
-        @IDPLANILLA = IDPLANILLA, 
-        @IDNUMERO = IDNUMERO, 
-        @FECHA = FECHA_ENTRA, 
-        @HORA = HORA_ENTRA,
-        @EXTC = EXTC 
-    FROM MARCAS_PROCESO 
-    WHERE IDREGISTRO = @IDREGISTRO
+	
+	update marcas_in set idplanilla = e.idplanilla, idnumero = e.idnumero from empleados e where idtarjeta = e.idnumero and idtarjeta = @idnumero
+	--update marcas_in set idplanilla = e.idplanilla, idnumero = e.idnumero from empleados e where idtarjeta = e.tarjeta
+	
+	declare marca cursor for 
+	 select idplanilla, idnumero,fecha,hora,tipo,idterminal,fecha_reg,long_reg,lat_reg,gps_cell,dir_ip,host 
+		from marcas_in where idnumero = @idnumero order by idplanilla,idnumero,fecha,hora
+	 
+	 open marca
+	 
+	 Fetch next from marca into @idplanilla,@idnumero,@fecha,@hora,@tipo,@terminal,@fecha_reg,@long_reg,@lat_reg,@gps,@dir_ip,@host
+	 while @@FETCH_STATUS = 0
+	 begin
+	 
+	  set @registro = (select top 1 registro 
+	                   from marcas 
+	                   where idplanilla = @idplanilla 
+	                   and idnumero = @idnumero 
+					   and fecha = @fecha 
+					   and dbo.hrs_min(hora) between dbo.hrs_min(@hora) - @tiempoEspera  and dbo.hrs_min(@hora) + @tiempoEspera)
+	  if @registro is null
+	   begin
 
-	SELECT @USA_COMPENSACION=USA_COMPENSACION FROM PH_OPCIONES
+	    set @fecha_hora = convert(datetime,convert(varchar(10),@fecha,120) + ' ' + @hora) 
+	    insert into marcas (idplanilla, idnumero, fecha, hora, tipo, idterminal,fecha_reg,long_reg,lat_reg,gps_cell,fecha_hora,dir_ip,host)
+	                 values (@idplanilla, @idnumero, @fecha, @hora, @tipo, @terminal,@fecha_reg,@long_reg,@lat_reg,@gps,@fecha_hora,@dir_ip,@host)
 
-    SET @NIVEL_APROB = (
-        SELECT ISNULL(NIVEL_APROB_EXT, 1) 
-        FROM PH_USUARIO 
-        WHERE IDUSUARIO = (
-            SELECT IDUSUARIO 
-            FROM CTADMIN.PH_LOGIN 
-            WHERE USUARIO = @USUARIO
-        )
-    )
+        update marcas set imagen_reg = x.imagen_reg from marcas_in x where marcas.idplanilla = x.idplanilla and marcas.idnumero = x.idnumero and marcas.fecha_reg = x.fecha_reg
+	    
+	   end	  
+	 
+	 Fetch next from marca into @idplanilla,@idnumero,@fecha,@hora,@tipo,@terminal,@fecha_reg,@long_reg,@lat_reg,@gps,@dir_ip,@host
+	 end
+	 
+	 close marca
+	 deallocate marca
+	
+	 delete from marcas_in where idnumero = @idnumero
 
-    BEGIN TRY
-		
-		if (@USA_COMPENSACION='T')
-		begin
-			IF DBO.HRS_MIN(@EXTC) < (DBO.HRS_MIN(@CANTIDAD) +  DBO.HRS_MIN(@CANTIDAD_COMPENSAR))
-			begin
-				RAISERROR ('La suma de las horas extras aprobadas más las horas compensadas no debe ser mayor que las horas extras calculadas.', -- Message text.
-					16, -- Severity.
-					1 -- State.
-				);
-			end 				
-		end
-		else
-		begin
-			IF DBO.HRS_MIN(@EXTC) < DBO.HRS_MIN(@CANTIDAD)
-				SET @CANTIDAD = @EXTC
-		end 
+	 declare marca_proc cursor for select registro, idplanilla, idnumero, fecha, hora, tipo from marcas where idnumero = @idnumero and estado = 'N' order by idplanilla, idnumero, fecha_hora
+	 open marca_proc
+	 
+	 fetch next from marca_proc into @idregistro, @idplanilla, @idnumero, @fecha, @hora, @tipo
+	 while @@FETCH_STATUS = 0
+	 begin
+	  --set @tipo = gsit.tipo(@idplanilla,@idnumero,@fecha,@hora)
+	  --update marcas set tipo = @tipo where idplanilla = @idplanilla and idnumero = @idnumero and fecha = @fecha and hora = @hora 
+	  if @tipo = 1 --entrada
+	   begin
+	    set @registro = (select top 1 idregistro from marcas_proceso where  idplanilla = @idplanilla and idnumero = @idnumero and fecha_entra = @fecha and hora_entra = @hora)
+	    if @registro is null
+	     begin
+	       set @registro = (select top 1 idregistro from marcas_proceso where  idplanilla = @idplanilla and idnumero = @idnumero and fecha_entra = @fecha and hora_entra = '00:00' and (hora_sale > @hora or hora_sale = '00:00'))
+	       if @registro is null 
+		    begin
+			  insert into marcas_proceso (idplanilla,idnumero,fecha_entra,hora_entra,fecha_sale,hora_sale) values (@idplanilla,@idnumero,@fecha,@hora,@fecha,'00:00')
+			  set @registro = (select @@IDENTITY)
+            end
+	       else update marcas_proceso set hora_entra = @hora where idregistro = @registro    
+	     end
+		 update marcas_incidencias set idregistro = @registro,hentra = @hora where idplanilla = @idplanilla and idnumero = @idnumero and (idregistro = 0 OR idregistro = @registro) and hentra = '00:00'
+		 update marcas_mov_turnos set hora = @hora where  idplanilla = @idplanilla and idnumero = @idnumero and fecha = @fecha
+		 update marcas_extras_apb set hora = @hora where  idplanilla = @idplanilla and idnumero = @idnumero and fecha = @fecha
+	   end
+	   
+	    if @tipo = 2 --salida
+	   begin
+	   set @registro = (select top 1 idregistro from marcas_proceso where  idplanilla = @idplanilla and idnumero = @idnumero and reg_sale = @idregistro)
+	   if @registro is null
+	    begin
+	      set @registro = (select top 1 idregistro from marcas_proceso where  idplanilla = @idplanilla and idnumero = @idnumero and fecha_entra = Dateadd(day,-1,@fecha) and hora_sale = '00:00' and (1440 - dbo.hrs_min(hora_entra) + dbo.hrs_min(@hora)) < 1080)  --nocturno 18 horas para par
+		  if @registro is not null 
+		    begin
+			  update marcas_proceso set fecha_sale = @fecha, hora_sale = @hora,reg_sale = @idregistro where idregistro = @registro
+			  --update marcas set estado = 'P' where registro = @idregistro
+            end
+		  else
+		   begin
+		    set @registro = (select top 1 idregistro from marcas_proceso where idplanilla = @idplanilla and idnumero = @idnumero and fecha_entra = @fecha and hora_sale = '00:00' and hora_entra < @hora)
+			if @registro is null 
+			 begin 
+			   insert into marcas_proceso (idplanilla,idnumero,fecha_entra,hora_sale,fecha_sale,hora_entra,reg_sale) values (@idplanilla,@idnumero,@fecha,@hora,@fecha,'00:00',@idregistro)
+			   set @registro = (select @@IDENTITY)
+			   --update marcas set estado = 'P' where registro = @idregistro
+             end
+	        else update marcas_proceso set hora_sale = @hora,reg_sale = @idregistro where idregistro = @registro
+		   end
+	    end 
+		update marcas_incidencias set idregistro = @registro,hsale = @hora where  idplanilla = @idplanilla and idnumero = @idnumero and (idregistro = 0 OR idregistro = @registro) and hsale = '00:00'
+	   end
 
-        IF @NIVEL_APROB = 1 
-        BEGIN
-			declare @CCosto varchar(25)
+     if @tipo = 3 --descanso
+	 begin
+	  set @desc_pro = (select isnull((select top 1 iddesc from marcas_descansos where idplanilla = @idplanilla and idnumero = @idnumero and fecha = @fecha order by iddesc desc),0))
+	  set @desc_pro = @desc_pro + 1
+	  if @desc_pro = 1 
+	   begin
+	    insert into marcas_descansos (iddesc,  idplanilla, idnumero, fecha, inicio_desc, fin_desc) values (@desc_pro,@idplanilla,@idnumero,@fecha,@hora,'00:00')
+       end
+	  else 
+	   begin
+	    update marcas_descansos set fin_desc = @hora where  idplanilla = @idplanilla and idnumero = @idnumero and fecha = @fecha and inicio_desc <> '00:00' and fin_desc = '00:00'
+		if @@ROWCOUNT = 0 insert into marcas_descansos (iddesc,  idplanilla, idnumero, fecha, inicio_desc, fin_desc) values (@desc_pro,@idplanilla,@idnumero,@fecha,@hora,'00:00')
+	   end
+	 end  
+	 
+	 if @tipo = 4 --marca comedor
+	  begin
+	   insert into marcas_comedor (idplanilla,idnumero,fecha,hora,idterminal) values (@idplanilla,@idnumero,@fecha,@hora,@terminal)
+	  end
+	 update marcas set estado = 'P' where registro = @idregistro
+	 
+	 fetch next from marca_proc into @idregistro, @idplanilla, @idnumero, @fecha, @hora, @tipo
+	 end
+	 
+	 close marca_proc
+	 deallocate marca_proc
 
-			set @CCosto = case when @IDCCOSTO = 'NAP_' then null else  @IDCCOSTO end
-
-			if exists(select 1 from MARCAS_EXTRAS_APB 
-			          WHERE IDPLANILLA = @IDPLANILLA 
-						AND IDNUMERO = @IDNUMERO 
-						AND FECHA = @FECHA 
-						AND HORA = @HORA)
-			begin
-				set @TCOMPENSADO_ANT=(select top 1 cant_comp_aprob_nivel1 
-										from MARCAS_EXTRAS_APB 
-										WHERE IDPLANILLA = @IDPLANILLA 
-										AND IDNUMERO = @IDNUMERO 
-										AND FECHA = @FECHA 
-										AND HORA = @HORA)
-				print @TCOMPENSADO_ANT
-
-				UPDATE MARCAS_EXTRAS_APB 
-                SET 
-                    CANTIDAD = @CANTIDAD, 
-                    CANTIDAD_APROB_NIVEL1 = @CANTIDAD,
-                    COMENTARIO = @COMENTARIO, 
-                    USUARIO = @USUARIO,
-                    CCOSTO = @CCosto, 
-                    APROB_NIVEL1 = 'T', 
-                    USUARIO_APROB_NIVEL1 = @USUARIO, 
-                    COMENTARIO_APROB_NIVEL1 = @COMENTARIO,
-                    FECHA_APROB_NIVEL1 = GETDATE(),
-					CANT_COMP_APROB_NIVEL1 = @CANTIDAD_COMPENSAR
-                WHERE 
-                    IDPLANILLA = @IDPLANILLA 
-                    AND IDNUMERO = @IDNUMERO 
-                    AND FECHA = @FECHA 
-                    AND HORA = @HORA
-
-			end
-			else
-			begin
-				INSERT INTO MARCAS_EXTRAS_APB (
-                    IDPLANILLA, IDNUMERO, FECHA, HORA, CANTIDAD, 
-                    COMENTARIO, USUARIO, CCOSTO, APROB_NIVEL1, 
-                    USUARIO_APROB_NIVEL1, COMENTARIO_APROB_NIVEL1, 
-                    FECHA_APROB_NIVEL1, CANTIDAD_APROB_NIVEL1, CANT_COMP_APROB_NIVEL1
-                ) VALUES (
-                    @IDPLANILLA, @IDNUMERO, @FECHA, @HORA, @CANTIDAD, 
-                    @COMENTARIO, @USUARIO, @CCosto, 'T', @USUARIO, 
-                    @COMENTARIO, GETDATE(), @CANTIDAD,@CANTIDAD_COMPENSAR
-                )
-                    
-			end
-
-
-            UPDATE MARCAS_PROCESO 
-            SET EXTT = @CANTIDAD 
-            WHERE IDREGISTRO = @IDREGISTRO
-
-			if (@USA_COMPENSACION='T')
-			BEGIN
-				UPDATE empleados 
-				SET TCompensacionAprobado = dbo.min_hrs(DBO.HRS_MIN(isnull(TCompensacionAprobado,'00:00')) - DBO.HRS_MIN(@TCOMPENSADO_ANT) + DBO.HRS_MIN(@CANTIDAD_COMPENSAR))
-				where IDNUMERO = @IDNUMERO
-			END
-        END
-    END TRY
-    BEGIN CATCH
-        DECLARE @ErrorMessage NVARCHAR(4000);
-		DECLARE @ErrorSeverity INT;
-		DECLARE @ErrorState INT;
-
-    SELECT
-        @ErrorMessage = ERROR_MESSAGE(),
-        @ErrorSeverity = ERROR_SEVERITY(),
-        @ErrorState = ERROR_STATE();
-
-    -- Use RAISERROR inside the CATCH block to return error
-    -- information about the original error that caused
-    -- execution to jump to the CATCH block.
-    RAISERROR (@ErrorMessage, -- Message text.
-        @ErrorSeverity, -- Severity.
-        @ErrorState -- State.
-    );
-    END CATCH
 END
-
+go
+ALTER AUTHORIZATION ON [dbo].[in_marcas_web]  TO  SCHEMA OWNER 

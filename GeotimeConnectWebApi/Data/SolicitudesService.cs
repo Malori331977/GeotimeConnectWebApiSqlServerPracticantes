@@ -3240,6 +3240,7 @@ namespace com.gsitcr.geotime.Data
                 }
                 else
                 {
+                    
                     List<cMarcaTiempoAdicional> listaMarcastiempoadicionalMultiple = new List<cMarcaTiempoAdicional>();
                     foreach (var detalle in soli.cSolicitudDetalle!)
                     {
@@ -3252,7 +3253,7 @@ namespace com.gsitcr.geotime.Data
                             CENTRO_COSTO = detalle.IdCCosto!,
                             PROYECTO = detalle.Proyecto,
                             FASE = detalle.Fase,
-                            CANTIDAD = detalle.TotalHoras == "00:00" ? Models.Utils.Utility.MunitosAHoras(detalle.Cantidad) : soli.TotalHoras,
+                            CANTIDAD = detalle.TotalHoras == "00:00" ? Models.Utils.Utility.MunitosAHoras(detalle.Cantidad) : detalle.TotalHoras,
                             FECHA_REGISTRO = DateOnly.FromDateTime(DateTime.Now),
                             ESTADO = 'A',
                             USUARIO = autorizante,

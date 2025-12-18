@@ -605,6 +605,9 @@ CREATE PROCEDURE [dbo].[DM_POST_SINCRONIZA] @planilla varchar(8)
 AS
 BEGIN
 	
+    --insert ph_puestos (Puesto,Descripcion,Activo) select PUESTO,DESCRIPCION,ACTIVO from BD_ERP.SEQUEMA_ERP.PUESTO where PUESTO COLLATE SQL_Latin1_General_CP1_CI_AS  NOT IN (select puesto from ph_puestos)
+    --update empleados set identificacion = x.IDENTIFICACION, puesto= X.PUESTO from BD_ERP.SEQUEMA_ERP.EMPLEADO x where idnumero COLLATE SQL_Latin1_General_CP1_CI_AS = x.EMPLEADO COLLATE SQL_Latin1_General_CP1_CI_AS
+
 	return
 	--update empleados set idgrupo = ubicacion where ubicacion in (select idgrupo from ph_grupos) and idcompania = @compania and idplanilla = @planilla
 
