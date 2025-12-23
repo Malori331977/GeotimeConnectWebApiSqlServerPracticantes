@@ -5,6 +5,7 @@ using com.gsitcr.geotime.Data.Interfaz;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using Utility = com.gsitcr.geotime.Models.Utils.Utility;
+using Azure;
 
 namespace com.gsitcr.geotime.Data
 {
@@ -1889,6 +1890,7 @@ namespace com.gsitcr.geotime.Data
                     {
                         item.FechaRegistro = DateTime.Now;
                         item.SolicitudId = solicitud.Id;
+                        item.cSolicitud = null;
                         _context.Add(item);
                     }
                     await _context.SaveChangesAsync();                    
@@ -2485,10 +2487,9 @@ namespace com.gsitcr.geotime.Data
         /// <param name="conFlujoAut">Indica si se debe realizar el flujo de autorización</param>
         /// <param name="notificaAutorizacion">Indica si se debe notificar la autorización</param>
         /// <returns>Instancia EventResponse con el resultado de la operación.</returns>
-        private async Task<bool> EjecutaAutorizacionSolicitud(cSolicitud solicitudAutorizar, bool conFlujoAut, bool notificaAutorizacion)
+        private async Task<EventResponse> EjecutaAutorizacionSolicitud(cSolicitud solicitudAutorizar, bool conFlujoAut, bool notificaAutorizacion, int vEstadoActual = -1)
         {
             EventResponse respuesta = new EventResponse();
-            bool Autorizada = false;
             List<Email> correosPorEnviar = new();
             bool repiteAutorizante = false;
             bool EsAutorizanteAnterior = false;
@@ -2499,6 +2500,7 @@ namespace com.gsitcr.geotime.Data
                 string? autorizanteActual = null;
                 var opciones = await _context.Ph_Opciones.FirstOrDefaultAsync();
                 int vEstadoFinal = 99;
+               
 
 
                 cSolicitud? soli = await _context.Solicitudes
@@ -2512,6 +2514,9 @@ namespace com.gsitcr.geotime.Data
                     var listAutorizantes = await GetAutorizantesSolicitud(soli);
 
                     listaAutorizantesPendientes = listAutorizantes.Where(e => e.FechaAutorizacion == null).OrderBy(e => e.IdNivelAutorizacion).ToList();
+
+                    if (vEstadoActual==-1)
+                        vEstadoActual = soli.EstadoId;
 
                     foreach (var autorizante in listaAutorizantesPendientes)
                     {
@@ -2661,14 +2666,39 @@ namespace com.gsitcr.geotime.Data
 
                     if (soli.EstadoId == vEstadoFinal)
                     {
-                        await AplicaSolitud(soli, solicitudAutorizar.IdNumero);
+                        var respAplica=await AplicaSolitud(soli, solicitudAutorizar.IdNumero);
 
-                        //enviar correo a solicitante de solicitud aprobada
-                        List<Email> correosAprobacion = new();
-                        var correoSolicitanteAprob = await EnviaCorreoSolicitudAutorizada(solicitante!, soli.Id);
-                        if (correoSolicitanteAprob is not null) correosAprobacion.Add(correoSolicitanteAprob);
-                        if (correosAprobacion.Count() > 0)
-                            await _geoServices.EnviarCorreo(correosAprobacion);
+                        if (respAplica.Id=="0")
+                        {
+                            //enviar correo a solicitante de solicitud aprobada
+                            List<Email> correosAprobacion = new();
+                            var correoSolicitanteAprob = await EnviaCorreoSolicitudAutorizada(solicitante!, soli.Id);
+                            if (correoSolicitanteAprob is not null) correosAprobacion.Add(correoSolicitanteAprob);
+                            if (correosAprobacion.Count() > 0)
+                                await _geoServices.EnviarCorreo(correosAprobacion);
+                        }
+                        else
+                        {
+                            cSolicitud? soliAutorizada = await _context.Solicitudes
+                                .Where(e => e.Id == solicitudAutorizar.Id)
+                                .FirstOrDefaultAsync();
+
+                            soliAutorizada!.EstadoId = vEstadoActual;
+
+                            _context.Solicitudes.Update(soliAutorizada);
+                            await _context.SaveChangesAsync();
+
+                            var solicitudAutorizadas = await _context.SolicitudesAutorizacion
+                                                                .Where(e => e.SolicitudId == soli.Id && e.EstadoId > vEstadoActual)
+                                                                .ToListAsync();
+
+                            _context.SolicitudesAutorizacion.RemoveRange(solicitudAutorizadas);
+                            await _context.SaveChangesAsync();
+
+                            return respAplica;
+                        }
+
+                        
                     }
 
 
@@ -2687,7 +2717,7 @@ namespace com.gsitcr.geotime.Data
                             if (autorizanteSiguiente!.IdNumero == soli!.IdUsuarioRegistra)
                             {
                                 solicitudAutorizar.IdNumero = soli.IdUsuarioRegistra;
-                                await EjecutaAutorizacionSolicitud(solicitudAutorizar, conFlujoAut, notificaAutorizacion);
+                                respuesta = await EjecutaAutorizacionSolicitud(solicitudAutorizar, conFlujoAut, notificaAutorizacion, vEstadoActual);
                             }
                             else
                             {
@@ -2705,23 +2735,24 @@ namespace com.gsitcr.geotime.Data
                     else
                     {
                         solicitudAutorizar.IdNumero = idAutorizanteAnterior;
-                        await EjecutaAutorizacionSolicitud(soli, conFlujoAut, notificaAutorizacion);
+                        respuesta =  await EjecutaAutorizacionSolicitud(soli, conFlujoAut, notificaAutorizacion, vEstadoActual);
                     }
 
                 }
                 else
                 {
-                    await EjecutaAutorizacionSolicitud(soli, conFlujoAut, notificaAutorizacion);
+                    respuesta =  await EjecutaAutorizacionSolicitud(soli, conFlujoAut, notificaAutorizacion, vEstadoActual);
                 }
-
-                Autorizada = true;
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                respuesta.Descripcion = $"SolicitudesService.EjecutaAutorizacionSolicitud: Error al autorizar la solicitud No.{solicitudAutorizar.Id}.  Detalle de error:{e.Message}";
+                _logger.LogError(respuesta.Descripcion);
             }
 
-            return Autorizada;
+            return respuesta;
 
         }
 
@@ -2734,19 +2765,27 @@ namespace com.gsitcr.geotime.Data
         {
             EventResponse respuesta = new EventResponse();
             List<long> IdsAutorizados = new();
+            List<long> IdsErroneos = new();
             List<Email> correosPorEnviar = new();
             try
             {
 
                 foreach (var solicitud in solicitudesPorAprobar)
                 {
-                    if (await EjecutaAutorizacionSolicitud(solicitud, true, false))
+                    var resp = await EjecutaAutorizacionSolicitud(solicitud, true, false);
+                    if (resp.Id=="0")
                     {
                         IdsAutorizados.Add(solicitud.Id);
+                    }
+                    else
+                    {
+                        IdsErroneos.Add(solicitud.Id);
                     }
 
                 }
                 respuesta.ValorRetorno = String.Join("|", IdsAutorizados);
+                if (IdsErroneos.Count() > 0)
+                    respuesta.Descripcion = String.Join("|", IdsErroneos);
             }
             catch (Exception e)
             {
@@ -2828,8 +2867,9 @@ namespace com.gsitcr.geotime.Data
 
         }
 
-        private async Task AplicaSolitud(cSolicitud soli, string autorizante)
+        private async Task<EventResponse> AplicaSolitud(cSolicitud soli, string autorizante)
         {
+            EventResponse response = new EventResponse();
             try
             {
                 cSolicitudConfiguracion? configuracion = await _context.SolicitudConfiguracion.FirstOrDefaultAsync(e => e.Id == soli.cTipoSolicitud!.TipoConfiguracion!)!;
@@ -2838,16 +2878,16 @@ namespace com.gsitcr.geotime.Data
                     switch (configuracion.Destino)
                     {
                         case "HE": //Horas extras
-                            await RegistrarHoraExtra(soli, autorizante, configuracion);
+                            response = await RegistrarHoraExtra(soli, autorizante, configuracion);
                             break;
                         case "DT": //distribución de tiempo
-                            await RegistrarDistribucion(soli, autorizante, configuracion);
+                            response = await RegistrarDistribucion(soli, autorizante, configuracion);
                             break;
                         case "TA": //tiempo adicional
-                            var respuesta = await RegistrarTiempoAdicional(soli, autorizante,configuracion);                                
+                            response = await RegistrarTiempoAdicional(soli, autorizante,configuracion);                                
                             break;
                         case "DM": //tiempo adicional y Registro de marcas
-                            await RegistrarDistribucionYMarcas(soli, autorizante, configuracion);
+                            response = await RegistrarDistribucionYMarcas(soli, autorizante, configuracion);
                             break;
                     }                   
                 }
@@ -2855,12 +2895,17 @@ namespace com.gsitcr.geotime.Data
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.InnerException is null ? e.Message : e.InnerException.Message);
+                string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                response.Id = "1";
+                response.Respuesta = "Error";
+                response.Descripcion = $"SolicitudesService.RegistraMarcasSegunHorario: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}";
+                _logger.LogError(response.Descripcion);
             }
-
+            return response;
         }
-        private async Task RegistrarHoraExtra(cSolicitud soli, string autorizante, cSolicitudConfiguracion configuracion)
+        private async Task<EventResponse> RegistrarHoraExtra(cSolicitud soli, string autorizante, cSolicitudConfiguracion configuracion)
         {
+            EventResponse response = new EventResponse();
             if (!configuracion.MultipleCentroCosto)
             {
                 List<cMarcaExtraApb> listaMarcasApb = new List<cMarcaExtraApb>() {
@@ -2883,7 +2928,7 @@ namespace com.gsitcr.geotime.Data
                     }
                 };
 
-                await _geoServices.Sincronizar_MarcaExtraApb(listaMarcasApb);
+                response=await _geoServices.Sincronizar_MarcaExtraApb(listaMarcasApb);
 
             }
             else
@@ -2909,15 +2954,16 @@ namespace com.gsitcr.geotime.Data
                         comentario_aprob_nivel1 = $"MarcasWeb: Solicitud No.{soli.Id}",
                     });
                 }
-                await _geoServices.Sincronizar_MarcaExtraApb(listaMarcasApbMultiple);
+                response = await _geoServices.Sincronizar_MarcaExtraApb(listaMarcasApbMultiple);
             }
-               
 
-            
+            return response;
+
         }
 
-        private async Task RegistrarDistribucion(cSolicitud soli, string autorizante, cSolicitudConfiguracion configuracion)
+        private async Task<EventResponse> RegistrarDistribucion(cSolicitud soli, string autorizante, cSolicitudConfiguracion configuracion)
         {
+            EventResponse response = new EventResponse();
             if (!configuracion.MultipleCentroCosto)
             {
                 List<cMarcaDistribucionConcepto> listaMarcasDist = new List<cMarcaDistribucionConcepto>() {
@@ -2943,7 +2989,7 @@ namespace com.gsitcr.geotime.Data
 
                         }
                 };
-                await _geoServices.Sincronizar_MarcaDtnConcepto(listaMarcasDist);
+                response = await _geoServices.Sincronizar_MarcaDtnConcepto(listaMarcasDist);
             }
             else
             {
@@ -2971,14 +3017,15 @@ namespace com.gsitcr.geotime.Data
                         idsolicitud = soli.Id,
                     });
                 }
-                await _geoServices.Sincronizar_MarcaDtnConcepto(listaMarcasDistMultiple);
+                response = await _geoServices.Sincronizar_MarcaDtnConcepto(listaMarcasDistMultiple);
             }
-               
+
+            return response;
         }
 
-        private async Task RegistrarDistribucionYMarcas(cSolicitud soli, string autorizante, cSolicitudConfiguracion configuracion)
+        private async Task<EventResponse> RegistrarDistribucionYMarcas(cSolicitud soli, string autorizante, cSolicitudConfiguracion configuracion)
         {
-
+            EventResponse response = new EventResponse();
             try
             {
                 var empleado = await _context.Empleados.FirstOrDefaultAsync(e => e.IdNumero == soli.IdNumero);
@@ -3020,28 +3067,28 @@ namespace com.gsitcr.geotime.Data
                         TimeOnly horaInicioTurno = TimeOnly.Parse(turnoAsignado.HoraInicio!);
 
                         List<cMarcaDistribucionConcepto> listaMarcasDist = new List<cMarcaDistribucionConcepto>() {
-                    new cMarcaDistribucionConcepto
-                        {
-                            IDREGISTRO = 0,
-                            IDPLANILLA = soli.IdPlanilla,
-                            IDNUMERO = soli.IdNumero,
-                            FECHA = soli.FechaInicio,
-                            IDCCOSTO = soli.IdCCosto!,
-                            PROYECTO = soli.proyecto,
-                            FASE = soli.fase,
-                            CANTIDAD = soli.Cantidad,
-                            INICIO = turnoAsignado!.HoraInicio,
-                            FIN = horaInicioTurno.AddHours((double)soli.Cantidad).ToString("HH:mm"),
-                            ESTADO = 'A',
-                            IDDIST = 0,
-                            FECHA_DIST = DateTime.Now,
-                            LON_REG = null,
-                            LAT_REG = null,
-                            COMENTARIO = $"MarcasWeb: Solicitud No {soli.Id}, autorizada por: {autorizante}. {soli.Comentario} ",
-                            idsolicitud = soli.Id,
-                        }
-                    };
-                        await _geoServices.Sincronizar_MarcaDtnConcepto(listaMarcasDist);
+                        new cMarcaDistribucionConcepto
+                            {
+                                IDREGISTRO = 0,
+                                IDPLANILLA = soli.IdPlanilla,
+                                IDNUMERO = soli.IdNumero,
+                                FECHA = soli.FechaInicio,
+                                IDCCOSTO = soli.IdCCosto!,
+                                PROYECTO = soli.proyecto,
+                                FASE = soli.fase,
+                                CANTIDAD = soli.Cantidad,
+                                INICIO = turnoAsignado!.HoraInicio,
+                                FIN = horaInicioTurno.AddHours((double)soli.Cantidad).ToString("HH:mm"),
+                                ESTADO = 'A',
+                                IDDIST = 0,
+                                FECHA_DIST = DateTime.Now,
+                                LON_REG = null,
+                                LAT_REG = null,
+                                COMENTARIO = $"MarcasWeb: Solicitud No {soli.Id}, autorizada por: {autorizante}. {soli.Comentario} ",
+                                idsolicitud = soli.Id,
+                            }
+                        };
+                        response = await _geoServices.Sincronizar_MarcaDtnConcepto(listaMarcasDist);
                     }
                 }
                 else
@@ -3091,26 +3138,33 @@ namespace com.gsitcr.geotime.Data
                             idsolicitud = soli.Id,
                         });
                     }
-                    await _geoServices.Sincronizar_MarcaDtnConcepto(listaMarcasDistMultiple);
+                    response = await _geoServices.Sincronizar_MarcaDtnConcepto(listaMarcasDistMultiple);
+                }
+
+                if (response.Id != "0")
+                {
+                    return response;
                 }
 
                 //registrar marcas via horario del colaborador
-                await RegistraMarcasSegunHorario(soli, configuracion, empleado!, horarioTurnos);
+                response = await RegistraMarcasSegunHorario(soli, configuracion, empleado!, horarioTurnos);
 
             }
             catch (Exception e)
             {
-                _logger.LogError($"{e.Message}");
-
+                string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                response.Id = "1";
+                response.Respuesta = "Error";
+                response.Descripcion = $"SolicitudesService.RegistrarDistribucionYMarcas: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}";
+                _logger.LogError(response.Descripcion);
             }
 
-
-            
-
+            return response;
         }
 
-        private async Task RegistraMarcasSegunHorario(cSolicitud soli, cSolicitudConfiguracion configuracion, cEmpleado empleado, List<cHorarioTurno> horarioTurnos)
+        private async Task<EventResponse> RegistraMarcasSegunHorario(cSolicitud soli, cSolicitudConfiguracion configuracion, cEmpleado empleado, List<cHorarioTurno> horarioTurnos)
         {
+            EventResponse response = new EventResponse();
             try
             {
                 List<cMarcaIn> listMarcaIn = new List<cMarcaIn>();
@@ -3159,7 +3213,7 @@ namespace com.gsitcr.geotime.Data
                                 }
                             };
 
-                            await _geoServices.Sincronizar_MarcaIn(listMarcaIn);
+                            response = await _geoServices.Sincronizar_MarcaIn(listMarcaIn);
                         }
 
 
@@ -3189,17 +3243,21 @@ namespace com.gsitcr.geotime.Data
                                     }
                                 };
 
-                            await _geoServices.Sincronizar_MarcaIn(listMarcaIn);
+                            response = await _geoServices.Sincronizar_MarcaIn(listMarcaIn);
                         }
                     }
                 }
             }
             catch (Exception e)
             {
-                _logger.LogError($"{e.Message}");
-                   
-            }
+                string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                response.Id= "1";
+                response.Respuesta = "Error";
+                response.Descripcion = $"SolicitudesService.RegistraMarcasSegunHorario: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}";
+                _logger.LogError(response.Descripcion);
 
+            }
+            return response;
         }
 
         private async Task<EventResponse> RegistrarTiempoAdicional(cSolicitud soli, string autorizante, cSolicitudConfiguracion configuracion)
@@ -3266,7 +3324,7 @@ namespace com.gsitcr.geotime.Data
                             idsolicitud = soli.Id,
                         });
                     }
-                    await _geoServices.Sincronizar_MarcasTiempoAdicional(listaMarcastiempoadicionalMultiple);
+                    response = await _geoServices.Sincronizar_MarcasTiempoAdicional(listaMarcastiempoadicionalMultiple);
                 }
 
             }
@@ -3275,7 +3333,7 @@ namespace com.gsitcr.geotime.Data
                 response.Id = "1";
                 response.Respuesta = "Error";
                 response.Descripcion = $"No se pudo registrar el tiempo adicional, no se encontró un periodo vigente para el empleado {soli.IdNumero} en la fecha {soli.FechaInicio:yyyy-MM-dd}";
-
+                _logger.LogError(response.Descripcion);
             }
 
             return response;

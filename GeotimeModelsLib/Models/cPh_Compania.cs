@@ -29,5 +29,9 @@
         public string? APIPASSWORD { get; set; }
         public string? APIDATABASE { get; set; } = "";
         public string? APIURL { get; set; } = "";
+        public string? APIDATABASEERP { get; set; } = "";
+        public string? APISCHEMAERP { get; set; } = "";
+        public string? APIURLERP { get; set; } = "";
+        
     }
 }
