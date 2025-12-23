@@ -183,6 +183,8 @@
     <COLUMNA tabla="marcas_tiempo_adicional" nombre="idsolicitud" tipo="int" nulo="NULL" defecto="" />
     <COLUMNA tabla="marcas_incidencias" nombre="hentra2" tipo="varchar(5)" nulo="NULL" defecto="" />
     <COLUMNA tabla="marcas_incidencias" nombre="estado_envio" tipo="bit" nulo="not NULL" defecto="0" />
+    <COLUMNA tabla="empleados" nombre="Sexo" tipo="varchar(1)" nulo="NULL" defecto="" />
+    <COLUMNA tabla="empleados" nombre="FechaNacimiento" tipo="datetime" nulo="NULL" defecto="" />    
   </V3.3.8>
 </CATABLES>
 

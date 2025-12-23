@@ -59,6 +59,12 @@ namespace com.gsitcr.geotime.Models
         public string? def_fase { get; set; }
         public string? puesto { get; set; }
 
+        public string? TCompensacionAprobado { get; set; }
+        public string? TCompensacionUtilizado { get; set; }
+        public string? Sexo { get; set; }
+        public DateTime? FechaNacimiento { get; set; }
+
+
         public cDepartamento? Departamento { get; set; }
         public cCentroCosto? CentroCosto { get; set; }
         public cPh_Planilla? Ph_Planilla { get; set; }

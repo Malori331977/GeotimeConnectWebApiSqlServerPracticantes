@@ -370,6 +370,7 @@ namespace com.gsitcr.geotime.Data.Interfaz
         /// <param name="id"></param>
         /// <returns></returns>
         public Task<cPh_Puesto> GetPhPuesto(string id);
+        public Task<EventResponse> Sincronizar_PhPuesto(IEnumerable<cPh_Puesto> puestos);
 
         #endregion
 
@@ -533,6 +534,7 @@ namespace com.gsitcr.geotime.Data.Interfaz
         /// <returns>Lista de Marcas del dia</returns>
         public Task<List<cMarca>> GetMarcasDiaria(string idnumero, string fecha);
         public Task<EventResponse> Sincronizar_Marca(IEnumerable<cMarca> marcas);
+        public Task<EventResponse> PostMarcaDiariaOrdena(IEnumerable<cMarca> marcas);
 
         /* Trea una marca para valdar la hora marcada en el programador Turno */
         public Task<cMarca> GetMarcaProgramador(string idnumero, string idplanilla, string fecha);

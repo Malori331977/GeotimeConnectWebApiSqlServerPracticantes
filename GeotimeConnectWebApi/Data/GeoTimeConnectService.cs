@@ -22,6 +22,7 @@ using System.Xml;
 using static GeoTimeServiceReference.ServiceSoapClient;
 using static com.gsitcr.geotime.Models.CalculoPeriodoParam;
 using System.Web;
+using System;
 
 
 namespace com.gsitcr.geotime.Data
@@ -4537,6 +4538,70 @@ namespace com.gsitcr.geotime.Data
             return respuesta;
 
         }
+
+        public async Task<EventResponse> PostMarcaDiariaOrdena(IEnumerable<cMarca> marcas)
+        {
+            EventResponse respuesta = new EventResponse();
+            string? idnumero = "";
+            DateTime fecha = DateTime.MaxValue;
+            string idplanilla="";
+            try
+            {
+                foreach (var marca in marcas)
+                {
+                    idnumero = marca.idnumero;
+                    fecha = marca.fecha;
+                    idplanilla = marca.idplanilla!;
+
+                    var modelBuscar = await _context.Marcas.FirstOrDefaultAsync(e => e.registro == marca.registro);
+
+                    if (modelBuscar is not null)
+                    {
+                        modelBuscar.estado = "C";
+                        modelBuscar.tipo = marca.tipo;
+                        _context.Marcas.Update(modelBuscar);
+
+                    }
+                }
+                await _context.SaveChangesAsync();
+
+                var marcasProceso = await _context.Marcas_Proceso.Where(e => e.idplanilla == idplanilla && e.idnumero == idnumero && e.fecha_entra == fecha).ToListAsync();
+
+                _context.Marcas_Proceso.RemoveRange(marcasProceso);
+
+                await _context.SaveChangesAsync();
+
+                var commandString = $"exec {_schema}.ordeno_marcas @idplanilla='{idplanilla}', @idnumero='{idnumero}';";
+                try
+                {
+                    var resultCommand = await _context.Database.ExecuteSqlRawAsync($"{commandString}");
+                }
+                catch (Exception e)
+                {
+                    _logger.LogError($"GeoTimeConnectService.PostMarcaDiariaOrdena: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {e.Message}");
+                }
+
+
+            }
+            catch (Exception e)
+            {
+                string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"{error}");
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo realizar la sincronización de Marcas. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo realizar la sincronización de Marcas. Detalle de Error: " + e.InnerException.Message;
+
+            }
+
+            return respuesta;
+
+        }
+
+
+        
 
         //Creado por: Allan Prieto Badilla
         //Fecha: 2024-05-30
@@ -10558,6 +10623,7 @@ namespace com.gsitcr.geotime.Data
                 EndpointConfiguration endpointConfiguration = new();
                 GeoTimeServiceReference.ServiceSoapClient geoWebService = new(endpointConfiguration);
 
+
                 var result = await geoWebService.calculo_periodo_empleadoAsync(calculoPlanilla);
                 if (result.calculo_periodo_empleadoResult != "")
                 {
@@ -11868,6 +11934,49 @@ namespace com.gsitcr.geotime.Data
                 throw;
             }
             return model;
+        }
+
+        public async Task<EventResponse> Sincronizar_PhPuesto(IEnumerable<cPh_Puesto> puestos)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+                foreach (var item in puestos)
+                {
+                    cPh_Puesto? puesto = await _context.Ph_Puestos
+                                                        .Where(e => e.Puesto == item.Puesto)
+                                                        .FirstOrDefaultAsync();
+                    //si el puesto existe se actualiza descripción
+                    //de lo contrario se agrega el registro
+                    if (puesto is not null)
+                    {
+                        puesto.Descripcion = item.Descripcion;
+                        puesto.Activo = item.Activo;
+                        _context.Ph_Puestos.Update(puesto);
+                    }
+                    else
+                    {
+                        _context.Add(item);
+                    }
+                }
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"{error}");
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo realizar la sincronización de Puestos. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo realizar la sincronización de Puestos. Detalle de Error: " + e.InnerException.Message;
+
+            }
+
+            return respuesta;
+
         }
 
         #endregion

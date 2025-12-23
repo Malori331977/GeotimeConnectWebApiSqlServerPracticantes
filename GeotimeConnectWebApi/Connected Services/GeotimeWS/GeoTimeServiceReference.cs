@@ -2210,12 +2210,22 @@ namespace GeoTimeServiceReference
         {
             if ((endpointConfiguration == EndpointConfiguration.Service1Soap))
             {
+                // Build a config object, using env vars and JSON providers.
+                IConfiguration config = new ConfigurationBuilder()
+                    .AddJsonFile("appsettings.json")
+                    .AddEnvironmentVariables()
+                    .Build();
+                var appSettingsSection = config.GetSection("AppSettings");
+                var appSettings = appSettingsSection.Get<AppSettings>();
+
+                int timeout = String.IsNullOrEmpty(appSettings!.WSTimeOut) ?10 : Convert.ToInt32(appSettings.WSTimeOut);
+
                 System.ServiceModel.BasicHttpBinding result = new System.ServiceModel.BasicHttpBinding();
                 result.MaxBufferSize = int.MaxValue;
                 result.ReaderQuotas = System.Xml.XmlDictionaryReaderQuotas.Max;
                 result.MaxReceivedMessageSize = int.MaxValue;
                 result.AllowCookies = true;
-                result.SendTimeout = new TimeSpan(0,5,0);
+                result.SendTimeout = new TimeSpan(0, timeout, 0);
                 return result;
             }
             if ((endpointConfiguration == EndpointConfiguration.Service1Soap12))
