@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using KolegioApi.Data;
 
 
 namespace RelojesApi.DependencyInjection
@@ -77,6 +78,7 @@ namespace RelojesApi.DependencyInjection
             Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             Services.AddSingleton<IMemoryCache, MemoryCache>();
             Services.AddScoped<IGeoTimeConnectService, GeoTimeConnectService>();
+            Services.AddScoped<IGeoTimeConnectServiceFactory, GeoTimeConnectServiceFactory>();
             Services.AddScoped<IUserService, UserService>();
             Services.AddScoped<IGraphSendMail, GraphSendMail>();
             Services.AddScoped<IEncriptaService, EncriptaService>();
@@ -88,7 +90,11 @@ namespace RelojesApi.DependencyInjection
             Services.AddScoped<IReportesServices, ReportesServices>();
             Services.AddScoped<IGenericService, GenericService>();
             Services.AddScoped<IErpConnectService, ErpConnectServices>();
+            Services.AddScoped<IErpConnectServiceFactory, ErpConnectServiceFactory>();
             Services.AddScoped<ISincronizaErp, SincronizaErp>();
+            Services.AddScoped<ISincronizaErpFactory, SincronizaErpFactory>();
+
+            Services.AddHostedService<HSSincronizacionAutomatica>();
 
 
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

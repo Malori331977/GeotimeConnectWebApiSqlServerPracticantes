@@ -42,6 +42,8 @@ alter table [ctadmin].[ph_companias] add [ApiSchemaErp] varchar(50) null
 go
 alter table [ctadmin].[ph_companias] add [ApiUrlErp] varchar(1000) null
 go
+alter table [ctadmin].[ph_companias] add Sinc_Auto char(1) not null default 'F'
+go
 alter table CTADMIN.ph_companias add remote_erpservice varchar(4000) null
 go
 alter table CTADMIN.ph_companias add auto_proceso char(1) null default('F')

@@ -3,19 +3,25 @@
 using com.gsitcr.geotime.Data.Interfaz;
 using com.gsitcr.geotime.Models;
 using com.gsitcr.geotime.Models.Response;
+using JtSegEncrypta;
+using Microsoft.EntityFrameworkCore;
 
 namespace com.gsitcr.geotime.Data
 {
-    public class SincronizaErp:ISincronizaErp
+    public class SincronizaErp : ISincronizaErp
     {
         private readonly IGeoTimeConnectService _geoConnect;
         private readonly IErpConnectService _erpConnect;
-        private readonly ILogger<GeoTimeConnectService> _logger;
-        public SincronizaErp(IGeoTimeConnectService geoConnect, IErpConnectService erpConnect, ILogger<GeoTimeConnectService> logger)
+        private readonly ILogger<SincronizaErp> _logger;
+        public SincronizaErp(IGeoTimeConnectService geoConnect, 
+                             IErpConnectService erpConnect, 
+                             ILogger<SincronizaErp> logger)
         {
+            _logger = logger;
             _geoConnect = geoConnect;
             _erpConnect = erpConnect;
         }
+        
 
         public async Task<EventResponse> SincronizaDepartamentos()
         {
@@ -23,8 +29,9 @@ namespace com.gsitcr.geotime.Data
 
             try
             {
-                var datosErp = await _erpConnect.GetDepartamentoErp();
                 var datosGeo = await _geoConnect.GetDepartamento();
+                var datosErp = await _erpConnect.GetDepartamentoErp();
+                
                 List<cDepartamento> modelList = new List<cDepartamento>();
 
                 // Lógica para sincronizar departamentos entre ERP y GeoTime
@@ -50,7 +57,7 @@ namespace com.gsitcr.geotime.Data
                             necesitaActualizar = true;
                         }
                         if (necesitaActualizar) modelList.Add(modelGeo);
-                    }                   
+                    }
                 }
                 if (modelList.Count() > 0)
                 {
@@ -92,7 +99,7 @@ namespace com.gsitcr.geotime.Data
                         {
                             IdCCosto = itemErp.Centro_Costo,
                             Descripcion = itemErp.Descripcion,
-                            Distribuye = itemErp.Acepta_Datos=="S"?'T':'F',
+                            Distribuye = itemErp.Acepta_Datos == "S" ? 'T' : 'F',
 
                         });
                     }
@@ -100,7 +107,7 @@ namespace com.gsitcr.geotime.Data
                     {
                         // Actualizar CENTRO COSTO existente en GeoTime si es necesario
                         bool necesitaActualizar = false;
-                        if (modelGeo.Descripcion != itemErp.Descripcion || (itemErp.Acepta_Datos == "S" ? 'T' : 'F')!= modelGeo.Distribuye )
+                        if (modelGeo.Descripcion != itemErp.Descripcion || (itemErp.Acepta_Datos == "S" ? 'T' : 'F') != modelGeo.Distribuye)
                         {
                             modelGeo.Descripcion = itemErp.Descripcion;
                             modelGeo.Distribuye = itemErp.Acepta_Datos == "S" ? 'T' : 'F';
@@ -108,7 +115,7 @@ namespace com.gsitcr.geotime.Data
                         }
                         if (necesitaActualizar) modelList.Add(modelGeo);
 
-                    }                   
+                    }
                 }
                 if (modelList.Count > 0)
                     respuesta = await _geoConnect.Sincronizar_Centro_Costo(modelList);
@@ -148,7 +155,7 @@ namespace com.gsitcr.geotime.Data
                         {
                             Puesto = itemErp.Puesto,
                             Descripcion = itemErp.Descripcion,
-                            Activo = itemErp.Activo,
+                            Activo = itemErp.Activo??"S",
 
                         });
                     }
@@ -210,7 +217,7 @@ namespace com.gsitcr.geotime.Data
                             IdGrupo = 1,
                             IdDepartamento = itemErp.DEPARTAMENTO,
                             IdHorario = 1,
-                            Estado = itemErp.ACTIVO=="S"?'T':'F',
+                            Estado = itemErp.ACTIVO == "S" ? 'T' : 'F',
                             IdAgrupamiento = 0,
                             foto = itemErp.FOTOGRAFIA,
                             IdCCosto = itemErp.CENTRO_COSTO,
@@ -254,7 +261,7 @@ namespace com.gsitcr.geotime.Data
                             def_fase = null,
                             fecha_act_code = null,
                             global_clave = null,
-                            Fecha_Salida = itemErp.FECHA_SALIDA.Equals(new DateTime(1980,01,01)) ? null: itemErp.FECHA_SALIDA,
+                            Fecha_Salida = itemErp.FECHA_SALIDA.Equals(new DateTime(1980, 01, 01)) ? null : itemErp.FECHA_SALIDA,
                             puesto = itemErp.PUESTO,
                             TCompensacionAprobado = "00:00",
                             TCompensacionUtilizado = "00:00",
@@ -302,7 +309,7 @@ namespace com.gsitcr.geotime.Data
                             rubro23 = itemErp.RUBRO23,
                             rubro24 = itemErp.RUBRO24,
                             rubro25 = itemErp.RUBRO25,
-                            Email = itemErp.E_MAIL,                            
+                            Email = itemErp.E_MAIL,
                             Fecha_Salida = itemErp.FECHA_SALIDA.Equals(new DateTime(1980, 01, 01)) ? null : itemErp.FECHA_SALIDA,
                             puesto = itemErp.PUESTO,
                             Sexo = itemErp.SEXO,
@@ -326,6 +333,61 @@ namespace com.gsitcr.geotime.Data
 
                 string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
                 _logger.LogError($"SincronizaErp.SincronizaEmpleados: {respuesta.Descripcion}");
+            }
+            return respuesta;
+        }
+
+        public async Task<EventResponse> SincronizaConceptos()
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+                var datosErp = await _erpConnect.GetConceptoErp();
+                var datosGeo = await _geoConnect.GetConcepto();
+                List<cConcepto> modelList = new List<cConcepto>();
+
+                datosErp = datosErp.Where(d => d.CANT_EDITABLE=="S");
+
+                // Lógica para sincronizar puestos entre ERP y GeoTime
+                foreach (var itemErp in datosErp)
+                {
+                    var modelGeo = datosGeo.FirstOrDefault(d => d.nominaeq == itemErp.CONCEPTO);
+                    if (modelGeo == null)
+                    {
+                        modelList.Add(new cConcepto
+                        {
+                            Concepto = itemErp.CONCEPTO,
+                            Descripcion = itemErp.DESCRIPCION,
+                            nominaeq = itemErp.CONCEPTO,
+                            ordinario = 'T',
+                            transferir = 'T',
+                            autorizado = 'T',
+                            adicional = 'F',
+                            tipo_ext_alm = 'F',
+                            tipo_j = 1,
+                            tipo_h = 1,
+                            columnar = 1,
+                            factor = 1,
+                            tolerancia = 0,
+                            muestra_resumen = null,
+                        });
+                    }
+                }
+                if (modelList.Count > 0)
+                    respuesta = await _geoConnect.Sincronizar_Concepto(modelList);
+            }
+            catch (Exception e)
+            {
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "No se pudo realizar la sincronización de los puestos. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "No se pudo realizar la sincronización de los puestos. Detalle de Error: " + e.InnerException.Message;
+
+                string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"SincronizaErp.SincronizaPuestos: {respuesta.Descripcion}");
             }
             return respuesta;
         }

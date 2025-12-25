@@ -2,6 +2,7 @@
 using com.gsitcr.geotime.Models;
 using com.gsitcr.geotime.Models.ErpClases;
 using com.gsitcr.geotime.Models.Utils;
+using JtSegEncrypta;
 using LibEncripta;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
@@ -25,27 +26,30 @@ namespace com.gsitcr.geotime.Data
         {
             _httpContextAccessor = httpContextAccessor;
             _context = context;
-            _erpConnect = erpConnect;
-            IEnumerable<Claim> claims = _httpContextAccessor.HttpContext!.User.Claims;
+            _erpConnect = erpConnect;           
             string schema = "";
             string bdname = "";
             _logger = logger;
 
-            foreach (Claim clm in claims)
+            if (_httpContextAccessor is not null && _httpContextAccessor.HttpContext is not null)
             {
-                if (clm.Type.Contains("claims/givenname"))
+                IEnumerable<Claim> claims = _httpContextAccessor.HttpContext!.User.Claims;
+                foreach (Claim clm in claims)
                 {
-                    schema = clm.Value;
+                    if (clm.Type.Contains("claims/givenname"))
+                    {
+                        schema = clm.Value;
+                    }
+
+                    if (clm.Type.Contains("claims/spn"))
+                    {
+                        bdname = clm.Value;
+                    }
+
+                    if (schema != "" && schema is not null && bdname != "" && bdname is not null)
+                        break;
+
                 }
-
-                if (clm.Type.Contains("claims/spn"))
-                {
-                    bdname = clm.Value;
-                }
-
-                if (schema != "" && schema is not null && bdname != "" && bdname is not null)
-                    break;
-
             }
 
             if (schema == "")
@@ -63,6 +67,20 @@ namespace com.gsitcr.geotime.Data
             _dataBase = bdname!;
             _context = SchemaChangeDbContext.GetSchemaChangeDbContext(schema, bdname);
 
+        }
+
+        public ErpConnectServices(SqlServerDataBaseContext context,
+                                     ILogger<ErpConnectServices> logger,
+                                     IGenericService erpConnect,                                     
+                                     string DbName,
+                                     string Schema)
+        {
+            _context = context;
+            _logger = logger;
+            _erpConnect = erpConnect;
+            _dataBase = DbName;
+            _schema = Schema;
+            _context = SchemaChangeDbContext.GetSchemaChangeDbContext(_schema, _dataBase);
         }
 
         private async Task<cPh_Compania> GetCompania()

@@ -8,5 +8,6 @@ namespace com.gsitcr.geotime.Data.Interfaz
         public Task<EventResponse> SincronizaCentrosCosto();
         public Task<EventResponse> SincronizaPuestos();
         public Task<EventResponse> SincronizaEmpleados();
+        public Task<EventResponse> SincronizaConceptos();
     }
 }

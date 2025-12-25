@@ -23,13 +23,15 @@ using static GeoTimeServiceReference.ServiceSoapClient;
 using static com.gsitcr.geotime.Models.CalculoPeriodoParam;
 using System.Web;
 using System;
+using com.gsitcr.geotime.Models.Utils;
+using System.Xml.Linq;
 
 
 namespace com.gsitcr.geotime.Data
 {
     public class GeoTimeConnectService : IGeoTimeConnectService
     {
-        private readonly SqlServerDataBaseContext _context;
+        private SqlServerDataBaseContext _context;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private string _schema = "";
         private string _dataBase = "";
@@ -43,28 +45,31 @@ namespace com.gsitcr.geotime.Data
                                      IGraphSendMail sendMail)
         {
             _httpContextAccessor = httpContextAccessor;
-            IEnumerable<Claim> claims = _httpContextAccessor.HttpContext!.User.Claims;
             string schema = "";
             string bdname = "";
-            _logger = logger;
+            logger = logger;
             _sendMail = sendMail;
             _encriptaService = encriptaService;
 
-            foreach (Claim clm in claims)
+            if (_httpContextAccessor is not null && _httpContextAccessor.HttpContext is not null)
             {
-                if (clm.Type.Contains("claims/givenname"))
+                IEnumerable<Claim> claims = _httpContextAccessor.HttpContext!.User.Claims;
+                foreach (Claim clm in claims)
                 {
-                    schema = clm.Value;
+                    if (clm.Type.Contains("claims/givenname"))
+                    {
+                        schema = clm.Value;
+                    }
+
+                    if (clm.Type.Contains("claims/spn"))
+                    {
+                        bdname = clm.Value;
+                    }
+
+                    if (schema != "" && schema is not null && bdname != "" && bdname is not null)
+                        break;
+
                 }
-
-                if (clm.Type.Contains("claims/spn"))
-                {
-                    bdname = clm.Value;
-                }
-
-                if (schema != "" && schema is not null && bdname != "" && bdname is not null)
-                    break;
-
             }
 
             if (schema == "")
@@ -83,6 +88,22 @@ namespace com.gsitcr.geotime.Data
             _context = SchemaChangeDbContext.GetSchemaChangeDbContext(schema, bdname);
 
         }
+
+        public GeoTimeConnectService(SqlServerDataBaseContext context,
+                                     ILogger<GeoTimeConnectService> logger,
+                                     IEncriptaService encriptaService,
+                                     IGraphSendMail sendMail,
+                                     string DbName,
+                                     string Schema)
+        {
+            string schema = Schema;
+            string bdname = DbName;
+            _logger = logger;
+            _sendMail = sendMail;
+            _encriptaService = encriptaService;
+            _context = context;
+
+         }
 
         #region SQLMetodos
 
@@ -303,8 +324,12 @@ namespace com.gsitcr.geotime.Data
                                  APIUSER = String.IsNullOrEmpty(e.APIUSER) ? "" : Encripta.getDecryptTripleDES(e.APIUSER!),
                                  APIPASSWORD = String.IsNullOrEmpty(e.APIPASSWORD) ? "" : Encripta.getDecryptTripleDES(e.APIPASSWORD!),
                                  APIDATABASE = String.IsNullOrEmpty(e.APIDATABASE) ? "" : Encripta.getDecryptTripleDES(e.APIDATABASE!),
-                                 APIURL = String.IsNullOrEmpty(e.APIURL) ? "" : Encripta.getDecryptTripleDES(e.APIURL!), 
+                                 APIURL = String.IsNullOrEmpty(e.APIURL) ? "" : Encripta.getDecryptTripleDES(e.APIURL!),
+                                 APIURLERP = String.IsNullOrEmpty(e.APIURLERP) ? "" : Encripta.getDecryptTripleDES(e.APIURLERP!),
+                                 APIDATABASEERP = String.IsNullOrEmpty(e.APIDATABASEERP) ? "" : Encripta.getDecryptTripleDES(e.APIDATABASEERP!),
+                                 APISCHEMAERP = String.IsNullOrEmpty(e.APISCHEMAERP) ? "" : Encripta.getDecryptTripleDES(e.APISCHEMAERP!),
                                  ZONAHORARIA = e.ZONAHORARIA,
+                                 SINC_AUTO = e.SINC_AUTO,
                              }).ToList();
             }
             catch (Exception e)
@@ -358,6 +383,7 @@ namespace com.gsitcr.geotime.Data
                                  APIDATABASE = String.IsNullOrEmpty(e.APIDATABASE) ? "" : Encripta.getDecryptTripleDES(e.APIDATABASE!),
                                  APIURL = String.IsNullOrEmpty(e.APIURL) ? "" : Encripta.getDecryptTripleDES(e.APIURL!),
                                  ZONAHORARIA = e.ZONAHORARIA,
+                                 SINC_AUTO = e.SINC_AUTO,
                              }).FirstOrDefault();
 
                                 
@@ -415,7 +441,11 @@ namespace com.gsitcr.geotime.Data
                         objetoBuscar.APIPASSWORD = Encripta.getEncryptTripleDES(item.APIPASSWORD!);
                         objetoBuscar.APIURL = Encripta.getEncryptTripleDES(item.APIURL!); 
                         objetoBuscar.APIDATABASE = Encripta.getEncryptTripleDES(item.APIDATABASE!);
+                        objetoBuscar.APIDATABASEERP = Encripta.getEncryptTripleDES(item.APIDATABASEERP!);
+                        objetoBuscar.APISCHEMAERP = Encripta.getEncryptTripleDES(item.APISCHEMAERP!);
+                        objetoBuscar.APIURLERP = Encripta.getEncryptTripleDES(item.APIURLERP!);
                         objetoBuscar.ZONAHORARIA = item.ZONAHORARIA;
+                        objetoBuscar.SINC_AUTO = item.SINC_AUTO;
 
                         _logger.LogError($"GeoTimeConnectService.Sincronizar_PhCompania.Update: {item.APIURL!}-{item.APIDATABASE}-{item.APICLIENTID}");
 
@@ -430,6 +460,9 @@ namespace com.gsitcr.geotime.Data
                         item.APIPASSWORD = Encripta.getEncryptTripleDES(item.APIPASSWORD!);
                         item.APIURL = Encripta.getEncryptTripleDES(item.APIURL!);
                         item.APIDATABASE = Encripta.getEncryptTripleDES(item.APIDATABASE!);
+                        item.APIDATABASEERP = Encripta.getEncryptTripleDES(item.APIDATABASEERP!);
+                        item.APISCHEMAERP = Encripta.getEncryptTripleDES(item.APISCHEMAERP!);
+                        item.APIURLERP = Encripta.getEncryptTripleDES(item.APIURLERP!);
 
                         _context.Add(item);
                         await _context.SaveChangesAsync();
@@ -492,6 +525,10 @@ namespace com.gsitcr.geotime.Data
                     comp.APIPASSWORD = Encripta.getEncryptTripleDES(phCompanias.APIPASSWORD!);
                     comp.APIURL = Encripta.getEncryptTripleDES(phCompanias.APIURL!);
                     comp.APIDATABASE = Encripta.getEncryptTripleDES(phCompanias.APIDATABASE!);
+                    comp.APIDATABASEERP = Encripta.getEncryptTripleDES(phCompanias.APIDATABASEERP!);
+                    comp.APISCHEMAERP = Encripta.getEncryptTripleDES(phCompanias.APISCHEMAERP!);
+                    comp.APIURLERP = Encripta.getEncryptTripleDES(phCompanias.APIURLERP!);
+
                     _context.PH_COMPANIAS.Update(comp);
                 }
                 await _context.SaveChangesAsync();
@@ -540,6 +577,9 @@ namespace com.gsitcr.geotime.Data
                     compania.APIPASSWORD = Encripta.getEncryptTripleDES(compania.APIPASSWORD!);
                     compania.APIURL = Encripta.getEncryptTripleDES(compania.APIURL!);
                     compania.APIDATABASE = Encripta.getEncryptTripleDES(compania.APIDATABASE!);
+                    compania.APIDATABASEERP = Encripta.getEncryptTripleDES(compania.APIDATABASEERP!);
+                    compania.APISCHEMAERP = Encripta.getEncryptTripleDES(compania.APISCHEMAERP!);
+                    compania.APIURLERP = Encripta.getEncryptTripleDES(compania.APIURLERP!);
 
                     _context.Add(compania);
                     await _context.SaveChangesAsync();
@@ -4128,7 +4168,6 @@ namespace com.gsitcr.geotime.Data
                     //de lo contrario se agrega el registro
                     if (concept is not null)
                     {
-                        concept.id = concepto.id;
                         concept.Concepto = concepto.Concepto;
                         concept.Descripcion = concepto.Descripcion;
                         concept.tipo_j = concepto.tipo_j;
@@ -12912,7 +12951,7 @@ namespace com.gsitcr.geotime.Data
         //Creado por: Allan Prieto Badilla
         //Fecha: 2025-02-01
         /// <summary>
-        /// EjecutaInitPeriodo: Ejecuta WS de Exporto_Concepto
+        /// Exporto_Concepto: Ejecuta WS de Exporto_Concepto
         /// </summary>
         /// <param name="parametros">Ejecuta el Web Service</param>
         /// <returns>EventResponse con resultado del proceso</returns>
@@ -12940,9 +12979,9 @@ namespace com.gsitcr.geotime.Data
                     var result = await geoWebService.exporto_conceptosAsync(exportoConceptos);
                     if (result.exporto_conceptosResult != "")
                     {
-                        respuesta.Id = "0";
-                        respuesta.Respuesta = "Ok";
-                        respuesta.Descripcion = $"Respuesta: {result.exporto_conceptosResult}";
+                        respuesta.Id = "1";
+                        respuesta.Respuesta = "Error";
+                        respuesta.Descripcion = $"{result.exporto_conceptosResult}";
                     }
                 }
             }
@@ -12952,10 +12991,54 @@ namespace com.gsitcr.geotime.Data
                 _logger.LogError($"{error}");
                 respuesta.Id = "1";
                 respuesta.Respuesta = "Error";
-                if (e.InnerException == null)
-                    respuesta.Descripcion = "No se pudo realizar la Activación del Periodo. Detalle de Error: " + e.Message;
-                else
-                    respuesta.Descripcion = "No se pudo realizar la Activación del Periodo. Detalle de Error: " + e.InnerException.Message;
+                respuesta.Descripcion = $"No se pudo realizar la exportación de Conceptos. Detalle de Error: {error}";
+                
+            }
+            return respuesta;
+        }
+
+        /// <summary>
+        /// Exporto_Acciones:  Proceso de esportacion de acciones de personal hacia el ERP
+        /// </summary>
+        /// <param name="parametros"></param>
+        /// <returns></returns>
+        public async Task<EventResponse> Exporto_Acciones(IEnumerable<cSincronizo_Acciones> parametros)
+        {
+            EventResponse respuesta = new EventResponse();
+
+            try
+            {
+                foreach (var item in parametros)
+                {
+                    sincronizo_accionesRequest sincAcciones = new sincronizo_accionesRequest
+                    {
+                        comp = item.IdComp,
+                        plan = item.IdPlanilla,
+                        inicio = item.inicio,
+                        fin = item.fin,
+                        sesion = item.sesion,                        
+                    };
+
+                    EndpointConfiguration endpointConfiguration = new();
+                    GeoTimeServiceReference.ServiceSoapClient geoWebService = new(endpointConfiguration);
+
+                    var result = await geoWebService.sincronizo_accionesAsync(sincAcciones);
+                    if (result.sincronizo_accionesResult != "")
+                    {
+                        respuesta.Id = "1";
+                        respuesta.Respuesta = "Error";
+                        respuesta.Descripcion = $"{result.sincronizo_accionesResult}";
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"{error}");
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                respuesta.Descripcion = $"No se pudo realizar la sincronización de acciones de personal. Detalle de Error: {error}";
+
             }
             return respuesta;
         }
