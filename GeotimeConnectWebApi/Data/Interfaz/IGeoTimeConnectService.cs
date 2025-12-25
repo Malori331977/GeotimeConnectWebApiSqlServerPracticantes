@@ -421,6 +421,14 @@ namespace com.gsitcr.geotime.Data.Interfaz
         /// <param name="parametros">Recibe los datos de cExporto_Concepto</param>
         /// <returns>Instancia de EventResponse con el resultado de la operación</returns>
         public Task<EventResponse> Exporto_Concepto(IEnumerable<cExporto_Concepto> parametros);
+
+        /// <summary>
+        /// Exporto_Acciones:  Proceso de esportacion de acciones de personal hacia el ERP
+        /// </summary>
+        /// <param name="parametros"></param>
+        /// <returns></returns>
+        public Task<EventResponse> Exporto_Acciones(IEnumerable<cSincronizo_Acciones> parametros);
+
         /// <summary>
         /// EvaluaFormula:  Se ejecuta el WebService Evalua_Formula.
         /// </summary>

@@ -32,6 +32,7 @@
         public string? APIDATABASEERP { get; set; } = "";
         public string? APISCHEMAERP { get; set; } = "";
         public string? APIURLERP { get; set; } = "";
-        
+        public char SINC_AUTO { get; set; } = 'N';
+
     }
 }
