@@ -1,5 +1,6 @@
 using com.gsitcr.geotime.Data;
 using com.gsitcr.geotime.Data.Interfaz;
+using com.gsitcr.geotime.Models.Utils;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 
@@ -30,63 +31,77 @@ namespace KolegioApi.Data
         {
             try
             {
-               
-                int frecuencia = 1;
-                
-                while (!stoppingToken.IsCancellationRequested)
-                {
-                    await SincronizaCatalogosGeo();                    
+                IConfiguration config = new ConfigurationBuilder()
+                    .SetBasePath(Directory.GetCurrentDirectory())
+                    .AddJsonFile("appsettings.json")
+                    .Build();
 
-                    await Task.Delay(TimeSpan.FromDays(frecuencia), stoppingToken);
+                var section = config.GetSection("AppSettings");
+                var ERPTimeSinc = section.GetSection("ERPTimeSinc").Value!;
+                int frecuencia = 0;
+
+                if (!String.IsNullOrEmpty(ERPTimeSinc))
+                    frecuencia = int.Parse(ERPTimeSinc);
+
+                if (frecuencia > 0)
+                {
+                    while (!stoppingToken.IsCancellationRequested)
+                    {
+                        await SincronizaCatalogosGeo();
+
+                        await Task.Delay(TimeSpan.FromHours(frecuencia), stoppingToken);
+                    }
                 }
+
+                
             }
             catch (OperationCanceledException exc)
             {
                 logger.LogError($"HSSincronizacionAutomatica: Proceso de sincronización automática se detuvo: {exc.Message}");
-                // When the stopping token is canceled, for example, a call made from services.msc,
-                // we shouldn't exit with a non-zero exit code. In other words, this is expected...
             }
             catch (Exception ex)
             {
                 logger.LogError($"HSSincronizacionAutomatica: Proceso de sincronización automática falló: {ex.Message}");
-
-                // Terminates this process and returns an exit code to the operating system.
-                // This is required to avoid the 'BackgroundServiceExceptionBehavior', which
-                // performs one of two scenarios:
-                // 1. When set to "Ignore": will do nothing at all, errors cause zombie services.
-                // 2. When set to "StopHost": will cleanly stop the host, and log errors.
-                //
-                // In order for the Windows Service Management system to leverage configured
-                // recovery options, we need to terminate the process with a non-zero exit code.
-                Environment.Exit(1);
             }
         }
 
         private async Task SincronizaCatalogosGeo()
         {
-
-            var companias = await _geoConnect.GetPhCompania();
-
-            foreach (var compania in companias)
+            try
             {
-                var geoConnect = _geoFactory.Create(compania.IDCOMP, compania.APIDATABASE!);
-                var erpConnect = _erpFactory.Create(compania.IDCOMP!, compania.APIDATABASE!);
+                logger.LogWarning("HSSincronizacionAutomatica: Iniciando proceso de sincronización automática de catálogos desde Control de Asistencia.");
+                var companias = await _geoConnect.GetPhCompania();
 
-                var _sincronizaErp = new SincronizaErp(geoConnect,erpConnect, _loggerSincronizaErp);
-
-                Task task = new Task(async () =>
+                foreach (var compania in companias)
                 {
-                   // await _sincronizaErp.SincronizaDepartamentos();
-                   // await _sincronizaErp.SincronizaCentrosCosto();
-                    await _sincronizaErp.SincronizaPuestos();
-                    //await _sincronizaErp.SincronizaEmpleados();
-                });
+                    if (!String.IsNullOrEmpty(compania.APIURLERP) && !String.IsNullOrEmpty(compania.APIDATABASEERP) && !String.IsNullOrEmpty(compania.APISCHEMAERP))
+                    {
+                        var geoConnect = _geoFactory.Create(compania.IDCOMP, compania.APIDATABASE!);
+                        var erpConnect = _erpFactory.Create(compania.IDCOMP!, compania.APIDATABASE!);
 
-                task.Start();
+                        var _sincronizaErp = new SincronizaErp(geoConnect, erpConnect, _loggerSincronizaErp);
 
+                        Task task = new Task(async () =>
+                        {
+                            if (compania.SINCAUTODEPTO == 'T') await _sincronizaErp.SincronizaDepartamentos();
+                            if (compania.SINCAUTOCCOSTO == 'T') await _sincronizaErp.SincronizaCentrosCosto();
+                            if (compania.SINCAUTOPUESTO == 'T') await _sincronizaErp.SincronizaPuestos();
+                            if (compania.SINCAUTONOMINA == 'T') await _sincronizaErp.SincronizaNominas();
+                            if (compania.SINCAUTOEMPLEADO == 'T') await _sincronizaErp.SincronizaEmpleados();
+                        });
 
-
+                        task.Start();
+                    }
+                    
+                }
+                logger.LogWarning("HSSincronizacionAutomatica: Proceso de sincronización automática de catálogos desde Control de Asistencia finalizado.");
             }
+            catch (Exception ex)
+            {
+                logger.LogError($"HSSincronizacionAutomatica: Error en el proceso de sincronización automática de catálogos desde Control de Asistencia: {ex.Message}");
+
+            }  
+                
         }
 
         

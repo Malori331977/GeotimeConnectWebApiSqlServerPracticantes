@@ -1,4 +1,5 @@
-﻿using com.gsitcr.geotime.Models.Response;
+﻿using com.gsitcr.geotime.Models;
+using com.gsitcr.geotime.Models.Response;
 
 namespace com.gsitcr.geotime.Data.Interfaz
 {
@@ -8,6 +9,8 @@ namespace com.gsitcr.geotime.Data.Interfaz
         public Task<EventResponse> SincronizaCentrosCosto();
         public Task<EventResponse> SincronizaPuestos();
         public Task<EventResponse> SincronizaEmpleados();
+        public Task<EventResponse> SincronizaEmpleados(cSincronizo_erp param);
         public Task<EventResponse> SincronizaConceptos();
+        public Task<EventResponse> SincronizaNominas();
     }
 }

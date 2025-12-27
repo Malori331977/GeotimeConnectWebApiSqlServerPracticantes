@@ -33,7 +33,7 @@ namespace com.gsitcr.geotime.Data
     {
         private SqlServerDataBaseContext _context;
         private readonly IHttpContextAccessor _httpContextAccessor;
-        private string _schema = "";
+        public string _schema { get; set; }
         private string _dataBase = "";
         private readonly ILogger<GeoTimeConnectService> _logger;
         private readonly IGraphSendMail _sendMail;
@@ -47,7 +47,7 @@ namespace com.gsitcr.geotime.Data
             _httpContextAccessor = httpContextAccessor;
             string schema = "";
             string bdname = "";
-            logger = logger;
+            _logger = logger;
             _sendMail = sendMail;
             _encriptaService = encriptaService;
 
@@ -96,8 +96,8 @@ namespace com.gsitcr.geotime.Data
                                      string DbName,
                                      string Schema)
         {
-            string schema = Schema;
-            string bdname = DbName;
+            _schema = Schema;
+            _dataBase = DbName;
             _logger = logger;
             _sendMail = sendMail;
             _encriptaService = encriptaService;
@@ -105,6 +105,7 @@ namespace com.gsitcr.geotime.Data
 
          }
 
+      
         #region SQLMetodos
 
         //Creado por: Allan Prieto 
@@ -329,7 +330,11 @@ namespace com.gsitcr.geotime.Data
                                  APIDATABASEERP = String.IsNullOrEmpty(e.APIDATABASEERP) ? "" : Encripta.getDecryptTripleDES(e.APIDATABASEERP!),
                                  APISCHEMAERP = String.IsNullOrEmpty(e.APISCHEMAERP) ? "" : Encripta.getDecryptTripleDES(e.APISCHEMAERP!),
                                  ZONAHORARIA = e.ZONAHORARIA,
-                                 SINC_AUTO = e.SINC_AUTO,
+                                 SINCAUTODEPTO = e.SINCAUTODEPTO,
+                                 SINCAUTOCCOSTO = e.SINCAUTOCCOSTO,
+                                 SINCAUTOPUESTO = e.SINCAUTOPUESTO,
+                                 SINCAUTONOMINA = e.SINCAUTONOMINA,
+                                 SINCAUTOEMPLEADO = e.SINCAUTOEMPLEADO,
                              }).ToList();
             }
             catch (Exception e)
@@ -382,8 +387,15 @@ namespace com.gsitcr.geotime.Data
                                  APIPASSWORD = String.IsNullOrEmpty(e.APIPASSWORD) ? "" : Encripta.getDecryptTripleDES(e.APIPASSWORD!),
                                  APIDATABASE = String.IsNullOrEmpty(e.APIDATABASE) ? "" : Encripta.getDecryptTripleDES(e.APIDATABASE!),
                                  APIURL = String.IsNullOrEmpty(e.APIURL) ? "" : Encripta.getDecryptTripleDES(e.APIURL!),
+                                 APIURLERP = String.IsNullOrEmpty(e.APIURLERP) ? "" : Encripta.getDecryptTripleDES(e.APIURLERP!),
+                                 APIDATABASEERP = String.IsNullOrEmpty(e.APIDATABASEERP) ? "" : Encripta.getDecryptTripleDES(e.APIDATABASEERP!),
+                                 APISCHEMAERP = String.IsNullOrEmpty(e.APISCHEMAERP) ? "" : Encripta.getDecryptTripleDES(e.APISCHEMAERP!),
                                  ZONAHORARIA = e.ZONAHORARIA,
-                                 SINC_AUTO = e.SINC_AUTO,
+                                 SINCAUTODEPTO = e.SINCAUTODEPTO,
+                                 SINCAUTOCCOSTO = e.SINCAUTOCCOSTO,
+                                 SINCAUTOPUESTO = e.SINCAUTOPUESTO,
+                                 SINCAUTONOMINA = e.SINCAUTONOMINA,
+                                 SINCAUTOEMPLEADO = e.SINCAUTOEMPLEADO,
                              }).FirstOrDefault();
 
                                 
@@ -445,7 +457,11 @@ namespace com.gsitcr.geotime.Data
                         objetoBuscar.APISCHEMAERP = Encripta.getEncryptTripleDES(item.APISCHEMAERP!);
                         objetoBuscar.APIURLERP = Encripta.getEncryptTripleDES(item.APIURLERP!);
                         objetoBuscar.ZONAHORARIA = item.ZONAHORARIA;
-                        objetoBuscar.SINC_AUTO = item.SINC_AUTO;
+                        objetoBuscar.SINCAUTODEPTO = item.SINCAUTODEPTO;
+                        objetoBuscar.SINCAUTOCCOSTO = item.SINCAUTOCCOSTO;
+                        objetoBuscar.SINCAUTOPUESTO = item.SINCAUTOPUESTO;
+                        objetoBuscar.SINCAUTONOMINA = item.SINCAUTONOMINA;
+                        objetoBuscar.SINCAUTOEMPLEADO = item.SINCAUTOEMPLEADO;
 
                         _logger.LogError($"GeoTimeConnectService.Sincronizar_PhCompania.Update: {item.APIURL!}-{item.APIDATABASE}-{item.APICLIENTID}");
 
@@ -545,8 +561,6 @@ namespace com.gsitcr.geotime.Data
 
                 string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
                 _logger.LogError($"GeoTimeConnectService.PutPhCompania: {respuesta.Descripcion}");
-
-
             }
 
             return respuesta;
@@ -3947,10 +3961,28 @@ namespace com.gsitcr.geotime.Data
 
                     if (accionbuscar is not null)
                     {
+                        char estadoAnterior = accionbuscar.Estado;
+
                         accionbuscar.Estado = accion.Estado;
 
                         _context.Acciones_Personal.Update(accionbuscar);
                         await _context.SaveChangesAsync();
+
+
+                        if (estadoAnterior=='N' && accion.Estado == 'A')
+                        {
+                            //APLICAR ACCION DE PERSOANL
+                            await EjecutaAplicaAccionPersonal(accion.IdRegistro);
+                        }
+                        else
+                        {
+                            if ((estadoAnterior == 'A' || estadoAnterior=='N') && accion.Estado == 'D')
+                            {
+                                await EjecutaAnulacionAccionPersonal(accion.IdRegistro);
+                            }
+                        }
+                            
+
                     }
                 }
             }
@@ -12256,6 +12288,29 @@ namespace com.gsitcr.geotime.Data
             }
         }
 
+
+        public async Task EjecutaAnulacionAccionPersonal(long idregistro)
+        {
+            try
+            {
+                using (var connection = _context.Database.GetDbConnection())
+                {
+                    await connection.OpenAsync();
+                    using (var command = connection.CreateCommand())
+                    {
+                        command.CommandText = _schema + ".anulo_accpersonal @IDREGISTRO=" + idregistro;
+                        System.Data.Common.DbDataReader result = command.ExecuteReader();
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.EjecutaAnulacionAccionPersonal: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}");
+                throw;
+            }
+        }
+
         //Creado por: Marlon Loria Solano
         //Fecha: 2023-08-10
         /// <summary>
@@ -14006,16 +14061,16 @@ namespace com.gsitcr.geotime.Data
                 IEnumerable<string> commandStringsTables = Regex.Split(script, @"^\s*GO\s*$", RegexOptions.Multiline | RegexOptions.IgnoreCase);
                 foreach (string commandString in commandStringsTables)
                 {
-                    if (commandString.Trim() != "")
+                    if (!String.IsNullOrEmpty(commandString))
                     {
                         try
                         {
                             var resultCommand = await _context.Database.ExecuteSqlRawAsync($"{commandString}");
 
                         }
-                        catch (Exception e)
+                        catch (Exception ex)
                         {
-                            _logger.LogError($"GeoTimeConnectService.UpgradeTablesBD: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {e.Message}");
+                            _logger.LogError($"GeoTimeConnectService.UpgradeTablesBD: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {ex.Message}");
                         }
                         
                     }
