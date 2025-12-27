@@ -6,6 +6,8 @@ namespace com.gsitcr.geotime.Data.Interfaz
 {
     public interface IGeoTimeConnectService
     {
+        public string _schema { get; set; }
+
         /* Metodos SQL */
         #region SQLMetodes
         public Task<IEnumerable<cPh_Login>> GetPhLogin();

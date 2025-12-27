@@ -25,7 +25,7 @@ namespace GeoTimeConnectWebApi.Controllers.Procesos.Marcas
         }
 
         [HttpPost]
-        public async Task<IActionResult> Post()
+        public async Task<IActionResult> Post([FromBody] cSincronizo_erp param)
         {
             EventResponse respuesta = await _repoGT.SincronizaCentrosCosto();
 

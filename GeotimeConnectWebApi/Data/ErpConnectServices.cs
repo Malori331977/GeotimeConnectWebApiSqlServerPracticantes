@@ -241,6 +241,37 @@ namespace com.gsitcr.geotime.Data
             return model;
         }
 
+        public async Task<IEnumerable<cEmpleadoErp>> GetEmpleadoByNominaErp(string nomina)
+        {
+            IEnumerable<cEmpleadoErp>? model;
+
+            try
+            {
+                cPh_Compania? compania = await GetCompania();
+
+                if (compania is null)
+                {
+                    model = Enumerable.Empty<cEmpleadoErp>();
+                    string error = $"{InterfaceName}.GetEmpleadoErp: No se ha podido obtener la compañia para el esquema actual {_schema}.";
+                    _logger.LogError(error);
+                    throw new Exception(error);
+                }
+
+                model = await _erpConnect.Get<cEmpleadoErp>($"EmpleadoByNomina/{nomina}");
+
+
+            }
+            catch (Exception e)
+            {
+                model = Enumerable.Empty<cEmpleadoErp>();
+                string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                error = $"{InterfaceName}.GetEmpleadoByNominaErp: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}";
+                _logger.LogError(error);
+                throw;
+            }
+            return model;
+        }
+
         public async Task<IEnumerable<cPuestoErp>> GetPuestoErp()
         {
             IEnumerable<cPuestoErp>? model;
@@ -266,6 +297,36 @@ namespace com.gsitcr.geotime.Data
                 model = Enumerable.Empty<cPuestoErp>();
                 string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
                 error = $"{InterfaceName}.GetPuestoErp: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}";
+                _logger.LogError(error);
+                throw;
+            }
+            return model;
+        }
+
+        public async Task<IEnumerable<cNominaErp>> GetNominaErp()
+        {
+            IEnumerable<cNominaErp>? model;
+
+            try
+            {
+                cPh_Compania? compania = await GetCompania();
+
+                if (compania is null)
+                {
+                    model = Enumerable.Empty<cNominaErp>();
+                    string error = $"{InterfaceName}.GetConceptoErp: No se ha podido obtener la compañia para el esquema actual {_schema}.";
+                    _logger.LogError(error);
+                    throw new Exception(error);
+                }
+
+                model = await _erpConnect.Get<cNominaErp>("Nomina");
+
+            }
+            catch (Exception e)
+            {
+                model = Enumerable.Empty<cNominaErp>();
+                string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                error = $"{InterfaceName}.GetNominaErp: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}";
                 _logger.LogError(error);
                 throw;
             }

@@ -32,7 +32,11 @@
         public string? APIDATABASEERP { get; set; } = "";
         public string? APISCHEMAERP { get; set; } = "";
         public string? APIURLERP { get; set; } = "";
-        public char SINC_AUTO { get; set; } = 'N';
+        public char SINCAUTODEPTO { get; set; } = 'N';
+        public char SINCAUTOCCOSTO { get; set; } = 'N';
+        public char SINCAUTOPUESTO { get; set; } = 'N';
+        public char SINCAUTONOMINA { get; set; } = 'N';
+        public char SINCAUTOEMPLEADO { get; set; } = 'N';
 
     }
 }
