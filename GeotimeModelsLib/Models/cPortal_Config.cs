@@ -23,6 +23,8 @@ namespace com.gsitcr.geotime.Models
         public bool VERLOGMARCAS { get; set; }
         public bool AUTOREGISTROROSTRO { get; set; }
         public int CANTMAXPLANTILLAS { get; set; }
+        public bool LOCALIZACIONREQ { get; set; }
+        
 
         [NotMapped]
         public string ORGANIZACIONBASEID { get; set; }

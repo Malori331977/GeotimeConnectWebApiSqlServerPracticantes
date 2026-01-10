@@ -14,7 +14,7 @@ namespace com.gsitcr.geotime.Models
         public string? TURNOS { get; set; }
         public char ORDEN_EMP { get; set; }
         public char TIPO_EDT { get; set; }
-        public char FILT_PRGT { get; set; }
+        public char? FILT_PRGT { get; set; }
         public int? NIVEL_APROB_EXT { get; set; }
         public int? FCANT_MESES { get; set; }
         public DateTime? FFECHA_EVALUAR { get; set; }

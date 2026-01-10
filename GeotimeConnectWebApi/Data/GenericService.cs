@@ -77,6 +77,7 @@ namespace com.gsitcr.geotime.Data
                     };
                 }
 
+               // _logger.LogWarning($"{InterfaceName}.GetUrlApi: Configuración obtenida: {appSettings.ToString()}");
 
             }
             catch (Exception e)

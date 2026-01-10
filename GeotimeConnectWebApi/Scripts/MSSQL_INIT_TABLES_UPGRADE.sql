@@ -28,6 +28,12 @@ INSERT [dbo].[Portal_Opciones] ([Id], [Principal], [Href], [IconId], [MenuText],
 GO
 INSERT [dbo].[Portal_Opciones] ([Id], [Principal], [Href], [IconId], [MenuText], [ParentId]) VALUES (N'111', 0, N'/solicitudlistconsulta', 323, N'Consulta Solicitudes ', N'100')
 GO
+INSERT [dbo].[Portal_Opciones] ([Id], [Principal], [Href], [IconId], [MenuText], [ParentId]) VALUES (N'112', 0, N'/solicitudlistcambiogrupo', 64, N'Cambios de Grupos', N'100')
+GO
+INSERT [dbo].[Portal_Opciones] ([Id], [Principal], [Href], [IconId], [MenuText], [ParentId]) VALUES (N'113', 0, N'/solicitudlistconsultaperiodo', 340, N'Solicitudes del Período', N'100')
+GO
+INSERT [dbo].[Portal_Opciones] ([Id], [Principal], [Href], [IconId], [MenuText], [ParentId]) VALUES (N'114', 0, N'/marcaslocalizacion', 1514, N'Ubicación de Marcas', N'100')
+GO
 INSERT [dbo].[Portal_Opciones] ([Id], [Principal], [Href], [IconId], [MenuText], [ParentId]) VALUES (N'201', 0, N'/portalmenulist', 1309, N'Menus de Sistema', N'200')
 GO
 INSERT [dbo].[Portal_Opciones] ([Id], [Principal], [Href], [IconId], [MenuText], [ParentId]) VALUES (N'202', 0, N'/portalopcionlist', 1315, N'Menús Secundarios', N'200')

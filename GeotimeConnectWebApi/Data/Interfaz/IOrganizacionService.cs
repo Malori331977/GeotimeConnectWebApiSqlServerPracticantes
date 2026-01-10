@@ -88,6 +88,8 @@ namespace com.gsitcr.geotime.Data.Interfaz
         /// <returns>lista de responsables por organizacion segun el id de parametro indicado</returns>
         public Task<IEnumerable<cOrganizacionBaseResponsable>> GetOrganizacionBaseResponsable(string id);
 
+        public Task<IEnumerable<cOrganizacionBaseResponsable>> GetOrganizacionBaseByJefe(string id);
+
         /// <summary>
         /// PostOrganizacionBaseResponsable:  Recibe una lista de registros de Responsables de la organización, se verifica si existen en cuyo caso actualiza el registro, de lo contrario lo crea.
         /// </summary>

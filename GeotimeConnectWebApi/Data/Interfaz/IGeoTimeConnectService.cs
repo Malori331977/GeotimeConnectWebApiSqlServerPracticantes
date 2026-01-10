@@ -407,6 +407,7 @@ namespace com.gsitcr.geotime.Data.Interfaz
 
         #region WSMetodos
         public Task<EventResponse> Sincronizo_erp(IEnumerable<cSincronizo_erp> parametros);
+        public Task<EventResponse> EjecutaPostSincroniza(string idPlanilla);
         public Task<EventResponse> Sincronizo_Acciones(IEnumerable<cSincronizo_Acciones> parametros);
         /// <summary>
         /// EjecutaInitPeriodo:  Se ejecuta el WebService Init_Periodo.
@@ -543,6 +544,14 @@ namespace com.gsitcr.geotime.Data.Interfaz
         /// <param name="fecha">fecha del dia</param>
         /// <returns>Lista de Marcas del dia</returns>
         public Task<List<cMarca>> GetMarcasDiaria(string idnumero, string fecha);
+
+        /// <summary>
+        /// GetMarcasDiariaByGrupo: Obtener las marcas del dia para los empleados de los grupos indicados
+        /// </summary>
+        /// <param name="grupos"></param>
+        /// <param name="fecha"></param>
+        /// <returns></returns>
+        public Task<List<cMarca>> GetMarcasDiariaByGrupo(string grupos, string fecha);
         public Task<EventResponse> Sincronizar_Marca(IEnumerable<cMarca> marcas);
         public Task<EventResponse> PostMarcaDiariaOrdena(IEnumerable<cMarca> marcas);
 
