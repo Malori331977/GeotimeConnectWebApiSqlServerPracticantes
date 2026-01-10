@@ -33,7 +33,7 @@ namespace com.gsitcr.geotime.Data
     {
         private SqlServerDataBaseContext _context;
         private readonly IHttpContextAccessor _httpContextAccessor;
-        public string _schema { get; set; }
+        public string _schema { get; set; } = "";
         private string _dataBase = "";
         private readonly ILogger<GeoTimeConnectService> _logger;
         private readonly IGraphSendMail _sendMail;
@@ -45,8 +45,6 @@ namespace com.gsitcr.geotime.Data
                                      IGraphSendMail sendMail)
         {
             _httpContextAccessor = httpContextAccessor;
-            string schema = "";
-            string bdname = "";
             _logger = logger;
             _sendMail = sendMail;
             _encriptaService = encriptaService;
@@ -58,21 +56,21 @@ namespace com.gsitcr.geotime.Data
                 {
                     if (clm.Type.Contains("claims/givenname"))
                     {
-                        schema = clm.Value;
+                        _schema = clm.Value;
                     }
 
                     if (clm.Type.Contains("claims/spn"))
                     {
-                        bdname = clm.Value;
+                        _dataBase = clm.Value;
                     }
 
-                    if (schema != "" && schema is not null && bdname != "" && bdname is not null)
+                    if (_schema != "" && _schema is not null && _dataBase != "" && _dataBase is not null)
                         break;
 
                 }
             }
 
-            if (schema == "")
+            if (String.IsNullOrEmpty(_schema))
             {
                 // Build a config object, using env vars and JSON providers.
                 IConfiguration config = new ConfigurationBuilder()
@@ -80,12 +78,13 @@ namespace com.gsitcr.geotime.Data
                     .AddEnvironmentVariables()
                     .Build();
 
-                schema = config.GetConnectionString("Schema");
-                bdname = config.GetConnectionString("DBName");
+                _schema = config.GetConnectionString("Schema")!;
+                _dataBase = config.GetConnectionString("DBName")!;
             }
-            _schema = schema;
-            _dataBase = bdname;
-            _context = SchemaChangeDbContext.GetSchemaChangeDbContext(schema, bdname);
+
+            //_logger.LogWarning("GeoTimeConnectService: Usando esquema " + _schema + " y base de datos " + _dataBase);
+
+            _context = SchemaChangeDbContext.GetSchemaChangeDbContext(_schema, _dataBase);
 
         }
 
@@ -1927,6 +1926,8 @@ namespace com.gsitcr.geotime.Data
                                     .FirstOrDefaultAsync();
                     //si el empleado existe se actualiza registro
                     //de lo contrario se agrega el registro
+
+                    _logger.LogWarning($"Procesando empleado {empleado.IdNumero}");
                     if (emp is not null)
                     {
                         //si estado nuevo es inactivo
@@ -3963,11 +3964,15 @@ namespace com.gsitcr.geotime.Data
                     {
                         char estadoAnterior = accionbuscar.Estado;
 
-                        accionbuscar.Estado = accion.Estado;
+                        //si el estado que viene como parametro es aplicado no se actualiza estado en este punto
+                        //la actualización la realiza el store procedure
+                        if (accion.Estado != 'A')
+                        {
+                            accionbuscar.Estado = accion.Estado;
 
-                        _context.Acciones_Personal.Update(accionbuscar);
-                        await _context.SaveChangesAsync();
-
+                            _context.Acciones_Personal.Update(accionbuscar);
+                            await _context.SaveChangesAsync();
+                        }
 
                         if (estadoAnterior=='N' && accion.Estado == 'A')
                         {
@@ -4573,6 +4578,36 @@ namespace com.gsitcr.geotime.Data
             }
             return marca;
         }
+
+        public async Task<List<cMarca>> GetMarcasDiariaByGrupo(string grupos, string fecha)
+        {
+            List<cMarca>? marca = new();
+            try
+            {
+                var idsgrupos = grupos.Split(",");
+
+                List<cPh_Grupo> phgrupos = new List<cPh_Grupo>();
+
+                foreach (var valor in idsgrupos)
+                    phgrupos.Add(new cPh_Grupo
+                    {
+                        idgrupo = int.Parse(valor),
+                    });
+
+                DateTime fechaDia = DateTime.Parse($"{fecha.Substring(0, 4)}-{fecha.Substring(4, 2)}-{fecha.Substring(6, 2)}");
+                marca = (from m in await _context.Marcas.Where(e=>e.fecha == fechaDia && (e.tipo==1 || e.tipo==2)).ToListAsync()
+                               join e in await _context.Empleados.ToListAsync() on m.idnumero equals e.IdNumero
+                               join g in phgrupos on e.IdGrupo equals g.idgrupo
+                               select m).ToList();
+            }
+            catch (Exception e)
+            {
+                string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"GeoTimeConnectService.GetMarcasDiariaByGrupo: Se ha presentado un error al ejecutar el proceso. Detalle de Error: {error}"); throw;
+            }
+            return marca;
+        }
+
 
 
         //Creado por: Marlon Loria Solano
@@ -8483,7 +8518,7 @@ namespace com.gsitcr.geotime.Data
                     usuarioBuscar.ESTADO = usuario.ESTADO;
                     usuarioBuscar.NIVEL_APROB_EXT = usuario.NIVEL_APROB_EXT;
                     usuarioBuscar.ORDEN_EMP = usuario.ORDEN_EMP;
-                    usuarioBuscar.FILT_PRGT = usuario.FILT_PRGT;
+                    usuarioBuscar.FILT_PRGT = usuario.FILT_PRGT==null?'G': usuario.FILT_PRGT;
                     usuarioBuscar.TIPO_EDT = usuario.TIPO_EDT;
                     usuarioBuscar.PT_AGRUP = usuario.PT_AGRUP;
 
@@ -8491,6 +8526,7 @@ namespace com.gsitcr.geotime.Data
                 }
                 else
                 {
+                    usuario.FILT_PRGT = usuario.FILT_PRGT == null ? 'G' : usuario.FILT_PRGT;
                     _context.Ph_Usuarios.Add(usuario);
                 }
 
@@ -8649,6 +8685,7 @@ namespace com.gsitcr.geotime.Data
                                     ORGANIZACIONBASEID = "00",
                                     AUTOREGISTROROSTRO = e.AUTOREGISTROROSTRO,
                                     CANTMAXPLANTILLAS = e.CANTMAXPLANTILLAS,
+                                    LOCALIZACIONREQ = e.LOCALIZACIONREQ,
                                 }).FirstOrDefault();
 
                 var opciones = await _context.Ph_Opciones.FirstOrDefaultAsync();
@@ -8703,6 +8740,7 @@ namespace com.gsitcr.geotime.Data
                     objetoBuscar.VERLOGMARCAS = portalConfig.VERLOGMARCAS;
                     objetoBuscar.AUTOREGISTROROSTRO = portalConfig.AUTOREGISTROROSTRO;
                     objetoBuscar.CANTMAXPLANTILLAS = portalConfig.CANTMAXPLANTILLAS;
+                    objetoBuscar.LOCALIZACIONREQ = portalConfig.LOCALIZACIONREQ;
 
                     _context.Portal_Config.Update(objetoBuscar);
                 }
@@ -12162,15 +12200,8 @@ namespace com.gsitcr.geotime.Data
         {
             try
             {
-                using (var connection = _context.Database.GetDbConnection())
-                {
-                    await connection.OpenAsync();
-                    using (var command = connection.CreateCommand())
-                    {
-                        command.CommandText = _schema + $".DM_POST_CAMBIOPLANILLA @idnumero='{idnumero}', @OLDPLANILLA='{oldPlanilla}',@NEWPLANILLA='{newPlanilla}'";
-                        await command.ExecuteNonQueryAsync();
-                    }
-                }
+                string commandString = _schema + $".DM_POST_CAMBIOPLANILLA @idnumero='{idnumero}', @OLDPLANILLA='{oldPlanilla}',@NEWPLANILLA='{newPlanilla}'";
+                await _context.Database.ExecuteSqlRawAsync(commandString);
             }
             catch (Exception e)
             {
@@ -12270,15 +12301,10 @@ namespace com.gsitcr.geotime.Data
         {
             try
             {
-                using (var connection = _context.Database.GetDbConnection())
-                {
-                    await connection.OpenAsync();
-                    using (var command = connection.CreateCommand())
-                    {
-                        command.CommandText = _schema + ".aplico_accpersonal @IDREGISTRO=" + idregistro;
-                        System.Data.Common.DbDataReader result = command.ExecuteReader();
-                    }
-                }
+                string cadenaConexion = _context.Database.GetDbConnection().ConnectionString;
+                string command = $"exec {_schema}.aplico_accpersonal @IDREGISTRO=@idregistro";
+                var result = await _context.Database.ExecuteSqlRawAsync(command,
+                    new SqlParameter("@idregistro", idregistro));
             }
             catch (Exception e)
             {
@@ -12293,15 +12319,7 @@ namespace com.gsitcr.geotime.Data
         {
             try
             {
-                using (var connection = _context.Database.GetDbConnection())
-                {
-                    await connection.OpenAsync();
-                    using (var command = connection.CreateCommand())
-                    {
-                        command.CommandText = _schema + ".anulo_accpersonal @IDREGISTRO=" + idregistro;
-                        System.Data.Common.DbDataReader result = command.ExecuteReader();
-                    }
-                }
+                var result = _context.Database.ExecuteSqlRaw($"exec {_schema}.anulo_accpersonal @IDREGISTRO={idregistro}");
             }
             catch (Exception e)
             {
@@ -12676,6 +12694,31 @@ namespace com.gsitcr.geotime.Data
                     respuesta.Descripcion = "No se pudo realizar la Sincronización de ERP. Detalle de Error: " + e.Message;
                 else
                     respuesta.Descripcion = "No se pudo realizar la Sincronización de ERP. Detalle de Error: " + e.InnerException.Message;
+            }
+            return respuesta;
+        }
+
+        public async Task<EventResponse> EjecutaPostSincroniza(string idPlanilla)
+        {
+            EventResponse respuesta = new EventResponse();
+            try
+            {
+
+                string commandString = _schema + $".DM_POST_SINCRONIZA @PLANILLA='{idPlanilla}'";
+                await _context.Database.ExecuteSqlRawAsync(commandString);
+
+            }
+            catch (Exception e)
+            {
+                string error = (e.InnerException is null ? e.Message : e.InnerException.Message);
+                _logger.LogError($"{error}");
+                respuesta.Id = "1";
+                respuesta.Respuesta = "Error";
+                if (e.InnerException == null)
+                    respuesta.Descripcion = "EjecutaPostSincroniza: Ocurrió un error al ejecutar DM_POST_SINCRONIZA. Detalle de Error: " + e.Message;
+                else
+                    respuesta.Descripcion = "EjecutaPostSincroniza: Ocurrió un error al ejecutar DM_POST_SINCRONIZA. Detalle de Error: " + e.InnerException.Message;
+
             }
             return respuesta;
         }

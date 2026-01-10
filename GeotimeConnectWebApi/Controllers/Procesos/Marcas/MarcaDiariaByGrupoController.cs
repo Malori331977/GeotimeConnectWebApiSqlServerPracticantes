@@ -11,28 +11,21 @@ using System.Text.Json;
 using com.gsitcr.geotime.Models.Request;
 using com.gsitcr.geotime.Models.Response;
 
-namespace GeoTimeConnectWebApi.Controllers.SincronizacionErp
+namespace GeoTimeConnectWebApi.Controllers.Procesos.Marcas
 {
     [ApiController]
     [Route("[controller]")]
     [Authorize]
-    public class SincronizaDepartamentoController : Controller
+    public class MarcaDiariaByGrupoController : Controller
     {
-        private readonly ISincronizaErp _repoGT;
-        public SincronizaDepartamentoController(ISincronizaErp repoGT)
+        private readonly IGeoTimeConnectService _repoGT;
+        public MarcaDiariaByGrupoController(IGeoTimeConnectService repoGT)
         {
             _repoGT = repoGT;
         }
 
-        [HttpPost]
-        public async Task<IActionResult> Post([FromBody] cSincronizo_erp param)
-        {
-            EventResponse respuesta = await _repoGT.SincronizaDepartamentos();
+        [HttpGet("{grupos}/{fecha}")]
+        public async Task<IEnumerable<cMarca>> Get(string grupos, string fecha) => await _repoGT.GetMarcasDiariaByGrupo(grupos,fecha);
 
-            if (respuesta.Id != "0")
-                return BadRequest(respuesta);
-
-            return Ok(respuesta);
-        }
     }
 }

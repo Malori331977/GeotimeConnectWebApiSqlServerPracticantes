@@ -11,7 +11,7 @@ using System.Text.Json;
 using com.gsitcr.geotime.Models.Request;
 using com.gsitcr.geotime.Models.Response;
 
-namespace GeoTimeConnectWebApi.Controllers.Procesos.Marcas
+namespace GeoTimeConnectWebApi.Controllers.SincronizacionErp
 {
     [ApiController]
     [Route("[controller]")]

@@ -88,6 +88,7 @@ namespace KolegioApi.Data
                             if (compania.SINCAUTOPUESTO == 'T') await _sincronizaErp.SincronizaPuestos();
                             if (compania.SINCAUTONOMINA == 'T') await _sincronizaErp.SincronizaNominas();
                             if (compania.SINCAUTOEMPLEADO == 'T') await _sincronizaErp.SincronizaEmpleados();
+                            await _sincronizaErp.PostSincronizacion("-1");
                         });
 
                         task.Start();

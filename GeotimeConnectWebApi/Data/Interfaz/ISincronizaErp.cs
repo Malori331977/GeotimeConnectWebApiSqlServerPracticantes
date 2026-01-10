@@ -12,5 +12,6 @@ namespace com.gsitcr.geotime.Data.Interfaz
         public Task<EventResponse> SincronizaEmpleados(cSincronizo_erp param);
         public Task<EventResponse> SincronizaConceptos();
         public Task<EventResponse> SincronizaNominas();
+        public Task<EventResponse> PostSincronizacion(string idPlanilla);
     }
 }

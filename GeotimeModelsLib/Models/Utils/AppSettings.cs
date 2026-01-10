@@ -14,5 +14,10 @@
         public string? ApiPassword { get; set; }
         public string? ApiUser { get; set; }
 
+        public override string ToString()
+        {
+            return $"UrlApi: {UrlApi}, WSEndPoint: {WSEndPoint}, WSTimeOut: {WSTimeOut}, ERPTimeOut: {ERPTimeOut}, ApiErpUrl: {ApiErpUrl}, ApiErpDataBase: {ApiErpDataBase}, ApiErpSchema: {ApiErpSchema}, ApiClientId: {ApiClientId}, ApiPassword: {ApiPassword}, ApiUser: {ApiUser}";
+        }
+
     }
 }

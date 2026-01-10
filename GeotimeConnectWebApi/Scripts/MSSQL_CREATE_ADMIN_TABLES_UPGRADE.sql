@@ -280,3 +280,5 @@ GO
 alter table [ctadmin].[ph_roles_sistema] add IdComp varchar(10) null
 go
 alter table [ctadmin].[ph_roles_sistema] add idnivel int null
+go
+alter table [ctadmin].[Portal_Config] add LOCALIZACIONREQ bit not null default 0

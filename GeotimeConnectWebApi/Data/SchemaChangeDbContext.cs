@@ -35,6 +35,8 @@ namespace com.gsitcr.geotime.Data
                                                          .Replace("PassBDSQL", passSQL)
                                                          .Replace("BaseDatos", basedatos);
 
+
+
                 var services = new ServiceCollection()
                    .AddDbContext<SqlServerDataBaseContext>(
                         builder => builder.UseSqlServer(SQLConnectionString)

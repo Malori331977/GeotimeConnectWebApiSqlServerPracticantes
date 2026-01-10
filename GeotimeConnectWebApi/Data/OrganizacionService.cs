@@ -568,6 +568,29 @@ namespace com.gsitcr.geotime.Data
         }
 
         /// <summary>
+        /// GetOrganizacionBaseResponsable: Obtiene lista de organizaciones base de acuerdo al jefe
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns>lista de organizaciones base segun el id de parametro indicado</returns>
+        public async Task<IEnumerable<cOrganizacionBaseResponsable>> GetOrganizacionBaseByJefe(string id)
+        {
+            List<cOrganizacionBaseResponsable>? model = new();
+            try
+            {
+                model = await _context.OrganizacionBaseResponsables
+                             .Where(e => e.IdNumeroResponsable == id)
+                              .ToListAsync();
+
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                throw;
+            }
+            return model!;
+        }
+
+        /// <summary>
         /// PostOrganizacionBaseResponsable:  Recibe una lista de registros de Responsables de la organización, se verifica si existen en cuyo caso actualiza el registro, de lo contrario lo crea.
         /// </summary>
         /// <param name="model"></param>
